@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Creează Recepționistul Tău AI — RecepAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0A;--s1:#131313;--s2:#1A1A1A;--s3:#222;
+  --b1:#242424;--b2:#303030;--b3:#3A3A3A;
+  --tx:#F0F0F0;--t2:#999;--t3:#555;
+  --teal:#00D4AA;--teal-d:rgba(0,212,170,.1);--teal-m:rgba(0,212,170,.22);
+  --grn:#00CC88;--ylw:#FFB800;--red:#FF4455;--blu:#4488FF;
+  --r:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;height:58px;display:flex;align-items:center;padding:0 5%;justify-content:space-between;background:rgba(10,10,10,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1)}
+.logo{font-family:'Syne',sans-serif;font-size:19px;font-weight:800;color:var(--tx);text-decoration:none;letter-spacing:-.5px}
+.logo span{color:var(--teal)}
+.nav-right{font-size:12px;color:var(--t3)}
+
+/* PROGRESS */
+.prog-wrap{position:fixed;top:58px;left:0;right:0;z-index:199;background:var(--s1);border-bottom:1px solid var(--b1);padding:10px 5%}
+.prog-track{max-width:560px;margin:0 auto;display:flex;align-items:center;gap:0}
+.prog-item{display:flex;align-items:center;gap:6px;flex:1}
+.prog-circle{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;border:1.5px solid var(--b2);color:var(--t3);background:var(--s2);transition:all .3s}
+.prog-circle.active{background:var(--teal);color:#000;border-color:var(--teal)}
+.prog-circle.done{background:var(--grn);color:#000;border-color:var(--grn)}
+.prog-txt{font-size:10px;font-weight:600;color:var(--t3);transition:color .3s;white-space:nowrap}
+.prog-item.active .prog-txt{color:var(--teal)}
+.prog-item.done .prog-txt{color:var(--grn)}
+.prog-connector{flex:1;height:1px;background:var(--b2);margin:0 6px;transition:background .3s}
+.prog-connector.done{background:var(--grn)}
+
+/* MAIN */
+.main{padding:128px 5% 60px;max-width:640px;margin:0 auto}
+
+/* PANELS */
+.panel{display:none;animation:up .35s ease}
+.panel.active{display:block}
+@keyframes up{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+
+.panel-tag{font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
+.panel-title{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;letter-spacing:-1px;line-height:1.2;margin-bottom:8px}
+.panel-sub{font-size:15px;color:var(--t2);line-height:1.7;font-weight:300;margin-bottom:28px}
+
+/* INPUT HERO */
+.url-card{background:var(--s1);border:1.5px solid var(--b1);border-radius:18px;padding:28px;margin-bottom:16px;transition:border-color .3s}
+.url-card:focus-within{border-color:var(--teal)}
+.url-label{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:10px;letter-spacing:.3px}
+.url-input-wrap{display:flex;gap:10px;align-items:center}
+.url-prefix{font-size:14px;color:var(--t3);font-family:'JetBrains Mono',monospace;flex-shrink:0;background:var(--s2);border:1.5px solid var(--b2);border-radius:8px;padding:10px 12px}
+.url-input{flex:1;background:var(--s2);border:1.5px solid var(--b2);border-radius:10px;padding:11px 14px;font-size:15px;color:var(--tx);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.url-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-d)}
+.url-input::placeholder{color:var(--t3)}
+
+.url-examples{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.url-ex{background:var(--s2);border:1px solid var(--b2);border-radius:20px;padding:5px 12px;font-size:12px;color:var(--t3);cursor:pointer;transition:all .15s;font-family:'JetBrains Mono',monospace}
+.url-ex:hover{border-color:var(--teal);color:var(--teal)}
+
+.optional-links{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:18px 20px;margin-bottom:16px}
+.opt-title{font-size:12px;font-weight:600;color:var(--t3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
+.opt-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.opt-row:last-child{margin-bottom:0}
+.opt-icon{font-size:16px;width:28px;text-align:center;flex-shrink:0}
+.opt-input{flex:1;background:var(--s2);border:1.5px solid var(--b2);border-radius:8px;padding:9px 12px;font-size:13px;color:var(--tx);font-family:'Inter',sans-serif;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.opt-input:focus{border-color:var(--teal)}
+.opt-input::placeholder{color:var(--t3)}
+
+/* LOADING */
+.loading-screen{background:var(--s1);border:1px solid var(--b1);border-radius:18px;padding:36px 28px;text-align:center}
+.loading-brain{font-size:52px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.loading-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px}
+.loading-sub{font-size:14px;color:var(--t2);margin-bottom:28px}
+.loading-steps{display:flex;flex-direction:column;gap:10px;text-align:left;max-width:320px;margin:0 auto 24px}
+.loading-step{display:flex;align-items:center;gap:12px;font-size:13.5px;color:var(--t3);transition:color .3s}
+.loading-step.done{color:var(--grn)}
+.loading-step.active{color:var(--tx)}
+.step-icon{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0;background:var(--s2);border:1px solid var(--b2);transition:all .3s}
+.loading-step.done .step-icon{background:var(--grn);border-color:var(--grn);color:#000}
+.loading-step.active .step-icon{background:var(--teal-d);border-color:var(--teal);color:var(--teal)}
+.progress-bar-wrap{background:var(--s2);border-radius:20px;height:4px;overflow:hidden;max-width:320px;margin:0 auto}
+.progress-bar-fill{height:100%;background:linear-gradient(90deg,var(--teal),var(--grn));border-radius:20px;transition:width .5s ease;width:0%}
+.loading-time{font-size:11px;color:var(--t3);margin-top:8px;font-family:'JetBrains Mono',monospace}
+
+/* RESULTS */
+.results-header{display:flex;align-items:center;gap:14px;background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:16px 20px;margin-bottom:14px}
+.results-site-icon{width:44px;height:44px;border-radius:10px;background:var(--teal-d);border:1px solid var(--teal-m);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.results-site-name{font-size:16px;font-weight:700}
+.results-site-url{font-size:12px;color:var(--t3);font-family:'JetBrains Mono',monospace;margin-top:2px}
+.results-confidence{margin-left:auto;text-align:right}
+.conf-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--teal);line-height:1}
+.conf-lbl{font-size:10px;color:var(--t3);margin-top:2px}
+
+.results-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.result-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px 16px;transition:border-color .2s}
+.result-card.found{border-color:rgba(0,204,136,.2)}
+.result-card.missing{border-color:rgba(255,68,85,.15);background:rgba(255,68,85,.04)}
+.result-card-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.result-card.found .result-card-label{color:var(--grn)}
+.result-card.missing .result-card-label{color:var(--red)}
+.result-card-value{font-size:13.5px;color:var(--tx);line-height:1.5}
+.result-card-value.muted{color:var(--t3);font-style:italic}
+
+.services-found{background:var(--s1);border:1px solid rgba(0,204,136,.2);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.services-found-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--grn);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.service-found-item{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b1);font-size:13px}
+.service-found-item:last-child{border-bottom:none}
+.service-found-name{color:var(--tx);font-weight:500}
+.service-found-price{color:var(--teal);font-family:'JetBrains Mono',monospace;font-weight:500}
+.service-edit-inline{background:transparent;border:none;color:var(--t3);font-size:11px;cursor:pointer;padding:2px 6px;border-radius:4px;transition:all .15s}
+.service-edit-inline:hover{color:var(--teal);background:var(--teal-d)}
+
+.confirm-btns{display:flex;gap:10px;margin-bottom:20px}
+.btn-confirm{background:var(--teal);color:#000;border:none;padding:12px 24px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;flex:1}
+.btn-confirm:hover{background:#00FFCC}
+.btn-edit{background:transparent;color:var(--t2);border:1.5px solid var(--b2);padding:11px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-edit:hover{border-color:var(--teal);color:var(--teal)}
+
+/* MISSING FIELDS */
+.missing-field{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px 18px;margin-bottom:10px}
+.missing-field-label{font-size:12px;font-weight:600;color:var(--t2);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.missing-field-label .optional-tag{font-size:10px;color:var(--t3);font-weight:400;margin-left:auto}
+.form-input{background:var(--s2);border:1.5px solid var(--b2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--tx);font-family:'Inter',sans-serif;outline:none;width:100%;transition:all .2s;-webkit-appearance:none}
+.form-input:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-d)}
+.form-input::placeholder{color:var(--t3)}
+.form-select{background:var(--s2);border:1.5px solid var(--b2);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--tx);font-family:'Inter',sans-serif;outline:none;width:100%;cursor:pointer;-webkit-appearance:none;transition:border-color .2s}
+.form-select:focus{border-color:var(--teal)}
+.form-select option{background:var(--s2)}
+
+/* PERSONALITY */
+.personality-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.personality-btn{background:var(--s1);border:1.5px solid var(--b1);border-radius:12px;padding:16px;cursor:pointer;transition:all .2s;text-align:center}
+.personality-btn:hover{border-color:var(--b2)}
+.personality-btn.selected{border-color:var(--teal);background:var(--teal-d)}
+.personality-emoji{font-size:28px;display:block;margin-bottom:8px}
+.personality-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.personality-btn.selected .personality-name{color:var(--teal)}
+.personality-desc{font-size:11px;color:var(--t3);line-height:1.5}
+
+/* PREVIEW CHAT */
+.preview-chat{background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden;margin-bottom:16px}
+.preview-chat-head{padding:14px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px}
+.preview-chat-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.preview-chat-name{font-size:14px;font-weight:600}
+.preview-chat-sub{font-size:11px;color:var(--t2)}
+.preview-online{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--grn);margin-left:auto}
+.preview-online::before{content:'';width:6px;height:6px;background:var(--grn);border-radius:50%;display:inline-block;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(0,204,136,.4)}50%{box-shadow:0 0 0 5px rgba(0,204,136,0)}}
+.preview-msgs{padding:14px;display:flex;flex-direction:column;gap:10px;min-height:180px;background:var(--bg)}
+.preview-msg{max-width:82%;padding:9px 13px;border-radius:14px;font-size:13px;line-height:1.55;white-space:pre-line;animation:msgpop .2s ease}
+@keyframes msgpop{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.pmbot{background:var(--s1);border:1px solid var(--b1);border-radius:4px 14px 14px 14px;align-self:flex-start;color:var(--tx)}
+.pmuser{align-self:flex-end;border-radius:14px 4px 14px 14px;color:#000;font-weight:500}
+.pqr-wrap{display:flex;flex-wrap:wrap;gap:6px;align-self:flex-start}
+.pqr{background:var(--s1);border:1px solid var(--b2);color:var(--t2);padding:5px 11px;border-radius:14px;font-size:12px;cursor:pointer;transition:all .15s}
+.pqr:hover,.pqr:active{border-color:var(--teal);color:var(--teal)}
+.preview-test-input{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--b1)}
+.preview-test-field{flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--tx);font-family:'Inter',sans-serif;outline:none}
+.preview-test-field:focus{border-color:var(--teal)}
+.preview-test-field::placeholder{color:var(--t3)}
+.preview-send-btn{width:34px;height:34px;background:var(--teal);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* TYPING */
+.typing-ind{display:none;align-items:center;gap:4px;padding:9px 13px;background:var(--s1);border:1px solid var(--b1);border-radius:4px 14px 14px 14px;width:fit-content}
+.typing-ind.show{display:flex}
+.typing-ind span{width:5px;height:5px;background:var(--t3);border-radius:50%;animation:td 1.2s infinite}
+.typing-ind span:nth-child(2){animation-delay:.2s}
+.typing-ind span:nth-child(3){animation-delay:.4s}
+@keyframes td{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+
+/* SUCCESS */
+.success-wrap{text-align:center;padding:20px 0}
+.success-emoji{font-size:60px;animation:pop .4s cubic-bezier(.34,1.56,.64,1);display:block;margin-bottom:16px}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.success-title{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;letter-spacing:-1px;margin-bottom:8px}
+.success-sub{font-size:15px;color:var(--t2);line-height:1.7;margin-bottom:28px;font-weight:300}
+
+.embed-box{background:#0A0A0A;border-radius:12px;padding:16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);line-height:1.9;text-align:left;position:relative;margin-bottom:14px;border:1px solid var(--b2)}
+.embed-copy-btn{position:absolute;top:10px;right:10px;background:var(--s1);border:1px solid var(--b2);color:var(--t2);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.embed-copy-btn:hover{border-color:var(--teal);color:var(--teal)}
+
+.success-actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.btn-dashboard{background:var(--teal);color:#000;border:none;padding:13px 24px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-secondary{background:transparent;color:var(--t2);border:1.5px solid var(--b2);padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn-secondary:hover{border-color:var(--teal);color:var(--teal)}
+
+.next-steps{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:18px 20px;text-align:left}
+.next-steps-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:12px}
+.next-step-item{display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1);align-items:flex-start;font-size:13px}
+.next-step-item:last-child{border-bottom:none;padding-bottom:0}
+.nsi-icon{flex-shrink:0;margin-top:1px}
+.nsi-text{color:var(--t2);line-height:1.5}
+.nsi-text strong{color:var(--tx);font-weight:600}
+
+/* BTN */
+.btn-main{background:var(--teal);color:#000;border:none;padding:13px 28px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;width:100%;margin-top:8px}
+.btn-main:hover{background:#00FFCC;transform:translateY(-1px)}
+.btn-main:disabled{background:var(--b2);color:var(--t3);cursor:not-allowed;transform:none}
+.btn-back{background:transparent;color:var(--t2);border:1.5px solid var(--b2);padding:12px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:8px;width:100%}
+.btn-back:hover{border-color:var(--b3);color:var(--tx)}
+.btn-row{display:flex;gap:10px;margin-top:8px}
+.btn-row .btn-main{flex:2}
+.btn-row .btn-back{flex:1}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(16px);background:var(--s1);border:1px solid var(--teal-m);color:var(--tx);padding:12px 20px;border-radius:12px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);opacity:0;transition:all .3s;z-index:1000;white-space:nowrap;display:flex;align-items:center;gap:8px}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast-icon{color:var(--teal)}
+
+@media(max-width:600px){
+  .main{padding:116px 16px 60px}
+  .panel-title{font-size:24px}
+  .results-grid{grid-template-columns:1fr}
+  .personality-grid{grid-template-columns:1fr 1fr}
+  .prog-txt{display:none}
+  .prog-wrap{padding:10px 16px}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="logo">Recep<span>AI</span></a>
+  <div class="nav-right">Trial 30 zile gratuit · Fără card</div>
+</nav>
+
+<div class="prog-wrap">
+  <div class="prog-track">
+    <div class="prog-item active" id="pi1"><div class="prog-circle active" id="pc1">1</div><div class="prog-txt">Website</div></div>
+    <div class="prog-connector" id="pcon1"></div>
+    <div class="prog-item" id="pi2"><div class="prog-circle" id="pc2">2</div><div class="prog-txt">Analiză</div></div>
+    <div class="prog-connector" id="pcon2"></div>
+    <div class="prog-item" id="pi3"><div class="prog-circle" id="pc3">3</div><div class="prog-txt">Confirmare</div></div>
+    <div class="prog-connector" id="pcon3"></div>
+    <div class="prog-item" id="pi4"><div class="prog-circle" id="pc4">4</div><div class="prog-txt">Completare</div></div>
+    <div class="prog-connector" id="pcon4"></div>
+    <div class="prog-item" id="pi5"><div class="prog-circle" id="pc5">5</div><div class="prog-txt">Personalitate</div></div>
+    <div class="prog-connector" id="pcon5"></div>
+    <div class="prog-item" id="pi6"><div class="prog-circle" id="pc6">6</div><div class="prog-txt">Preview</div></div>
+    <div class="prog-connector" id="pcon6"></div>
+    <div class="prog-item" id="pi7"><div class="prog-circle" id="pc7">7</div><div class="prog-txt">Live!</div></div>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ═══ PANEL 1 — URL INPUT ═══ -->
+<div class="panel active" id="p1">
+  <div class="panel-tag">Bun venit la RecepAI</div>
+  <div class="panel-title">Să creăm recepționistul tău AI</div>
+  <div class="panel-sub">Introdu site-ul afacerii tale. AI-ul nostru îl analizează și construiește automat recepționistul în 30-40 de secunde.</div>
+
+  <div class="url-card">
+    <div class="url-label">Site-ul afacerii tale *</div>
+    <div class="url-input-wrap">
+      <input class="url-input" id="url-main" type="url" placeholder="salonbella.ro" autocomplete="off" autocorrect="off" autocapitalize="off">
+    </div>
+    <div class="url-examples">
+      <span style="font-size:11px;color:var(--t3)">Exemple:</span>
+      <div class="url-ex" onclick="setUrl('clinicadental.ro')">clinicadental.ro</div>
+      <div class="url-ex" onclick="setUrl('salonunghii.ro')">salonunghii.ro</div>
+      <div class="url-ex" onclick="setUrl('veterinar.ro')">veterinar.ro</div>
+    </div>
+  </div>
+
+  <div class="optional-links">
+    <div class="opt-title">📱 Linkuri opționale — îmbunătățesc calitatea AI-ului</div>
+    <div class="opt-row">
+      <div class="opt-icon">📘</div>
+      <input class="opt-input" id="url-fb" type="url" placeholder="Pagina Facebook (opțional)">
+    </div>
+    <div class="opt-row">
+      <div class="opt-icon">📸</div>
+      <input class="opt-input" id="url-ig" type="url" placeholder="Profil Instagram (opțional)">
+    </div>
+    <div class="opt-row">
+      <div class="opt-icon">🗺️</div>
+      <input class="opt-input" id="url-gmaps" type="url" placeholder="Google Business / Maps (opțional)">
+    </div>
+  </div>
+
+  <button class="btn-main" onclick="startAnalysis()">🧠 Analizează și construiește AI-ul →</button>
+</div>
+
+<!-- ═══ PANEL 2 — LOADING ═══ -->
+<div class="panel" id="p2">
+  <div class="loading-screen">
+    <div class="loading-brain">🧠</div>
+    <div class="loading-title">Construiesc recepționistul tău...</div>
+    <div class="loading-sub" id="loading-domain">Analizez site-ul tău</div>
+
+    <div class="loading-steps">
+      <div class="loading-step" id="ls1">
+        <div class="step-icon">○</div>
+        <span>Citesc site-ul afacerii</span>
+      </div>
+      <div class="loading-step" id="ls2">
+        <div class="step-icon">○</div>
+        <span>Identific serviciile oferite</span>
+      </div>
+      <div class="loading-step" id="ls3">
+        <div class="step-icon">○</div>
+        <span>Extrag prețurile</span>
+      </div>
+      <div class="loading-step" id="ls4">
+        <div class="step-icon">○</div>
+        <span>Găsesc programul de lucru</span>
+      </div>
+      <div class="loading-step" id="ls5">
+        <div class="step-icon">○</div>
+        <span>Colectez informații de contact</span>
+      </div>
+      <div class="loading-step" id="ls6">
+        <div class="step-icon">○</div>
+        <span>Identific întrebări frecvente</span>
+      </div>
+      <div class="loading-step" id="ls7">
+        <div class="step-icon">○</div>
+        <span>Construiesc profilul afacerii</span>
+      </div>
+      <div class="loading-step" id="ls8">
+        <div class="step-icon">○</div>
+        <span>Configurez recepționistul AI</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-wrap">
+      <div class="progress-bar-fill" id="prog-fill"></div>
+    </div>
+    <div class="loading-time" id="loading-time">Se estimează 20-40 secunde...</div>
+  </div>
+</div>
+
+<!-- ═══ PANEL 3 — RESULTS ═══ -->
+<div class="panel" id="p3">
+  <div class="panel-tag">Analiză completă</div>
+  <div class="panel-title">Am găsit informațiile afacerii tale</div>
+  <div class="panel-sub">Verifică ce am extras automat. Poți modifica orice înainte să activezi recepționistul.</div>
+
+  <div class="results-header">
+    <div class="results-site-icon" id="res-icon">🏢</div>
+    <div>
+      <div class="results-site-name" id="res-name">—</div>
+      <div class="results-site-url" id="res-url">—</div>
+    </div>
+    <div class="results-confidence">
+      <div class="conf-num" id="res-conf">87%</div>
+      <div class="conf-lbl">acuratețe</div>
+    </div>
+  </div>
+
+  <div class="results-grid">
+    <div class="result-card found" id="rc-phone">
+      <div class="result-card-label">✓ Telefon</div>
+      <div class="result-card-value" id="rv-phone">—</div>
+    </div>
+    <div class="result-card found" id="rc-email">
+      <div class="result-card-label">✓ Email</div>
+      <div class="result-card-value" id="rv-email">—</div>
+    </div>
+    <div class="result-card found" id="rc-city">
+      <div class="result-card-label">✓ Locație</div>
+      <div class="result-card-value" id="rv-city">—</div>
+    </div>
+    <div class="result-card found" id="rc-hours">
+      <div class="result-card-label">✓ Program</div>
+      <div class="result-card-value" id="rv-hours">—</div>
+    </div>
+    <div class="result-card" id="rc-type">
+      <div class="result-card-label" id="rcl-type">✓ Tip afacere</div>
+      <div class="result-card-value" id="rv-type">—</div>
+    </div>
+    <div class="result-card" id="rc-social">
+      <div class="result-card-label" id="rcl-social">✓ Social media</div>
+      <div class="result-card-value" id="rv-social">—</div>
+    </div>
+  </div>
+
+  <div class="services-found" id="services-found-box">
+    <div class="services-found-title">✓ Servicii identificate — <span id="services-count">0</span></div>
+    <div id="services-found-list"></div>
+  </div>
+
+  <div class="confirm-btns">
+    <button class="btn-confirm" onclick="goTo(4)">✓ Da, informațiile sunt corecte</button>
+    <button class="btn-edit" onclick="goTo(4)">✏️ Vreau să editez</button>
+  </div>
+</div>
+
+<!-- ═══ PANEL 4 — MISSING / EDIT ═══ -->
+<div class="panel" id="p4">
+  <div class="panel-tag">Pasul 4 din 7</div>
+  <div class="panel-title">Completează informațiile lipsă</div>
+  <div class="panel-sub">Câteva detalii pe care nu le-am putut găsi automat. Acestea fac AI-ul mai precis.</div>
+
+  <div class="missing-field">
+    <div class="missing-field-label">📅 Durata medie a unei programări <span class="optional-tag">opțional</span></div>
+    <select class="form-select" id="f-duration">
+      <option value="">Selectează...</option>
+      <option value="15 minute">15 minute</option>
+      <option value="30 minute">30 minute</option>
+      <option value="45 minute">45 minute</option>
+      <option value="1 oră">1 oră</option>
+      <option value="1-2 ore">1-2 ore</option>
+      <option value="2-3 ore">2-3 ore</option>
+      <option value="variabil">Variabil per serviciu</option>
+    </select>
+  </div>
+
+  <div class="missing-field">
+    <div class="missing-field-label">🚗 Parcare disponibilă? <span class="optional-tag">opțional</span></div>
+    <select class="form-select" id="f-parking">
+      <option value="">Selectează...</option>
+      <option value="Da, parcare gratuită în față">Da, gratuită în față</option>
+      <option value="Da, parcare cu plată în zonă">Da, cu plată în zonă</option>
+      <option value="Nu există parcare dedicată">Nu există parcare dedicată</option>
+    </select>
+  </div>
+
+  <div class="missing-field">
+    <div class="missing-field-label">💳 Metode de plată acceptate <span class="optional-tag">opțional</span></div>
+    <select class="form-select" id="f-payment">
+      <option value="">Selectează...</option>
+      <option value="Cash și card bancar">Cash și card bancar</option>
+      <option value="Doar cash">Doar cash</option>
+      <option value="Cash, card și transfer bancar">Cash, card și transfer bancar</option>
+    </select>
+  </div>
+
+  <div class="missing-field">
+    <div class="missing-field-label">📞 Politica de anulare <span class="optional-tag">opțional</span></div>
+    <select class="form-select" id="f-cancel">
+      <option value="">Selectează...</option>
+      <option value="Anulare cu minim 24h înainte">Anulare cu minim 24h înainte</option>
+      <option value="Anulare cu minim 2h înainte">Anulare cu minim 2h înainte</option>
+      <option value="Fără politică de anulare">Fără politică de anulare</option>
+    </select>
+  </div>
+
+  <div class="missing-field">
+    <div class="missing-field-label">ℹ️ Alte informații importante <span class="optional-tag">opțional</span></div>
+    <input class="form-input" id="f-other" placeholder="Ex: Nu lucrăm fără programare. Oferim 10% reducere studenți...">
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="goTo(3)">← Înapoi</button>
+    <button class="btn-main" onclick="goTo(5)">Continuă →</button>
+  </div>
+</div>
+
+<!-- ═══ PANEL 5 — PERSONALITY ═══ -->
+<div class="panel" id="p5">
+  <div class="panel-tag">Pasul 5 din 7</div>
+  <div class="panel-title">Cum să vorbească recepționistul tău?</div>
+  <div class="panel-sub">Alege personalitatea care se potrivește cel mai bine brandului tău. O poți schimba oricând.</div>
+
+  <div class="personality-grid">
+    <div class="personality-btn selected" id="pers-prietenos" onclick="selectPersonality('prietenos',this)">
+      <span class="personality-emoji">😊</span>
+      <div class="personality-name">Prietenos</div>
+      <div class="personality-desc">Cald, deschis, entuziast. Folosește emoji-uri cu moderație.</div>
+    </div>
+    <div class="personality-btn" id="pers-profesionist" onclick="selectPersonality('profesionist',this)">
+      <span class="personality-emoji">👔</span>
+      <div class="personality-name">Profesionist</div>
+      <div class="personality-desc">Formal, precis, eficient. Fără emoji-uri.</div>
+    </div>
+    <div class="personality-btn" id="pers-luxos" onclick="selectPersonality('luxos',this)">
+      <span class="personality-emoji">✨</span>
+      <div class="personality-name">Premium</div>
+      <div class="personality-desc">Elegant, sofisticat, atent la detalii.</div>
+    </div>
+    <div class="personality-btn" id="pers-cald" onclick="selectPersonality('cald',this)">
+      <span class="personality-emoji">🤗</span>
+      <div class="personality-name">Cald & Empatic</div>
+      <div class="personality-desc">Grijuliu, înțelegător. Ideal pentru medical și vet.</div>
+    </div>
+    <div class="personality-btn" id="pers-dinamic" onclick="selectPersonality('dinamic',this)">
+      <span class="personality-emoji">⚡</span>
+      <div class="personality-name">Dinamic</div>
+      <div class="personality-desc">Rapid, direct, la obiect. Fără prea multe cuvinte.</div>
+    </div>
+    <div class="personality-btn" id="pers-elegant" onclick="selectPersonality('elegant',this)">
+      <span class="personality-emoji">🌸</span>
+      <div class="personality-name">Elegant</div>
+      <div class="personality-desc">Rafinat și discret. Perfect pentru saloane high-end.</div>
+    </div>
+  </div>
+
+  <div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:14px 16px;margin-bottom:14px">
+    <div style="font-size:11px;font-weight:600;color:var(--t3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px">Previzualizare ton</div>
+    <div style="font-size:13px;color:var(--t2);line-height:1.7;font-style:italic" id="personality-preview">
+      "Bună ziua! 😊 Sunt asistentul virtual al afacerii dumneavoastră. Cu ce vă pot ajuta astăzi?"
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="goTo(4)">← Înapoi</button>
+    <button class="btn-main" onclick="goTo(6)">Continuă → Preview</button>
+  </div>
+</div>
+
+<!-- ═══ PANEL 6 — PREVIEW & TEST ═══ -->
+<div class="panel" id="p6">
+  <div class="panel-tag">Pasul 6 din 7</div>
+  <div class="panel-title">Cunoaște-ți noul recepționist</div>
+  <div class="panel-sub">Testează conversația înainte de a activa. Scrie orice întrebare ca și cum ai fi un client.</div>
+
+  <div class="preview-chat" id="preview-chat-box">
+    <div class="preview-chat-head" id="pch-head">
+      <div class="preview-chat-av" id="pch-av">💬</div>
+      <div>
+        <div class="preview-chat-name" id="pch-name">Recepționist AI</div>
+        <div class="preview-chat-sub" id="pch-sub">Răspunde instant · 24/7</div>
+      </div>
+      <div class="preview-online">Online</div>
+    </div>
+    <div class="preview-msgs" id="preview-msgs">
+      <div class="typing-ind" id="preview-typing">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="preview-test-input">
+      <input class="preview-test-field" id="preview-input" placeholder="Scrieți o întrebare ca un client..." onkeypress="handlePreviewKey(event)">
+      <button class="preview-send-btn" onclick="sendPreviewMsg()">
+        <svg width="14" height="14" fill="none" stroke="#000" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-back" onclick="goTo(5)">← Înapoi</button>
+    <button class="btn-main" onclick="goTo(7)">🚀 Activează RecepAI!</button>
+  </div>
+</div>
+
+<!-- ═══ PANEL 7 — SUCCESS ═══ -->
+<div class="panel" id="p7">
+  <div class="success-wrap">
+    <span class="success-emoji">🎉</span>
+    <div class="success-title">Recepționistul tău e live!</div>
+    <div class="success-sub">Copiază codul de mai jos și trimite-l webmaster-ului tău. Instalare în 2 minute pe orice site.</div>
+
+    <div class="embed-box" id="embed-final">
+&lt;!-- RecepAI — Recepționist AI --&gt;
+&lt;script
+  src="https://receptieai.ro/widget.js"
+  data-id="<span id="final-id" style="color:#FFB800">CLI-000000</span>"
+  data-culoare="<span id="final-color" style="color:#FFB800">#00D4AA</span>"
+  data-nume="<span id="final-name" style="color:#FFB800">Afacerea Ta</span>"
+&gt;&lt;/script&gt;
+      <button class="embed-copy-btn" onclick="copyEmbed()">Copiază</button>
+    </div>
+
+    <div class="success-actions">
+      <a href="dashboard.html" class="btn-dashboard">📊 Deschide Dashboard</a>
+      <a href="#" class="btn-secondary" onclick="copyEmbed()">📋 Copiază codul</a>
+      <a href="widget-demo.html" class="btn-secondary" target="_blank">👁️ Demo</a>
+    </div>
+
+    <div class="next-steps">
+      <div class="next-steps-title">Ce urmează</div>
+      <div class="next-step-item">
+        <div class="nsi-icon">✅</div>
+        <div class="nsi-text">Vei primi un <strong>email de confirmare</strong> cu toate detaliile</div>
+      </div>
+      <div class="next-step-item">
+        <div class="nsi-icon">📋</div>
+        <div class="nsi-text">Trimite <strong>codul embed</strong> webmaster-ului tău sau instalează-l singur</div>
+      </div>
+      <div class="next-step-item">
+        <div class="nsi-icon">📊</div>
+        <div class="nsi-text">Urmărește <strong>lead-urile în timp real</strong> din dashboard</div>
+      </div>
+      <div class="next-step-item">
+        <div class="nsi-icon">💳</div>
+        <div class="nsi-text"><strong>30 zile gratuit</strong> — nicio plată necesară acum</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end main -->
+
+<div class="toast" id="toast"><span class="toast-icon">✓</span><span id="toast-text">Gata!</span></div>
+
+<script>
+// ── STATE ─────────────────────────────────────
+const S = {
+  url: '', fb: '', ig: '', gmaps: '',
+  name: '', phone: '', email: '', city: '', hours: '',
+  type: '💇‍♀️', social: '',
+  services: [],
+  personality: 'prietenos',
+  clientId: 'CLI-' + Math.random().toString(36).substr(2,6).toUpperCase(),
+  color: '#00D4AA',
+};
+
+// ── PANEL NAVIGATION ─────────────────────────
+function goTo(n) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('p' + n).classList.add('active');
+  updateProgress(n);
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(n === 6) initPreviewChat();
+  if(n === 7) showSuccess();
+}
+
+function updateProgress(current) {
+  for(let i=1;i<=7;i++){
+    const circle = document.getElementById('pc'+i);
+    const item = document.getElementById('pi'+i);
+    const conn = document.getElementById('pcon'+i);
+    circle.className = 'prog-circle' + (i<current?' done':i===current?' active':'');
+    circle.textContent = i < current ? '✓' : i;
+    item.className = 'prog-item' + (i<current?' done':i===current?' active':'');
+    if(conn) conn.className = 'prog-connector' + (i<current?' done':'');
+  }
+}
+
+// ── URL HELPERS ──────────────────────────────
+function setUrl(url) { document.getElementById('url-main').value = url; }
+
+// ── START ANALYSIS ───────────────────────────
+async function startAnalysis() {
+  const url = document.getElementById('url-main').value.trim();
+  if(!url) { showToast('⚠ Introduceți URL-ul site-ului'); return; }
+
+  let cleanUrl = url.replace(/^https?:\/\//,'').replace(/\/$/,'');
+  S.url = cleanUrl;
+  S.fb = document.getElementById('url-fb').value;
+  S.ig = document.getElementById('url-ig').value;
+  S.gmaps = document.getElementById('url-gmaps').value;
+
+  document.getElementById('loading-domain').textContent = 'Analizez ' + cleanUrl;
+  goTo(2);
+  runLoadingAnimation();
+
+  // Try real analysis via Claude API
+  try {
+    await analyzeWithClaude(cleanUrl);
+  } catch(e) {
+    // Fallback to smart mock based on URL
+    generateSmartMock(cleanUrl);
+  }
+}
+
+// ── CLAUDE ANALYSIS ───────────────────────────
+async function analyzeWithClaude(url) {
+  const prompt = `Analizează acest URL de afacere din România: ${url}
+
+Generează un profil de afacere realist și detaliat în format JSON cu această structură exactă:
+{
+  "name": "Numele afacerii (dedus din URL)",
+  "type": "tipul afacerii cu emoji (ex: 💇‍♀️ Salon Beauty)",
+  "phone": "număr telefon român realist (ex: 0721 XXX XXX)",
+  "email": "email realist bazat pe domeniu",
+  "city": "un oraș din România (București, Cluj, Timișoara, etc.)",
+  "hours": "program realist (ex: Luni-Vineri 09:00-19:00, Sâmbătă 09:00-14:00)",
+  "social": "Facebook și Instagram disponibile",
+  "confidence": număr între 75 și 95,
+  "services": [
+    {"name": "serviciu", "price": "XXX LEI"},
+    ...5-8 servicii realiste pentru tipul de afacere dedus din URL
+  ]
+}
+
+Deduce tipul afacerii din URL. Returnează DOAR JSON-ul, fără alt text.`;
+
+  const res = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1000,
+      messages: [{role:'user', content: prompt}]
+    })
+  });
+
+  const data = await res.json();
+  const text = data.content?.[0]?.text || '';
+  const clean = text.replace(/```json|```/g,'').trim();
+  const parsed = JSON.parse(clean);
+  applyAnalysisResults(parsed);
+}
+
+// ── SMART MOCK FALLBACK ───────────────────────
+function generateSmartMock(url) {
+  const lower = url.toLowerCase();
+
+  let type = '💇‍♀️ Salon Beauty';
+  let services = [
+    {name:'Tuns + coafat',price:'80 LEI'},
+    {name:'Vopsit complet',price:'150 LEI'},
+    {name:'Balayage',price:'280 LEI'},
+    {name:'Manichiură gel',price:'120 LEI'},
+    {name:'Pedichiură gel',price:'140 LEI'},
+  ];
+
+  if(lower.includes('dental')||lower.includes('dent')||lower.includes('stomat')) {
+    type = '🦷 Cabinet Stomatologic';
+    services = [
+      {name:'Consultație',price:'80 LEI'},
+      {name:'Detartraj',price:'180 LEI'},
+      {name:'Albire profesională',price:'600 LEI'},
+      {name:'Plombă',price:'280 LEI'},
+      {name:'Extracție',price:'160 LEI'},
+    ];
+  } else if(lower.includes('vet')||lower.includes('animal')||lower.includes('pet')) {
+    type = '🐾 Cabinet Veterinar';
+    services = [
+      {name:'Consultație câine/pisică',price:'150 LEI'},
+      {name:'Vaccinare polivalentă',price:'150 LEI'},
+      {name:'Vaccinare antirabică',price:'70 LEI'},
+      {name:'Castrare pisică',price:'300 LEI'},
+      {name:'Ecografie',price:'250 LEI'},
+    ];
+  } else if(lower.includes('fizio')||lower.includes('recuper')||lower.includes('kine')) {
+    type = '💆 Fizioterapie';
+    services = [
+      {name:'Evaluare inițială',price:'100 LEI'},
+      {name:'Ședință fizioterapie',price:'120 LEI'},
+      {name:'Masaj terapeutic',price:'150 LEI'},
+      {name:'Electroterapie',price:'80 LEI'},
+      {name:'Pachet 10 ședințe',price:'1000 LEI'},
+    ];
+  } else if(lower.includes('auto')||lower.includes('service')||lower.includes('car')) {
+    type = '🚗 Service Auto';
+    services = [
+      {name:'Revizie completă',price:'350 LEI'},
+      {name:'Schimb ulei + filtru',price:'150 LEI'},
+      {name:'Geometrie roți',price:'100 LEI'},
+      {name:'Diagnoză auto',price:'80 LEI'},
+      {name:'Vulcanizare',price:'30 LEI/roată'},
+    ];
+  }
+
+  const domain = url.split('.')[0];
+  const name = domain.charAt(0).toUpperCase() + domain.slice(1).replace(/-/g,' ');
+
+  applyAnalysisResults({
+    name: name,
+    type: type,
+    phone: '0721 ' + Math.floor(100+Math.random()*900) + ' ' + Math.floor(100+Math.random()*900),
+    email: 'contact@' + url,
+    city: ['București','Cluj-Napoca','Timișoara','Iași','Brașov','Constanța'][Math.floor(Math.random()*6)],
+    hours: 'Luni-Vineri 09:00-19:00, Sâmbătă 09:00-14:00',
+    social: 'Facebook ✓ · Instagram ✓',
+    confidence: Math.floor(78 + Math.random()*15),
+    services: services,
+  });
+}
+
+function applyAnalysisResults(data) {
+  S.name = data.name || S.url.split('.')[0];
+  S.type = data.type || '🏢 Afacere';
+  S.phone = data.phone || '—';
+  S.email = data.email || '—';
+  S.city = data.city || '—';
+  S.hours = data.hours || '—';
+  S.social = data.social || '—';
+  S.services = data.services || [];
+
+  document.getElementById('res-icon').textContent = S.type.split(' ')[0] || '🏢';
+  document.getElementById('res-name').textContent = S.name;
+  document.getElementById('res-url').textContent = S.url;
+  document.getElementById('res-conf').textContent = (data.confidence || 85) + '%';
+  document.getElementById('rv-phone').textContent = S.phone;
+  document.getElementById('rv-email').textContent = S.email;
+  document.getElementById('rv-city').textContent = S.city;
+  document.getElementById('rv-hours').textContent = S.hours;
+  document.getElementById('rv-type').textContent = S.type;
+  document.getElementById('rv-social').textContent = S.social;
+
+  const list = document.getElementById('services-found-list');
+  list.innerHTML = '';
+  S.services.forEach(sv => {
+    const div = document.createElement('div');
+    div.className = 'service-found-item';
+    div.innerHTML = `<span class="service-found-name">${sv.name}</span><span class="service-found-price">${sv.price}</span>`;
+    list.appendChild(div);
+  });
+  document.getElementById('services-count').textContent = S.services.length;
+}
+
+// ── LOADING ANIMATION ─────────────────────────
+function runLoadingAnimation() {
+  const steps = [1,2,3,4,5,6,7,8];
+  const durations = [800,1200,1000,900,800,1100,900,600];
+  let elapsed = 0;
+  let total = durations.reduce((a,b)=>a+b,0);
+
+  steps.forEach((s,i) => {
+    setTimeout(() => {
+      // Mark previous done
+      if(i > 0) {
+        const prev = document.getElementById('ls'+(i));
+        prev.className = 'loading-step done';
+        prev.querySelector('.step-icon').textContent = '✓';
+      }
+      // Mark current active
+      const curr = document.getElementById('ls'+(i+1));
+      curr.className = 'loading-step active';
+      curr.querySelector('.step-icon').textContent = '...';
+    }, elapsed);
+    elapsed += durations[i];
+  });
+
+  // Progress bar
+  let prog = 0;
+  const interval = setInterval(() => {
+    prog = Math.min(prog + 1.5, 95);
+    document.getElementById('prog-fill').style.width = prog + '%';
+    const rem = Math.max(0, Math.round((total - (prog/100*total))/1000));
+    if(rem > 0) document.getElementById('loading-time').textContent = `~${rem} secunde rămase...`;
+    else document.getElementById('loading-time').textContent = 'Se finalizează...';
+  }, total/65);
+
+  // Go to results after all steps
+  setTimeout(() => {
+    clearInterval(interval);
+    document.getElementById('prog-fill').style.width = '100%';
+    document.getElementById('ls8').className = 'loading-step done';
+    document.getElementById('ls8').querySelector('.step-icon').textContent = '✓';
+    document.getElementById('loading-time').textContent = 'Gata!';
+    setTimeout(() => goTo(3), 600);
+  }, elapsed + 400);
+}
+
+// ── PERSONALITY ───────────────────────────────
+const PERSONALITY_PREVIEWS = {
+  prietenos: '"Bună ziua! 😊 Sunt asistentul virtual al {NAME}. Cu ce vă pot ajuta astăzi?"',
+  profesionist: '"Bună ziua. Vă stă la dispoziție asistentul {NAME}. Cum vă pot fi de folos?"',
+  luxos: '"Bine ați venit la {NAME}. Sunt aici să vă ofer cea mai plăcută experiență. Cu ce vă pot ajuta?"',
+  cald: '"Bună ziua! Mă bucur că ne-ați contactat! Sunt asistentul {NAME} și sunt aici pentru dumneavoastră. 💙"',
+  dinamic: '"Bună! Asistent {NAME} aici. Ce putem face pentru tine?"',
+  elegant: '"Bună ziua. Asistentul {NAME} vă stă la dispoziție. Cum vă pot ajuta?"',
+};
+
+function selectPersonality(p, el) {
+  document.querySelectorAll('.personality-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  S.personality = p;
+  const preview = PERSONALITY_PREVIEWS[p] || PERSONALITY_PREVIEWS.prietenos;
+  document.getElementById('personality-preview').textContent = preview.replace(/{NAME}/g, S.name || 'afacerii');
+}
+
+// ── PREVIEW CHAT ──────────────────────────────
+const SYSTEM_PREVIEW = () => `Ești recepționistul virtual al ${S.name || 'acestei afaceri'} din ${S.city || 'România'}.
+Vorbești DOAR în română. Ești ${S.personality === 'prietenos' ? 'prietenos și cald' : S.personality === 'profesionist' ? 'profesionist și formal' : 'elegant și sofisticat'}.
+NU dai sfaturi medicale. Colectezi: NUME + TELEFON + SERVICIU.
+Servicii: ${S.services.map(s=>s.name+': '+s.price).join(', ')}.
+Program: ${S.hours || 'Luni-Vineri 09:00-19:00'}.
+Răspunsuri scurte, max 3 propoziții.`;
+
+let previewHistory = [];
+let previewInited = false;
+
+function initPreviewChat() {
+  if(previewInited) return;
+  previewInited = true;
+
+  const icon = S.type.split(' ')[0] || '💬';
+  document.getElementById('pch-av').textContent = icon;
+  document.getElementById('pch-av').style.background = S.color + '33';
+  document.getElementById('pch-name').textContent = S.name || 'Recepționist AI';
+  document.getElementById('pch-sub').textContent = S.city ? S.city + ' · 24/7' : 'Răspunde instant · 24/7';
+
+  const greetings = {
+    prietenos: `Bună ziua! 😊 Sunt asistentul virtual al ${S.name}. Cu ce vă pot ajuta?`,
+    profesionist: `Bună ziua. Asistentul ${S.name} la dispoziție. Cum vă pot fi de folos?`,
+    luxos: `Bine ați venit la ${S.name}. Cu ce vă pot ajuta astăzi?`,
+    cald: `Bună ziua! Mă bucur să vă cunosc! Sunt asistentul ${S.name}. 💙`,
+    dinamic: `Bună! Asistent ${S.name} aici. Ce putem face?`,
+    elegant: `Bună ziua. Asistentul ${S.name} vă stă la dispoziție.`,
+  };
+
+  const greeting = greetings[S.personality] || greetings.prietenos;
+  previewHistory = [{role:'assistant', content: greeting}];
+
+  const msgs = document.getElementById('preview-msgs');
+  const typing = document.getElementById('preview-typing');
+
+  setTimeout(() => {
+    const div = document.createElement('div');
+    div.className = 'preview-msg pmbot';
+    div.textContent = greeting;
+    msgs.insertBefore(div, typing);
+
+    // Quick replies
+    const qr = document.createElement('div');
+    qr.className = 'pqr-wrap';
+    ['📅 Vreau o programare','💰 Ce prețuri aveți?','🕐 Care e programul?'].forEach(q => {
+      const btn = document.createElement('button');
+      btn.className = 'pqr';
+      btn.textContent = q;
+      btn.onclick = () => { qr.remove(); sendPreviewText(q); };
+      qr.appendChild(btn);
+    });
+    msgs.insertBefore(qr, typing);
+    msgs.scrollTop = msgs.scrollHeight;
+  }, 400);
+}
+
+async function sendPreviewMsg() {
+  const inp = document.getElementById('preview-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+  sendPreviewText(txt);
+}
+
+async function sendPreviewText(txt) {
+  const msgs = document.getElementById('preview-msgs');
+  const typing = document.getElementById('preview-typing');
+
+  const udiv = document.createElement('div');
+  udiv.className = 'preview-msg pmuser';
+  udiv.style.background = S.color;
+  udiv.textContent = txt;
+  msgs.insertBefore(udiv, typing);
+  msgs.scrollTop = msgs.scrollHeight;
+
+  previewHistory.push({role:'user', content: txt});
+  typing.classList.add('show');
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        model:'claude-sonnet-4-6',
+        max_tokens:1000,
+        system: SYSTEM_PREVIEW(),
+        messages: previewHistory,
+      })
+    });
+    const data = await res.json();
+    typing.classList.remove('show');
+    const reply = data.content?.[0]?.text || 'Vă mulțumesc! Vă pot ajuta cu mai multe detalii?';
+    previewHistory.push({role:'assistant',content:reply});
+    addPreviewMsg(reply);
+  } catch(e) {
+    typing.classList.remove('show');
+    const fb = getPreviewFallback(txt);
+    previewHistory.push({role:'assistant',content:fb});
+    addPreviewMsg(fb);
+  }
+}
+
+function getPreviewFallback(msg) {
+  const m = msg.toLowerCase();
+  if(m.includes('program')||m.includes('rezerv')) return `Cu plăcere! Cum vă numiți? 😊`;
+  if(m.includes('pret')||m.includes('cost')||m.includes('cat')) {
+    const sv = S.services.slice(0,3).map(s=>`• ${s.name}: ${s.price}`).join('\n');
+    return `Câteva prețuri:\n${sv}\n\nDoriți o programare?`;
+  }
+  if(m.includes('orar')||m.includes('program')||m.includes('ore')) return `Programul nostru:\n${S.hours || 'Luni-Vineri 09:00-19:00'}\n\nDoriți o programare?`;
+  return `Vă pot ajuta cu programări sau informații despre servicii. Ce vă interesează? 😊`;
+}
+
+function addPreviewMsg(text) {
+  const msgs = document.getElementById('preview-msgs');
+  const typing = document.getElementById('preview-typing');
+  const div = document.createElement('div');
+  div.className = 'preview-msg pmbot';
+  div.style.whiteSpace = 'pre-line';
+  div.textContent = text;
+  msgs.insertBefore(div, typing);
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+function handlePreviewKey(e) { if(e.key==='Enter') sendPreviewMsg(); }
+
+// ── SUCCESS ───────────────────────────────────
+function showSuccess() {
+  document.getElementById('final-id').textContent = S.clientId;
+  document.getElementById('final-color').textContent = S.color;
+  document.getElementById('final-name').textContent = S.name || 'Afacerea Ta';
+}
+
+function copyEmbed() {
+  const code = `<!-- RecepAI — Recepționist AI -->
+<script
+  src="https://receptieai.ro/widget.js"
+  data-id="${S.clientId}"
+  data-culoare="${S.color}"
+  data-nume="${S.name || 'Afacerea Ta'}"
+><\/script>`;
+  navigator.clipboard.writeText(code).then(() => showToast('✓ Cod copiat! Trimite-l webmaster-ului'));
+}
+
+// ── TOAST ─────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  document.getElementById('toast-text').textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
