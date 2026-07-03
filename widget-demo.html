@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salon Beauty Pro — Coafură & Beauty București</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --cream: #FAF7F4;
+  --blush: #F5E6E0;
+  --rose: #C4847A;
+  --rose-dark: #A66B62;
+  --charcoal: #2C2420;
+  --muted: #7A6F6A;
+  --white: #FFFFFF;
+  --teal: #00D4AA;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--cream);
+  color: var(--charcoal);
+  line-height: 1.6;
+}
+
+/* NAV */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
+  background: rgba(250, 247, 244, 0.92);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(196, 132, 122, 0.15);
+  padding: 0 5%;
+  height: 72px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 26px; font-weight: 600;
+  color: var(--charcoal);
+  letter-spacing: 0.5px;
+}
+.logo span { color: var(--rose); font-style: italic; }
+.nav-links { display: flex; gap: 32px; }
+.nav-links a {
+  text-decoration: none; font-size: 14px; font-weight: 500;
+  color: var(--muted); transition: color 0.2s;
+}
+.nav-links a:hover { color: var(--rose-dark); }
+.nav-cta {
+  background: var(--rose); color: var(--white); border: none;
+  padding: 10px 22px; border-radius: 30px; font-size: 13px;
+  font-weight: 600; cursor: pointer; font-family: inherit;
+  transition: background 0.2s, transform 0.2s;
+}
+.nav-cta:hover { background: var(--rose-dark); transform: translateY(-1px); }
+
+/* HERO */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 60px;
+  padding: 120px 5% 80px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.hero-tag {
+  display: inline-block;
+  font-size: 12px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--rose);
+  margin-bottom: 16px;
+}
+.hero h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 56px; font-weight: 600; line-height: 1.15;
+  margin-bottom: 20px; letter-spacing: -0.5px;
+}
+.hero h1 em { font-style: italic; color: var(--rose); }
+.hero-desc {
+  font-size: 17px; color: var(--muted); font-weight: 300;
+  max-width: 440px; margin-bottom: 32px; line-height: 1.75;
+}
+.hero-btns { display: flex; gap: 14px; flex-wrap: wrap; }
+.btn-primary {
+  background: var(--rose); color: var(--white); border: none;
+  padding: 14px 28px; border-radius: 30px; font-size: 14px;
+  font-weight: 600; cursor: pointer; font-family: inherit;
+  text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+  transition: all 0.2s;
+}
+.btn-primary:hover { background: var(--rose-dark); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(196,132,122,0.35); }
+.btn-outline {
+  background: transparent; color: var(--charcoal);
+  border: 1.5px solid rgba(44,36,32,0.2);
+  padding: 13px 26px; border-radius: 30px; font-size: 14px;
+  font-weight: 500; cursor: pointer; font-family: inherit;
+  text-decoration: none; transition: all 0.2s;
+}
+.btn-outline:hover { border-color: var(--rose); color: var(--rose-dark); }
+.hero-img {
+  position: relative; border-radius: 20px; overflow: hidden;
+  aspect-ratio: 4/5; background: var(--blush);
+}
+.hero-img-inner {
+  width: 100%; height: 100%;
+  background: linear-gradient(160deg, var(--blush) 0%, #E8C4BC 40%, #D4A99A 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 120px;
+}
+.hero-badge {
+  position: absolute; bottom: 24px; left: 24px;
+  background: var(--white); border-radius: 14px;
+  padding: 14px 20px; box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+}
+.hero-badge-num {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 28px; font-weight: 600; color: var(--rose-dark);
+}
+.hero-badge-txt { font-size: 12px; color: var(--muted); }
+
+/* SERVICES */
+.services {
+  padding: 80px 5%;
+  background: var(--white);
+}
+.services-inner { max-width: 1200px; margin: 0 auto; }
+.section-label {
+  font-size: 12px; font-weight: 600; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--rose); margin-bottom: 12px;
+}
+.section-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px; font-weight: 600; margin-bottom: 12px;
+}
+.section-sub { font-size: 16px; color: var(--muted); font-weight: 300; margin-bottom: 48px; max-width: 500px; }
+.services-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+}
+.service-card {
+  background: var(--cream); border-radius: 16px; padding: 32px 28px;
+  transition: transform 0.25s, box-shadow 0.25s;
+  border: 1px solid transparent;
+}
+.service-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 48px rgba(196,132,122,0.15);
+  border-color: rgba(196,132,122,0.2);
+}
+.service-icon { font-size: 36px; margin-bottom: 16px; }
+.service-name { font-size: 18px; font-weight: 600; margin-bottom: 8px; }
+.service-desc { font-size: 14px; color: var(--muted); line-height: 1.65; margin-bottom: 16px; }
+.service-price { font-size: 15px; font-weight: 600; color: var(--rose-dark); }
+
+/* GALLERY */
+.gallery {
+  padding: 80px 5%;
+  background: var(--blush);
+}
+.gallery-inner { max-width: 1200px; margin: 0 auto; }
+.gallery-grid {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
+}
+.gallery-item {
+  aspect-ratio: 1; border-radius: 14px; overflow: hidden;
+  background: linear-gradient(135deg, #E8C4BC, #D4A99A);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 48px; transition: transform 0.25s;
+}
+.gallery-item:hover { transform: scale(1.03); }
+.gallery-item:first-child { grid-row: span 2; aspect-ratio: auto; font-size: 80px; }
+
+/* TEAM */
+.team { padding: 80px 5%; background: var(--cream); }
+.team-inner { max-width: 1200px; margin: 0 auto; }
+.team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+.team-card { text-align: center; }
+.team-avatar {
+  width: 140px; height: 140px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--blush), #E8C4BC);
+  margin: 0 auto 16px; display: flex; align-items: center;
+  justify-content: center; font-size: 56px;
+  border: 3px solid var(--white);
+  box-shadow: 0 8px 24px rgba(196,132,122,0.2);
+}
+.team-name { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+.team-role { font-size: 13px; color: var(--rose); font-weight: 500; margin-bottom: 8px; }
+.team-bio { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+/* REVIEWS */
+.reviews {
+  padding: 80px 5%; background: var(--white);
+}
+.reviews-inner { max-width: 1200px; margin: 0 auto; }
+.reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+.review-card {
+  background: var(--cream); border-radius: 16px; padding: 28px;
+  border: 1px solid rgba(196,132,122,0.12);
+}
+.review-stars { color: #E8A838; font-size: 14px; letter-spacing: 2px; margin-bottom: 14px; }
+.review-text { font-size: 14px; color: var(--charcoal); line-height: 1.7; font-style: italic; margin-bottom: 16px; }
+.review-author { font-size: 13px; font-weight: 600; }
+.review-date { font-size: 12px; color: var(--muted); }
+
+/* CONTACT */
+.contact {
+  padding: 80px 5%;
+  background: linear-gradient(135deg, var(--charcoal) 0%, #3D322C 100%);
+  color: var(--white);
+}
+.contact-inner {
+  max-width: 1200px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 60px; align-items: center;
+}
+.contact h2 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 40px; font-weight: 600; margin-bottom: 16px;
+}
+.contact-desc { font-size: 16px; opacity: 0.75; font-weight: 300; margin-bottom: 32px; line-height: 1.7; }
+.contact-item { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px; }
+.contact-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+.contact-label { font-size: 12px; opacity: 0.55; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+.contact-value { font-size: 15px; font-weight: 500; }
+.contact-widget-note {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 16px; padding: 28px; text-align: center;
+}
+.contact-widget-note p { font-size: 14px; opacity: 0.8; margin-bottom: 16px; line-height: 1.65; }
+.widget-hint {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--teal); color: #000; font-size: 13px; font-weight: 600;
+  padding: 10px 20px; border-radius: 30px;
+}
+.widget-hint::after { content: '→'; }
+
+/* FOOTER */
+footer {
+  background: #1E1916; color: rgba(255,255,255,0.5);
+  padding: 32px 5%; text-align: center; font-size: 13px;
+}
+footer a { color: var(--teal); text-decoration: none; }
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; padding-top: 100px; min-height: auto; }
+  .hero h1 { font-size: 40px; }
+  .hero-img { max-height: 400px; }
+  .services-grid, .team-grid, .reviews-grid { grid-template-columns: 1fr; }
+  .gallery-grid { grid-template-columns: 1fr 1fr; }
+  .gallery-item:first-child { grid-row: span 1; aspect-ratio: 1; font-size: 48px; }
+  .contact-inner { grid-template-columns: 1fr; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">Salon <span>Beauty Pro</span></div>
+  <div class="nav-links">
+    <a href="#servicii">Servicii</a>
+    <a href="#echipa">Echipa</a>
+    <a href="#recenzii">Recenzii</a>
+    <a href="#contact">Contact</a>
+  </div>
+  <button class="nav-cta" onclick="document.querySelector('.ra-bubble') && document.querySelector('.ra-bubble').click()">Programează-te</button>
+</nav>
+
+<section class="hero">
+  <div>
+    <div class="hero-tag">București · Sector 1</div>
+    <h1>Frumusețea ta,<br><em>prioritatea noastră</em></h1>
+    <p class="hero-desc">Salon premium de coafură și beauty. Peste 12 ani de experiență, produse profesionale și o echipă dedicată transformării tale.</p>
+    <div class="hero-btns">
+      <a href="#servicii" class="btn-primary">Vezi serviciile</a>
+      <a href="#contact" class="btn-outline">Contact & program</a>
+    </div>
+  </div>
+  <div class="hero-img">
+    <div class="hero-img-inner">💇‍♀️</div>
+    <div class="hero-badge">
+      <div class="hero-badge-num">4.9 ★</div>
+      <div class="hero-badge-txt">847 recenzii Google</div>
+    </div>
+  </div>
+</section>
+
+<section class="services" id="servicii">
+  <div class="services-inner">
+    <div class="section-label">Servicii</div>
+    <h2 class="section-title">Tot ce ai nevoie, sub un singur acoperiș</h2>
+    <p class="section-sub">De la tuns și vopsire la tratamente cosmetice și manichiură — totul cu produse profesionale.</p>
+    <div class="services-grid">
+      <div class="service-card">
+        <div class="service-icon">✂️</div>
+        <div class="service-name">Tuns & Styling</div>
+        <div class="service-desc">Tuns personalizat, brushing, coafuri pentru evenimente speciale.</div>
+        <div class="service-price">de la 80 LEI</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🎨</div>
+        <div class="service-name">Vopsire & Balayage</div>
+        <div class="service-desc">Colorare completă, highlights, balayage, decolorare profesională.</div>
+        <div class="service-price">de la 150 LEI</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">💅</div>
+        <div class="service-name">Manichiură & Pedichiură</div>
+        <div class="service-desc">Manichiură clasică, gel, pedichiură spa, nail art.</div>
+        <div class="service-price">de la 60 LEI</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">✨</div>
+        <div class="service-name">Tratamente Faciale</div>
+        <div class="service-desc">Curățare profundă, hidratare, anti-aging cu produse premium.</div>
+        <div class="service-price">de la 120 LEI</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">🌸</div>
+        <div class="service-name">Epilare</div>
+        <div class="service-desc">Epilare cu ceară, epilare definitivă laser, zone full body.</div>
+        <div class="service-price">de la 40 LEI</div>
+      </div>
+      <div class="service-card">
+        <div class="service-icon">💆‍♀️</div>
+        <div class="service-name">Masaj & Relaxare</div>
+        <div class="service-desc">Masaj facial, masaj capilar, ritual de relaxare complet.</div>
+        <div class="service-price">de la 90 LEI</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="gallery">
+  <div class="gallery-inner">
+    <div class="section-label">Galerie</div>
+    <h2 class="section-title">Transformări recente</h2>
+    <p class="section-sub" style="margin-bottom:32px">Lucrările echipei noastre vorbesc de la sine.</p>
+    <div class="gallery-grid">
+      <div class="gallery-item">💇‍♀️</div>
+      <div class="gallery-item">🎨</div>
+      <div class="gallery-item">💅</div>
+      <div class="gallery-item">✨</div>
+      <div class="gallery-item">🌸</div>
+    </div>
+  </div>
+</section>
+
+<section class="team" id="echipa">
+  <div class="team-inner">
+    <div class="section-label">Echipa</div>
+    <h2 class="section-title">Stiliști cu pasiune</h2>
+    <p class="section-sub">Profesioniști certificați, cu experiență internațională.</p>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-avatar">👩</div>
+        <div class="team-name">Andreea Popescu</div>
+        <div class="team-role">Fondator & Colorist</div>
+        <div class="team-bio">12 ani experiență, certificată L'Oréal Professionnel. Specialistă balayage.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">👩‍🦰</div>
+        <div class="team-name">Maria Ionescu</div>
+        <div class="team-role">Stylist Senior</div>
+        <div class="team-bio">Expertă în tunsuri moderne și coafuri de eveniment. Formare Milano.</div>
+      </div>
+      <div class="team-card">
+        <div class="team-avatar">💅</div>
+        <div class="team-name">Elena Radu</div>
+        <div class="team-role">Nail & Beauty Artist</div>
+        <div class="team-bio">Manichiură artistică, tratamente faciale și epilare definitivă.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reviews" id="recenzii">
+  <div class="reviews-inner">
+    <div class="section-label">Recenzii</div>
+    <h2 class="section-title">Ce spun clientele noastre</h2>
+    <div class="reviews-grid" style="margin-top:40px">
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Cel mai bun balayage pe care l-am avut vreodată! Andreea este o adevărată artistă. Atmosfera salonului e relaxantă și primitoare."</div>
+        <div class="review-author">Diana M.</div>
+        <div class="review-date">Google · acum 2 săptămâni</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"M-am programat online la 11 seara și dimineața am primit confirmare. Super convenabil! Rezultatul la manichiură — impecabil."</div>
+        <div class="review-author">Ioana S.</div>
+        <div class="review-date">Google · acum 1 lună</div>
+      </div>
+      <div class="review-card">
+        <div class="review-stars">★★★★★</div>
+        <div class="review-text">"Salon de nota 10. Prețuri corecte, produse de calitate, personal amabil. Recomand cu încredere!"</div>
+        <div class="review-author">Cristina V.</div>
+        <div class="review-date">Google · acum 3 săptămâni</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="contact" id="contact">
+  <div class="contact-inner">
+    <div>
+      <h2>Vino să ne cunoști</h2>
+      <p class="contact-desc">Suntem deschiși luni–sâmbătă, 09:00–20:00. Programează-te online oricând — asistentul nostru AI răspunde instant, 24/7.</p>
+      <div class="contact-item">
+        <div class="contact-icon">📍</div>
+        <div>
+          <div class="contact-label">Adresă</div>
+          <div class="contact-value">Str. Dorobanți 42, Sector 1, București</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">📞</div>
+        <div>
+          <div class="contact-label">Telefon</div>
+          <div class="contact-value">0721 456 789</div>
+        </div>
+      </div>
+      <div class="contact-item">
+        <div class="contact-icon">🕐</div>
+        <div>
+          <div class="contact-label">Program</div>
+          <div class="contact-value">Luni–Sâmbătă: 09:00 – 20:00</div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-widget-note">
+      <p>💬 Programează-te acum prin chat!<br>Asistentul nostru AI colectează datele și te contactăm în max 2 ore.</p>
+      <div class="widget-hint">Apasă balonul teal din colț</div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  © 2026 Salon Beauty Pro · <a href="index.html">Powered by RecepAI</a>
+</footer>
+
+<script src="widget.js" data-id="CLI-001" data-culoare="#00D4AA" data-nume="Salon Beauty Pro"></script>
+</body>
+</html>
