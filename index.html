@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecepAI — Recepționist AI pentru afaceri locale</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0A;
+  --s1:#131313;
+  --s2:#1A1A1A;
+  --b1:#242424;
+  --b2:#303030;
+  --tx:#EFEFEF;
+  --t2:#999;
+  --t3:#555;
+  --teal:#00D4AA;
+  --teal-d:rgba(0,212,170,.12);
+  --teal-m:rgba(0,212,170,.22);
+  --grn:#00CC88;
+  --ylw:#FFB800;
+  --red:#FF4455;
+  --blu:#4488FF;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);overflow-x:hidden;line-height:1.6}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);height:60px;display:flex;align-items:center;padding:0 5%;justify-content:space-between;transition:background .3s}
+.nav-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;letter-spacing:-.5px;color:var(--tx)}
+.nav-logo span{color:var(--teal)}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{text-decoration:none;font-size:13.5px;font-weight:500;color:var(--t2);transition:color .2s}
+.nav-links a:hover{color:var(--tx)}
+.nav-cta{display:flex;gap:10px}
+.btn-ghost{background:transparent;border:1px solid var(--b2);color:var(--t2);padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.btn-primary{background:var(--teal);border:none;color:#000;padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+.btn-primary:hover{background:#00FFCC;transform:translateY(-1px)}
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--t2);border-radius:2px;transition:all .3s}
+
+/* HERO */
+.hero{padding:140px 5% 80px;display:grid;grid-template-columns:1fr 420px;gap:60px;align-items:center;max-width:1200px;margin:0 auto;min-height:100vh}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:var(--teal-d);border:1px solid var(--teal-m);border-radius:20px;padding:5px 14px;font-size:12px;font-weight:600;color:var(--teal);letter-spacing:.5px;margin-bottom:20px}
+.hero-badge::before{content:'';width:6px;height:6px;background:var(--teal);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+h1{font-family:'Syne',sans-serif;font-size:52px;font-weight:800;line-height:1.1;letter-spacing:-2px;margin-bottom:20px}
+h1 em{font-style:normal;color:var(--teal)}
+.hero-sub{font-size:17px;color:var(--t2);line-height:1.7;font-weight:300;margin-bottom:32px;max-width:480px}
+.hero-actions{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.btn-hero{background:var(--teal);color:#000;border:none;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none;display:inline-flex;align-items:center;gap:8px}
+.btn-hero:hover{background:#00FFCC;transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,212,170,.3)}
+.btn-hero-ghost{background:transparent;color:var(--t2);border:1px solid var(--b2);padding:13px 24px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;text-decoration:none}
+.btn-hero-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.hero-stats{display:flex;gap:32px;margin-top:40px;padding-top:32px;border-top:1px solid var(--b1)}
+.stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--teal);letter-spacing:-1px}
+.stat-lbl{font-size:12px;color:var(--t3);margin-top:2px;font-weight:500}
+
+/* CHAT DEMO */
+.chat-demo{background:var(--s1);border:1px solid var(--b1);border-radius:20px;overflow:hidden;box-shadow:0 32px 80px rgba(0,0,0,.5)}
+.chat-head{background:linear-gradient(135deg,#00D4AA22,#0A0A0A);border-bottom:1px solid var(--b1);padding:14px 18px;display:flex;align-items:center;gap:12px}
+.chat-av{width:38px;height:38px;background:var(--teal-m);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.chat-head-name{font-size:14px;font-weight:600}
+.chat-head-sub{font-size:11px;color:var(--t2)}
+.chat-online{display:flex;align-items:center;gap:5px;margin-left:auto;font-size:11px;color:var(--grn);font-family:'JetBrains Mono',monospace}
+.chat-online::before{content:'';width:6px;height:6px;background:var(--grn);border-radius:50%;animation:blink 2s infinite}
+.chat-msgs{padding:16px;min-height:300px;max-height:300px;overflow-y:auto;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:82%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.55;white-space:pre-line;animation:msgPop .25s ease}
+@keyframes msgPop{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.msg-bot{background:var(--s2);border:1px solid var(--b1);border-radius:4px 14px 14px 14px;align-self:flex-start}
+.msg-user{background:var(--teal);color:#000;font-weight:500;border-radius:14px 4px 14px 14px;align-self:flex-end}
+.qr-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.qr{background:var(--s1);border:1px solid var(--b2);color:var(--t2);padding:5px 11px;border-radius:14px;font-size:12px;cursor:pointer;transition:all .15s}
+.qr:hover{border-color:var(--teal);color:var(--teal)}
+.typing{display:none;align-items:center;gap:4px;padding:10px 14px;background:var(--s2);border:1px solid var(--b1);border-radius:4px 14px 14px 14px;width:fit-content;align-self:flex-start}
+.typing.show{display:flex}
+.typing span{width:5px;height:5px;background:var(--t3);border-radius:50%;animation:dot 1.2s infinite}
+.typing span:nth-child(2){animation-delay:.2s}
+.typing span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-4px);opacity:1}}
+.chat-input-row{padding:12px 16px;border-top:1px solid var(--b1);display:flex;gap:8px}
+.chat-inp{flex:1;background:var(--s2);border:1px solid var(--b2);border-radius:10px;padding:9px 14px;font-size:13px;color:var(--tx);font-family:'Inter',sans-serif;outline:none}
+.chat-inp:focus{border-color:var(--teal)}
+.chat-inp::placeholder{color:var(--t3)}
+.chat-send{width:36px;height:36px;background:var(--teal);border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* STATS BAR */
+.stats-bar{background:var(--s1);border-top:1px solid var(--b1);border-bottom:1px solid var(--b1);padding:40px 5%}
+.stats-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:0}
+.stat-item{text-align:center;padding:0 20px;border-right:1px solid var(--b1)}
+.stat-item:last-child{border-right:none}
+.stat-big{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;letter-spacing:-1.5px;color:var(--teal);margin-bottom:6px}
+.stat-desc{font-size:13px;color:var(--t2)}
+
+/* HOW */
+.how{padding:80px 5%;max-width:1200px;margin:0 auto}
+.sec-tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
+h2{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;letter-spacing:-1.5px;line-height:1.15;margin-bottom:14px}
+.sec-sub{font-size:16px;color:var(--t2);font-weight:300;max-width:500px;margin-bottom:48px;line-height:1.7}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.step-card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px;transition:all .2s;position:relative;overflow:hidden}
+.step-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--teal);transform:scaleX(0);transform-origin:left;transition:transform .3s}
+.step-card:hover{border-color:var(--b2);transform:translateY(-4px)}
+.step-card:hover::before{transform:scaleX(1)}
+.step-n{font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:var(--teal);letter-spacing:1px;margin-bottom:14px}
+.step-icon{font-size:28px;margin-bottom:12px}
+.step-title{font-size:15px;font-weight:600;margin-bottom:8px}
+.step-body{font-size:13px;color:var(--t2);line-height:1.6}
+
+/* FLOW VIZ */
+.flow-viz{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:28px 32px;margin-top:32px;display:flex;align-items:center;justify-content:space-between;gap:8px;overflow-x:auto}
+.flow-node{display:flex;flex-direction:column;align-items:center;gap:6px;flex-shrink:0}
+.flow-box{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:8px 16px;font-size:12px;font-weight:600;color:var(--t2);white-space:nowrap;transition:all .2s}
+.flow-box.active{background:var(--teal-d);border-color:var(--teal-m);color:var(--teal)}
+.flow-lbl{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+.flow-arr{color:var(--b2);font-size:18px;flex-shrink:0}
+
+/* INDUSTRIES */
+.industries{padding:80px 5%;background:var(--s1);border-top:1px solid var(--b1);border-bottom:1px solid var(--b1)}
+.ind-inner{max-width:1200px;margin:0 auto}
+.ind-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px}
+.ind-card{background:var(--bg);border:1px solid var(--b1);border-radius:16px;padding:24px 20px;text-align:center;cursor:pointer;transition:all .25s;position:relative}
+.ind-card:hover{border-color:var(--teal);transform:translateY(-5px);box-shadow:0 16px 48px rgba(0,212,170,.12)}
+.ind-emoji{font-size:36px;margin-bottom:14px;display:block}
+.ind-name{font-size:13px;font-weight:700;margin-bottom:6px;color:var(--tx)}
+.ind-services{font-size:11.5px;color:var(--t2);line-height:1.6}
+.ind-tag{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--teal);color:#000;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap;font-family:'JetBrains Mono',monospace;display:none}
+.ind-card.featured .ind-tag{display:block}
+.ind-card.featured{border-color:var(--teal-m)}
+
+/* PRICING */
+.pricing{padding:80px 5%;max-width:1200px;margin:0 auto}
+.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:8px}
+.plan{background:var(--s1);border:1px solid var(--b1);border-radius:20px;padding:32px 28px;position:relative;transition:all .2s}
+.plan:hover{transform:translateY(-4px)}
+.plan.pop{border-color:var(--teal);background:linear-gradient(135deg,rgba(0,212,170,.08),var(--s1))}
+.plan-badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--teal);color:#000;font-size:10px;font-weight:700;padding:4px 14px;border-radius:20px;white-space:nowrap;font-family:'JetBrains Mono',monospace}
+.plan-name{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t2);margin-bottom:14px}
+.plan-price{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:4px}
+.plan-period{font-size:13px;color:var(--t2);margin-bottom:24px}
+.plan-features{list-style:none;margin-bottom:24px}
+.plan-features li{font-size:13px;padding:8px 0;border-bottom:1px solid var(--b1);color:var(--t2);display:flex;align-items:center;gap:8px}
+.plan-features li:last-child{border-bottom:none}
+.plan-features li::before{content:"✓";color:var(--teal);font-weight:700;flex-shrink:0}
+.plan-clients{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--t3);margin-bottom:20px}
+.plan-clients span{color:var(--grn)}
+.btn-plan{width:100%;padding:12px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;border:none}
+.btn-plan-p{background:var(--teal);color:#000}
+.btn-plan-p:hover{background:#00FFCC}
+.btn-plan-g{background:transparent;color:var(--t2);border:1px solid var(--b2)}
+.btn-plan-g:hover{border-color:var(--teal);color:var(--teal)}
+
+/* TESTIMONIALS */
+.testi{padding:80px 5%;background:var(--s1);border-top:1px solid var(--b1);border-bottom:1px solid var(--b1)}
+.testi-inner{max-width:1200px;margin:0 auto}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:40px}
+.testi-card{background:var(--bg);border:1px solid var(--b1);border-radius:16px;padding:28px}
+.testi-stars{color:var(--ylw);font-size:14px;margin-bottom:14px;letter-spacing:2px}
+.testi-text{font-size:14px;color:var(--tx);line-height:1.7;margin-bottom:16px;font-style:italic}
+.testi-author{font-size:13px;font-weight:600;color:var(--teal)}
+.testi-role{font-size:12px;color:var(--t3);margin-top:2px}
+
+/* CTA */
+.cta-section{padding:100px 5%;text-align:center}
+.cta-inner{max-width:600px;margin:0 auto}
+.cta-title{font-family:'Syne',sans-serif;font-size:44px;font-weight:800;letter-spacing:-2px;line-height:1.15;margin-bottom:16px}
+.cta-sub{font-size:16px;color:var(--t2);font-weight:300;margin-bottom:36px;line-height:1.7}
+.cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* FOOTER */
+footer{background:var(--s1);border-top:1px solid var(--b1);padding:48px 5% 32px}
+.footer-inner{max-width:1200px;margin:0 auto}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:10px}
+.footer-logo span{color:var(--teal)}
+.footer-tagline{font-size:13px;color:var(--t3);line-height:1.6}
+.footer-col h4{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);margin-bottom:14px}
+.footer-col a{display:block;font-size:13px;color:var(--t2);text-decoration:none;margin-bottom:8px;transition:color .2s}
+.footer-col a:hover{color:var(--teal)}
+.footer-bottom{border-top:1px solid var(--b1);padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:12px;color:var(--t3)}
+.footer-badges{display:flex;gap:10px}
+.fbadge{background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:4px 10px;font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace}
+
+/* MOBILE */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;gap:40px;padding:120px 5% 60px;min-height:auto}
+  h1{font-size:36px}
+  .hero-stats{gap:20px}
+  .stats-inner{grid-template-columns:1fr 1fr}
+  .stat-item{border-right:none;border-bottom:1px solid var(--b1);padding:16px 0}
+  .stat-item:nth-child(odd){border-right:1px solid var(--b1)}
+  .stat-item:last-child,.stat-item:nth-last-child(2){border-bottom:none}
+  .steps{grid-template-columns:1fr 1fr}
+  .ind-grid{grid-template-columns:1fr 1fr}
+  .plan-grid{grid-template-columns:1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr 1fr}
+  .nav-links{display:none}
+  .hamburger{display:flex}
+  .flow-viz{display:none}
+  h2{font-size:28px}
+  .cta-title{font-size:32px}
+}
+@media(max-width:480px){
+  .steps{grid-template-columns:1fr}
+  .ind-grid{grid-template-columns:1fr}
+  .footer-top{grid-template-columns:1fr}
+  .hero-actions{flex-direction:column;align-items:flex-start}
+  .btn-hero,.btn-hero-ghost{width:100%;text-align:center;justify-content:center}
+}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(24px);transition:opacity .6s ease,transform .6s ease}
+.reveal.visible{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-logo">Recep<span>AI</span></div>
+  <div class="nav-links">
+    <a href="#how">Cum funcționează</a>
+    <a href="#industries">Industrii</a>
+    <a href="#pricing">Prețuri</a>
+    <a href="#demo">Demo live</a>
+  </div>
+  <div class="nav-cta">
+    <button class="btn-ghost">Autentificare</button>
+    <button class="btn-primary">Începe Gratuit →</button>
+  </div>
+  <div class="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="demo">
+  <div class="hero-content">
+    <div class="hero-badge">🇷🇴 Primul recepționist AI din România</div>
+    <h1>Clientul tău primește răspuns<br><em>la 3 dimineața</em></h1>
+    <p class="hero-sub">RecepAI răspunde automat la întrebări, colectează programări și trimite reminder-uri — 24/7, fără personal extra. Instalare în 2 minute.</p>
+    <div class="hero-actions">
+      <a href="#pricing" class="btn-hero">Încearcă 30 zile gratuit →</a>
+      <a href="#how" class="btn-hero-ghost">Cum funcționează</a>
+    </div>
+    <div class="hero-stats">
+      <div>
+        <div class="stat-num" data-target="2847" data-suffix="">0</div>
+        <div class="stat-lbl">Conversații luna aceasta</div>
+      </div>
+      <div>
+        <div class="stat-num" data-target="40" data-suffix="%">0%</div>
+        <div class="stat-lbl">No-show redus</div>
+      </div>
+      <div>
+        <div class="stat-num" data-target="2" data-suffix=" min">0 min</div>
+        <div class="stat-lbl">Timp instalare</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHAT DEMO -->
+  <div class="chat-demo">
+    <div class="chat-head">
+      <div class="chat-av" id="chat-av">💇‍♀️</div>
+      <div>
+        <div class="chat-head-name" id="chat-name">Salon Beauty Pro</div>
+        <div class="chat-head-sub" id="chat-sub">Recepționist AI · București</div>
+      </div>
+      <div class="chat-online">Online</div>
+    </div>
+    <div class="chat-msgs" id="chat-msgs">
+      <div class="typing" id="typing">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="chat-input-row">
+      <input class="chat-inp" id="chat-input" placeholder="Scrieți mesajul dvs..." onkeypress="handleChat(event)">
+      <button class="chat-send" onclick="sendUserMsg()">
+        <svg width="14" height="14" fill="none" stroke="#000" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</section>
+
+<!-- STATS BAR -->
+<div class="stats-bar">
+  <div class="stats-inner">
+    <div class="stat-item reveal">
+      <div class="stat-big" data-count="56000" data-suffix="+">0</div>
+      <div class="stat-desc">Afaceri locale în România care au nevoie de noi</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-big" data-count="24">24/7</div>
+      <div class="stat-desc">Mereu disponibil, inclusiv noaptea și în weekend</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-big" data-count="97" data-suffix="%">0%</div>
+      <div class="stat-desc">Marjă de profit la scară — costuri minime</div>
+    </div>
+    <div class="stat-item reveal">
+      <div class="stat-big" data-count="3">€3.5M</div>
+      <div class="stat-desc">Potențial exit la 1.000 clienți activi</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="how">
+  <div class="sec-tag reveal">Cum funcționează</div>
+  <h2 class="reveal">De la întrebare la programare<br>în 60 de secunde</h2>
+  <p class="sec-sub reveal">Clientul scrie pe site-ul tău. AI-ul răspunde instant, colectează datele și tu te trezești cu programări noi în fiecare dimineață.</p>
+
+  <div class="steps">
+    <div class="step-card reveal">
+      <div class="step-n">PASUL 01</div>
+      <div class="step-icon">💬</div>
+      <div class="step-title">Clientul scrie pe site</div>
+      <div class="step-body">Vizitator la 22:30 întreabă "cât costă o vopsire?" Nimeni nu răspunde la telefon. AI-ul tău răspunde în 2 secunde.</div>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-n">PASUL 02</div>
+      <div class="step-icon">📋</div>
+      <div class="step-title">Date colectate automat</div>
+      <div class="step-body">AI-ul colectează: numele, telefonul, serviciul dorit și ziua preferată. Fără formulare. Fără confuzii. Natural, ca o conversație.</div>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-n">PASUL 03</div>
+      <div class="step-icon">📧</div>
+      <div class="step-title">Email confirmare instant</div>
+      <div class="step-body">Clientul primește confirmare în 60 secunde. Tu primești un alert cu datele lui. Lead-ul este salvat automat în Google Sheets.</div>
+    </div>
+    <div class="step-card reveal">
+      <div class="step-n">PASUL 04</div>
+      <div class="step-icon">🔔</div>
+      <div class="step-title">Reminder automat 24h</div>
+      <div class="step-body">Cu 24 ore înainte, clientul primește reminder. No-show-urile scad cu 40%. Dacă nu apare, sistemul trimite automat ofertă de reprogramare.</div>
+    </div>
+  </div>
+
+  <div class="flow-viz reveal">
+    <div class="flow-node">
+      <div class="flow-box">Site client</div>
+      <div class="flow-lbl">widget</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-node">
+      <div class="flow-box active">Chat AI</div>
+      <div class="flow-lbl">24/7</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-node">
+      <div class="flow-box">Date colectate</div>
+      <div class="flow-lbl">nume + tel</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-node">
+      <div class="flow-box active">Email clinic</div>
+      <div class="flow-lbl">instant</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-node">
+      <div class="flow-box">Google Sheet</div>
+      <div class="flow-lbl">CRM</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-node">
+      <div class="flow-box active">Reminder 24h</div>
+      <div class="flow-lbl">automat</div>
+    </div>
+    <div class="flow-arr">→</div>
+    <div class="flow-node">
+      <div class="flow-box">Recenzie Google</div>
+      <div class="flow-lbl">+4.8★</div>
+    </div>
+  </div>
+</section>
+
+<!-- INDUSTRIES -->
+<section class="industries" id="industries">
+  <div class="ind-inner">
+    <div class="sec-tag reveal">Industrii</div>
+    <h2 class="reveal">Configurat specific<br>pentru industria ta</h2>
+    <p class="sec-sub reveal">Fiecare industrie are template propriu — servicii, prețuri, flux de conversație și reguli adaptate. Nu un chatbot generic.</p>
+    <div class="ind-grid">
+      <div class="ind-card reveal">
+        <span class="ind-emoji">💇‍♀️</span>
+        <div class="ind-name">Saloane Beauty</div>
+        <div class="ind-services">Păr, unghii, cosmetică,<br>tratamente, epilare</div>
+      </div>
+      <div class="ind-card featured reveal">
+        <div class="ind-tag">POPULAR</div>
+        <span class="ind-emoji">🦷</span>
+        <div class="ind-name">Clinici Dentare</div>
+        <div class="ind-services">Consultații, albire,<br>implanturi, ortodonție</div>
+      </div>
+      <div class="ind-card reveal">
+        <span class="ind-emoji">🐶</span>
+        <div class="ind-name">Cabinete Veterinare</div>
+        <div class="ind-services">Vaccinări, operații,<br>consultații, pașaport</div>
+      </div>
+      <div class="ind-card reveal">
+        <span class="ind-emoji">💆‍♀️</span>
+        <div class="ind-name">Fizioterapie</div>
+        <div class="ind-services">Recuperare, kinetoterapie,<br>masaj terapeutic</div>
+      </div>
+      <div class="ind-card reveal">
+        <span class="ind-emoji">🚗</span>
+        <div class="ind-name">Service Auto</div>
+        <div class="ind-services">Diagnoze, revizii,<br>ITP, vulcanizare</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing" id="pricing">
+  <div class="sec-tag reveal">Prețuri</div>
+  <h2 class="reveal">Simplu. Transparent.<br>Fără surprize.</h2>
+  <p class="sec-sub reveal">Per afacere, per lună. Anulezi oricând. 30 de zile gratuit — fără card.</p>
+
+  <div class="plan-grid">
+    <div class="plan reveal">
+      <div class="plan-name">Starter</div>
+      <div class="plan-price">€49</div>
+      <div class="plan-period">per afacere / lună</div>
+      <ul class="plan-features">
+        <li>Chat AI pe website</li>
+        <li>200 conversații / lună</li>
+        <li>Email confirmare instant</li>
+        <li>Dashboard de bază</li>
+        <li>Limbă română nativă</li>
+      </ul>
+      <div class="plan-clients">18 clienți → <span>€882/lună</span></div>
+      <button class="btn-plan btn-plan-g">Începe gratuit</button>
+    </div>
+    <div class="plan pop reveal">
+      <div class="plan-badge">CEL MAI POPULAR</div>
+      <div class="plan-name">Pro</div>
+      <div class="plan-price">€99</div>
+      <div class="plan-period">per afacere / lună</div>
+      <ul class="plan-features">
+        <li>Conversații nelimitate</li>
+        <li>Reminder automat 24h</li>
+        <li>Recuperare no-show</li>
+        <li>Analize complete</li>
+        <li>Cereri recenzii Google</li>
+        <li>Suport prioritar</li>
+      </ul>
+      <div class="plan-clients">21 clienți → <span>€2.079/lună</span></div>
+      <button class="btn-plan btn-plan-p">Începe gratuit</button>
+    </div>
+    <div class="plan reveal">
+      <div class="plan-name">Rețea</div>
+      <div class="plan-price">€199</div>
+      <div class="plan-period">până la 5 locații / lună</div>
+      <ul class="plan-features">
+        <li>Dashboard multi-locație</li>
+        <li>Personalitate AI custom</li>
+        <li>Opțiune white-label</li>
+        <li>Prețuri speciale lanțuri</li>
+        <li>Onboarding dedicat</li>
+      </ul>
+      <div class="plan-clients">4 clienți → <span>€796/lună</span></div>
+      <button class="btn-plan btn-plan-g">Contactează-ne</button>
+    </div>
+  </div>
+</section>
+
+<!-- TESTIMONIALS -->
+<section class="testi">
+  <div class="testi-inner">
+    <div class="sec-tag reveal">Testimoniale</div>
+    <h2 class="reveal">Ce spun clienții noștri</h2>
+    <div class="testi-grid">
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"De când am instalat RecepAI, nu mai pierd clienți noaptea. Dimineața am deja 3-4 programări noi fără să fac nimic."</div>
+        <div class="testi-author">Irina M.</div>
+        <div class="testi-role">Salon Unghii · Cluj-Napoca</div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"Recepționista noastră răspundea la aceleași întrebări de 50 de ori pe zi. Acum RecepAI le gestionează pe toate și ea se ocupă de pacienți."</div>
+        <div class="testi-author">Dr. Alexandru P.</div>
+        <div class="testi-role">Cabinet Stomatologic · București</div>
+      </div>
+      <div class="testi-card reveal">
+        <div class="testi-stars">★★★★★</div>
+        <div class="testi-text">"No-show-urile au scăzut de la 30% la 8%. Numai asta a meritat prețul de 10 ori. Plus că avem acum recenzii Google mult mai multe."</div>
+        <div class="testi-author">Andrei B.</div>
+        <div class="testi-role">Clinică Veterinară · Timișoara</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div class="sec-tag reveal" style="text-align:center">Începe acum</div>
+    <div class="cta-title reveal">30 de zile gratuit.<br>Fără card.</div>
+    <p class="cta-sub reveal">Instalezi în 2 minute. Dacă nu funcționează, nu plătești nimic. Simplu.</p>
+    <div class="cta-actions reveal">
+      <a href="#" class="btn-hero">Creează cont gratuit →</a>
+      <a href="mailto:contact@recepai.ro" class="btn-hero-ghost">Contactează-ne</a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">Recep<span>AI</span></div>
+        <div class="footer-tagline">Recepționist AI pentru afaceri locale din România. Primul și singurul sistem dedicat pieței românești.</div>
+      </div>
+      <div class="footer-col">
+        <h4>Produs</h4>
+        <a href="#how">Cum funcționează</a>
+        <a href="#industries">Industrii</a>
+        <a href="#pricing">Prețuri</a>
+        <a href="#demo">Demo live</a>
+      </div>
+      <div class="footer-col">
+        <h4>Companie</h4>
+        <a href="#">Despre noi</a>
+        <a href="#">Blog</a>
+        <a href="#">Parteneri</a>
+        <a href="#">Cariere</a>
+      </div>
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <a href="mailto:contact@recepai.ro">contact@recepai.ro</a>
+        <a href="#">București, România</a>
+        <a href="#">Termeni & Condiții</a>
+        <a href="#">Politică GDPR</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">© 2026 RecepAI · Toate drepturile rezervate · Made in Romania 🇷🇴</div>
+      <div class="footer-badges">
+        <div class="fbadge">GDPR ✓</div>
+        <div class="fbadge">EU Servers ✓</div>
+        <div class="fbadge">RO Language ✓</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── CHAT DEMO ─────────────────────────────────
+const DEMOS = [
+  {
+    av:'💇‍♀️', name:'Salon Beauty Pro', sub:'Recepționist AI · București',
+    msgs:[
+      {t:'bot', m:'Bună ziua! 👋 Sunt asistentul Salon Beauty Pro. Cu ce vă pot ajuta?', d:600},
+      {t:'qr', opts:['📅 Programare','💰 Prețuri','🕐 Program'], d:1200},
+      {t:'user', m:'Cât costă o vopsire?', d:2800},
+      {t:'bot', m:'Colorare completă: de la 150 LEI\nBalayage: de la 280 LEI\nHighlight: de la 200 LEI\n\nDoriți o programare? 😊', d:4200},
+      {t:'user', m:'Da, sâmbătă dacă se poate', d:6000},
+      {t:'bot', m:'Perfect! 😊 Cum vă numiți și care este numărul de telefon?', d:7400},
+      {t:'user', m:'Maria Ionescu, 0721 234 567', d:9000},
+      {t:'bot', m:'✅ Mulțumesc, Maria!\n\n👤 Maria Ionescu\n📞 0721 234 567\n📅 Sâmbătă\n\nVeți fi contactată în max 2 ore!', d:10400},
+    ]
+  },
+  {
+    av:'🦷', name:'Clinica Dental Pro', sub:'Recepționist AI · București',
+    msgs:[
+      {t:'bot', m:'Bună ziua! 🦷 Clinica Dental Pro vă stă la dispoziție. Cu ce vă pot ajuta?', d:600},
+      {t:'qr', opts:['📅 Programare','💰 Tarife','🚨 Urgență'], d:1200},
+      {t:'user', m:'Cât costă un detartraj?', d:2800},
+      {t:'bot', m:'Detartraj: 180 LEI\nConsultație (inclusă): GRATUITĂ\n\nDurată: ~45 minute\n\nDoriți o programare? 😊', d:4200},
+      {t:'user', m:'Da, joi dimineața', d:5800},
+      {t:'bot', m:'Cum vă numiți și numărul de telefon, vă rog? 📞', d:7000},
+      {t:'user', m:'Alexandru Pop, 0744 123 456', d:8600},
+      {t:'bot', m:'✅ Programare înregistrată!\n\n👤 Alexandru Pop\n📞 0744 123 456\n📅 Joi dimineața\n🦷 Detartraj\n\nVeți fi contactat pentru confirmare!', d:10000},
+    ]
+  },
+  {
+    av:'🐶', name:'Clinica Veterinară Biovet', sub:'Recepționist AI · Cluj',
+    msgs:[
+      {t:'bot', m:'Bună ziua! 🐾 Clinica Veterinară Biovet. Cu ce vă pot ajuta astăzi?', d:600},
+      {t:'qr', opts:['📅 Programare','💉 Vaccinuri','🚨 Urgență'], d:1200},
+      {t:'user', m:'Cât costă vaccinarea câinelui?', d:2800},
+      {t:'bot', m:'Vaccinare polivalentă câine: 150 LEI\nVaccin antirabic: 70 LEI\nConsultația este GRATUITĂ la vaccinare! 🐕\n\nDoriți o programare?', d:4400},
+      {t:'user', m:'Da, pentru labradorul meu de 25kg', d:6200},
+      {t:'bot', m:'Perfect! Cum vă numiți și numărul de contact?', d:7400},
+      {t:'user', m:'Elena Radu, 0732 987 654', d:9000},
+      {t:'bot', m:'✅ Programare înregistrată!\n\n👤 Elena Radu\n📞 0732 987 654\n🐕 Labrador 25kg\n💉 Vaccinare polivalentă + antirabic\n\nVă așteptăm!', d:10400},
+    ]
+  }
+];
+
+let demoIdx = 0;
+let msgTimers = [];
+
+function clearTimers(){ msgTimers.forEach(clearTimeout); msgTimers=[]; }
+
+function runDemo(idx){
+  clearTimers();
+  const d = DEMOS[idx];
+  document.getElementById('chat-av').textContent = d.av;
+  document.getElementById('chat-name').textContent = d.name;
+  document.getElementById('chat-sub').textContent = d.sub;
+  const box = document.getElementById('chat-msgs');
+  const typing = document.getElementById('typing');
+  box.innerHTML = '';
+  box.appendChild(typing);
+
+  d.msgs.forEach((msg,i) => {
+    const t1 = setTimeout(()=>{
+      if(msg.t !== 'user') showTyping(true);
+    }, msg.d - 600);
+
+    const t2 = setTimeout(()=>{
+      showTyping(false);
+      if(msg.t === 'bot'){
+        addMsg(msg.m, 'bot', box, typing);
+      } else if(msg.t === 'user'){
+        addMsg(msg.m, 'user', box, typing);
+      } else if(msg.t === 'qr'){
+        addQR(msg.opts, box, typing);
+      }
+    }, msg.d);
+
+    msgTimers.push(t1, t2);
+  });
+
+  const lastD = d.msgs[d.msgs.length-1].d;
+  const reset = setTimeout(()=>{
+    demoIdx = (demoIdx+1) % DEMOS.length;
+    runDemo(demoIdx);
+  }, lastD + 4000);
+  msgTimers.push(reset);
+}
+
+function showTyping(show){
+  document.getElementById('typing').classList.toggle('show', show);
+}
+
+function addMsg(text, type, box, typing){
+  const d = document.createElement('div');
+  d.className = 'msg msg-' + type;
+  d.style.whiteSpace = 'pre-line';
+  d.textContent = text;
+  box.insertBefore(d, typing);
+  box.scrollTop = box.scrollHeight;
+}
+
+function addQR(opts, box, typing){
+  const wrap = document.createElement('div');
+  wrap.className = 'qr-wrap';
+  opts.forEach(o=>{
+    const b = document.createElement('div');
+    b.className = 'qr'; b.textContent = o;
+    wrap.appendChild(b);
+  });
+  box.insertBefore(wrap, typing);
+  box.scrollTop = box.scrollHeight;
+}
+
+function sendUserMsg(){
+  const inp = document.getElementById('chat-input');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+  const box = document.getElementById('chat-msgs');
+  const typing = document.getElementById('typing');
+  addMsg(txt, 'user', box, typing);
+  clearTimers();
+  showTyping(true);
+  setTimeout(()=>{
+    showTyping(false);
+    addMsg('Mulțumesc pentru mesaj! 😊\n\nAcesta este un demo. Vă rugăm să contactați\nsalonul pentru programări reale.', 'bot', box, typing);
+    setTimeout(()=>{ demoIdx=(demoIdx+1)%DEMOS.length; runDemo(demoIdx); }, 4000);
+  }, 1500);
+}
+
+function handleChat(e){ if(e.key==='Enter') sendUserMsg(); }
+
+// Start demo
+setTimeout(()=> runDemo(0), 800);
+
+// ── SCROLL REVEAL ────────────────────────────
+const revealEls = document.querySelectorAll('.reveal');
+const io = new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){ e.target.classList.add('visible'); io.unobserve(e.target); }
+  });
+},{threshold:0.1});
+revealEls.forEach(el => io.observe(el));
+
+// ── COUNTER ANIMATION ────────────────────────
+function animateCount(el, target, suffix, duration){
+  suffix = suffix || '';
+  const start = performance.now();
+  const update = (now)=>{
+    const progress = Math.min((now-start)/duration, 1);
+    const ease = 1 - Math.pow(1-progress, 3);
+    const val = Math.floor(ease * target);
+    el.textContent = val.toLocaleString('ro-RO') + suffix;
+    if(progress < 1) requestAnimationFrame(update);
+  };
+  requestAnimationFrame(update);
+}
+
+// Hero stats
+document.querySelectorAll('[data-target]').forEach(el=>{
+  const target = parseInt(el.dataset.target);
+  const suffix = el.dataset.suffix || '';
+  const io2 = new IntersectionObserver((entries)=>{
+    if(entries[0].isIntersecting){
+      animateCount(el, target, suffix, 1800);
+      io2.unobserve(el);
+    }
+  },{threshold:0.5});
+  io2.observe(el);
+});
+
+// Stats bar — static labels (these are mixed types)
+const staticStats = document.querySelectorAll('[data-count]');
+staticStats.forEach(el=>{
+  const val = el.dataset.count;
+  const suffix = el.dataset.suffix || '';
+  if(!isNaN(val)){
+    const io3 = new IntersectionObserver((entries)=>{
+      if(entries[0].isIntersecting){
+        animateCount(el, parseInt(val), suffix, 2000);
+        io3.unobserve(el);
+      }
+    },{threshold:0.5});
+    io3.observe(el);
+  }
+});
+
+// ── NAV SCROLL ───────────────────────────────
+window.addEventListener('scroll',()=>{
+  const nav = document.getElementById('navbar');
+  nav.style.background = window.scrollY > 60
+    ? 'rgba(10,10,10,.98)'
+    : 'rgba(10,10,10,.85)';
+});
+
+// ── MOBILE MENU ──────────────────────────────
+function toggleMenu(){
+  const links = document.querySelector('.nav-links');
+  links.style.display = links.style.display === 'flex' ? 'none' : 'flex';
+  links.style.flexDirection = 'column';
+  links.style.position = 'fixed';
+  links.style.top = '60px';
+  links.style.left = '0';
+  links.style.right = '0';
+  links.style.background = '#0A0A0A';
+  links.style.padding = '20px';
+  links.style.borderBottom = '1px solid #242424';
+  links.style.gap = '16px';
+  links.style.zIndex = '99';
+}
+</script>
+</body>
+</html>
