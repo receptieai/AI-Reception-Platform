@@ -678,8 +678,7 @@ function generateLocalFallback(domain) {
     services=[{name:'Revizie',price:'350 LEI'},{name:'Schimb ulei',price:'150 LEI'},{name:'Diagnoză',price:'80 LEI'}];
   }
 
-  const rawDomain = domain.replace(/^www\./, '');
-  const name = rawDomain.split('.')[0].replace(/-/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
+  const name = domain.split('.')[0].replace(/-/g,' ').replace(/\b\w/g,l=>l.toUpperCase());
   return {name,type,phone:null,email:`contact@${domain}`,city:null,hours:'Luni-Vineri 09:00-19:00',
     facebook:null,instagram:null,services,faq:[],description:`${name} — afacere locală.`,
     tone:'prietenos',confidence:45,missing:['telefon','adresă','prețuri complete']};
@@ -687,18 +686,11 @@ function generateLocalFallback(domain) {
 
 function detectIndustry(typeOrDomain) {
   const s = (typeOrDomain||'').toLowerCase();
-  if(s.includes('dent')||s.includes('stomat')||s.includes('clinic')||
-     s.includes('medic')||s.includes('doctor')||s.includes('spital')||
-     s.includes('regina')||s.includes('sanitas')||s.includes('medicover')||
-     s.includes('implant')||s.includes('ortodont')) return 'dental';
-  if(s.includes('vet')||s.includes('animal')||s.includes('pet')||
-     s.includes('patruped')) return 'vet';
-  if(s.includes('fizio')||s.includes('recuper')||s.includes('kine')||
-     s.includes('rehab')||s.includes('masaj')||s.includes('wellness')) return 'physio';
-  if(s.includes('auto')||s.includes('service')||s.includes('car')||
-     s.includes('vulcan')||s.includes('mecanic')) return 'auto';
-  if(s.includes('beauty')||s.includes('salon')||s.includes('coaf')||
-     s.includes('ungh')||s.includes('frizerie')||s.includes('make')) return 'beauty';
+  if(s.includes('beauty')||s.includes('salon')||s.includes('coaf')||s.includes('ungh')) return 'beauty';
+  if(s.includes('dent')||s.includes('stomat')) return 'dental';
+  if(s.includes('vet')||s.includes('animal')) return 'vet';
+  if(s.includes('fizio')||s.includes('recuper')||s.includes('kine')) return 'physio';
+  if(s.includes('auto')||s.includes('service')||s.includes('car')) return 'auto';
   return 'other';
 }
 
