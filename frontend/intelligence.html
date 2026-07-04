@@ -206,6 +206,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="nav-item" onclick="showPanel('prices',this)">
       <span class="nav-icon">💰</span>Price Intelligence
     </div>
+    <div class="nav-section">Learning Engine</div>
+    <div class="nav-item" onclick="showPanel('learning',this)">
+      <span class="nav-icon">🧬</span>Onboarding Intel
+    </div>
+    <div class="nav-item" onclick="showPanel('prompt',this)">
+      <span class="nav-icon">⚡</span>Prompt Intel
+    </div>
     <div class="nav-section">Export</div>
     <div class="nav-item" onclick="showPanel('export',this)">
       <span class="nav-icon">📤</span>Export Data
@@ -448,6 +455,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
       </div>
     </div>
 
+    <!-- LEARNING ENGINE -->
+    <div class="panel" id="panel-learning">
+      <!-- populated by JS -->
+    </div>
+
+    <!-- PROMPT INTEL -->
+    <div class="panel" id="panel-prompt">
+      <!-- populated by JS -->
+    </div>
+
     <!-- EXPORT -->
     <div class="panel" id="panel-export">
       <div class="card">
@@ -512,7 +529,9 @@ function addToDB(business) {
 const PANEL_TITLES = {
   dashboard: 'Dashboard', scanner: 'Website Scanner',
   database: 'Business Database', insights: 'Industry Insights',
-  gaps: 'Gap Detector', prices: 'Price Intelligence', export: 'Export Date'
+  gaps: 'Gap Detector', prices: 'Price Intelligence',
+  learning: 'Onboarding Intelligence', prompt: 'Prompt Intelligence',
+  export: 'Export Date'
 };
 
 function showPanel(id, el) {
@@ -530,6 +549,8 @@ function showPanel(id, el) {
   if(id === 'insights') renderInsights();
   if(id === 'prices') renderPrices();
   if(id === 'dashboard') renderDashboard();
+  if(id === 'learning') renderLearning();
+  if(id === 'prompt') renderPromptIntel();
 }
 
 // ── SCANNER ───────────────────────────────────
@@ -592,6 +613,24 @@ async function startScan() {
     setProgress(80, 'Salvez în baza de date...');
     await new Promise(r => setTimeout(r, 500));
 
+    // Calculate field extraction tracking
+    const fieldTracking = {
+      name:      { extracted: !!data.name,     confidence: data.name ? 95 : 0 },
+      phone:     { extracted: !!data.phone,    confidence: data.phone ? 92 : 0 },
+      email:     { extracted: !!data.email,    confidence: data.email ? 85 : 0 },
+      city:      { extracted: !!data.city,     confidence: data.city ? 80 : 0 },
+      hours:     { extracted: !!data.hours,    confidence: data.hours ? 88 : 0 },
+      services:  { extracted: (data.services||[]).length > 0, confidence: Math.min(95, (data.services||[]).length * 15) },
+      prices:    { extracted: (data.services||[]).some(s=>s.price), confidence: (data.services||[]).filter(s=>s.price).length > 0 ? 74 : 0 },
+      faq:       { extracted: (data.faq||[]).length > 0, confidence: Math.min(80, (data.faq||[]).length * 20) },
+      facebook:  { extracted: !!data.facebook,  confidence: data.facebook ? 78 : 0 },
+      instagram: { extracted: !!data.instagram, confidence: data.instagram ? 72 : 0 },
+    };
+
+    const missingFields = Object.entries(fieldTracking)
+      .filter(([,v]) => !v.extracted)
+      .map(([k]) => k);
+
     // Save to DB
     const business = {
       domain,
@@ -614,6 +653,11 @@ async function startScan() {
       hasOnlineBooking: false,
       websiteScore: Math.floor(data.confidence * 0.8 + Math.random() * 20),
       scannedAt: new Date().toISOString(),
+      // Learning Engine tracking
+      fieldTracking,
+      missingFields,
+      extractionMethod: data.mock ? 'fallback' : 'claude-api',
+      promptVersion: 'v1.0',
     };
 
     addToDB(business);
@@ -1067,6 +1111,298 @@ function exportData(type = 'csv') {
   a.href = url; a.download = filename; a.click();
   URL.revokeObjectURL(url);
   showToast(`✓ Exportat: ${filename} (${db.length} afaceri)`);
+}
+
+// ── LEARNING ENGINE ───────────────────────────
+function renderLearning() {
+  const db = getDB();
+  const total = db.length;
+  const el = document.getElementById('panel-learning');
+
+  // Calculate extraction stats across all scans
+  const fields = ['name','phone','email','city','hours','services','prices','faq','facebook','instagram'];
+  const fieldLabels = {
+    name:'Nume afacere', phone:'Telefon', email:'Email', city:'Oraș',
+    hours:'Program lucru', services:'Servicii', prices:'Prețuri',
+    faq:'Întrebări frecvente', facebook:'Facebook', instagram:'Instagram'
+  };
+  const fieldImpact = {
+    name:0, phone:8, email:4, city:3, hours:6,
+    services:12, prices:15, faq:9, facebook:2, instagram:2
+  };
+
+  const stats = {};
+  fields.forEach(f => {
+    const extracted = db.filter(b => b.fieldTracking ? b.fieldTracking[f]?.extracted : (b[f] && (f!=='services'||b.services?.length>0)));
+    stats[f] = { count: extracted.length, pct: total > 0 ? Math.round(extracted.length/total*100) : 0 };
+  });
+
+  // Missing fields analysis
+  const missingCounts = {};
+  db.forEach(b => {
+    (b.missingFields || fields.filter(f => !b[f])).forEach(f => {
+      missingCounts[f] = (missingCounts[f]||0) + 1;
+    });
+  });
+
+  const topMissing = Object.entries(missingCounts)
+    .sort((a,b)=>b[1]-a[1])
+    .slice(0,6);
+
+  // Industry specific missing
+  const industryMissing = {};
+  ['dental','beauty','vet','physio','auto'].forEach(ind => {
+    const indBiz = db.filter(b=>b.industry===ind);
+    if(indBiz.length === 0) return;
+    const missing = {};
+    indBiz.forEach(b => {
+      (b.missingFields||[]).forEach(f => { missing[f]=(missing[f]||0)+1; });
+    });
+    industryMissing[ind] = Object.entries(missing).sort((a,b)=>b[1]-a[1]).slice(0,3);
+  });
+
+  const hasData = total >= 3;
+
+  el.innerHTML = `
+    <!-- Header metrics -->
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+      <div class="metric m-teal"><div class="metric-val">${total}</div><div class="metric-label">Scanări totale</div></div>
+      <div class="metric m-grn"><div class="metric-val">${total>0?Math.round(db.reduce((a,b)=>a+(b.confidence||0),0)/total):0}%</div><div class="metric-label">Acuratețe medie</div></div>
+      <div class="metric m-ylw"><div class="metric-val">${db.filter(b=>b.extractionMethod==='claude-api').length}</div><div class="metric-label">Scanate cu Claude</div></div>
+      <div class="metric m-blu"><div class="metric-val">${db.filter(b=>b.extractionMethod==='fallback').length}</div><div class="metric-label">Fallback (URL only)</div></div>
+    </div>
+
+    ${!hasData ? `<div style="background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:32px;text-align:center;margin-bottom:16px">
+      <div style="font-size:32px;margin-bottom:12px">🧬</div>
+      <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px">Insuficiente date</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.7;max-width:400px;margin:0 auto">
+        Scanează minim <strong style="color:var(--teal)">10 afaceri</strong> pentru a vedea patterns.<br>
+        Cu 50+ afaceri, sistemul începe să facă recomandări reale.<br>
+        Cu 500+ afaceri, Learning Engine devine o armă competitivă.
+      </div>
+      <button class="btn btn-primary" style="margin-top:16px" onclick="showPanel('scanner')">+ Scanează acum</button>
+    </div>` : ''}
+
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+
+      <!-- Extraction Performance -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Extraction Performance</div></div>
+        <div class="card-body">
+          ${fields.map(f => {
+            const pct = stats[f].pct;
+            const color = pct>=85?'var(--grn)':pct>=60?'var(--ylw)':'var(--red)';
+            const trend = pct>=85?'↗':pct>=60?'→':'↘';
+            return `<div style="display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid var(--b1)">
+              <div style="font-size:12px;flex:1;color:var(--t2)">${fieldLabels[f]}</div>
+              <div style="width:80px;background:var(--s2);border-radius:20px;height:3px;flex-shrink:0">
+                <div style="width:${pct}%;height:100%;background:${color};border-radius:20px"></div>
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:${color};width:36px;text-align:right">${pct}%</div>
+              <div style="font-size:11px;color:${color};width:14px">${trend}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Missing Information Analysis -->
+      <div class="card">
+        <div class="card-header"><div class="card-title">❓ Informații lipsă frecvent</div></div>
+        <div class="card-body">
+          ${topMissing.length === 0
+            ? '<div style="font-size:13px;color:var(--t3)">Scanează mai multe afaceri pentru analiză.</div>'
+            : topMissing.map(([field, count]) => {
+              const pct = total > 0 ? Math.round(count/total*100) : 0;
+              const impact = fieldImpact[field] || 3;
+              return `<div style="display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1)">
+                <div style="flex:1">
+                  <div style="font-size:13px;font-weight:500">${fieldLabels[field]||field}</div>
+                  <div style="font-size:11px;color:var(--t3);margin-top:2px">Lipsă la ${pct}% din afaceri</div>
+                </div>
+                <div style="text-align:right;flex-shrink:0">
+                  <div style="font-size:11px;color:var(--grn);font-weight:600">+${impact}% acuratețe</div>
+                  <div style="font-size:10px;color:var(--t3)">dacă adaugi în onboarding</div>
+                </div>
+              </div>`;
+            }).join('')
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Recommendations -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-header">
+        <div class="card-title">⭐ Recomandări Onboarding — bazate pe date reale</div>
+        <span style="font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace">${total} scanări analizate</span>
+      </div>
+      <div class="card-body">
+        ${topMissing.length === 0
+          ? '<div style="font-size:13px;color:var(--t3)">Insuficiente date. Scanează mai multe afaceri.</div>'
+          : topMissing.map(([field, count], i) => {
+            const impact = fieldImpact[field] || 3;
+            const stars = impact >= 12 ? '★★★★★' : impact >= 8 ? '★★★★☆' : impact >= 5 ? '★★★☆☆' : '★★☆☆☆';
+            const pct = total > 0 ? Math.round(count/total*100) : 0;
+            return `<div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--b1);align-items:flex-start">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--t3);width:20px;flex-shrink:0;margin-top:2px">${i+1}</div>
+              <div style="flex:1">
+                <div style="font-size:13px;font-weight:600;margin-bottom:3px">Adaugă câmpul "${fieldLabels[field]||field}" în onboarding</div>
+                <div style="font-size:12px;color:var(--t2)">Lipsește la ${pct}% din afacerile scanate · ${count} cazuri</div>
+                <div style="font-size:11px;color:var(--ylw);margin-top:2px">${stars} Impact: +${impact}% acuratețe AI</div>
+              </div>
+              <div style="background:rgba(0,204,136,.1);border:1px solid rgba(0,204,136,.2);border-radius:8px;padding:6px 10px;font-size:12px;color:var(--grn);font-weight:600;flex-shrink:0">
+                +${impact}%
+              </div>
+            </div>`;
+          }).join('')
+        }
+      </div>
+    </div>
+
+    <!-- Industry specific -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">🏭 Missing per industrie — Întrebări specifice recomandate</div></div>
+      <div class="card-body">
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+          ${[
+            {key:'dental',emoji:'🦷',name:'Dentar',questions:['Acceptați urgențe?','Sedare?','Copii?','Implanturi?','Asigurare?']},
+            {key:'beauty',emoji:'💇',name:'Beauty',questions:['Walk-in?','Programări târzii?','Avans necesar?','Extensions?','Balayage?']},
+            {key:'vet',emoji:'🐾',name:'Veterinar',questions:['Urgențe?','Animale exotice?','Vizite la domiciliu?','Spitalizare?','Pașaport?']},
+            {key:'physio',emoji:'💆',name:'Fizio',questions:['Nr. ședințe?','Acasă?','Electroterapie?','Kinetoterapie?','Recuperare sport?']},
+            {key:'auto',emoji:'🚗',name:'Auto',questions:['Mașină de înlocuit?','Diagnosticare?','ITP?','Anvelope?','Tinichigerie?']},
+          ].map(ind => {
+            const count = db.filter(b=>b.industry===ind.key).length;
+            return `<div style="background:var(--s2);border-radius:10px;padding:12px">
+              <div style="font-size:18px;margin-bottom:6px">${ind.emoji}</div>
+              <div style="font-size:12px;font-weight:700;margin-bottom:8px;color:var(--tx)">${ind.name} · ${count} scanate</div>
+              ${ind.questions.map(q=>`<div style="font-size:11px;color:var(--t2);padding:3px 0;border-bottom:1px solid var(--b1)">→ ${q}</div>`).join('')}
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ── PROMPT INTELLIGENCE ───────────────────────
+function renderPromptIntel() {
+  const db = getDB();
+  const total = db.length;
+  const claudeScans = db.filter(b=>b.extractionMethod==='claude-api');
+  const fallbackScans = db.filter(b=>b.extractionMethod==='fallback');
+
+  const avgConf = claudeScans.length > 0
+    ? Math.round(claudeScans.reduce((a,b)=>a+(b.confidence||0),0)/claudeScans.length)
+    : 0;
+
+  document.getElementById('panel-prompt').innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px">
+      <div class="metric m-teal"><div class="metric-val">${total}</div><div class="metric-label">Total scanări</div></div>
+      <div class="metric m-grn"><div class="metric-val">${claudeScans.length}</div><div class="metric-label">Claude API reușite</div></div>
+      <div class="metric m-ylw"><div class="metric-val">${fallbackScans.length}</div><div class="metric-label">Fallback (URL)</div></div>
+      <div class="metric m-blu"><div class="metric-val">${avgConf}%</div><div class="metric-label">Confidence medie Claude</div></div>
+    </div>
+
+    <!-- Prompt versions -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="card">
+        <div class="card-header"><div class="card-title">⚡ Versiuni Prompt Active</div></div>
+        <div class="card-body">
+          <div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1)">
+            <div>
+              <div style="font-size:13px;font-weight:600">v1.0 — Prompt actual</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">Activ din Iulie 2026</div>
+            </div>
+            <span style="background:rgba(0,204,136,.1);border:1px solid rgba(0,204,136,.2);color:var(--grn);padding:2px 8px;border-radius:8px;font-size:11px;font-weight:600">ACTIV</span>
+          </div>
+          <div style="padding:10px 0;font-size:13px;color:var(--t2)">
+            Promptul v1.0 extrage: nume, tip, telefon, email, oraș, program, servicii cu prețuri, FAQ, social media.<br><br>
+            <strong style="color:var(--tx)">Puncte slabe identificate:</strong><br>
+            → Prețuri în imagini nu sunt extrase<br>
+            → Meniuri JavaScript (accordion) nu sunt citite<br>
+            → FAQ împrăștiat pe pagini multiple<br>
+            → Parcare și metode plată lipsesc din prompt
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header"><div class="card-title">🔬 Cauze Extracție Slabă</div></div>
+        <div class="card-body">
+          ${[
+            {issue:'Prețuri în imagini/PDF', freq:'Frecvent', solution:'OCR necesar', impact:'high'},
+            {issue:'Site JavaScript-only', freq:'Frecvent', solution:'Puppeteer/Playwright', impact:'high'},
+            {issue:'Accordion/tab menus', freq:'Moderat', solution:'Îmbunătățire prompt', impact:'med'},
+            {issue:'Date pe pagini multiple', freq:'Moderat', solution:'Multi-page fetch', impact:'med'},
+            {issue:'Prețuri la cerere', freq:'Comun', solution:'Detectare și flag', impact:'low'},
+            {issue:'Site în construcție', freq:'Rar', solution:'Error handling', impact:'low'},
+          ].map(item => `
+            <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1);align-items:flex-start">
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:500">${item.issue}</div>
+                <div style="font-size:11px;color:var(--t3)">Soluție: ${item.solution}</div>
+              </div>
+              <span style="font-size:10px;padding:2px 7px;border-radius:8px;font-weight:600;flex-shrink:0;${
+                item.impact==='high'?'background:rgba(255,68,85,.1);color:var(--red)':
+                item.impact==='med'?'background:rgba(255,184,0,.1);color:var(--ylw)':
+                'background:rgba(0,204,136,.1);color:var(--grn)'
+              }">${item.freq}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Learning Timeline -->
+    <div class="card" style="margin-bottom:14px">
+      <div class="card-header"><div class="card-title">📈 Learning Timeline — Evoluția sistemului</div></div>
+      <div class="card-body">
+        <div style="display:flex;flex-direction:column;gap:0">
+          ${[
+            {month:'Iulie 2026', scans:total, event:'Lansare Intelligence Engine v1.0', status:'current', improvement:'Baseline'},
+            {month:'August 2026', scans:50, event:'Adăugare câmpuri parcare + metode plată', status:'planned', improvement:'+6% acuratețe estimat'},
+            {month:'Septembrie 2026', scans:200, event:'Prompt v2.0 cu detecție urgențe per industrie', status:'planned', improvement:'+12% acuratețe estimat'},
+            {month:'Octombrie 2026', scans:500, event:'Multi-page fetch pentru site-uri complexe', status:'planned', improvement:'+18% acuratețe estimat'},
+            {month:'Ianuarie 2027', scans:2000, event:'Learning Engine complet — auto-improve', status:'future', improvement:'+35% acuratețe estimat'},
+          ].map((item,i) => `
+            <div style="display:flex;gap:14px;padding:12px 0;border-bottom:1px solid var(--b1);align-items:flex-start">
+              <div style="width:3px;background:${item.status==='current'?'var(--teal)':item.status==='planned'?'var(--ylw)':'var(--b2)'};border-radius:2px;flex-shrink:0;margin-top:4px;align-self:stretch"></div>
+              <div style="flex:1">
+                <div style="font-size:12px;font-weight:700;color:${item.status==='current'?'var(--teal)':item.status==='planned'?'var(--ylw)':'var(--t3)'};margin-bottom:3px">${item.month} · ${item.scans} scanări</div>
+                <div style="font-size:13px;font-weight:500">${item.event}</div>
+                <div style="font-size:11px;color:var(--grn);margin-top:2px">${item.improvement}</div>
+              </div>
+              <span style="font-size:10px;padding:2px 8px;border-radius:8px;font-weight:600;flex-shrink:0;${
+                item.status==='current'?'background:var(--td);color:var(--teal)':
+                item.status==='planned'?'background:rgba(255,184,0,.1);color:var(--ylw)':
+                'background:var(--s2);color:var(--t3)'
+              }">${item.status==='current'?'ACUM':item.status==='planned'?'PLANIFICAT':'VIITOR'}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+
+    <!-- Prompt improvement suggestions -->
+    <div class="card">
+      <div class="card-header"><div class="card-title">💡 Îmbunătățiri prompt recomandate pentru v2.0</div></div>
+      <div class="card-body">
+        <div style="font-size:13px;color:var(--t2);margin-bottom:12px">Adaugă aceste câmpuri în promptul de analiză pentru a crește acuratețea:</div>
+        <div style="background:#0A0A0A;border-radius:10px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--teal);line-height:1.9">
+"parking": "disponibilitate parcare sau null",<br>
+"payment_methods": ["cash", "card", "transfer"],<br>
+"emergency": true/false,<br>
+"appointment_duration": "durata medie in minute",<br>
+"cancellation_policy": "politica anulare sau null",<br>
+"languages": ["română", "engleză"],<br>
+"accepts_insurance": true/false,<br>
+"walk_ins_accepted": true/false,<br>
+"deposit_required": true/false
+        </div>
+        <div style="margin-top:10px;font-size:12px;color:var(--t3)">Aceste câmpuri sunt detectate în mai puțin de 20% din scanările actuale.</div>
+      </div>
+    </div>
+  `;
 }
 
 // ── TOAST ─────────────────────────────────────

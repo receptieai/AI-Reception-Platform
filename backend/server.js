@@ -18,6 +18,219 @@ const url = require('url');
 
 const PORT = process.env.PORT || 8080;
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || '';
+const BREVO_API_KEY = process.env.BREVO_API_KEY || '';
+const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@receptieai.ro';
+const FROM_NAME = 'RecepAI';
+
+// ── EMAIL SYSTEM (Brevo) ──────────────────────
+function sendEmail({ to, toName, subject, html }) {
+  return new Promise((resolve, reject) => {
+    if (!BREVO_API_KEY) {
+      console.log('[EMAIL] Brevo key lipsă — email nesent:', subject);
+      resolve({ skipped: true });
+      return;
+    }
+
+    const body = JSON.stringify({
+      sender: { name: FROM_NAME, email: FROM_EMAIL },
+      to: [{ email: to, name: toName || to }],
+      subject,
+      htmlContent: html,
+    });
+
+    const req = https.request({
+      hostname: 'api.brevo.com',
+      path: '/v3/smtp/email',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'api-key': BREVO_API_KEY,
+        'Content-Length': Buffer.byteLength(body),
+      },
+      timeout: 10000,
+    }, (res) => {
+      let data = '';
+      res.on('data', c => data += c);
+      res.on('end', () => {
+        if (res.statusCode >= 200 && res.statusCode < 300) {
+          console.log('[EMAIL] Trimis cu succes:', subject, '→', to);
+          resolve({ success: true });
+        } else {
+          console.error('[EMAIL] Eroare:', res.statusCode, data);
+          reject(new Error('Email failed: ' + res.statusCode));
+        }
+      });
+    });
+
+    req.on('timeout', () => { req.destroy(); reject(new Error('Email timeout')); });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
+
+// ── EMAIL TEMPLATES ───────────────────────────
+function emailLeadNotification(lead, businessName, ownerEmail) {
+  const time = new Date().toLocaleString('ro-RO', { timeZone: 'Europe/Bucharest' });
+  return sendEmail({
+    to: ownerEmail,
+    toName: businessName,
+    subject: `🔔 Lead nou — ${lead.nume || 'Client'} vrea să se programeze`,
+    html: `
+<!DOCTYPE html>
+<html lang="ro">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F4F4F4;font-family:Arial,sans-serif">
+<div style="max-width:560px;margin:0 auto;padding:24px 16px">
+
+  <!-- Header -->
+  <div style="background:#0A0A0A;border-radius:12px 12px 0 0;padding:24px;text-align:center">
+    <div style="font-size:22px;font-weight:800;color:#FFFFFF;letter-spacing:-0.5px">
+      Recep<span style="color:#00D4AA">AI</span>
+    </div>
+    <div style="font-size:12px;color:#666;margin-top:4px">Recepționist AI · receptieai.ro</div>
+  </div>
+
+  <!-- Alert bar -->
+  <div style="background:#00D4AA;padding:12px 24px;text-align:center">
+    <div style="font-size:14px;font-weight:700;color:#000">🔔 Lead nou captat de recepționistul tău AI</div>
+  </div>
+
+  <!-- Body -->
+  <div style="background:#FFFFFF;padding:28px 24px;border-left:1px solid #E5E5E5;border-right:1px solid #E5E5E5">
+    <div style="font-size:15px;color:#333;margin-bottom:20px">
+      Bună ziua,<br><br>
+      Un client a interacționat cu recepționistul tău AI pe site-ul <strong>${businessName}</strong> și a lăsat datele de contact.
+    </div>
+
+    <!-- Lead details -->
+    <div style="background:#F8F8F8;border-radius:10px;padding:20px;margin-bottom:20px;border-left:4px solid #00D4AA">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#999;margin-bottom:14px">Detalii client</div>
+      
+      <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start">
+        <div style="font-size:18px">👤</div>
+        <div>
+          <div style="font-size:11px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Nume</div>
+          <div style="font-size:16px;font-weight:700;color:#000;margin-top:2px">${lead.nume || '—'}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start">
+        <div style="font-size:18px">📞</div>
+        <div>
+          <div style="font-size:11px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Telefon</div>
+          <div style="font-size:16px;font-weight:700;color:#000;margin-top:2px">
+            <a href="tel:${(lead.telefon||'').replace(/\s/g,'')}" style="color:#00D4AA;text-decoration:none">${lead.telefon || '—'}</a>
+          </div>
+        </div>
+      </div>
+
+      ${lead.serviciu ? `
+      <div style="display:flex;gap:10px;margin-bottom:12px;align-items:flex-start">
+        <div style="font-size:18px">🔧</div>
+        <div>
+          <div style="font-size:11px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Serviciu dorit</div>
+          <div style="font-size:15px;font-weight:600;color:#000;margin-top:2px">${lead.serviciu}</div>
+        </div>
+      </div>` : ''}
+
+      ${lead.data_dorita ? `
+      <div style="display:flex;gap:10px;margin-bottom:0;align-items:flex-start">
+        <div style="font-size:18px">📅</div>
+        <div>
+          <div style="font-size:11px;color:#999;font-weight:600;text-transform:uppercase;letter-spacing:.5px">Data dorită</div>
+          <div style="font-size:15px;font-weight:600;color:#000;margin-top:2px">${lead.data_dorita}</div>
+        </div>
+      </div>` : ''}
+    </div>
+
+    <!-- CTA -->
+    <div style="text-align:center;margin-bottom:20px">
+      <a href="tel:${(lead.telefon||'').replace(/\s/g,'')}" style="display:inline-block;background:#00D4AA;color:#000;font-weight:700;font-size:15px;padding:14px 32px;border-radius:10px;text-decoration:none">
+        📞 Sună acum — ${lead.telefon || 'client nou'}
+      </a>
+    </div>
+
+    <div style="font-size:12px;color:#999;text-align:center">
+      Lead capturat: ${time}<br>
+      Clientul se așteaptă să fie contactat în maximum 2 ore.
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div style="background:#F0F0F0;border-radius:0 0 12px 12px;padding:16px 24px;text-align:center;border:1px solid #E5E5E5;border-top:none">
+    <div style="font-size:11px;color:#999">
+      Powered by <strong>RecepAI</strong> · receptieai.ro<br>
+      Recepționistul tău AI lucrează 24/7 chiar și când tu nu ești disponibil.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>`
+  });
+}
+
+function emailClientConfirmation(lead, businessName, businessPhone) {
+  return sendEmail({
+    to: lead.email || '',
+    toName: lead.nume || 'Client',
+    subject: `✅ Solicitarea ta la ${businessName} a fost înregistrată`,
+    html: `
+<!DOCTYPE html>
+<html lang="ro">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#F4F4F4;font-family:Arial,sans-serif">
+<div style="max-width:560px;margin:0 auto;padding:24px 16px">
+
+  <div style="background:#0A0A0A;border-radius:12px 12px 0 0;padding:24px;text-align:center">
+    <div style="font-size:22px;font-weight:800;color:#FFFFFF">
+      Recep<span style="color:#00D4AA">AI</span>
+    </div>
+  </div>
+
+  <div style="background:#FFFFFF;padding:32px 24px;border:1px solid #E5E5E5;border-top:none">
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:48px;margin-bottom:12px">✅</div>
+      <div style="font-family:Arial,sans-serif;font-size:22px;font-weight:800;color:#000;margin-bottom:8px">
+        Solicitarea ta a fost înregistrată!
+      </div>
+      <div style="font-size:15px;color:#666;line-height:1.6">
+        Bună ziua, <strong>${lead.nume || 'Client'}</strong>!<br>
+        Echipa de la <strong>${businessName}</strong> te va contacta în maximum 2 ore.
+      </div>
+    </div>
+
+    <div style="background:#F8F8F8;border-radius:10px;padding:20px;margin-bottom:24px;border-left:4px solid #00D4AA">
+      <div style="font-size:12px;font-weight:700;letter-spacing:1px;color:#999;text-transform:uppercase;margin-bottom:12px">Rezumat solicitare</div>
+      ${lead.serviciu ? `<div style="font-size:14px;color:#333;margin-bottom:8px">🔧 <strong>Serviciu:</strong> ${lead.serviciu}</div>` : ''}
+      ${lead.data_dorita ? `<div style="font-size:14px;color:#333;margin-bottom:8px">📅 <strong>Data dorită:</strong> ${lead.data_dorita}</div>` : ''}
+      <div style="font-size:14px;color:#333">📞 <strong>Telefon:</strong> ${lead.telefon || '—'}</div>
+    </div>
+
+    ${businessPhone ? `
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:13px;color:#999;margin-bottom:10px">Dacă este urgent, ne poți contacta direct:</div>
+      <a href="tel:${businessPhone.replace(/\s/g,'')}" style="display:inline-block;background:#0A0A0A;color:#FFF;font-weight:700;padding:12px 28px;border-radius:10px;text-decoration:none;font-size:14px">
+        📞 ${businessPhone}
+      </a>
+    </div>` : ''}
+
+    <div style="font-size:12px;color:#999;text-align:center;line-height:1.7">
+      Acest email a fost generat automat de recepționistul AI.<br>
+      Nu este necesar să răspunzi la acest email.
+    </div>
+  </div>
+
+  <div style="background:#F0F0F0;border-radius:0 0 12px 12px;padding:14px;text-align:center;border:1px solid #E5E5E5;border-top:none">
+    <div style="font-size:11px;color:#999">Powered by RecepAI · receptieai.ro</div>
+  </div>
+
+</div>
+</body>
+</html>`
+  });
+}
 
 // ── MIME TYPES ────────────────────────────────
 const MIME = {
@@ -439,9 +652,10 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/health' && req.method === 'GET') {
     sendJson(res, { 
       status: 'ok', 
-      version: '1.0.0',
+      version: '1.1.0',
       timestamp: new Date().toISOString(),
-      claude: CLAUDE_API_KEY ? 'configured' : 'missing — set CLAUDE_API_KEY env var',
+      claude: CLAUDE_API_KEY ? 'configured' : 'missing',
+      brevo: BREVO_API_KEY ? 'configured' : 'missing — set BREVO_API_KEY',
     });
     return;
   }
@@ -510,8 +724,42 @@ const server = http.createServer(async (req, res) => {
     }
 
     const leads = saveLead(body.clientId, body.lead);
-    console.log('[LEAD] Saved for client:', body.clientId, '| Total:', leads.length);
+    const lead = body.lead;
+    const businessName = body.businessName || 'Afacerea ta';
+    const ownerEmail = body.ownerEmail || '';
+    const businessPhone = body.businessPhone || '';
+
+    console.log('[LEAD] Salvat pentru:', body.clientId, '| Total:', leads.length);
+    console.log('[LEAD] Client:', lead.nume, '| Tel:', lead.telefon, '| Serviciu:', lead.serviciu);
+
+    // Răspuns instant — emailurile se trimit async
     sendJson(res, { success: true, total: leads.length });
+
+    // Trimite emailuri async (nu blochează răspunsul)
+    setImmediate(async () => {
+      // Email 1 — Notificare proprietar
+      if (ownerEmail) {
+        try {
+          await emailLeadNotification(lead, businessName, ownerEmail);
+          console.log('[EMAIL] Notificare proprietar trimisă →', ownerEmail);
+        } catch(e) {
+          console.error('[EMAIL] Eroare notificare proprietar:', e.message);
+        }
+      } else {
+        console.log('[EMAIL] Email proprietar lipsă — notificare nesent');
+      }
+
+      // Email 2 — Confirmare client (doar dacă are email)
+      if (lead.email) {
+        try {
+          await emailClientConfirmation(lead, businessName, businessPhone);
+          console.log('[EMAIL] Confirmare client trimisă →', lead.email);
+        } catch(e) {
+          console.error('[EMAIL] Eroare confirmare client:', e.message);
+        }
+      }
+    });
+
     return;
   }
 
@@ -534,24 +782,24 @@ const server = http.createServer(async (req, res) => {
 server.listen(PORT, () => {
   console.log('');
   console.log('╔══════════════════════════════════════╗');
-  console.log('║       RecepAI Server v1.0            ║');
+  console.log('║       RecepAI Server v1.1            ║');
   console.log('╠══════════════════════════════════════╣');
   console.log(`║  Local:  http://localhost:${PORT}       ║`);
   console.log(`║  API:    http://localhost:${PORT}/api   ║`);
   console.log(`║  Claude: ${CLAUDE_API_KEY ? '✓ Configured' : '✗ Missing API Key'}          ║`);
+  console.log(`║  Brevo:  ${BREVO_API_KEY ? '✓ Configured' : '✗ Missing API Key'}          ║`);
   console.log('╚══════════════════════════════════════╝');
   console.log('');
-  console.log('Endpoints disponibile:');
+  console.log('Endpoints:');
   console.log('  GET  /api/health');
-  console.log('  POST /api/analyze  — { url: "site.ro" }');
-  console.log('  POST /api/chat     — { messages, businessProfile, personality }');
-  console.log('  POST /api/lead     — { clientId, lead }');
+  console.log('  POST /api/analyze');
+  console.log('  POST /api/chat');
+  console.log('  POST /api/lead     ← trimite emailuri automat');
   console.log('  GET  /api/leads/:clientId');
   console.log('');
-  if (!CLAUDE_API_KEY) {
-    console.log('⚠️  CLAUDE_API_KEY lipsă! Setează cu:');
-    console.log('   export CLAUDE_API_KEY="sk-ant-..."');
-    console.log('   node backend/server-full.js');
+  if (!BREVO_API_KEY) {
+    console.log('⚠️  BREVO_API_KEY lipsă! Emailurile nu vor fi trimise.');
+    console.log('   export BREVO_API_KEY="xkeysib-..."');
     console.log('');
   }
 });
