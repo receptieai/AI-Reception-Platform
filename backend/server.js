@@ -145,21 +145,6 @@ function fetchSite(siteUrl) {
   });
 }
 
-function extractMenuLinks(html, baseUrl) {
-  const menuPages = [];
-  const priceKeywords = /tarif|pret|servicii|costuri|lista|price|service/i;
-  const linkRegex = /href=["']([^"'#?]+)["']/gi;
-  let match;
-  while((match = linkRegex.exec(html)) !== null) {
-    const href = match[1];
-    if(priceKeywords.test(href)) {
-      if(href.startsWith('http')) menuPages.push(href);
-      else if(href.startsWith('/')) menuPages.push(baseUrl + href);
-    }
-  }
-  return [...new Set(menuPages)].slice(0, 3);
-}
-
 function extractLinks(html) {
   const links = {};
   const fb = html.match(/href=["'](https?:\/\/(?:www\.)?facebook\.com\/[^"'\s?]+)["']/i);
@@ -216,10 +201,7 @@ const server = http.createServer(async(req, res) => {
   html=await fetchSite(body.url);
   try{
     const base=body.url.replace(/\/$/,'');
-    const base=body.url.startsWith('http')?new URL(body.url).origin:('https://'+body.url.replace(/\/.*/,''));
-    const menuLinks=html?extractMenuLinks(html,base):[];
-    const staticPages=['/contact','/tarife','/tarife/','/preturi','/preturi/','/servicii','/servicii/'];
-    const pages=[...new Set([...menuLinks,...staticPages])];
+    const pages=['/contact','/tarife','/tarife/','/preturi','/preturi/','/servicii','/servicii/','/despre-noi','/despre-noi/','/faq','/intrebari-frecvente'];
     for(const page of pages){
       try{
         const extra=await fetchSite(base+page);
