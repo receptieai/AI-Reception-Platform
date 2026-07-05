@@ -145,6 +145,21 @@ function fetchSite(siteUrl) {
   });
 }
 
+function findPricePages(html, siteUrl) {
+  const results = [];
+  const base = siteUrl.startsWith('http') ? siteUrl.replace(/\/[^\/]*$/, '') : 'https://' + siteUrl;
+  const keywords = /tarif|pret|servicii|costuri|price|services/i;
+  const re = /href=["']([^"'#?]{2,80})["']/gi;
+  let m;
+  while((m = re.exec(html)) !== null) {
+    const href = m[1];
+    if(!keywords.test(href)) continue;
+    if(href.startsWith('http')) results.push(href);
+    else if(href.startsWith('/')) results.push(base.replace(/(\/\/[^\/]+).*/, '$1') + href);
+  }
+  return [...new Set(results)].slice(0, 2);
+}
+
 function extractLinks(html) {
   const links = {};
   const fb = html.match(/href=["'](https?:\/\/(?:www\.)?facebook\.com\/[^"'\s?]+)["']/i);
@@ -201,7 +216,8 @@ const server = http.createServer(async(req, res) => {
   html=await fetchSite(body.url);
   try{
     const base=body.url.replace(/\/$/,'');
-    const pages=['/contact','/tarife','/tarife/','/preturi','/preturi/','/servicii','/servicii/','/despre-noi','/despre-noi/','/faq','/intrebari-frecvente'];
+    const pricePages = html ? findPricePages(html, body.url) : [];
+    const pages = [...new Set([...pricePages, '/contact', '/tarife', '/preturi', '/servicii'])];
     for(const page of pages){
       try{
         const extra=await fetchSite(base+page);
