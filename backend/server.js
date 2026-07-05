@@ -200,9 +200,15 @@ const server = http.createServer(async(req, res) => {
       try{
   html=await fetchSite(body.url);
   try{
-    const contactUrl=body.url.replace(/\/$/,'')+'/contact';
-    const contactHtml=await fetchSite(contactUrl);
-    html+=' '+contactHtml;
+    const base=body.url.replace(/\/$/,'');
+    const pages=['/contact','/tarife','/preturi','/servicii','/despre-noi'];
+    for(const page of pages){
+      try{
+        const extra=await fetchSite(base+page);
+        html+=' '+extra;
+        if(html.length>100000) break;
+      }catch(e3){}
+    }
   }catch(e2){}
 }catch(e){console.log('[ANALYZE] Fetch failed:',e.message);}
       const links = html ? extractLinks(html) : {};
