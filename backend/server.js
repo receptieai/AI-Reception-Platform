@@ -201,7 +201,7 @@ const server = http.createServer(async(req, res) => {
   html=await fetchSite(body.url);
   try{
     const base=body.url.replace(/\/$/,'');
-    const pages=['/contact','/tarife','/preturi','/servicii','/despre-noi'];
+    const pages=['/contact','/tarife','/tarife/','/preturi','/preturi/','/servicii','/servicii/','/despre-noi','/despre-noi/','/faq','/intrebari-frecvente'];
     for(const page of pages){
       try{
         const extra=await fetchSite(base+page);
