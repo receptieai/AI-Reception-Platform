@@ -1,0 +1,22 @@
+{
+  "TEST": [
+    {
+      "nume": "Maria Test",
+      "telefon": "0721000000",
+      "serviciu": "Tuns",
+      "data_dorita": "Maine",
+      "id": "mr6p65yg",
+      "timestamp": "2026-07-04T18:30:08.296Z"
+    }
+  ],
+  "CLI-001": [
+    {
+      "nume": "Maria Test",
+      "telefon": "0721000000",
+      "serviciu": "Tuns",
+      "data_dorita": "Maine",
+      "id": "mr6pgc8r",
+      "timestamp": "2026-07-04T18:38:03.003Z"
+    }
+  ]
+}
