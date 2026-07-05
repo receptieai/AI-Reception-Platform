@@ -145,6 +145,17 @@ function fetchSite(siteUrl) {
   });
 }
 
+function extractLinks(html) {
+  const links = {};
+  const fb = html.match(/href=["'](https?:\/\/(?:www\.)?facebook\.com\/[^"'\s?]+)["']/i);
+  const ig = html.match(/href=["'](https?:\/\/(?:www\.)?instagram\.com\/[^"'\s?]+)["']/i);
+  const em = html.match(/href=["']mailto:([^"'\s]+)["']/i);
+  if(fb) links.facebook = fb[1];
+  if(ig) links.instagram = ig[1];
+  if(em) links.email = em[1];
+  return links;
+}
+
 function stripHtml(h) {
   return h.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'')
     .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().substring(0,15000);
@@ -194,9 +205,10 @@ const server = http.createServer(async(req, res) => {
     html+=' '+contactHtml;
   }catch(e2){}
 }catch(e){console.log('[ANALYZE] Fetch failed:',e.message);}
+      const links = html ? extractLinks(html) : {};
       const text = html ? stripHtml(html) : '';
       const prompt = text
-        ?`Analizeaza website-ul romanesc: ${body.url}\nContinut:\n${text}\nCauta emailuri in tot textul inclusiv "mailto:", "office@", "contact@", "email:". Returneaza DOAR JSON:\n{"name":"","type":"tip cu emoji","phone":null,"email":null,"city":null,"hours":null,"services":[{"name":"","price":"","duration":""}],"faq":[{"question":"","answer":""}],"facebook":null,"instagram":null,"confidence":85,"missing":[]}`
+        ?`Analizeaza website-ul romanesc: ${body.url}\nLinkuri detectate automat: facebook=${links.facebook||'negasit'} instagram=${links.instagram||'negasit'} email=${links.email||'negasit'}\nContinut:\n${text}\nCauta emailuri in tot textul inclusiv "mailto:", "office@", "contact@", "email:". Returneaza DOAR JSON:\n{"name":"","type":"tip cu emoji","phone":null,"email":null,"city":null,"hours":null,"services":[{"name":"","price":"","duration":""}],"faq":[{"question":"","answer":""}],"facebook":null,"instagram":null,"confidence":85,"missing":[]}`
         :`Genereaza profil pentru domeniu: ${domain}\nJSON: {"name":"","type":"tip cu emoji","phone":null,"email":null,"city":null,"hours":null,"services":[{"name":"","price":""}],"faq":[],"confidence":45,"missing":[]}`;
       const result = await callClaude('Esti expert afaceri Romania. Cauta TOATE emailurile in text inclusiv "mailto:", "@", "office@", "contact@". Returneaza DOAR JSON valid.',prompt);
       const parsed = JSON.parse(result.replace(/```json|```/g,'').trim());
