@@ -137,7 +137,7 @@ function fetchSite(siteUrl) {
         fetchSite(res.headers.location).then(resolve).catch(reject); return;
       }
       let d=''; res.setEncoding('utf8');
-      res.on('data',c=>{d+=c;if(d.length>60000){req.destroy();resolve(d);}});
+      res.on('data',c=>{d+=c;if(d.length>150000){req.destroy();resolve(d);}});
       res.on('end',()=>resolve(d));
     });
     req.on('timeout',()=>{req.destroy();reject(new Error('Timeout'));});
@@ -147,7 +147,7 @@ function fetchSite(siteUrl) {
 
 function stripHtml(h) {
   return h.replace(/<script[\s\S]*?<\/script>/gi,'').replace(/<style[\s\S]*?<\/style>/gi,'')
-    .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().substring(0,8000);
+    .replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().substring(0,15000);
 }
 
 function makeFallback(domain) {
@@ -186,12 +186,19 @@ const server = http.createServer(async(req, res) => {
     if(!CLAUDE_API_KEY){sendJson(res,{success:true,data:makeFallback(domain),mock:true});return;}
     try{
       let html='';
-      try{html=await fetchSite(body.url);}catch(e){console.log('[ANALYZE] Fetch failed:',e.message);}
+      try{
+  html=await fetchSite(body.url);
+  try{
+    const contactUrl=body.url.replace(/\/$/,'')+'/contact';
+    const contactHtml=await fetchSite(contactUrl);
+    html+=' '+contactHtml;
+  }catch(e2){}
+}catch(e){console.log('[ANALYZE] Fetch failed:',e.message);}
       const text = html ? stripHtml(html) : '';
       const prompt = text
-        ?`Analizeaza website-ul romanesc: ${body.url}\nContinut:\n${text}\nReturneaza DOAR JSON:\n{"name":"","type":"tip cu emoji","phone":null,"email":null,"city":null,"hours":null,"services":[{"name":"","price":"","duration":""}],"faq":[{"question":"","answer":""}],"facebook":null,"instagram":null,"confidence":85,"missing":[]}`
+        ?`Analizeaza website-ul romanesc: ${body.url}\nContinut:\n${text}\nCauta emailuri in tot textul inclusiv "mailto:", "office@", "contact@", "email:". Returneaza DOAR JSON:\n{"name":"","type":"tip cu emoji","phone":null,"email":null,"city":null,"hours":null,"services":[{"name":"","price":"","duration":""}],"faq":[{"question":"","answer":""}],"facebook":null,"instagram":null,"confidence":85,"missing":[]}`
         :`Genereaza profil pentru domeniu: ${domain}\nJSON: {"name":"","type":"tip cu emoji","phone":null,"email":null,"city":null,"hours":null,"services":[{"name":"","price":""}],"faq":[],"confidence":45,"missing":[]}`;
-      const result = await callClaude('Esti expert afaceri Romania. Returneaza DOAR JSON valid.',prompt);
+      const result = await callClaude('Esti expert afaceri Romania. Cauta TOATE emailurile in text inclusiv "mailto:", "@", "office@", "contact@". Returneaza DOAR JSON valid.',prompt);
       const parsed = JSON.parse(result.replace(/```json|```/g,'').trim());
       console.log('[ANALYZE]',parsed.name,'Conf:',parsed.confidence+'%');
       sendJson(res,{success:true,data:parsed});
@@ -272,3 +279,4 @@ server.listen(PORT, ()=>{
   console.log(`\nRecepAI v1.1 → http://localhost:${PORT}`);
   console.log(`Claude: ${CLAUDE_API_KEY?'✓':'✗'} | Brevo: ${BREVO_API_KEY?'✓':'✗'}\n`);
 });
+// Patch applied via terminal
