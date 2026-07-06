@@ -9,6 +9,7 @@ const https = require('https');
 const fs = require('fs');
 const path = require('path');
 const url = require('url');
+const { extractAll } = require('./extractors');
 
 const PORT = process.env.PORT || 8080;
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || '';
@@ -262,6 +263,12 @@ async function analyzeWebsite(siteUrl) {
 
   // PASUL 6: Combină tot conținutul
   const homepageText = homepageHtml ? stripHtml(homepageHtml) : '';
+  const detExtracted = homepageHtml ? extractAll(homepageHtml, siteUrl) : null;
+  if (detExtracted) {
+    console.log('[EXTRACTORS] Phone:', detExtracted.phone, '| Email:', detExtracted.email);
+    console.log('[EXTRACTORS] FB:', detExtracted.facebook, '| IG:', detExtracted.instagram);
+    console.log('[EXTRACTORS] Services (deterministic):', detExtracted.services.length);
+  }
   const fullText = (homepageText.substring(0, 2000) + ' ' + extraContent.substring(0, 4000)).substring(0, 6000);
 
   if (!fullText.trim() && !socialLinks.facebook) {
@@ -336,6 +343,23 @@ Returnează DOAR acest JSON valid, fără text suplimentar:
     }
     
     // Override cu linkurile extrase direct din HTML (mai precise)
+    // Override cu extractoarele deterministe (prioritate maxima)
+    if (detExtracted) {
+      if (detExtracted.phone) parsed.phone = detExtracted.phone;
+      if (detExtracted.email) parsed.email = detExtracted.email;
+      if (detExtracted.facebook) parsed.facebook = detExtracted.facebook;
+      if (detExtracted.instagram) parsed.instagram = detExtracted.instagram;
+      if (detExtracted.tiktok) parsed.tiktok = detExtracted.tiktok;
+      if (detExtracted.youtube) parsed.youtube = detExtracted.youtube;
+      if (detExtracted.address) parsed.address = detExtracted.address;
+      if (detExtracted.hours) parsed.hours = detExtracted.hours;
+      // Daca extractorul determinist a gasit mai multe servicii cu preturi, le folosim
+      const detWithPrices = detExtracted.services.filter(s => s.price).length;
+      const claudeWithPrices = (parsed.services||[]).filter(s => s.price).length;
+      if (detWithPrices > claudeWithPrices) parsed.services = detExtracted.services;
+      // Confidence pe baza extractoarelor deterministe
+      parsed.fieldConfidence = detExtracted._confidence;
+    }
     if (socialLinks.facebook) parsed.facebook = socialLinks.facebook;
     if (socialLinks.instagram) parsed.instagram = socialLinks.instagram;
     if (socialLinks.emailFromMailto && !parsed.email) parsed.email = socialLinks.emailFromMailto;
