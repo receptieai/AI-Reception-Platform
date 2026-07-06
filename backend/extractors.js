@@ -278,6 +278,38 @@ function extractServicesWithPrices(html) {
     });
   }
 
+  // Pattern nou: nume pe un rand, pret pe randul urmator (h3/h4 + span/div separat)
+  if (services.length < 5) {
+    const headingPriceRegex = /<(h[2-6]|strong|b)[^>]*>([^<]{3,100})<\/\1>\s*(?:<[^>]+>)*\s*(\d{2,5})\s*(?:ron|lei|€|eur)/gi;
+    let hm;
+    while ((hm = headingPriceRegex.exec(html)) !== null) {
+      const name = hm[2].trim();
+      const price = hm[3];
+      if (name.length >= 3 && !seen.has(name.toLowerCase())) {
+        seen.add(name.toLowerCase());
+        services.push({ name, price: price + ' RON', duration: null });
+      }
+    }
+  }
+
+  // Pattern: text urmat de numar RON in urmatoarele 200 caractere (mai permisiv)
+  if (services.length < 5) {
+    const textOnly2 = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');
+    const chunks = textOnly2.split(/<(?:h[2-6]|p|div)[^>]*>/i);
+    chunks.forEach(chunk => {
+      const clean = chunk.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      const m = clean.match(/^([A-ZĂÂÎȘȚ][a-zA-ZăâîșțĂÂÎȘȚ\s\-,]{3,80}?)\s+(\d{2,5})\s*(?:RON|LEI|lei|ron)\b/);
+      if (m) {
+        const name = m[1].trim();
+        const price = m[2];
+        if (name.length >= 3 && name.length <= 80 && !seen.has(name.toLowerCase()) && services.length < 60) {
+          seen.add(name.toLowerCase());
+          services.push({ name, price: price + ' RON', duration: null });
+        }
+      }
+    });
+  }
+
   // Fallback: linie cu linie din text simplu (paragrafe cu preț)
   if (services.length === 0) {
     const textOnly = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '');

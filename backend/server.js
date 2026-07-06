@@ -250,10 +250,12 @@ async function analyzeWebsite(siteUrl) {
 
   // PASUL 5: Fetch toate paginile cu prețuri
   let extraContent = '';
+  let allRawHtml = '';
   for (const pageUrl of allPriceUrls) {
     try {
       const pageHtml = await fetchUrl(pageUrl);
       extraContent += ' ' + stripHtml(pageHtml);
+      allRawHtml += ' ' + pageHtml;
       console.log('[ANALYZE] Fetched:', pageUrl, '→', pageHtml.length, 'chars');
       if (extraContent.length > 20000) break;
     } catch (e) {
@@ -263,7 +265,8 @@ async function analyzeWebsite(siteUrl) {
 
   // PASUL 6: Combină tot conținutul
   const homepageText = homepageHtml ? stripHtml(homepageHtml) : '';
-  const detExtracted = homepageHtml ? extractAll(homepageHtml, siteUrl) : null;
+  const combinedHtmlForExtraction = homepageHtml + (typeof allRawHtml !== 'undefined' ? allRawHtml : '');
+  const detExtracted = homepageHtml ? extractAll(combinedHtmlForExtraction, siteUrl) : null;
   if (detExtracted) {
     console.log('[EXTRACTORS] Phone:', detExtracted.phone, '| Email:', detExtracted.email);
     console.log('[EXTRACTORS] FB:', detExtracted.facebook, '| IG:', detExtracted.instagram);
