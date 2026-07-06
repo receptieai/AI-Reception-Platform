@@ -262,7 +262,7 @@ async function analyzeWebsite(siteUrl) {
 
   // PASUL 6: Combină tot conținutul
   const homepageText = homepageHtml ? stripHtml(homepageHtml) : '';
-  const fullText = (homepageText + ' ' + extraContent).substring(0, 20000);
+  const fullText = (homepageText.substring(0, 2000) + ' ' + extraContent.substring(0, 4000)).substring(0, 6000);
 
   if (!fullText.trim() && !socialLinks.facebook) {
     console.log('[ANALYZE] No content fetched — using fallback');
@@ -311,8 +311,29 @@ Returnează DOAR acest JSON valid, fără text suplimentar:
 
   try {
     const result = await callClaude('Ești expert în analiza afacerilor locale din România. Returnezi DOAR JSON valid, fără markdown, fără text extra.', prompt);
-    const clean = result.replace(/```json|```/g, '').trim();
-    const parsed = JSON.parse(clean);
+    let clean = result.replace(/```json|```/g, '').trim();
+    clean = clean.replace(/,(\s*[}\]])/g, '$1');
+    let parsed;
+    try {
+      parsed = JSON.parse(clean);
+    } catch (parseErr) {
+      console.log('[ANALYZE] JSON repair attempt:', parseErr.message);
+      const lastGoodBrace = clean.lastIndexOf('},');
+      const lastGoodBracket = clean.lastIndexOf('],');
+      const cutPoint = Math.max(lastGoodBrace, lastGoodBracket);
+      if (cutPoint > 0) {
+        let repaired = clean.substring(0, cutPoint + 1);
+        const ob = (repaired.match(/\{/g)||[]).length;
+        const cb = (repaired.match(/\}/g)||[]).length;
+        const obr = (repaired.match(/\[/g)||[]).length;
+        const cbr = (repaired.match(/\]/g)||[]).length;
+        if (ob > cb) repaired += '}'.repeat(ob - cb);
+        if (obr > cbr) repaired += ']'.repeat(obr - cbr);
+        parsed = JSON.parse(repaired);
+      } else {
+        throw parseErr;
+      }
+    }
     
     // Override cu linkurile extrase direct din HTML (mai precise)
     if (socialLinks.facebook) parsed.facebook = socialLinks.facebook;
@@ -332,7 +353,7 @@ function callClaude(system, user) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
       model: 'claude-sonnet-4-6',
-      max_tokens: 3000,
+      max_tokens: 4000,
       system,
       messages: [{ role: 'user', content: user }]
     });
