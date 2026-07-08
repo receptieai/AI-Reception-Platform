@@ -240,6 +240,10 @@ function extractServicesWithPrices(html) {
     const duration = durationMatch ? durationMatch[1] : null;
     
     if (name.length < 3 || name.length > 100) return null;
+    // Validare: numele trebuie sa contina cel putin 2 litere si sa nu fie doar numere/simboluri
+    if (!/[a-zA-ZăâîșțĂÂÎȘȚ]{3,}/.test(name)) return null;
+    // Exclude fragmente evidente (doar numere, doar simboluri)
+    if (/^[\/\d\s\-\+\.]+$/.test(name.trim())) return null;
 
     return { name, price: `${price} ${currency}`, duration };
   }
