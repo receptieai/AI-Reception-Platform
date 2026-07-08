@@ -322,22 +322,33 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;display:flex;ali
 <!-- PANEL 4: COMPLETE MISSING -->
 <div class="panel" id="p4">
   <div class="panel-tag">Pasul 4 — Completare</div>
-  <div class="panel-title">Completați informațiile lipsă</div>
-  <div class="panel-sub">Câmpurile de mai jos au acuratețe scăzută sau lipsesc complet. Completați-le pentru un AI mai precis.</div>
+  <div class="panel-title">Verifică și completează</div>
+  <div class="panel-sub">Verifică datele confirmate și completează ce lipsește. Câmpurile marcate cu <span style="color:var(--red)">*</span> sunt obligatorii.</div>
 
-  <div id="missing-fields-container">
-    <!-- populated by JS -->
+  <!-- Summary box -->
+  <div id="p4-summary" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px">
   </div>
 
+  <!-- Confirmed fields - doar pentru verificare -->
+  <div id="confirmed-fields-container"></div>
+
+  <!-- Missing fields - de completat -->
+  <div id="missing-fields-container"></div>
+
+  <!-- Services editor -->
   <div class="services-editor" id="services-editor">
-    <div class="se-title">✏️ Editează servicii și prețuri</div>
-    <div id="se-list"></div>
+    <div class="se-title">
+      ✏️ Servicii și prețuri
+      <span id="se-stats" style="float:right;font-size:10px;color:var(--t3);font-weight:400;letter-spacing:0"></span>
+    </div>
+    <div style="font-size:11px;color:var(--t3);margin-bottom:10px">Poți edita, șterge sau adăuga servicii. Prețurile sunt opționale.</div>
+    <div id="se-list" style="max-height:300px;overflow-y:auto"></div>
     <button class="se-add" onclick="addServiceRow()">+ Adaugă serviciu</button>
   </div>
 
   <div class="btn-row">
     <button class="btn-secondary" onclick="goTo(3)">← Înapoi</button>
-    <button class="btn-primary" onclick="goTo(5)">Continuă → Preview AI</button>
+    <button class="btn-primary" id="btn-to-preview" onclick="validateAndContinue()">Continuă → Preview AI</button>
   </div>
 </div>
 
@@ -588,80 +599,175 @@ function renderResults(data) {
 // ── MISSING FIELDS ────────────────────────────
 function renderMissingFields(data) {
   const fc = data.fieldConfidence || {};
-  const container = document.getElementById('missing-fields-container');
+  const summaryEl = document.getElementById('p4-summary');
+  const confirmedEl = document.getElementById('confirmed-fields-container');
+  const missingEl = document.getElementById('missing-fields-container');
 
-  const missingFields = [
-    { key: 'phone', label: 'Telefon', icon: '📞', type: 'tel', placeholder: '0721 234 567', value: data.phone, conf: fc.phone || 0 },
-    { key: 'email', label: 'Email proprietar', icon: '📧', type: 'email', placeholder: 'contact@afacere.ro', value: data.email, conf: fc.email || 0, hint: 'Aici primești notificările cu lead-uri noi' },
-    { key: 'hours', label: 'Program de lucru', icon: '🕐', type: 'textarea', placeholder: 'Luni-Vineri: 09:00-18:00\nSâmbătă: 09:00-14:00', value: data.hours, conf: fc.hours || 0 },
-    { key: 'city', label: 'Oraș', icon: '📍', type: 'text', placeholder: 'București', value: data.city, conf: fc.city || 0 },
-  ].filter(f => !f.value || f.conf < 75);
+  // Count stats
+  const totalServices = (data.services || []).length;
+  const withPrices = (data.services || []).filter(s => s.price).length;
+  const foundFields = ['phone','email','city','hours','facebook','instagram'].filter(f => data[f]).length;
+  const totalFields = 6;
 
-  if (missingFields.length === 0) {
-    container.innerHTML = `<div class="info-box" style="margin-bottom:12px">
-      <strong>✅ Excelent!</strong> Am găsit toate informațiile importante. Poți edita serviciile de mai jos dacă e nevoie.
-    </div>`;
-    return;
+  // Summary boxes
+  summaryEl.innerHTML = `
+    <div style="background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;text-align:center">
+      <div style="font-size:22px;font-weight:700;color:var(--grn);font-family:'Syne',sans-serif">${foundFields}/${totalFields}</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">câmpuri găsite</div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;text-align:center">
+      <div style="font-size:22px;font-weight:700;color:var(--teal);font-family:'Syne',sans-serif">${totalServices}</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">servicii identificate</div>
+    </div>
+    <div style="background:var(--s1);border:1px solid var(--b1);border-radius:10px;padding:12px 14px;text-align:center">
+      <div style="font-size:22px;font-weight:700;color:${withPrices > 0 ? 'var(--grn)' : 'var(--ylw)'};font-family:'Syne',sans-serif">${withPrices}</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">cu prețuri</div>
+    </div>
+  `;
+
+  // All fields with their properties
+  const allFields = [
+    { key: 'name', label: 'Numele afacerii', icon: '🏢', type: 'text', placeholder: 'Clinica Dentară Pro', value: data.name, conf: fc.name || 0, required: true },
+    { key: 'phone', label: 'Telefon', icon: '📞', type: 'tel', placeholder: '0721 234 567', value: data.phone, conf: fc.phone || 0, required: true },
+    { key: 'email', label: 'Email proprietar', icon: '📧', type: 'email', placeholder: 'contact@clinica.ro', value: data.email, conf: fc.email || 0, required: true, hint: 'Aici primești notificările cu lead-uri noi — OBLIGATORIU' },
+    { key: 'city', label: 'Oraș', icon: '📍', type: 'text', placeholder: 'București', value: data.city, conf: fc.city || 0, required: false },
+    { key: 'hours', label: 'Program de lucru', icon: '🕐', type: 'textarea', placeholder: 'Luni-Vineri: 09:00-18:00\nSâmbătă: 09:00-14:00', value: data.hours, conf: fc.hours || 0, required: true, hint: 'AI-ul va spune clienților când sunteți deschis' },
+  ];
+
+  // Split into confirmed (conf >= 75 AND has value) and missing
+  const confirmedFields = allFields.filter(f => f.value && f.conf >= 75);
+  const missingFields = allFields.filter(f => !f.value || f.conf < 75);
+
+  // Render confirmed fields
+  if (confirmedFields.length > 0) {
+    confirmedEl.innerHTML = `
+      <div style="background:var(--s1);border:1px solid rgba(0,204,136,.15);border-radius:12px;padding:14px 16px;margin-bottom:12px">
+        <div style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--grn);margin-bottom:10px">✅ Date confirmate — verifică dacă sunt corecte</div>
+        ${confirmedFields.map(f => `
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1)">
+            <span style="font-size:14px">${f.icon}</span>
+            <div style="flex:1">
+              <div style="font-size:11px;color:var(--t3);font-weight:600">${f.label}</div>
+              <input class="form-input" id="mf-${f.key}" type="${f.type === 'textarea' ? 'text' : f.type}" value="${(f.value || '').replace(/"/g, '&quot;')}" style="margin-top:4px;font-size:13px;padding:7px 10px;background:rgba(0,204,136,.05);border-color:rgba(0,204,136,.2)">
+            </div>
+            <span style="font-size:10px;color:var(--grn);font-weight:700;flex-shrink:0">${f.conf}%</span>
+          </div>
+        `).join('')}
+      </div>`;
+  } else {
+    confirmedEl.innerHTML = '';
   }
 
-  container.innerHTML = `<div class="missing-section">
-    <div class="missing-title">⚠ Informații cu acuratețe scăzută sau lipsă</div>
-    ${missingFields.map(f => `
-      <div class="missing-field">
-        <div class="mf-label">
-          ${f.icon} ${f.label}
-          ${f.conf > 0 ? `<span style="font-size:10px;color:var(--ylw)">${f.conf}% acuratețe</span>` : ''}
-          <span class="mf-optional">opțional</span>
-        </div>
-        ${f.hint ? `<div style="font-size:11px;color:var(--t3);margin-bottom:5px">${f.hint}</div>` : ''}
-        ${f.type === 'textarea'
-          ? `<textarea class="form-textarea" id="mf-${f.key}" placeholder="${f.placeholder}">${f.value || ''}</textarea>`
-          : `<input class="form-input" id="mf-${f.key}" type="${f.type}" placeholder="${f.placeholder}" value="${f.value || ''}">`
-        }
-      </div>`).join('')}
-  </div>`;
+  // Render missing fields
+  if (missingFields.length > 0) {
+    missingEl.innerHTML = `
+      <div class="missing-section">
+        <div class="missing-title">${missingFields.some(f => f.required) ? '⚠ Informații lipsă — completați' : '📝 Informații opționale'}</div>
+        ${missingFields.map(f => `
+          <div class="missing-field">
+            <div class="mf-label">
+              ${f.icon} ${f.label}
+              ${f.required ? '<span style="color:var(--red);font-weight:700;font-size:14px">*</span>' : ''}
+              ${f.conf > 0 ? `<span style="font-size:10px;color:var(--ylw)">${f.conf}% acuratețe</span>` : ''}
+              ${!f.required ? '<span class="mf-optional">opțional</span>' : '<span style="font-size:10px;color:var(--red);font-weight:600;margin-left:auto">obligatoriu</span>'}
+            </div>
+            ${f.hint ? `<div style="font-size:11px;color:var(--t3);margin-bottom:5px">${f.hint}</div>` : ''}
+            ${f.type === 'textarea'
+              ? `<textarea class="form-textarea" id="mf-${f.key}" placeholder="${f.placeholder}">${f.value || ''}</textarea>`
+              : `<input class="form-input" id="mf-${f.key}" type="${f.type}" placeholder="${f.placeholder}" value="${(f.value || '').replace(/"/g, '&quot;')}">`
+            }
+          </div>`).join('')}
+      </div>`;
+  } else {
+    missingEl.innerHTML = `<div class="info-box" style="margin-bottom:12px">
+      <strong>✅ Excelent!</strong> Am găsit toate informațiile importante. Verifică datele de mai sus și editează serviciile dacă e nevoie.
+    </div>`;
+  }
+}
+
+// ── VALIDATE BEFORE CONTINUE ──────────────────
+function validateAndContinue() {
+  const email = document.getElementById('mf-email')?.value?.trim();
+  const phone = document.getElementById('mf-phone')?.value?.trim();
+  const name = document.getElementById('mf-name')?.value?.trim();
+
+  if (!email || !email.includes('@')) {
+    showToast('⚠ Emailul este obligatoriu — aici primești notificările cu lead-uri noi');
+    document.getElementById('mf-email')?.focus();
+    document.getElementById('mf-email').style.borderColor = 'var(--red)';
+    return;
+  }
+  if (!phone || phone.length < 9) {
+    showToast('⚠ Telefonul este obligatoriu');
+    document.getElementById('mf-phone')?.focus();
+    return;
+  }
+  goTo(5);
 }
 
 // ── SERVICES EDITOR ───────────────────────────
 function renderServicesEditor(services) {
   const list = document.getElementById('se-list');
   list.innerHTML = '';
-  (services.length > 0 ? services : [{ name: '', price: '' }]).forEach(s => addServiceRow(s.name, s.price));
+  const sorted = [...services].sort((a, b) => {
+    if (a.price && !b.price) return -1;
+    if (!a.price && b.price) return 1;
+    return 0;
+  });
+  (sorted.length > 0 ? sorted : [{ name: '', price: '' }]).forEach(s => addServiceRow(s.name, s.price));
+  updateServiceStats();
 }
 
 function addServiceRow(name = '', price = '') {
   const list = document.getElementById('se-list');
   const div = document.createElement('div');
   div.className = 'se-row';
+  const priceDisplay = price || '';
+  const hasPrice = !!price;
   div.innerHTML = `
-    <input class="form-input" placeholder="Numele serviciului" value="${name}" style="font-size:12px;padding:8px 10px">
-    <input class="form-input" placeholder="LEI" value="${price}" style="font-size:12px;padding:8px 10px;text-align:center;font-family:'JetBrains Mono',monospace">
-    <button class="se-del" onclick="this.closest('.se-row').remove()">×</button>
+    <input class="form-input" placeholder="Numele serviciului" value="${name.replace(/"/g, '&quot;')}" style="font-size:12px;padding:8px 10px${!name ? ';border-color:var(--b2)' : ''}" oninput="updateServiceStats()">
+    <input class="form-input" placeholder="Preț" value="${priceDisplay}" style="font-size:12px;padding:8px 10px;text-align:center;font-family:'JetBrains Mono',monospace;width:100px;${hasPrice ? 'color:var(--teal);border-color:rgba(0,212,170,.3)' : 'color:var(--t3)'}" oninput="updateServiceStats()">
+    <button class="se-del" onclick="this.closest('.se-row').remove();updateServiceStats()">×</button>
   `;
   list.appendChild(div);
+}
+
+function updateServiceStats() {
+  const rows = document.querySelectorAll('#se-list .se-row');
+  let total = 0, withPrice = 0;
+  rows.forEach(r => {
+    const name = r.querySelectorAll('input')[0]?.value.trim();
+    const price = r.querySelectorAll('input')[1]?.value.trim();
+    if (name) total++;
+    if (name && price) withPrice++;
+  });
+  const el = document.getElementById('se-stats');
+  if (el) el.textContent = `${total} servicii · ${withPrice} cu preț`;
 }
 
 // ── COLLECT FINAL DATA ────────────────────────
 function collectFinalData() {
   const base = S.data || {};
 
-  // Override cu datele completate manual
-  const phone = document.getElementById('mf-phone')?.value || base.phone;
-  const email = document.getElementById('mf-email')?.value || base.email;
-  const hours = document.getElementById('mf-hours')?.value || base.hours;
-  const city = document.getElementById('mf-city')?.value || base.city;
+  // Override cu datele completate/confirmate manual
+  const name = document.getElementById('mf-name')?.value?.trim() || base.name;
+  const phone = document.getElementById('mf-phone')?.value?.trim() || base.phone;
+  const email = document.getElementById('mf-email')?.value?.trim() || base.email;
+  const hours = document.getElementById('mf-hours')?.value?.trim() || base.hours;
+  const city = document.getElementById('mf-city')?.value?.trim() || base.city;
 
   // Collect services from editor
   const services = [];
   document.querySelectorAll('#se-list .se-row').forEach(row => {
     const inputs = row.querySelectorAll('input');
-    const name = inputs[0]?.value.trim();
+    const sName = inputs[0]?.value.trim();
     const price = inputs[1]?.value.trim();
-    if (name) services.push({ name, price: price || null });
+    if (sName) services.push({ name: sName, price: price || null });
   });
 
   return {
     ...base,
+    name: name || base.name,
     phone: phone || base.phone,
     email: email || base.email,
     hours: hours || base.hours,
