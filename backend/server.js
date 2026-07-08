@@ -317,7 +317,9 @@ Returnează DOAR acest JSON valid, fără text suplimentar:
   "instagram": "${socialLinks.instagram || 'null — caută în text'}",
   "confidence": număr_între_0_și_100,
   "missing": ["lista cu ce lipsește"]
-}`;
+}
+
+IMPORTANT: Listează MAXIM 25 servicii, cele mai importante. Nu toate.`;
 
   try {
     const result = await callClaude('Ești expert în analiza afacerilor locale din România. Returnezi DOAR JSON valid, fără markdown, fără text extra.', prompt);
@@ -362,6 +364,15 @@ Returnează DOAR acest JSON valid, fără text suplimentar:
       if (detWithPrices > claudeWithPrices) parsed.services = detExtracted.services;
       // Confidence pe baza extractoarelor deterministe
       parsed.fieldConfidence = detExtracted._confidence;
+    // Recalculează confidence global din extractoare (nu din Claude)
+    const weights = {phone:15,email:10,name:15,city:5,hours:10,services:25,prices:15,facebook:3,instagram:2};
+    let wSum=0, wTotal=0;
+    Object.entries(weights).forEach(([k,w])=>{
+      const val = detExtracted._confidence[k] || 0;
+      wSum += val * w; wTotal += w * 100;
+    });
+    parsed.confidence = Math.round(wSum / wTotal * 100);
+    console.log('[EXTRACTORS] Recalculated confidence:', parsed.confidence, '% (was Claude:', parsed.confidence, ')');
     }
     if (socialLinks.facebook) parsed.facebook = socialLinks.facebook;
     if (socialLinks.instagram) parsed.instagram = socialLinks.instagram;
@@ -371,6 +382,45 @@ Returnează DOAR acest JSON valid, fără text suplimentar:
     return { success: true, data: parsed };
   } catch (e) {
     console.error('[ANALYZE] Claude error:', e.message);
+    // Dacă Claude a eșuat dar extractoarele au date bune, le folosim direct
+    if (detExtracted && (detExtracted.phone || detExtracted.services.length > 0)) {
+      console.log('[ANALYZE] Using extractor data as fallback (Claude failed)');
+      const extData = {
+        name: detExtracted.name || domain.replace(/^www\./, '').split('.')[0].replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        type: (function(u){
+          const s=u.toLowerCase();
+          if(s.includes('dent')||s.includes('stomat')) return '🦷 Cabinet Dentar';
+          if(s.includes('vet')||s.includes('animal')) return '🐾 Cabinet Veterinar';
+          if(s.includes('fizio')||s.includes('recuper')) return '💆 Fizioterapie';
+          if(s.includes('auto')||s.includes('service')) return '🚗 Service Auto';
+          if(s.includes('salon')||s.includes('beauty')) return '💇 Salon Beauty';
+          return '🏢 Afacere Locală';
+        })(siteUrl),
+        phone: detExtracted.phone,
+        email: detExtracted.email,
+        city: detExtracted.city,
+        address: detExtracted.address,
+        hours: detExtracted.hours,
+        services: detExtracted.services,
+        faq: [],
+        facebook: detExtracted.facebook,
+        instagram: detExtracted.instagram,
+        tiktok: detExtracted.tiktok,
+        youtube: detExtracted.youtube,
+        fieldConfidence: detExtracted._confidence,
+        confidence: 0,
+        missing: Object.entries({phone:extData.phone,email:extData.email,hours:extData.hours,city:extData.city})
+          .filter(([k,v])=>!v).map(([k])=>k),
+      };
+      const weights = {phone:15,email:10,name:15,city:5,hours:10,services:25,prices:15,facebook:3,instagram:2};
+      let wSum=0, wTotal=0;
+      Object.entries(weights).forEach(([k,w])=>{
+        const val = detExtracted._confidence[k] || 0;
+        wSum += val * w; wTotal += w * 100;
+      });
+      extData.confidence = Math.round(wSum / wTotal * 100);
+      return { success: true, data: extData, extractorOnly: true };
+    }
     return { success: true, data: makeFallback(domain), mock: true };
   }
 }

@@ -590,7 +590,7 @@ async function startScan() {
     // Try real backend first
     let data;
     try {
-      const res = await fetch('https://ai-reception-platform-production.up.railway.app/api/analyze', {
+      const res = await fetch('https://pentagon-treading-decipher.ngrok-free.dev/api/analyze', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({url: url})
