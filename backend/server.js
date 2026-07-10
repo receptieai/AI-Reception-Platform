@@ -238,19 +238,6 @@ async function analyzeWebsite(siteUrl) {
     console.log('[ANALYZE] Homepage fetch failed:', e.message);
   }
 
-  // PASUL 1b: Playwright fallback pentru site-uri JavaScript
-  if (needsBrowser(homepageHtml)) {
-    console.log('[BROWSER] Site needs rendering...');
-    try {
-      const rendered = await renderWithBrowser(normalUrl, { expandAccordions: true, acceptCookies: true, scrollPage: true });
-      if (rendered.success && rendered.html.length > homepageHtml.length) {
-        homepageHtml = rendered.html;
-        renderedTextContent = rendered.textContent || '';
-        console.log('[BROWSER] Upgraded:', homepageHtml.length, 'chars | text:', renderedTextContent.length);
-      }
-    } catch(e) { console.log('[BROWSER] Failed:', e.message); }
-  }
-
   // PASUL 2: Extrage linkuri sociale din homepage
   const socialLinks = homepageHtml ? extractSocialLinks(homepageHtml) : {};
 
@@ -265,7 +252,6 @@ async function analyzeWebsite(siteUrl) {
   // PASUL 5: Fetch toate paginile cu prețuri
   let extraContent = '';
   let allRawHtml = '';
-  let renderedTextContent = '';
   for (const pageUrl of allPriceUrls) {
     try {
       const pageHtml = await fetchUrl(pageUrl);
@@ -282,17 +268,6 @@ async function analyzeWebsite(siteUrl) {
   const homepageText = homepageHtml ? stripHtml(homepageHtml) : '';
   const combinedHtmlForExtraction = homepageHtml + (typeof allRawHtml !== 'undefined' ? allRawHtml : '');
   const detExtracted = homepageHtml ? extractAll(combinedHtmlForExtraction, siteUrl) : null;
-  // Override cu date din textContent (Playwright) dacă lipsesc
-  if (renderedTextContent && detExtracted) {
-    const { extractFromText } = require('./extractors');
-    const textData = extractFromText(renderedTextContent);
-    if (textData.address && !detExtracted.address) detExtracted.address = textData.address;
-    if (textData.email && !detExtracted.email) detExtracted.email = textData.email;
-    if (textData.phone && !detExtracted.phone) detExtracted.phone = textData.phone;
-    if (textData.hours && !detExtracted.hours) detExtracted.hours = textData.hours;
-    if (textData.city && !detExtracted.city) detExtracted.city = textData.city;
-    console.log('[TEXT] Extracted from textContent:', JSON.stringify(textData));
-  }
   if (detExtracted) {
     console.log('[EXTRACTORS] Phone:', detExtracted.phone, '| Email:', detExtracted.email);
     console.log('[EXTRACTORS] FB:', detExtracted.facebook, '| IG:', detExtracted.instagram);
