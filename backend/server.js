@@ -258,8 +258,9 @@ async function analyzeWebsite(siteUrl) {
     try {
       let pageHtml = await fetchUrl(pageUrl);
       // Dacă pagina e JS-rendered SAU e o pagina de servicii, folosim Playwright
-      // Playwright doar daca pagina e clara JS-rendered si nu avem deja destul continut
-      if (needsBrowser(pageHtml) && extraContent.length < 15000) {
+      // Playwright doar pentru primele 2 pagini JS si doar daca nu avem destul continut
+      const pageIndex = allPriceUrls.indexOf(pageUrl);
+      if (needsBrowser(pageHtml) && extraContent.length < 15000 && pageIndex < 2) {
         const rendered = await renderWithBrowser(pageUrl, { acceptCookies: false, scrollPage: false, expandAccordions: false, waitAfterLoad: 1000 });
         if (rendered.success && rendered.html.length > pageHtml.length) {
           pageHtml = rendered.html;
