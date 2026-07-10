@@ -416,6 +416,26 @@ function extractServicesWithPrices(html, page = 'homepage') {
     });
   }
 
+  // Strategie 5b: "Serviciu – 127 lei" pattern (liniuta lunga)
+  if (services.length < 10) {
+    const textContent = html.replace(/<[^>]+>/g, '\n').replace(/\n{3,}/g, '\n\n');
+    const lines = textContent.split('\n').map(l => l.trim()).filter(l => l.length > 3);
+    lines.forEach(line => {
+      // Pattern: "Nume serviciu – 127 lei" sau "Nume serviciu ~ 127 lei"
+      const m = line.match(/^([A-ZĂÂÎȘȚa-zăâîșț][^–~\-]{3,80}?)\s*[–~-]\s*(\d{1,5}(?:[.,]\d{2})?)\s*(?:lei|ron|€|eur)/i);
+      if (m) {
+        const name = m[1].trim().replace(/[-–]+$/, '').trim();
+        const price = m[2] + ' LEI';
+        addService(name, price, 'text_dash', 'name – price pattern', 82);
+      }
+      // Pattern: "Nume ~ 417lei" fara spatiu
+      const m2 = line.match(/^([A-ZĂÂÎȘȚa-zăâîșț][^~]{3,80}?)\s*~\s*(\d{1,5})\s*lei/i);
+      if (m2) {
+        addService(m2[1].trim(), m2[2] + ' LEI', 'text_tilde', 'name ~ price pattern', 80);
+      }
+    });
+  }
+
   // Strategie 6: text vizibil Playwright — nume pe rand, pret pe randul urmator
   if (services.length < 5) {
     const textContent = html.replace(/<[^>]+>/g, '\n').replace(/\n{3,}/g, '\n\n');
