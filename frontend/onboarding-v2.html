@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Creează Recepționistul Tău AI — RecepAI</title>
+<script src="config.js"></script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -449,7 +450,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;display:flex;ali
 
 <script>
 // ── STATE ─────────────────────────────────────
-const API = 'https://pentagon-treading-decipher.ngrok-free.dev';
+const API = CONFIG.API_URL;
 const S = {
   url: '',
   data: null,
@@ -644,7 +645,7 @@ function renderMissingFields(data) {
   const allFields = [
     { key: 'name', label: 'Numele afacerii', icon: '🏢', type: 'text', placeholder: 'Clinica Dentară Pro', value: data.name, conf: fc.name || 0, required: true },
     { key: 'phone', label: 'Telefon', icon: '📞', type: 'tel', placeholder: '0721 234 567', value: data.phone, conf: fc.phone || 0, required: true },
-    { key: 'email', label: 'Email proprietar', icon: '📧', type: 'email', placeholder: 'contact@clinica.ro', value: data.email, conf: fc.email || 0, required: true, hint: 'Aici primești notificările cu lead-uri noi — OBLIGATORIU' },
+    { key: 'email', label: 'Email proprietar', icon: '📧', type: 'email', placeholder: 'contact@clinica.ro', value: data.email, conf: fc.email || 0, required: true, hint: 'Aici primești notificările cu lead-uri noi. Poți adăuga mai târziu din dashboard.' },
     { key: 'city', label: 'Oraș', icon: '📍', type: 'text', placeholder: 'București', value: data.city, conf: fc.city || 0, required: false },
     { key: 'hours', label: 'Program de lucru', icon: '🕐', type: 'textarea', placeholder: 'Luni-Vineri: 09:00-18:00\nSâmbătă: 09:00-14:00', value: data.hours, conf: fc.hours || 0, required: true, hint: 'AI-ul va spune clienților când sunteți deschis' },
   ];
@@ -684,7 +685,7 @@ function renderMissingFields(data) {
               ${f.icon} ${f.label}
               ${f.required ? '<span style="color:var(--red);font-weight:700;font-size:14px">*</span>' : ''}
               ${f.conf > 0 ? `<span style="font-size:10px;color:var(--ylw)">${f.conf}% acuratețe</span>` : ''}
-              ${!f.required ? '<span class="mf-optional">opțional</span>' : '<span style="font-size:10px;color:var(--red);font-weight:600;margin-left:auto">obligatoriu</span>'}
+              ${!f.required ? '<span class="mf-optional">opțional</span>' : '<span class="mf-optional">recomandat</span>'}
             </div>
             ${f.hint ? `<div style="font-size:11px;color:var(--t3);margin-bottom:5px">${f.hint}</div>` : ''}
             ${f.type === 'textarea'
@@ -702,21 +703,7 @@ function renderMissingFields(data) {
 
 // ── VALIDATE BEFORE CONTINUE ──────────────────
 function validateAndContinue() {
-  const email = document.getElementById('mf-email')?.value?.trim();
-  const phone = document.getElementById('mf-phone')?.value?.trim();
-  const name = document.getElementById('mf-name')?.value?.trim();
-
-  if (!email || !email.includes('@')) {
-    showToast('⚠ Emailul este obligatoriu — aici primești notificările cu lead-uri noi');
-    document.getElementById('mf-email')?.focus();
-    document.getElementById('mf-email').style.borderColor = 'var(--red)';
-    return;
-  }
-  if (!phone || phone.length < 9) {
-    showToast('⚠ Telefonul este obligatoriu');
-    document.getElementById('mf-phone')?.focus();
-    return;
-  }
+  // Toate câmpurile sunt opționale — clientul poate completa din dashboard
   goTo(5);
 }
 
