@@ -1062,12 +1062,16 @@ function showBusinessDetail(id) {
     </div>
     ${b.services?.length > 0 ? `
     <div class="detail-section">
-      <div class="detail-section-title">Servicii (${b.services.length})</div>
-      ${b.services.map(s=>`
-        <div class="service-list-item">
-          <span>${s.name}</span>
-          <span class="service-price">${s.price||'—'}</span>
-        </div>`).join('')}
+      <div class="detail-section-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>✓ Servicii identificate<span style="color:var(--teal);margin-left:6px">${b.services.length} servicii</span></span>
+      </div>
+      <div style="max-height:300px;overflow-y:auto;margin-top:8px">
+        ${b.services.map((s,i)=>`
+          <div class="service-list-item" style="display:flex;align-items:center;gap:8px">
+            <span style="flex:1">${s.name}</span>
+            <span class="service-price" style="flex-shrink:0">${s.price||'—'}</span>
+          </div>`).join('')}
+      </div>
     </div>` : ''}
     ${b.missing?.length > 0 ? `
     <div class="detail-section">

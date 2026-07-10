@@ -600,11 +600,12 @@ function renderResults(data) {
   if (services.length > 0) {
     document.getElementById('services-box').style.display = 'block';
     document.getElementById('services-count').textContent = services.length + ' servicii';
-    document.getElementById('services-list').innerHTML = services.slice(0, 8).map(s => `
+    const servicesContainer = document.getElementById('services-list');
+    servicesContainer.innerHTML = services.map(s => `
       <div class="service-row">
         <span class="service-name">${s.name}</span>
         ${s.price ? `<span class="service-price">${s.price}</span>` : '<span class="service-no-price">preț necunoscut</span>'}
-      </div>`).join('') + (services.length > 8 ? `<div style="font-size:12px;color:var(--t3);padding:6px 0">+${services.length - 8} mai multe...</div>` : '');
+      </div>`).join('');
   }
 
   // Populate step 4 missing fields
