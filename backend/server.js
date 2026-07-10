@@ -248,17 +248,29 @@ async function analyzeWebsite(siteUrl) {
   // PASUL 4: Lista completă de pagini de fetch
   const staticPages = ['/tarife', '/tarife/', '/preturi', '/preturi/', '/servicii', '/servicii/', '/contact', '/contact/'];
   const allPriceUrls = [...new Set([...priceUrls, ...staticPages.map(p => origin + p)])];
+  // Paginile din meniu au prioritate — sunt cele mai relevante
+  allPriceUrls.sort((a, b) => (priceUrls.includes(a) ? -1 : 1));
 
   // PASUL 5: Fetch toate paginile cu prețuri
   let extraContent = '';
   let allRawHtml = '';
   for (const pageUrl of allPriceUrls) {
     try {
-      const pageHtml = await fetchUrl(pageUrl);
+      let pageHtml = await fetchUrl(pageUrl);
+      // Dacă pagina e JS-rendered SAU e o pagina de servicii, folosim Playwright
+      // Playwright doar daca pagina e clara JS-rendered si nu avem deja destul continut
+      if (needsBrowser(pageHtml) && extraContent.length < 15000) {
+        const rendered = await renderWithBrowser(pageUrl, { acceptCookies: false, scrollPage: false, expandAccordions: false, waitAfterLoad: 1000 });
+        if (rendered.success && rendered.html.length > pageHtml.length) {
+          pageHtml = rendered.html;
+          if (rendered.textContent) renderedTextContent += ' ' + rendered.textContent;
+          console.log('[BROWSER] Page rendered:', pageUrl, '→', pageHtml.length, 'chars');
+        }
+      }
       extraContent += ' ' + stripHtml(pageHtml);
       allRawHtml += ' ' + pageHtml;
       console.log('[ANALYZE] Fetched:', pageUrl, '→', pageHtml.length, 'chars');
-      if (extraContent.length > 20000) break;
+      if (extraContent.length > 40000) break;
     } catch (e) {
       // Silent — pagina nu există
     }

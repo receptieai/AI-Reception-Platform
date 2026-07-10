@@ -432,6 +432,27 @@ function extractServicesWithPrices(html, page = 'homepage') {
     }
   }
 
+  // Strategie 7: Format "serviciu\nvariant pret / variant pret" (salon style)
+  if (services.length < 5) {
+    const textContent = html.replace(/<[^>]+>/g, '\n').replace(/\n{3,}/g, '\n\n');
+    const lines = textContent.split('\n').map(l => l.trim()).filter(l => l.length > 1);
+    for (let i = 0; i < lines.length - 1; i++) {
+      const currentLine = lines[i];
+      const nextLine = lines[i + 1] || '';
+      // Detectează "scurt 50 / mediu 55 / lung 60" pattern
+      if (/\w+\s+\d+\s*\/\s*\w+\s+\d+/.test(nextLine)) {
+        const parts = nextLine.split('/').map(p => p.trim());
+        parts.forEach(part => {
+          const m = part.match(/^([a-zA-ZăâîșțĂÂÎȘȚ\s]+?)\s+(\d{1,5})\s*(?:lei|ron)?$/i);
+          if (m) {
+            const name = currentLine + ' ' + m[1].trim();
+            addService(name, m[2] + ' LEI', 'text_variant', 'service+variant/price pattern', 75);
+          }
+        });
+      }
+    }
+  }
+
   return services.slice(0, 60);
 }
 
