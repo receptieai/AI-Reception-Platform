@@ -148,12 +148,14 @@ function extractContact(html) {
 
   // Adresă — pattern românesc: Str./Strada/Bd./Bulevardul + nume + nr.
   const addressPatterns = [
-    /(?:Str\.|Strada|Bd\.|Bulevardul|Calea|Șos\.|Șoseaua)\s+[A-ZĂÂÎȘȚa-zăâîșț\s.]+(?:nr\.?\s*\d+[A-Za-z]?)/i,
+    /(?:Str(?:ada)?|Bd(?:ul)?|Bulevardul|Calea|Șos(?:eaua)?|Sos(?:eaua)?|Strada|Aleea|Piața|Splaiurile?)\.?\s+[A-ZĂÂÎȘȚa-zăâîșț0-9\s\-\.]+(?:nr\.?\s*\d+[A-Za-z]?(?:,\s*(?:bl?\.?|ap\.?)\s*\w+)*)/i,
+    /(?:STR|BD|CAL|SOS)\.\s+[A-ZĂÂÎȘȚ\s]+,?\s*NR\.?\s*\d+[A-Za-z]?/i,
+    /(?:Adresa|Address|Adresă)\s*:?\s*([A-ZĂÂÎȘȚa-zăâîșț0-9\s\-\.,]+\d+[A-Za-z]?)/i,
   ];
   const textOnly = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
   for (const p of addressPatterns) {
     const m = textOnly.match(p);
-    if (m) { result.address = m[0].trim(); break; }
+    if (m) { result.address = (m[1] || m[0]).trim(); break; }
   }
 
   return result;

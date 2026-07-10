@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
+const { renderWithBrowser, needsBrowser } = require('./browser');
 
 const PORT = process.env.PORT || 8080;
 const CLAUDE_API_KEY = process.env.CLAUDE_API_KEY || '';
