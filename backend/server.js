@@ -285,7 +285,7 @@ async function analyzeWebsite(siteUrl) {
     console.log('[EXTRACTORS] FB:', detExtracted.facebook, '| IG:', detExtracted.instagram);
     console.log('[EXTRACTORS] Services (deterministic):', detExtracted.services.length);
   }
-  const fullText = (homepageText.substring(0, 2000) + ' ' + extraContent.substring(0, 4000)).substring(0, 6000);
+  const fullText = (homepageText.substring(0, 1000) + ' ' + extraContent.substring(0, 7000)).substring(0, 8000);
 
   if (!fullText.trim() && !socialLinks.facebook) {
     console.log('[ANALYZE] No content fetched — using fallback');

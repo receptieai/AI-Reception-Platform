@@ -851,6 +851,7 @@ function renderDatabase(filter = 'all', search = '') {
       <td><span class="score-pill ${b.confidence>=75?'score-high':b.confidence>=50?'score-med':'score-low'}">${b.confidence}%</span></td>
       <td>
         <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();analyzeGapForBusiness('${b.id}')">Gap</button>
+        <button style="background:rgba(255,68,85,.15);border:1px solid rgba(255,68,85,.3);color:#ff4455;padding:4px 8px;border-radius:6px;font-size:11px;cursor:pointer;margin-left:4px" onclick="event.stopPropagation();deleteBusiness('${b.domain}')" title="Șterge">✕</button>
       </td>
     </tr>`).join('');
 }
@@ -1407,6 +1408,14 @@ function renderPromptIntel() {
 }
 
 // ── TOAST ─────────────────────────────────────
+function deleteBusiness(domain) {
+  if (!confirm('Ștergi ' + domain + ' din baza de date?')) return;
+  const db = getDB().filter(b => b.domain !== domain);
+  localStorage.setItem('recepai_intelligence_db', JSON.stringify(db));
+  renderDatabase();
+  showToast('✓ ' + domain + ' șters');
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   document.getElementById('toast-text').textContent = msg;
