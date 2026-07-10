@@ -258,8 +258,9 @@ async function analyzeWebsite(siteUrl) {
     try {
       let pageHtml = await fetchUrl(pageUrl);
       // Dacă pagina e JS-rendered SAU e o pagina de servicii, folosim Playwright
-      // Playwright doar daca pagina e clara JS-rendered si nu avem deja destul continut
-      if (needsBrowser(pageHtml) && extraContent.length < 15000) {
+      // Playwright doar pentru primele 2 pagini JS si doar daca nu avem destul continut
+      const pageIndex = allPriceUrls.indexOf(pageUrl);
+      if (needsBrowser(pageHtml) && extraContent.length < 15000 && pageIndex < 2) {
         const rendered = await renderWithBrowser(pageUrl, { acceptCookies: false, scrollPage: false, expandAccordions: false, waitAfterLoad: 1000 });
         if (rendered.success && rendered.html.length > pageHtml.length) {
           pageHtml = rendered.html;
@@ -375,17 +376,25 @@ IMPORTANT: Listează MAXIM 25 servicii, cele mai importante. Nu toate.`;
       const detWithPrices = detExtracted.services.filter(s => s.price).length;
       const claudeWithPrices = (parsed.services||[]).filter(s => s.price).length;
       if (detWithPrices > claudeWithPrices) parsed.services = detExtracted.services;
-      // Confidence pe baza extractoarelor deterministe
-      parsed.fieldConfidence = detExtracted._confidence;
-    // Recalculează confidence global din extractoare (nu din Claude)
+      // Confidence: combina extractoare (deterministe) cu Claude (semantice)
+      const finalServices = parsed.services || [];
+      const finalWithPrices = finalServices.filter(s => s.price).length;
+      const detConf = detExtracted._confidence;
+      parsed.fieldConfidence = {
+        ...detConf,
+        // Override services/prices cu datele finale (Claude + extractoare)
+        services: finalServices.length > 10 ? 90 : finalServices.length > 3 ? 70 : finalServices.length > 0 ? 50 : 0,
+        prices: finalWithPrices > 10 ? 90 : finalWithPrices > 3 ? 70 : finalWithPrices > 0 ? 50 : 0,
+      };
+    // Recalculează confidence global din toate sursele
     const weights = {phone:15,email:10,name:15,city:5,hours:10,services:25,prices:15,facebook:3,instagram:2};
     let wSum=0, wTotal=0;
     Object.entries(weights).forEach(([k,w])=>{
-      const val = detExtracted._confidence[k] || 0;
+      const val = parsed.fieldConfidence[k] || 0;
       wSum += val * w; wTotal += w * 100;
     });
     parsed.confidence = Math.round(wSum / wTotal * 100);
-    console.log('[EXTRACTORS] Recalculated confidence:', parsed.confidence, '% (was Claude:', parsed.confidence, ')');
+    console.log('[EXTRACTORS] Recalculated confidence:', parsed.confidence, '%');
     }
     if (socialLinks.facebook) parsed.facebook = socialLinks.facebook;
     if (socialLinks.instagram) parsed.instagram = socialLinks.instagram;
