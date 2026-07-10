@@ -10,8 +10,6 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
-const { deepScan, needsDeepScan } = require('./deep-scan');
-const { generateSystemPrompt, analyzeConversation, updateFeedbackData, updateLearningData, generateRecommendations } = require('./brainbank/brainbank');
 const { renderWithBrowser, needsBrowser } = require('./browser');
 
 const PORT = process.env.PORT || 8080;
@@ -393,34 +391,6 @@ IMPORTANT: Listează MAXIM 25 servicii, cele mai importante. Nu toate.`;
     if (socialLinks.instagram) parsed.instagram = socialLinks.instagram;
     if (socialLinks.emailFromMailto && !parsed.email) parsed.email = socialLinks.emailFromMailto;
     
-    // Deep Scan automat daca lipsesc preturile
-    if (needsDeepScan(parsed)) {
-      console.log('[DEEP SCAN] Activating - services:', parsed.services?.length, 'prices: 0');
-      try {
-        const deepResult = await deepScan(siteUrl, { maxPages: 8 });
-        if (deepResult.success && deepResult.text.length > 500) {
-          // Re-run extractor pe continutul deep scan
-          const deepExtracted = extractAll('<div>' + deepResult.text.replace(/\n/g, '<br>') + '</div>', siteUrl, 'deep-scan');
-          if (deepExtracted.services.length > parsed.services?.length) {
-            parsed.services = deepExtracted.services;
-            console.log('[DEEP SCAN] Found', deepExtracted.services.length, 'services');
-          }
-          // Re-run Claude pe textul nou
-          if (deepResult.text.length > 1000 && (deepExtracted.services.filter(s=>s.price).length === 0)) {
-            try {
-              const deepPrompt = `Extrage serviciile și prețurile din acest text:\n${deepResult.text.substring(0, 5000)}\nReturnează JSON: {"services":[{"name":"...","price":"... LEI"}]}`;
-              const deepClaude = await callClaude('Returnezi DOAR JSON valid.', deepPrompt);
-              const deepParsed = JSON.parse(deepClaude.replace(/\`\`\`json|\`\`\`/g,'').trim());
-              if (deepParsed.services?.length > parsed.services?.length) {
-                parsed.services = deepParsed.services;
-                console.log('[DEEP SCAN] Claude found', deepParsed.services.length, 'services from deep text');
-              }
-            } catch(e) { console.log('[DEEP SCAN] Claude error:', e.message); }
-          }
-        }
-      } catch(e) { console.log('[DEEP SCAN] Error:', e.message); }
-    }
-
     console.log('[ANALYZE] SUCCESS:', parsed.name, '| Conf:', parsed.confidence, '| Services:', parsed.services?.length || 0);
     return { success: true, data: parsed };
   } catch (e) {
@@ -537,35 +507,56 @@ function makeFallback(domain) {
 
 // ── CHAT ──────────────────────────────────────
 async function chatWithAI(messages, profile, personality) {
+  const tones = {
+    prietenos: 'prietenos și cald, folosești emoji-uri cu moderație',
+    profesionist: 'profesionist și formal, fără emoji-uri',
+    elegant: 'elegant și sofisticat',
+    cald: 'foarte empatic și grijuliu',
+    dinamic: 'rapid și direct la obiect'
+  };
+  
+  const services = (profile.services || [])
+    .filter(s => s.name)
+    .map(s => `• ${s.name}${s.price ? ': ' + s.price : ''}${s.duration ? ' (' + s.duration + ')' : ''}`)
+    .join('\n');
+  
+  const now = new Date();
+  const hour = now.getHours();
+  const isWorkingHours = hour >= 9 && hour < 18;
+  
+  const system = `Ești recepționistul virtual al "${profile.name || 'acestei afaceri'}" din ${profile.city || 'România'}.
+Ton: ${tones[personality || 'prietenos'] || tones.prietenos}
+
+REGULI STRICTE:
+- Vorbești DOAR în română
+- Nu dai sfaturi medicale sau veterinare
+- Nu inventezi prețuri sau servicii inexistente
+- Dacă nu știi → "Vă rog sunați la ${profile.phone || 'recepție'}"
+- Răspunsuri scurte — maxim 4 propoziții
+- Colectezi întotdeauna: NUME + TELEFON + SERVICIU dorit
+
+SERVICII DISPONIBILE:
+${services || 'Contactați-ne pentru lista completă de servicii'}
+
+PROGRAM: ${profile.hours || 'Luni-Vineri 09:00-19:00'}
+
+CÂND CLIENTUL VREA PROGRAMARE:
+1. Cere numele
+2. Cere telefonul
+3. Cere serviciul dorit
+4. Cere ziua preferată
+5. ${isWorkingHours
+    ? 'Confirmă: "Veți fi contactat în maximum 2 ore!"'
+    : 'Confirmă: "Solicitarea a fost înregistrată! Vă vom contacta mâine în cursul programului nostru de lucru."'}`;
+
+  const userMsg = messages
+    .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
+    .join('\n\n');
+
   try {
-    // BrainBank v3 — system prompt cu toate cele 11 componente
-    const system = generateSystemPrompt({
-      industry: profile.industry || profile.type || 'general',
-      companyData: profile,
-      conversationHistory: messages,
-      learningData: null,
-      includeAppointments: true,
-      userMessage: messages[messages.length - 1]?.content || '',
-      businessRules: profile.businessRules || [],
-    });
-
-    const userMsg = messages
-      .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
-      .join('\n\n');
-
     const reply = await callClaude(system, userMsg);
-
-    // Feedback async — nu blochează răspunsul
-    setImmediate(() => {
-      try {
-        const fullHistory = [...messages, { role: 'assistant', content: reply }];
-        analyzeConversation(fullHistory);
-      } catch(e) {}
-    });
-
     return { success: true, message: reply };
   } catch (e) {
-    console.error('[CHAT] Error:', e.message);
     return { success: false, message: 'Îmi pare rău, a apărut o eroare. Vă rog sunați direct.' };
   }
 }
