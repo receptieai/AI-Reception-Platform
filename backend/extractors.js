@@ -416,6 +416,22 @@ function extractServicesWithPrices(html, page = 'homepage') {
     });
   }
 
+  // Strategie 6: text vizibil Playwright — nume pe rand, pret pe randul urmator
+  if (services.length < 5) {
+    const textContent = html.replace(/<[^>]+>/g, '\n').replace(/\n{3,}/g, '\n\n');
+    const lines = textContent.split('\n').map(l => l.trim()).filter(l => l.length > 1);
+    for (let i = 0; i < lines.length - 1; i++) {
+      const nextLine = lines[i + 1] || '';
+      const priceMatch = nextLine.match(/^(\d{1,5}(?:[.,]\d{2})?)\s*(?:Lei|RON|€|EUR)/i);
+      if (priceMatch) {
+        const name = lines[i].replace(/[:\-–]+$/, '').trim();
+        if (name.length >= 3 && name.length <= 120 && /[a-zA-ZăâîșțĂÂÎȘȚ]{3,}/.test(name)) {
+          addService(name, priceMatch[0].toUpperCase(), 'text_lines', 'name+price on consecutive lines', 80);
+        }
+      }
+    }
+  }
+
   return services.slice(0, 60);
 }
 
