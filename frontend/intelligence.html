@@ -648,7 +648,14 @@ async function startScan() {
       instagram: data.instagram,
       description: data.description,
       confidence: data.confidence,
-      missing: data.missing || [],
+      missing: (data.missing || []).filter(m => {
+        const ml = m.toLowerCase();
+        if ((ml.includes('facebook') || ml.includes('fb')) && data.facebook) return false;
+        if (ml.includes('instagram') && data.instagram) return false;
+        if ((ml.includes('telefon') || ml.includes('phone')) && data.phone) return false;
+        if (ml.includes('email') && data.email) return false;
+        return true;
+      }),
       hasChat: false,
       hasOnlineBooking: false,
       websiteScore: Math.floor(data.confidence * 0.8 + Math.random() * 20),
