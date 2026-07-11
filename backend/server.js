@@ -128,9 +128,15 @@ function fetchUrl(pageUrl) {
       path: parsed.pathname + (parsed.search || ''),
       method: 'GET',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; RecepAI/2.0; +https://receptieai.ro)',
-        'Accept': 'text/html,application/xhtml+xml',
-        'Accept-Language': 'ro,en;q=0.9',
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'ro-RO,ro;q=0.9,en-US;q=0.8,en;q=0.7',
+        'Accept-Encoding': 'identity',
+        'Cache-Control': 'no-cache',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Upgrade-Insecure-Requests': '1',
       },
       timeout: 12000
     }, (res) => {
@@ -145,7 +151,7 @@ function fetchUrl(pageUrl) {
       
       let d = '';
       res.setEncoding('utf8');
-      res.on('data', c => { d += c; if (d.length > 200000) { req.destroy(); resolve(d); } });
+      res.on('data', c => { d += c; if (d.length > 400000) { req.destroy(); resolve(d); } });
       res.on('end', () => resolve(d));
     });
     req.on('timeout', () => { req.destroy(); reject(new Error('Timeout: ' + pageUrl)); });
