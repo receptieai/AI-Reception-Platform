@@ -1035,7 +1035,25 @@ function showToast(msg) {
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
+// ── DEMO DATA ────────────────────────────
+function loadDemoData() {
+  if (LEADS.length === 0 && CONVS.length === 0) {
+    LEADS = [
+      {id:'1', nume:'Maria Ionescu', telefon:'0721 234 567', serviciu:'Consultație dentară', timestamp: new Date(Date.now()-3600000).toISOString(), seen:false},
+      {id:'2', nume:'Ion Popescu', telefon:'0742 987 654', serviciu:'Detartraj', timestamp: new Date(Date.now()-7200000).toISOString(), seen:true},
+      {id:'3', nume:'Ana Constantin', telefon:'0755 111 222', serviciu:'Implant dentar', timestamp: new Date(Date.now()-86400000).toISOString(), seen:true},
+    ];
+    CONVS = [
+      {name:'Maria Ionescu', timestamp: new Date(Date.now()-3600000).toISOString(), preview:'Cât costă un implant dentar?', messages:[{role:'user',content:'Cât costă un implant?'},{role:'assistant',content:'Un implant pornește de la 2.500 LEI. Doriți o programare?'}]},
+      {name:'Ion Popescu', timestamp: new Date(Date.now()-7200000).toISOString(), preview:'Care e programul vinerea?', messages:[{role:'user',content:'Care e programul vinerea?'},{role:'assistant',content:'Vinerea 09:00-21:00. Vă pot ajuta cu o programare?'}]},
+    ];
+    localStorage.setItem('recepai_client_leads', JSON.stringify(LEADS));
+    localStorage.setItem('recepai_client_convs', JSON.stringify(CONVS));
+  }
+}
+
 // ── START ──────────────────────────
+loadDemoData();
 init();
 
 // Auto-refresh leads every 30s
