@@ -642,6 +642,42 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // BrainBank generate
+  if (pathname === '/api/brainbank/generate' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { serviceName, servicePrice, industry } = body;
+    if (!serviceName) { sendJson(res, { error: 'serviceName lipsa' }, 400); return; }
+    
+    const prompt = `Ești expert în ${industry || 'servicii medicale'}. Generează informații detaliate pentru serviciul "${serviceName}"${servicePrice ? ' cu prețul ' + servicePrice : ''}.
+
+Returnează DOAR JSON valid fără text suplimentar:
+{
+  "description": "descriere specifică 1-2 propoziții pentru client",
+  "duration": "durata estimată (ex: 45 minute)",
+  "benefits": ["beneficiu specific 1", "beneficiu specific 2", "beneficiu specific 3"],
+  "preparation": "ce trebuie să facă clientul înainte",
+  "faq": [
+    {"q": "întrebare frecventă specifică", "a": "răspuns detaliat"},
+    {"q": "altă întrebare frecventă", "a": "răspuns detaliat"}
+  ]
+}`;
+
+    try {
+      const result = await callClaude('Returnezi DOAR JSON valid, fără markdown, fără text extra.', prompt);
+      const clean = result.replace(/\`\`\`json|\`\`\`/g, '').trim();
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        sendJson(res, { success: true, data: parsed });
+      } else {
+        sendJson(res, { success: false, error: 'JSON invalid' });
+      }
+    } catch(e) {
+      sendJson(res, { success: false, error: e.message });
+    }
+    return;
+  }
+
   // Save lead + email
   if (pathname === '/api/lead' && req.method === 'POST') {
     const body = await parseBody(req);

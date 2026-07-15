@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecepAI — BrainBank Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root {
+  --bg:#0A0A0A;--s1:#111;--s2:#181818;--s3:#202020;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.1);
+  --tx:#f0f0f0;--t2:#888;--t3:#555;
+  --teal:#00D4AA;--td:rgba(0,212,170,.1);--tm:rgba(0,212,170,.2);
+  --red:#ff4455;--ylw:#f5a623;--pur:#a78bfa;--grn:#4ade80;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh}
+
+.header{padding:16px 24px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:16px;background:var(--s1)}
+.logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.logo span{color:var(--teal)}
+.header-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--t3)}
+.header-actions{margin-left:auto;display:flex;gap:8px}
+.btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-primary{background:var(--teal);color:#000}
+.btn-ghost{background:transparent;border:1px solid var(--b2);color:var(--t2)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+
+.container{max-width:1100px;margin:0 auto;padding:24px}
+
+/* PROGRESS */
+.progress{display:flex;align-items:center;gap:0;margin-bottom:28px}
+.prog-step{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--t3);padding:8px 16px;border-radius:8px;transition:all .2s}
+.prog-step.active{color:var(--teal);background:var(--td)}
+.prog-step.done{color:var(--grn)}
+.prog-sep{color:var(--t3);font-size:12px;padding:0 4px}
+
+/* SERVICE CARDS */
+.services-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px}
+
+.svc-card{
+  background:var(--s1);
+  border:1px solid var(--b1);
+  border-radius:14px;
+  overflow:hidden;
+  transition:border-color .2s;
+}
+.svc-card.selected{border-color:var(--teal)}
+.svc-card.accepted{border-color:var(--grn)}
+.svc-card.skipped{opacity:.4}
+
+.svc-card-head{
+  padding:14px 16px;
+  border-bottom:1px solid var(--b1);
+  display:flex;align-items:center;gap:10px;
+}
+.svc-icon{width:36px;height:36px;border-radius:8px;background:var(--td);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.svc-name{font-size:14px;font-weight:600;flex:1}
+.svc-price{font-size:13px;font-weight:700;color:var(--teal)}
+
+.svc-card-body{padding:14px 16px}
+
+.svc-section{margin-bottom:12px}
+.svc-section-label{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.svc-desc{font-size:12px;color:var(--t2);line-height:1.6}
+.svc-tags{display:flex;flex-wrap:wrap;gap:4px}
+.svc-tag{font-size:11px;background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:3px 8px;color:var(--t2)}
+.svc-tag.benefit{border-color:var(--teal)30;color:var(--teal)}
+.svc-duration{font-size:12px;color:var(--ylw);font-weight:600}
+
+.svc-faq{font-size:11px;color:var(--t2);line-height:1.6}
+.svc-faq-q{font-weight:600;color:var(--t1);margin-top:6px}
+
+.svc-actions{display:flex;gap:6px;padding:12px 16px;border-top:1px solid var(--b1);background:var(--s2)}
+.btn-accept{background:var(--grn)20;border:1px solid var(--grn)40;color:var(--grn);padding:6px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;flex:1;transition:all .15s}
+.btn-accept:hover{background:var(--grn)40}
+.btn-edit{background:var(--ylw)20;border:1px solid var(--ylw)40;color:var(--ylw);padding:6px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;flex:1;transition:all .15s}
+.btn-edit:hover{background:var(--ylw)40}
+.btn-skip{background:transparent;border:1px solid var(--b2);color:var(--t3);padding:6px 10px;border-radius:7px;font-size:11px;cursor:pointer;transition:all .15s}
+.btn-skip:hover{border-color:var(--red);color:var(--red)}
+
+/* GENERATING STATE */
+.generating{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t3);padding:12px 16px}
+.gen-dots span{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--teal);animation:dot 1.2s infinite}
+.gen-dots span:nth-child(2){animation-delay:.2s}
+.gen-dots span:nth-child(3){animation-delay:.4s}
+@keyframes dot{0%,60%,100%{opacity:.3;transform:scale(1)}30%{opacity:1;transform:scale(1.3)}}
+
+/* EDIT MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:16px;width:100%;max-width:560px;max-height:85vh;overflow-y:auto;padding:24px}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.modal-close{background:transparent;border:none;color:var(--t3);font-size:20px;cursor:pointer}
+
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.field input,.field textarea,.field select{
+  width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;
+  padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color .15s;
+}
+.field input:focus,.field textarea:focus{border-color:var(--teal)}
+.field textarea{resize:vertical;min-height:80px;line-height:1.5}
+
+/* SUMMARY */
+.summary{background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px;margin-bottom:20px}
+.summary-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:800;margin-bottom:16px}
+.summary-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.summary-stat{background:var(--s2);border-radius:8px;padding:12px;text-align:center}
+.summary-stat-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;color:var(--teal)}
+.summary-stat-label{font-size:11px;color:var(--t3);margin-top:2px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:999;transform:translateY(20px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* EMPTY */
+.empty{text-align:center;padding:60px 20px;color:var(--t3)}
+.empty-icon{font-size:40px;margin-bottom:12px}
+.empty-title{font-size:16px;font-weight:600;color:var(--t2);margin-bottom:6px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">Recep<span>AI</span></div>
+  <span style="color:var(--t3);font-size:16px">›</span>
+  <div class="header-title">BrainBank Builder</div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="window.location.href='client-dashboard.html'">← Dashboard</button>
+    <button class="btn btn-primary" onclick="saveAll()" id="save-btn" style="display:none">💾 Salvează tot</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="progress">
+    <div class="prog-step active" id="prog-1">1 · Servicii scanate</div>
+    <div class="prog-sep">›</div>
+    <div class="prog-step" id="prog-2">2 · Generare AI</div>
+    <div class="prog-sep">›</div>
+    <div class="prog-step" id="prog-3">3 · Validare</div>
+    <div class="prog-sep">›</div>
+    <div class="prog-step" id="prog-4">4 · Gata ✓</div>
+  </div>
+
+  <!-- STEP 1: Load services -->
+  <div id="step-1">
+    <div style="background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:24px;text-align:center;max-width:500px;margin:0 auto">
+      <div style="font-size:40px;margin-bottom:12px">🧠</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:8px">BrainBank Builder</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:20px">
+        AI analizează serviciile tale și generează automat descrieri, beneficii, FAQ și durate.
+        Tu validezi fiecare serviciu în parte.
+      </div>
+      <div id="biz-info" style="background:var(--s2);border-radius:8px;padding:12px;margin-bottom:20px;text-align:left;font-size:12px;color:var(--t2);display:none">
+        <div style="font-weight:600;color:var(--tx);margin-bottom:6px" id="biz-name-display">—</div>
+        <div id="biz-services-count">0 servicii găsite</div>
+      </div>
+      <button class="btn btn-primary" style="width:100%;padding:12px" onclick="startBuilder()">
+        🚀 Generează BrainBank
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2: Generating -->
+  <div id="step-2" style="display:none">
+    <div style="text-align:center;padding:40px">
+      <div style="font-size:40px;margin-bottom:16px">🧠</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:8px">Generez BrainBank...</div>
+      <div style="font-size:13px;color:var(--t2);margin-bottom:24px" id="gen-status">Analizez serviciile tale...</div>
+      <div style="width:300px;height:4px;background:var(--s2);border-radius:4px;margin:0 auto;overflow:hidden">
+        <div id="gen-bar" style="height:100%;background:var(--teal);border-radius:4px;width:0%;transition:width .5s"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STEP 3: Validate -->
+  <div id="step-3" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800">Validează serviciile</div>
+        <div style="font-size:12px;color:var(--t3);margin-top:2px">Acceptă, modifică sau sari peste fiecare serviciu</div>
+      </div>
+      <div style="display:flex;gap:8px;font-size:12px;color:var(--t3)">
+        <span>✅ <span id="cnt-accepted">0</span> acceptate</span>
+        <span>·</span>
+        <span>✏️ <span id="cnt-edited">0</span> editate</span>
+        <span>·</span>
+        <span>⏭️ <span id="cnt-skipped">0</span> sărite</span>
+      </div>
+    </div>
+    <div class="services-grid" id="services-grid"></div>
+  </div>
+
+  <!-- STEP 4: Done -->
+  <div id="step-4" style="display:none">
+    <div class="summary">
+      <div class="summary-title">✅ BrainBank generat cu succes!</div>
+      <div class="summary-stats">
+        <div class="summary-stat">
+          <div class="summary-stat-val" id="final-accepted">0</div>
+          <div class="summary-stat-label">Servicii acceptate</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-stat-val" id="final-edited">0</div>
+          <div class="summary-stat-label">Editate</div>
+        </div>
+        <div class="summary-stat">
+          <div class="summary-stat-val" id="final-total">0</div>
+          <div class="summary-stat-label">Total în BrainBank</div>
+        </div>
+      </div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.6">
+        AI-ul tău știe acum prețuri, durate, beneficii și poate răspunde la întrebări frecvente pentru fiecare serviciu.
+      </div>
+    </div>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-primary" style="flex:1;padding:12px" onclick="window.location.href='client-dashboard.html'">
+        → Înapoi la Dashboard
+      </button>
+      <button class="btn btn-ghost" style="padding:12px" onclick="restartBuilder()">
+        🔄 Regenerează
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">Editează Serviciu</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="field">
+      <label>Nume serviciu</label>
+      <input id="edit-name" placeholder="ex: Albire dentară cu laser">
+    </div>
+    <div class="field">
+      <label>Preț</label>
+      <input id="edit-price" placeholder="ex: 1.761 LEI">
+    </div>
+    <div class="field">
+      <label>Descriere (pentru AI)</label>
+      <textarea id="edit-desc" rows="3" placeholder="Descriere scurtă a serviciului..."></textarea>
+    </div>
+    <div class="field">
+      <label>Durată</label>
+      <input id="edit-duration" placeholder="ex: 60 minute">
+    </div>
+    <div class="field">
+      <label>Beneficii (câte unul pe rând)</label>
+      <textarea id="edit-benefits" rows="3" placeholder="Rezultate vizibile imediat&#10;Procedură nedureroasă&#10;Durabil 12-18 luni"></textarea>
+    </div>
+    <div class="field">
+      <label>Întrebări frecvente (Q: și A: pe rânduri separate)</label>
+      <textarea id="edit-faq" rows="4" placeholder="Q: Doare procedura?&#10;A: Nu, se face sub anestezie locală."></textarea>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:4px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveEdit()">✓ Salvează</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Anulează</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = typeof CONFIG !== 'undefined' ? CONFIG.API_URL : 'http://localhost:8080';
+
+// Load biz data
+let BIZ = JSON.parse(localStorage.getItem('recepai_client_profile') || 'null');
+if (!BIZ) {
+  const db = JSON.parse(localStorage.getItem('recepai_intelligence_db') || '[]');
+  if (db.length > 0) BIZ = db[0];
+}
+
+let SERVICES = BIZ?.services || [];
+let BRAIN = []; // Generated brain data
+let editIdx = -1;
+let counts = { accepted: 0, edited: 0, skipped: 0 };
+
+// ── INIT ──────────────────────────────
+window.onload = () => {
+  if (BIZ) {
+    document.getElementById('biz-info').style.display = 'block';
+    document.getElementById('biz-name-display').textContent = BIZ.name || 'Afacerea ta';
+    document.getElementById('biz-services-count').textContent = SERVICES.length + ' servicii găsite de scanner';
+  }
+};
+
+// ── START BUILDER ──────────────────────
+async function startBuilder() {
+  if (SERVICES.length === 0) {
+    showToast('⚠ Niciun serviciu găsit. Scanează mai întâi site-ul.');
+    return;
+  }
+
+  document.getElementById('step-1').style.display = 'none';
+  document.getElementById('step-2').style.display = 'block';
+  setProgress(2);
+
+  // Generate brain data for each service
+  BRAIN = [];
+  const total = Math.min(SERVICES.length, 15); // Max 15 for demo
+
+  for (let i = 0; i < total; i++) {
+    const svc = SERVICES[i];
+    const pct = Math.round((i / total) * 100);
+    document.getElementById('gen-bar').style.width = pct + '%';
+    document.getElementById('gen-status').textContent = `Generez "${svc.name}"... (${i+1}/${total})`;
+
+    const brainEntry = await generateBrainEntry(svc, BIZ);
+    BRAIN.push({ ...brainEntry, status: 'pending', originalName: svc.name });
+  }
+
+  document.getElementById('gen-bar').style.width = '100%';
+  await new Promise(r => setTimeout(r, 500));
+
+  document.getElementById('step-2').style.display = 'none';
+  document.getElementById('step-3').style.display = 'block';
+  document.getElementById('save-btn').style.display = '';
+  setProgress(3);
+  renderBrainCards();
+}
+
+// ── GENERATE BRAIN ENTRY ──────────────
+async function generateBrainEntry(svc, biz) {
+  const industry = detectIndustry(biz);
+  const prompt = `Ești expert în ${industry}. Generează informații detaliate pentru serviciul "${svc.name}"${svc.price ? ' cu prețul ' + svc.price : ''}.
+
+Returnează DOAR JSON valid:
+{
+  "name": "${svc.name}",
+  "price": "${svc.price || ''}",
+  "description": "descriere scurtă 1-2 propoziții pentru client",
+  "duration": "durata estimată (ex: 45 minute)",
+  "benefits": ["beneficiu 1", "beneficiu 2", "beneficiu 3"],
+  "preparation": "ce trebuie să facă clientul înainte",
+  "faq": [
+    {"q": "întrebare frecventă 1", "a": "răspuns 1"},
+    {"q": "întrebare frecventă 2", "a": "răspuns 2"}
+  ],
+  "tags": ["tag1", "tag2"]
+}`;
+
+  try {
+    const res = await fetch(`${API}/api/brainbank/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        serviceName: svc.name,
+        servicePrice: svc.price,
+        industry: detectIndustry(biz),
+      })
+    });
+    const data = await res.json();
+    if (data.success && data.data?.description && data.data.description.length > 30) {
+      return { name: svc.name, price: svc.price, ...data.data };
+    }
+  } catch(e) { console.log('API error:', e); }
+
+  // Fallback
+  return generateFallback(svc, industry);
+}
+
+function generateFallback(svc, industry) {
+  const durations = { dental: '45 minute', vet: '30 minute', beauty: '60 minute', physio: '50 minute' };
+  return {
+    name: svc.name,
+    price: svc.price || '',
+    description: `${svc.name} - serviciu profesional de ${industry}.`,
+    duration: durations[industry] || '45 minute',
+    benefits: ['Rezultate profesionale', 'Personal calificat', 'Echipamente moderne'],
+    preparation: 'Nu sunt necesare pregătiri speciale.',
+    faq: [
+      { q: 'Cât durează?', a: durations[industry] || '45 minute' },
+      { q: 'Este dureros?', a: 'Procedura este confortabilă.' },
+    ],
+    tags: [industry, 'profesional'],
+  };
+}
+
+function detectIndustry(biz) {
+  const s = ((biz?.type || '') + ' ' + (biz?.domain || '')).toLowerCase();
+  if (s.includes('dent') || s.includes('stomat')) return 'stomatologie';
+  if (s.includes('vet') || s.includes('animal')) return 'medicină veterinară';
+  if (s.includes('salon') || s.includes('beauty') || s.includes('coaf')) return 'cosmetică și coafură';
+  if (s.includes('fizio') || s.includes('kine')) return 'fizioterapie';
+  return 'servicii medicale';
+}
+
+// ── RENDER CARDS ──────────────────────
+function renderBrainCards() {
+  const grid = document.getElementById('services-grid');
+  grid.innerHTML = BRAIN.map((b, i) => {
+    const statusClass = b.status === 'accepted' ? 'accepted' : b.status === 'skipped' ? 'skipped' : '';
+    return `
+    <div class="svc-card ${statusClass}" id="card-${i}">
+      <div class="svc-card-head">
+        <div class="svc-icon">${getIcon(b.name)}</div>
+        <div class="svc-name">${b.name}</div>
+        ${b.price ? `<div class="svc-price">${b.price}</div>` : ''}
+      </div>
+      <div class="svc-card-body">
+        ${b.status === 'pending' || b.status === 'accepted' || b.status === 'edited' ? `
+        <div class="svc-section">
+          <div class="svc-section-label">Descriere AI</div>
+          <div class="svc-desc">${b.description || '—'}</div>
+        </div>
+        <div class="svc-section" style="display:flex;gap:16px">
+          <div>
+            <div class="svc-section-label">Durată</div>
+            <div class="svc-duration">⏱ ${b.duration || '—'}</div>
+          </div>
+        </div>
+        <div class="svc-section">
+          <div class="svc-section-label">Beneficii</div>
+          <div class="svc-tags">
+            ${(b.benefits || []).map(ben => `<span class="svc-tag benefit">✓ ${ben}</span>`).join('')}
+          </div>
+        </div>
+        ${b.faq?.length ? `
+        <div class="svc-section">
+          <div class="svc-section-label">FAQ generat</div>
+          <div class="svc-faq">
+            ${b.faq.map(f => `<div class="svc-faq-q">Q: ${f.q}</div><div>A: ${f.a}</div>`).join('')}
+          </div>
+        </div>` : ''}
+        ` : '<div style="font-size:12px;color:var(--t3);padding:8px 0">Serviciu sărit</div>'}
+      </div>
+      <div class="svc-actions">
+        ${b.status === 'accepted' || b.status === 'edited'
+          ? `<div style="flex:1;font-size:12px;color:var(--grn);font-weight:600;display:flex;align-items:center;gap:4px">✅ ${b.status === 'edited' ? 'Editat și acceptat' : 'Acceptat'}</div>`
+          : b.status === 'skipped'
+          ? `<button class="btn-accept" onclick="acceptCard(${i})">↩ Restaurează</button>`
+          : `<button class="btn-accept" onclick="acceptCard(${i})">✓ Acceptă</button>
+             <button class="btn-edit" onclick="editCard(${i})">✏️ Modifică</button>`
+        }
+        ${b.status !== 'skipped' && b.status !== 'accepted' && b.status !== 'edited'
+          ? `<button class="btn-skip" onclick="skipCard(${i})" title="Sari peste">✕</button>`
+          : ''}
+      </div>
+    </div>`;
+  }).join('');
+  updateCounts();
+}
+
+function getIcon(name) {
+  const n = (name || '').toLowerCase();
+  if (n.includes('implant')) return '🦷';
+  if (n.includes('albire')) return '✨';
+  if (n.includes('consult')) return '👨‍⚕️';
+  if (n.includes('vaccin')) return '💉';
+  if (n.includes('operati') || n.includes('chirurg')) return '🏥';
+  if (n.includes('masaj')) return '💆';
+  if (n.includes('tuns') || n.includes('coaf')) return '✂️';
+  if (n.includes('manichiur') || n.includes('ungh')) return '💅';
+  if (n.includes('ecograf')) return '🔬';
+  return '⚕️';
+}
+
+// ── CARD ACTIONS ──────────────────────
+function acceptCard(i) {
+  BRAIN[i].status = 'accepted';
+  renderBrainCards();
+  updateCounts();
+}
+
+function skipCard(i) {
+  BRAIN[i].status = 'skipped';
+  renderBrainCards();
+  updateCounts();
+}
+
+function editCard(i) {
+  editIdx = i;
+  const b = BRAIN[i];
+  document.getElementById('edit-name').value = b.name || '';
+  document.getElementById('edit-price').value = b.price || '';
+  document.getElementById('edit-desc').value = b.description || '';
+  document.getElementById('edit-duration').value = b.duration || '';
+  document.getElementById('edit-benefits').value = (b.benefits || []).join('\n');
+  document.getElementById('edit-faq').value = (b.faq || []).map(f => `Q: ${f.q}\nA: ${f.a}`).join('\n\n');
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+function saveEdit() {
+  const i = editIdx;
+  const faqRaw = document.getElementById('edit-faq').value;
+  const faqs = [];
+  faqRaw.split(/\n\n+/).forEach(block => {
+    const qMatch = block.match(/Q:\s*(.+)/);
+    const aMatch = block.match(/A:\s*(.+)/);
+    if (qMatch && aMatch) faqs.push({ q: qMatch[1].trim(), a: aMatch[1].trim() });
+  });
+
+  BRAIN[i] = {
+    ...BRAIN[i],
+    name: document.getElementById('edit-name').value,
+    price: document.getElementById('edit-price').value,
+    description: document.getElementById('edit-desc').value,
+    duration: document.getElementById('edit-duration').value,
+    benefits: document.getElementById('edit-benefits').value.split('\n').filter(b => b.trim()),
+    faq: faqs,
+    status: 'edited',
+  };
+  closeModal();
+  renderBrainCards();
+  updateCounts();
+  showToast('✓ Serviciu actualizat');
+}
+
+function closeModal() {
+  document.getElementById('edit-modal').classList.remove('show');
+}
+
+function updateCounts() {
+  counts.accepted = BRAIN.filter(b => b.status === 'accepted' || b.status === 'edited').length;
+  counts.edited = BRAIN.filter(b => b.status === 'edited').length;
+  counts.skipped = BRAIN.filter(b => b.status === 'skipped').length;
+  document.getElementById('cnt-accepted').textContent = counts.accepted;
+  document.getElementById('cnt-edited').textContent = counts.edited;
+  document.getElementById('cnt-skipped').textContent = counts.skipped;
+}
+
+// ── SAVE ALL ──────────────────────────
+function saveAll() {
+  const accepted = BRAIN.filter(b => b.status === 'accepted' || b.status === 'edited');
+
+  // Save to BrainBank in localStorage
+  const brainBank = {
+    services: accepted,
+    generatedAt: new Date().toISOString(),
+    businessName: BIZ?.name || '',
+    version: 1,
+  };
+  localStorage.setItem('recepai_brainbank', JSON.stringify(brainBank));
+
+  // Update business profile with enriched services
+  if (BIZ) {
+    BIZ.brainBank = brainBank;
+    BIZ.services = accepted.map(b => ({ name: b.name, price: b.price, description: b.description, duration: b.duration, benefits: b.benefits, faq: b.faq }));
+    localStorage.setItem('recepai_client_profile', JSON.stringify(BIZ));
+  }
+
+  // Show summary
+  document.getElementById('step-3').style.display = 'none';
+  document.getElementById('step-4').style.display = 'block';
+  document.getElementById('save-btn').style.display = 'none';
+  setProgress(4);
+
+  document.getElementById('final-accepted').textContent = counts.accepted;
+  document.getElementById('final-edited').textContent = counts.edited;
+  document.getElementById('final-total').textContent = accepted.length;
+
+  showToast('✅ BrainBank salvat!');
+}
+
+function restartBuilder() {
+  BRAIN = [];
+  counts = { accepted: 0, edited: 0, skipped: 0 };
+  document.getElementById('step-4').style.display = 'none';
+  document.getElementById('step-1').style.display = 'block';
+  setProgress(1);
+}
+
+function setProgress(step) {
+  for (let i = 1; i <= 4; i++) {
+    const el = document.getElementById('prog-' + i);
+    el.classList.remove('active', 'done');
+    if (i < step) el.classList.add('done');
+    if (i === step) el.classList.add('active');
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
