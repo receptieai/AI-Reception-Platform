@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
+const { generateSystemPrompt, analyzeConversation } = require('./brainbank/brainbank');
 const { renderWithBrowser, needsBrowser } = require('./browser');
 
 const PORT = process.env.PORT || 8080;
@@ -513,56 +514,32 @@ function makeFallback(domain) {
 
 // ── CHAT ──────────────────────────────────────
 async function chatWithAI(messages, profile, personality) {
-  const tones = {
-    prietenos: 'prietenos și cald, folosești emoji-uri cu moderație',
-    profesionist: 'profesionist și formal, fără emoji-uri',
-    elegant: 'elegant și sofisticat',
-    cald: 'foarte empatic și grijuliu',
-    dinamic: 'rapid și direct la obiect'
-  };
-  
-  const services = (profile.services || [])
-    .filter(s => s.name)
-    .map(s => `• ${s.name}${s.price ? ': ' + s.price : ''}${s.duration ? ' (' + s.duration + ')' : ''}`)
-    .join('\n');
-  
-  const now = new Date();
-  const hour = now.getHours();
-  const isWorkingHours = hour >= 9 && hour < 18;
-  
-  const system = `Ești recepționistul virtual al "${profile.name || 'acestei afaceri'}" din ${profile.city || 'România'}.
-Ton: ${tones[personality || 'prietenos'] || tones.prietenos}
-
-REGULI STRICTE:
-- Vorbești DOAR în română
-- Nu dai sfaturi medicale sau veterinare
-- Nu inventezi prețuri sau servicii inexistente
-- Dacă nu știi → "Vă rog sunați la ${profile.phone || 'recepție'}"
-- Răspunsuri scurte — maxim 4 propoziții
-- Colectezi întotdeauna: NUME + TELEFON + SERVICIU dorit
-
-SERVICII DISPONIBILE:
-${services || 'Contactați-ne pentru lista completă de servicii'}
-
-PROGRAM: ${profile.hours || 'Luni-Vineri 09:00-19:00'}
-
-CÂND CLIENTUL VREA PROGRAMARE:
-1. Cere numele
-2. Cere telefonul
-3. Cere serviciul dorit
-4. Cere ziua preferată
-5. ${isWorkingHours
-    ? 'Confirmă: "Veți fi contactat în maximum 2 ore!"'
-    : 'Confirmă: "Solicitarea a fost înregistrată! Vă vom contacta mâine în cursul programului nostru de lucru."'}`;
-
-  const userMsg = messages
-    .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
-    .join('\n\n');
-
   try {
+    const system = generateSystemPrompt({
+      industry: profile.type || profile.industry || 'general',
+      companyData: profile,
+      conversationHistory: messages,
+      learningData: null,
+      includeAppointments: true,
+      userMessage: messages[messages.length - 1]?.content || '',
+      businessRules: profile.businessRules || [],
+    });
+
+    const userMsg = messages
+      .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
+      .join('\n\n');
+
     const reply = await callClaude(system, userMsg);
+
+    setImmediate(() => {
+      try {
+        analyzeConversation([...messages, { role: 'assistant', content: reply }]);
+      } catch(e) {}
+    });
+
     return { success: true, message: reply };
   } catch (e) {
+    console.error('[CHAT] BrainBank error:', e.message);
     return { success: false, message: 'Îmi pare rău, a apărut o eroare. Vă rog sunați direct.' };
   }
 }
