@@ -1,0 +1,15 @@
+{
+  "location:aveți parcare gratuită": {
+    "question": "Aveți parcare gratuită?",
+    "category": "location",
+    "industry": "dental",
+    "count": 1,
+    "businesses": [
+      "TiaDent"
+    ],
+    "firstSeen": "2026-07-16T12:21:27.571Z",
+    "lastSeen": "2026-07-16T12:21:27.571Z",
+    "status": "open",
+    "globalAnswer": null
+  }
+}
