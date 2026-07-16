@@ -23,6 +23,7 @@ const runV2 = !args.includes('--v1');
 
 const V1 = runV1 ? require('../backend/extractors') : null;
 const V2 = runV2 ? require('../backend/extractors_v2/index') : null;
+const { crawlSitemap, fetchRaw } = runV2 ? require('../backend/crawler/sitemapCrawler') : { crawlSitemap: null, fetchRaw: null };
 
 // ── FETCH URL ──────────────────────────────────
 function fetchUrl(url) {
@@ -145,11 +146,21 @@ async function runBenchmark() {
       }
     }
 
-    // V2
+    // V2 with crawler
     if (V2) {
       try {
         const start = Date.now();
-        const r2 = await V2.extractAll(html, site.url, 'benchmark');
+        // Use crawler to find important pages
+        const crawled = await crawlSitemap(site.url, { maxPages: 8, timeout: 8000 });
+        let combinedHtml = html;
+        for (const page of crawled.pages.slice(0, 6)) {
+          try {
+            const pageHtml = await fetchRaw(page.url, 6000);
+            if (pageHtml && pageHtml.length > 1000) combinedHtml += pageHtml;
+            if (combinedHtml.length > 1500000) break;
+          } catch(e) {}
+        }
+        const r2 = await V2.extractAll(combinedHtml, site.url, 'benchmark');
         r2._durationMs = Date.now() - start;
         const s2 = scoreResult(r2, site.expected, 'V2');
         siteResult.v2 = s2;
