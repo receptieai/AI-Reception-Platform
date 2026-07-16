@@ -593,15 +593,29 @@ async function startScan() {
     // Try real backend first
     let data;
     try {
-      const res = await fetch((window.CONFIG?.API_URL||'http://localhost:8080') + '/api/analyze', {
+      // Start async job
+      const startRes = await fetch((window.CONFIG?.API_URL||'http://localhost:8080') + '/api/scan/start', {
         method: 'POST',
         headers: {'Content-Type':'application/json'},
         body: JSON.stringify({url: url})
       });
-      const result = await res.json();
-      data = result.data;
-      if(result.mock) addLog('API key lipsă — date generate din URL', 'warn');
-      else addLog('✓ Website accesat cu succes', 'ok');
+      const startData = await startRes.json();
+      if (!startData.jobId) throw new Error('Nu s-a putut porni scanarea');
+      addLog('✓ Scanare pornită: ' + startData.jobId, 'ok');
+
+      // Poll for results
+      const jobId = startData.jobId;
+      let attempts = 0;
+      while (attempts < 90) {
+        await new Promise(r => setTimeout(r, 2000));
+        const statusRes = await fetch((window.CONFIG?.API_URL||'http://localhost:8080') + '/api/scan/status/' + jobId);
+        const status = await statusRes.json();
+        setProgress(status.progress || 20, status.progressText || 'Scanez...');
+        if (status.status === 'completed') { data = status.result; addLog('✓ Scanare completă', 'ok'); break; }
+        if (status.status === 'failed') throw new Error(status.error || 'Scanare eșuată');
+        attempts++;
+      }
+      if (!data) throw new Error('Timeout scanare');
     } catch(e) {
       addLog('Backend offline — generez date din URL', 'warn');
       data = generateLocalFallback(domain);

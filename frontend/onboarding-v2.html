@@ -496,12 +496,29 @@ async function startAnalysis() {
   runLoadingAnimation();
 
   try {
-    const res = await fetch(API + '/api/analyze', {
+    // Start async job
+    const startRes = await fetch(API + '/api/scan/start', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url: input })
     });
-    const result = await res.json();
+    const startData = await startRes.json();
+    if (!startData.jobId) throw new Error('Nu s-a putut porni scanarea');
+
+    // Poll for results
+    let data = null;
+    let attempts = 0;
+    while (attempts < 90) {
+      await new Promise(r => setTimeout(r, 2000));
+      const statusRes = await fetch(API + '/api/scan/status/' + startData.jobId);
+      const status = await statusRes.json();
+      if (status.progress) updateLoadingProgress(status.progress, status.progressText);
+      if (status.status === 'completed') { data = status.result; break; }
+      if (status.status === 'failed') throw new Error(status.error || 'Scanare eșuată');
+      attempts++;
+    }
+    if (!data) throw new Error('Timeout scanare');
+    const result = { success: true, data };
     if (result.success && result.data) {
       S.data = result.data;
       renderResults(result.data);
@@ -519,6 +536,13 @@ async function startAnalysis() {
 }
 
 // ── LOADING ANIMATION ─────────────────────────
+function updateLoadingProgress(pct, text) {
+  const bar = document.getElementById('loading-bar');
+  const label = document.getElementById('loading-label');
+  if (bar) bar.style.width = pct + '%';
+  if (label) label.textContent = text || 'Scanez...';
+}
+
 function runLoadingAnimation() {
   const steps = [1,2,3,4,5,6,7];
   const delays = [0, 800, 1400, 2200, 3000, 4000, 5200];
