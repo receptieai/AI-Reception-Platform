@@ -10,6 +10,8 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
+const { createJob, getJob, getAllJobs } = require('./jobs/scanQueue');
+const { runScanJob } = require('./jobs/scanWorker');
 const { renderWithBrowser, needsBrowser } = require('./browser');
 
 const PORT = process.env.PORT || 8080;
@@ -606,6 +608,45 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Analyze
+  // ── SCAN JOB ENDPOINTS ──────────────────────
+  if (pathname === '/api/scan/start' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.url) { sendJson(res, { error: 'URL lipsa' }, 400); return; }
+    const job = createJob(body.url, { version: body.version || 'hybrid' });
+    // Start in background
+    setImmediate(() => runScanJob(job.id, body.url).catch(e => console.error('[SCAN]', e.message)));
+    sendJson(res, { success: true, jobId: job.id, status: 'pending' });
+    return;
+  }
+
+  if (pathname.startsWith('/api/scan/status/') && req.method === 'GET') {
+    const jobId = pathname.replace('/api/scan/status/', '');
+    const job = getJob(jobId);
+    if (!job) { sendJson(res, { error: 'Job negasit' }, 404); return; }
+    sendJson(res, {
+      success: true,
+      jobId: job.id,
+      status: job.status,
+      progress: job.progress,
+      progressText: job.progressText,
+      result: job.status === 'completed' ? job.result : null,
+      error: job.error || null,
+      createdAt: job.createdAt,
+      completedAt: job.completedAt,
+    });
+    return;
+  }
+
+  if (pathname === '/api/scan/jobs' && req.method === 'GET') {
+    const jobs = getAllJobs().slice(0, 20).map(j => ({
+      id: j.id, url: j.url, status: j.status,
+      progress: j.progress, progressText: j.progressText,
+      createdAt: j.createdAt, completedAt: j.completedAt,
+    }));
+    sendJson(res, { success: true, jobs });
+    return;
+  }
+
   if (pathname === '/api/analyze' && req.method === 'POST') {
     const body = await parseBody(req);
     if (!body.url) { sendJson(res, { error: 'URL lipsă' }, 400); return; }
