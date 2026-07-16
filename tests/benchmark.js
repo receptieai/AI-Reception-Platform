@@ -156,25 +156,42 @@ async function runBenchmark() {
 
         const PRICE_KEYWORDS = ['pret','tarif','servicii','tratament','implant','ortodont','profilax','estetica'];
 
-        for (const page of crawled.pages.slice(0, 8)) {
+        // Parallel fetch first (fast)
+        const pagesToFetch = crawled.pages.slice(0, 8);
+        const fetched = await Promise.all(pagesToFetch.map(async page => {
           try {
-            let pageHtml = await fetchRaw(page.url, 6000);
-            if (!pageHtml || pageHtml.length < 500) continue;
+            const html = await fetchRaw(page.url, 5000);
+            return { page, html: html || '' };
+          } catch(e) { return { page, html: '' }; }
+        }));
 
-            // Render with Playwright if price page or JS site
-            const isPricePage = PRICE_KEYWORDS.some(k => page.url.toLowerCase().includes(k));
-            const noServices = !pageHtml.includes('lei') && !pageHtml.includes('RON');
-            if (isPricePage || (isJsSite(pageHtml) && noServices)) {
-              const rendered = await renderPage(page.url, { waitAfterLoad: 2500, expandAccordions: true, acceptCookies: true });
-              if (rendered.success && rendered.html.length > pageHtml.length) {
-                pageHtml = rendered.html;
-                console.log('   [Playwright] rendered:', page.url);
-              }
+        // Playwright only on top 3 price pages that need it
+        let playwrightCount = 0;
+        for (const { page, html: pageHtml } of fetched) {
+          if (!pageHtml || pageHtml.length < 500) continue;
+
+          let finalHtml = pageHtml;
+          const isPricePage = PRICE_KEYWORDS.some(k => page.url.toLowerCase().includes(k));
+          const noServices = !pageHtml.includes('lei') && !pageHtml.includes('RON');
+
+          if (playwrightCount < 3 && (isPricePage || isJsSite(pageHtml)) && noServices) {
+            const rendered = await renderPage(page.url, { waitAfterLoad: 1500, expandAccordions: true, acceptCookies: true });
+            if (rendered.success && rendered.html.length > pageHtml.length) {
+              finalHtml = rendered.html;
+              playwrightCount++;
+              console.log('   [Playwright]', playwrightCount + '/3', page.url);
             }
+          }
 
-            combinedHtml += pageHtml;
-            if (combinedHtml.length > 2000000) break;
-          } catch(e) {}
+          combinedHtml += finalHtml;
+
+          // Stop early if we have enough services
+          const quickCheck = combinedHtml.match(/\d{2,5}\s*(?:lei|ron|€)/gi);
+          if (quickCheck && quickCheck.length > 30) {
+            console.log('   [STOP] Enough services found early');
+            break;
+          }
+          if (combinedHtml.length > 1500000) break;
         }
 
         const r2 = await V2.extractAll(combinedHtml, site.url, 'benchmark');
