@@ -909,6 +909,23 @@ function renderInsights() {
   allGaps.forEach(g => { gapCounts[g] = (gapCounts[g]||0)+1; });
   const topGaps = Object.entries(gapCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
 
+  // Load gaps from server
+  fetch((window.CONFIG?.API_URL||'http://localhost:8080') + '/api/learning/gaps')
+    .then(r=>r.json())
+    .then(d => {
+      const learnEl = document.getElementById('learning-gaps');
+      if (learnEl && d.gaps?.length > 0) {
+        learnEl.innerHTML = d.gaps.slice(0,10).map(g => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b1)">
+            <div>
+              <div style="font-size:12px;color:var(--t1)">❓ ${g.question}</div>
+              <div style="font-size:10px;color:var(--t3);margin-top:2px">${g.category} · ${g.businesses?.length||1} afaceri</div>
+            </div>
+            <span style="font-size:11px;color:var(--red);font-weight:700;flex-shrink:0;margin-left:8px">${g.count}×</span>
+          </div>`).join('');
+      }
+    }).catch(()=>{});
+
   const learnEl = document.getElementById('learning-gaps');
   if (learnEl) {
     learnEl.innerHTML = topGaps.length > 0
