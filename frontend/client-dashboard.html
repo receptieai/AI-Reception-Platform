@@ -491,6 +491,8 @@
                   <div>📧 <span id="p-email">—</span></div>
                   <div>🏙️ <span id="p-city">—</span></div>
                   <div>🕐 <span id="p-hours">—</span></div>
+                  <div>👨‍⚕️ <span id="p-doctors">—</span></div>
+                  <div>🏥 <span id="p-facilities">—</span></div>
                 </div>
               </div>
             </div>
@@ -762,6 +764,11 @@ function renderDashboard() {
     document.getElementById('p-email').textContent = BIZ.email || '—';
     document.getElementById('p-city').textContent = BIZ.city || '—';
     document.getElementById('p-hours').textContent = BIZ.hours ? BIZ.hours.substring(0,40) + '...' : '—';
+    const doctors = BIZ.doctors || [];
+    document.getElementById('p-doctors').textContent = doctors.length > 0 ? doctors.slice(0,2).map(d=>d.name).join(', ') + (doctors.length>2?' +'+( doctors.length-2):'') : '—';
+    const facilities = BIZ.facilities || {};
+    const facList = Object.entries(facilities).filter(([k,v])=>v?.available).map(([k])=>k);
+    document.getElementById('p-facilities').textContent = facList.length > 0 ? facList.slice(0,3).join(', ') : '—';
   }
 
   // Leads list
