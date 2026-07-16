@@ -1,0 +1,9 @@
+
+══════════════════════════════════════════════════════════════════════
+  RecepAI Scanner Benchmark
+  16.07.2026, 13:31:50
+══════════════════════════════════════════════════════════════════════
+
+📍 Clinica Stomatologică Trident (dental)
+   https://clinicatrident.ro
+   Fetched: 833923 chars in 2796ms
