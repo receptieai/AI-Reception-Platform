@@ -623,7 +623,7 @@ async function startScan() {
 
     setProgress(60, 'Analizez cu AI...');
     addLog(`✓ Identificat: ${data.name}`, 'ok');
-    addLog(`✓ Tip: ${data.type}`, 'ok');
+    addLog(`✓ Tip: ${data.type || detectIndustryFromData(data) || 'Afacere locală'}`, 'ok');
     addLog(`✓ Servicii găsite: ${data.services?.length || 0}`, 'ok');
     if(data.confidence < 70) addLog(`⚠ Acuratețe scăzută: ${data.confidence}%`, 'warn');
 
