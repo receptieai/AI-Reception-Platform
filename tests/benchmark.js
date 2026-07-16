@@ -146,20 +146,37 @@ async function runBenchmark() {
       }
     }
 
-    // V2 with crawler
+    // V2 with crawler + Playwright on price pages
     if (V2) {
       try {
         const start = Date.now();
-        // Use crawler to find important pages
-        const crawled = await crawlSitemap(site.url, { maxPages: 8, timeout: 8000 });
+        const { renderPage, isJsSite } = require('../backend/playwrightEngine');
+        const crawled = await crawlSitemap(site.url, { maxPages: 10, timeout: 8000 });
         let combinedHtml = html;
-        for (const page of crawled.pages.slice(0, 6)) {
+
+        const PRICE_KEYWORDS = ['pret','tarif','servicii','tratament','implant','ortodont','profilax','estetica'];
+
+        for (const page of crawled.pages.slice(0, 8)) {
           try {
-            const pageHtml = await fetchRaw(page.url, 6000);
-            if (pageHtml && pageHtml.length > 1000) combinedHtml += pageHtml;
-            if (combinedHtml.length > 1500000) break;
+            let pageHtml = await fetchRaw(page.url, 6000);
+            if (!pageHtml || pageHtml.length < 500) continue;
+
+            // Render with Playwright if price page or JS site
+            const isPricePage = PRICE_KEYWORDS.some(k => page.url.toLowerCase().includes(k));
+            const noServices = !pageHtml.includes('lei') && !pageHtml.includes('RON');
+            if (isPricePage || (isJsSite(pageHtml) && noServices)) {
+              const rendered = await renderPage(page.url, { waitAfterLoad: 2500, expandAccordions: true, acceptCookies: true });
+              if (rendered.success && rendered.html.length > pageHtml.length) {
+                pageHtml = rendered.html;
+                console.log('   [Playwright] rendered:', page.url);
+              }
+            }
+
+            combinedHtml += pageHtml;
+            if (combinedHtml.length > 2000000) break;
           } catch(e) {}
         }
+
         const r2 = await V2.extractAll(combinedHtml, site.url, 'benchmark');
         r2._durationMs = Date.now() - start;
         const s2 = scoreResult(r2, site.expected, 'V2');
