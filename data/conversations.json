@@ -1,0 +1,70 @@
+[
+  {
+    "id": "conv_1784204345829",
+    "businessId": "unknown",
+    "businessName": "TiaDent",
+    "industry": "dental",
+    "timestamp": "2026-07-16T12:19:05.829Z",
+    "messageCount": 1,
+    "questions": [
+      {
+        "text": "Cât costă un implant? Aveți parcare?",
+        "category": "pricing",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "neutral"
+  },
+  {
+    "id": "conv_1784204393318",
+    "businessId": "unknown",
+    "businessName": "TiaDent",
+    "industry": "dental",
+    "timestamp": "2026-07-16T12:19:53.318Z",
+    "messageCount": 1,
+    "questions": [
+      {
+        "text": "Aveți parcare gratuită? Acceptați card Visa?",
+        "category": "location",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "neutral"
+  },
+  {
+    "id": "conv_1784204439912",
+    "businessId": "unknown",
+    "businessName": "TiaDent",
+    "industry": "dental",
+    "timestamp": "2026-07-16T12:20:39.912Z",
+    "messageCount": 1,
+    "questions": [
+      {
+        "text": "Aveți parcare gratuită?",
+        "category": "location",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "neutral"
+  },
+  {
+    "id": "conv_1784204487570",
+    "businessId": "unknown",
+    "businessName": "TiaDent",
+    "industry": "dental",
+    "timestamp": "2026-07-16T12:21:27.570Z",
+    "messageCount": 1,
+    "questions": [
+      {
+        "text": "Aveți parcare gratuită?",
+        "category": "location",
+        "answered": false
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "neutral"
+  }
+]

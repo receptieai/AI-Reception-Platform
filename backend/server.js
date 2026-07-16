@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
+const { saveConversation, getAnalytics, addGlobalAnswer, loadGaps } = require('./learning/conversationAnalyzer');
 const { createJob, getJob, getAllJobs } = require('./jobs/scanQueue');
 const { runScanJob } = require('./jobs/scanWorker');
 const { renderWithBrowser, needsBrowser } = require('./browser');
@@ -678,6 +679,12 @@ const server = http.createServer(async (req, res) => {
     }
     try {
       const result = await chatWithAI(body.messages, body.businessProfile, body.personality);
+      // Save conversation for Learning Engine
+      setImmediate(() => {
+        try {
+          saveConversation(body.messages, body.businessProfile, result.message || '');
+        } catch(e) {}
+      });
       sendJson(res, result);
     } catch (e) { sendJson(res, { error: 'Chat error' }, 500); }
     return;
@@ -716,6 +723,31 @@ Returnează DOAR JSON valid fără text suplimentar:
     } catch(e) {
       sendJson(res, { success: false, error: e.message });
     }
+    return;
+  }
+
+  // Learning Engine Analytics
+  if (pathname === '/api/learning/analytics' && req.method === 'GET') {
+    const industry = new URL('http://x' + req.url).searchParams.get('industry');
+    sendJson(res, { success: true, data: getAnalytics(industry) });
+    return;
+  }
+
+  if (pathname === '/api/learning/gaps' && req.method === 'GET') {
+    const gaps = loadGaps();
+    const topGaps = Object.entries(gaps)
+      .filter(([k,v]) => v.status === 'open')
+      .sort(([,a],[,b]) => b.count - a.count)
+      .slice(0, 50)
+      .map(([key, gap]) => ({ key, ...gap }));
+    sendJson(res, { success: true, gaps: topGaps });
+    return;
+  }
+
+  if (pathname === '/api/learning/answer' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const ok = addGlobalAnswer(body.key, body.answer);
+    sendJson(res, { success: ok });
     return;
   }
 
