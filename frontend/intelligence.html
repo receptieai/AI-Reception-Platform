@@ -903,6 +903,23 @@ function renderInsights() {
   }).join('');
 
   // Top services
+  // Learning Engine — detectează întrebări frecvente din gap-uri
+  const allGaps = db.flatMap(b => (b.missing||[]));
+  const gapCounts = {};
+  allGaps.forEach(g => { gapCounts[g] = (gapCounts[g]||0)+1; });
+  const topGaps = Object.entries(gapCounts).sort((a,b)=>b[1]-a[1]).slice(0,8);
+
+  const learnEl = document.getElementById('learning-gaps');
+  if (learnEl) {
+    learnEl.innerHTML = topGaps.length > 0
+      ? topGaps.map(([gap, count]) => `
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b1)">
+            <span style="font-size:12px;color:var(--t2)">❓ ${gap}</span>
+            <span style="font-size:11px;color:var(--teal);font-weight:600">${count} site-uri</span>
+          </div>`).join('')
+      : '<div style="font-size:12px;color:var(--t3)">Scanează mai multe site-uri pentru analiză.</div>';
+  }
+
   const allServices = db.flatMap(b => (b.services||[]).map(s => s.name));
   const serviceCounts = {};
   allServices.forEach(s => serviceCounts[s] = (serviceCounts[s]||0)+1);

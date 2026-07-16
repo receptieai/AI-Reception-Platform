@@ -349,7 +349,7 @@ function extractServicesWithPrices(html, page = 'homepage') {
   const seen = new Set();
 
   function addService(name, price, source, method, confidence) {
-    const cleanName = name.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    const cleanName = name.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').replace(/^[\-–—•·\s]+/, '').trim();
     if (cleanName.length < 3 || cleanName.length > 120) return;
     if (!/[a-zA-ZăâîșțĂÂÎȘȚ]{3,}/.test(cleanName)) return;
     if (/^[\\/\d\s\-\+\.]+$/.test(cleanName)) return;
