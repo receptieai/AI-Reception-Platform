@@ -66,5 +66,107 @@
     ],
     "hasLead": false,
     "sentiment": "neutral"
+  },
+  {
+    "id": "conv_1784317709139",
+    "businessId": "unknown",
+    "businessName": "DentaVita — Clinică Stomatologică București",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:48:29.139Z",
+    "messageCount": 2,
+    "questions": [
+      {
+        "text": "Cât costă consultație + radiografie?",
+        "category": "pricing",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "neutral"
+  },
+  {
+    "id": "conv_1784317728722",
+    "businessId": "unknown",
+    "businessName": "DentaVita — Clinică Stomatologică București",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:48:48.722Z",
+    "messageCount": 4,
+    "questions": [
+      {
+        "text": "Cât costă consultație + radiografie?",
+        "category": "pricing",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "positive"
+  },
+  {
+    "id": "conv_1784317749056",
+    "businessId": "unknown",
+    "businessName": "DentaVita — Clinică Stomatologică București",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:49:09.056Z",
+    "messageCount": 6,
+    "questions": [
+      {
+        "text": "Cât costă consultație + radiografie?",
+        "category": "pricing",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "positive"
+  },
+  {
+    "id": "conv_1784317768146",
+    "businessId": "unknown",
+    "businessName": "DentaVita — Clinică Stomatologică București",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:49:28.146Z",
+    "messageCount": 8,
+    "questions": [
+      {
+        "text": "Cât costă consultație + radiografie?",
+        "category": "pricing",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "positive"
+  },
+  {
+    "id": "conv_1784317774890",
+    "businessId": "unknown",
+    "businessName": "DentaVita — Clinică Stomatologică București",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:49:34.891Z",
+    "messageCount": 10,
+    "questions": [
+      {
+        "text": "Cât costă consultație + radiografie?",
+        "category": "pricing",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "positive"
+  },
+  {
+    "id": "conv_1784317785361",
+    "businessId": "unknown",
+    "businessName": "DentaVita — Clinică Stomatologică București",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:49:45.361Z",
+    "messageCount": 12,
+    "questions": [
+      {
+        "text": "Cât costă consultație + radiografie?",
+        "category": "pricing",
+        "answered": true
+      }
+    ],
+    "hasLead": false,
+    "sentiment": "positive"
   }
 ]
