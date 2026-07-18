@@ -168,5 +168,71 @@
     ],
     "hasLead": false,
     "sentiment": "positive"
+  },
+  {
+    "id": "conv_1784318151547",
+    "businessId": "unknown",
+    "businessName": "Unknown",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:55:51.547Z",
+    "messageCount": 2,
+    "questions": [],
+    "hasLead": false,
+    "sentiment": "neutral"
+  },
+  {
+    "id": "conv_1784318167766",
+    "businessId": "unknown",
+    "businessName": "Unknown",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:56:07.766Z",
+    "messageCount": 4,
+    "questions": [],
+    "hasLead": false,
+    "sentiment": "negative"
+  },
+  {
+    "id": "conv_1784318179878",
+    "businessId": "unknown",
+    "businessName": "Unknown",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:56:19.878Z",
+    "messageCount": 6,
+    "questions": [],
+    "hasLead": false,
+    "sentiment": "positive"
+  },
+  {
+    "id": "conv_1784318192896",
+    "businessId": "unknown",
+    "businessName": "Unknown",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:56:32.897Z",
+    "messageCount": 8,
+    "questions": [],
+    "hasLead": false,
+    "sentiment": "positive"
+  },
+  {
+    "id": "conv_1784318216736",
+    "businessId": "unknown",
+    "businessName": "Unknown",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:56:56.736Z",
+    "messageCount": 10,
+    "questions": [],
+    "hasLead": false,
+    "sentiment": "positive"
+  },
+  {
+    "id": "conv_1784318238015",
+    "businessId": "unknown",
+    "businessName": "Unknown",
+    "industry": "general",
+    "timestamp": "2026-07-17T19:57:18.015Z",
+    "messageCount": 12,
+    "questions": [],
+    "hasLead": false,
+    "sentiment": "positive"
   }
 ]

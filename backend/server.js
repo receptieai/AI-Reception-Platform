@@ -678,7 +678,13 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     try {
-      const result = await chatWithAI(body.messages, body.businessProfile, body.personality);
+      // Use saved profile if available
+      let businessProfile = body.businessProfile || {};
+      const clientId = businessProfile.clientId || body.clientId;
+      if (clientId && global.businessProfiles?.[clientId]) {
+        businessProfile = { ...global.businessProfiles[clientId], ...businessProfile };
+      }
+      const result = await chatWithAI(body.messages, businessProfile, body.personality);
       // Save conversation for Learning Engine
       setImmediate(() => {
         try {
@@ -723,6 +729,25 @@ Returnează DOAR JSON valid fără text suplimentar:
     } catch(e) {
       sendJson(res, { success: false, error: e.message });
     }
+    return;
+  }
+
+  // Save business profile
+  if (pathname === '/api/profile/save' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    if (!global.businessProfiles) global.businessProfiles = {};
+    global.businessProfiles[body.clientId] = body;
+    console.log('[PROFILE] Saved profile for:', body.clientId, body.name);
+    sendJson(res, { success: true, clientId: body.clientId });
+    return;
+  }
+
+  if (pathname.startsWith('/api/profile/') && req.method === 'GET') {
+    const clientId = pathname.replace('/api/profile/', '');
+    const profile = global.businessProfiles?.[clientId];
+    if (!profile) { sendJson(res, { error: 'Profile negasit' }, 404); return; }
+    sendJson(res, { success: true, profile });
     return;
   }
 
