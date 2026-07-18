@@ -151,6 +151,16 @@ function extractSocial(html, page = 'homepage') {
   }
 
   // Strategie 2: href direct în HTML (95%)
+  // Facebook/Instagram din text
+  const fbTextMatch = html.match(/[Ff]acebook[:\s]+\/?@?([\w.\-]{3,})/);
+  if (fbTextMatch && !result.facebook.value) {
+    result.facebook = field('https://facebook.com/' + fbTextMatch[1], 'text_mention', 60, 'Facebook text mention', page);
+  }
+  const igTextMatch = html.match(/[Ii]nstagram[:\s]+\/?@?([\w.\-]{3,})/);
+  if (igTextMatch && !result.instagram.value) {
+    result.instagram = field('https://instagram.com/' + igTextMatch[1], 'text_mention', 60, 'Instagram text mention', page);
+  }
+
   const fbMatch = html.match(/href=["'](https?:\/\/(?:www\.|m\.|l\.)?facebook\.com\/[^"'\s?#/][^"'\s?#]*)["']/i);
   if (fbMatch && !fbMatch[1].includes('sharer') && !fbMatch[1].includes('share.php') && !result.facebook.value) {
     result.facebook = field(cleanUrl(fbMatch[1]), 'html_href', 95, 'Facebook href in HTML', page);
@@ -223,8 +233,12 @@ function extractHours(html, page = 'homepage') {
   const days = 'Luni|Marți|Miercuri|Joi|Vineri|Sâmbătă|Duminică|Mon|Tue|Wed|Thu|Fri|Sat|Sun';
   const rangePattern = new RegExp(`((?:${days})\\s*[-–]\\s*(?:${days})?\\s*:?\\s*\\d{1,2}[:.]\\d{2}\\s*[-–]\\s*\\d{1,2}[:.]\\d{2})`, 'gi');
   const ranges = [...textOnly.matchAll(rangePattern)].map(m => m[1].trim());
-  if (ranges.length > 0) {
-    candidates.push(field([...new Set(ranges)].slice(0, 4).join(' | '), 'regex', 75, 'Day-hours pattern in text', page));
+  // Also capture individual days (ex: Sâmbătă 09:00-15:00)
+  const singleDayPattern = new RegExp(`((?:${days})\\s*:?\\s*\\d{1,2}[:.]\\d{2}\\s*[-–]\\s*\\d{1,2}[:.]\\d{2})`, 'gi');
+  const singleDays = [...textOnly.matchAll(singleDayPattern)].map(m => m[1].trim());
+  const allRanges = [...new Set([...ranges, ...singleDays])].slice(0, 6);
+  if (allRanges.length > 0) {
+    candidates.push(field(allRanges.join(' | '), 'regex', 75, 'Day-hours pattern in text', page));
   }
 
   // Strategie 4: "Program:" label (70%)
