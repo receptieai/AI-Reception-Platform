@@ -427,7 +427,7 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;display:flex;ali
     </div>
 
     <div style="display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap">
-      <a href="login.html" style="background:var(--teal);color:#000;font-weight:700;padding:12px 22px;border-radius:10px;text-decoration:none;font-size:14px;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif">
+      <a href="client-dashboard.html" style="background:var(--teal);color:#000;font-weight:700;padding:12px 22px;border-radius:10px;text-decoration:none;font-size:14px;display:inline-flex;align-items:center;gap:6px;font-family:'Inter',sans-serif">
         📊 Dashboard
       </a>
       <button onclick="goTo(5)" style="background:transparent;color:var(--t2);border:1.5px solid var(--b2);padding:11px 18px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif">
@@ -461,13 +461,27 @@ const S = {
 };
 
 // ── NAVIGATION ────────────────────────────────
+async function saveProfileToServer() {
+  const clientId = localStorage.getItem('recepai_client_id');
+  const profile = JSON.parse(localStorage.getItem('recepai_client_profile') || 'null');
+  if (!clientId || !profile) return;
+  try {
+    await fetch((window.CONFIG?.API_URL||'http://localhost:8080') + '/api/profile/save', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ ...profile, clientId })
+    });
+    console.log('[ONBOARDING] Profile saved to server');
+  } catch(e) { console.log('[ONBOARDING] Profile save failed:', e.message); }
+}
+
 function goTo(n) {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('p' + n).classList.add('active');
   updateProgress(n);
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (n === 5 && !S.previewInited) initPreview();
-  if (n === 6) showSuccess();
+  if (n === 6) { saveProfileToServer(); showSuccess(); }
 }
 
 function updateProgress(current) {

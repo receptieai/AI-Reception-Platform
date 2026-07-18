@@ -9,7 +9,8 @@
     ],
     "firstSeen": "2026-07-16T12:21:27.571Z",
     "lastSeen": "2026-07-16T12:21:27.571Z",
-    "status": "open",
-    "globalAnswer": null
+    "status": "answered",
+    "globalAnswer": "clinica noastră dispune de parcare disponibilă pentru pacienți.",
+    "answeredAt": "2026-07-18T08:18:19.333Z"
   }
 }
