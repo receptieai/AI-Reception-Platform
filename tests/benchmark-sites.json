@@ -1,0 +1,14 @@
+{
+  "sites": [
+    {"id":"clinicatrident","name":"Clinica Stomatologică Trident","url":"https://clinicatrident.ro","category":"dental","expected":{"phone":true,"email":false,"minServices":50,"minPrices":50}},
+    {"id":"tiadent","name":"Tia Dent Iași","url":"https://tiadent.ro","category":"dental","expected":{"phone":true,"email":true,"minServices":10,"minPrices":0}},
+    {"id":"diacicov","name":"Cabinet Stomatologic Diacicov","url":"https://cabinet-stomatologic-diacicov.ro","category":"dental","expected":{"phone":true,"email":true,"minServices":50,"minPrices":50}},
+    {"id":"lifedentalspa","name":"Life Dental Spa","url":"https://lifedentalspa.ro","category":"dental","expected":{"phone":true,"email":true,"minServices":40,"minPrices":40}},
+    {"id":"dentalmed","name":"DentalMed Brașov","url":"https://dentalmed.ro","category":"dental","expected":{"phone":true,"email":false,"minServices":10,"minPrices":0}},
+    {"id":"amonvet","name":"Amon Vet Care","url":"https://amonvet.ro","category":"vet","expected":{"phone":true,"email":false,"minServices":50,"minPrices":50}},
+    {"id":"vetconsult","name":"Vetconsult Brăila","url":"https://vetconsult.ro","category":"vet","expected":{"phone":true,"email":true,"minServices":5,"minPrices":0}},
+    {"id":"mobileVet","name":"Mobile Vet","url":"https://mobile-vet.ro","category":"vet","expected":{"phone":true,"email":false,"minServices":30,"minPrices":0}},
+    {"id":"esthetique","name":"Salon Esthetique Bacău","url":"https://esthetiquebacau.ro","category":"beauty","expected":{"phone":true,"email":true,"minServices":20,"minPrices":20}},
+    {"id":"salonfabrica","name":"Salon Fabrica de Frumusețe","url":"https://salonfabricadefrumusete.ro","category":"beauty","expected":{"phone":true,"email":false,"minServices":5,"minPrices":0}}
+  ]
+}
