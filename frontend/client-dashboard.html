@@ -396,13 +396,19 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 <script>
 const API = typeof CONFIG !== 'undefined' ? CONFIG.API_URL : 'http://localhost:8080';
 
-let BIZ = JSON.parse(localStorage.getItem('recepai_client_profile') || 'null');
-if (!BIZ) {
-  const db = JSON.parse(localStorage.getItem('recepai_intelligence_db') || '[]');
-  if (db.length > 0) { BIZ = db[0]; }
+// Get clientId from URL first
+const urlParams = new URLSearchParams(window.location.search);
+const urlClientId = urlParams.get('clientId');
+if (urlClientId) {
+  localStorage.setItem('recepai_client_id', urlClientId);
+  localStorage.removeItem('recepai_client_profile');
 }
+
+let BIZ = JSON.parse(localStorage.getItem('recepai_client_profile') || 'null');
 let LEADS = JSON.parse(localStorage.getItem('recepai_client_leads') || '[]');
 let SERVICES = BIZ?.services || [];
+// Get clientId from URL or localStorage
+
 let CLIENT_ID = localStorage.getItem('recepai_client_id') || genId();
 let currentSuggestionKey = null;
 
@@ -416,22 +422,22 @@ function genId() {
 }
 
 // ── INIT ──────────────────────────────────
-function init() {
-  // Load profile from server if we have clientId
+async function init() {
+  // Load profile from server
   const clientId = localStorage.getItem('recepai_client_id');
-  if (clientId && !BIZ?.name) {
-    fetch(`${API}/api/profile/${clientId}`)
-      .then(r=>r.json())
-      .then(d => {
-        if (d.success && d.profile) {
-          BIZ = d.profile;
-          SERVICES = BIZ.services || [];
-          localStorage.setItem('recepai_client_profile', JSON.stringify(BIZ));
-          updateSidebar();
-          renderDashboard();
-          renderServicesEditor();
-        }
-      }).catch(()=>{});
+  console.log('[DASHBOARD] ClientId:', clientId);
+  console.log('[DASHBOARD] BIZ:', BIZ?.name || 'null');
+  if (clientId) {
+    try {
+      const res = await fetch(`${API}/api/profile/${clientId}`);
+      const d = await res.json();
+      if (d.success && d.profile) {
+        BIZ = d.profile;
+        SERVICES = BIZ.services || [];
+        localStorage.setItem('recepai_client_profile', JSON.stringify(BIZ));
+        console.log('[DASHBOARD] Profile loaded:', BIZ.name);
+      }
+    } catch(e) { console.log('[DASHBOARD] Profile load failed:', e.message); }
   }
   updateSidebar();
   renderDashboard();
@@ -721,7 +727,7 @@ if (!token) window.location.href = 'login.html';
 
 // ── START ──────────────────────────────────
 loadDemoData();
-init();
+(async () => { await init(); })();
 setInterval(loadLeadsFromServer, 30000);
 setInterval(loadSuggestions, 60000);
 </script>
