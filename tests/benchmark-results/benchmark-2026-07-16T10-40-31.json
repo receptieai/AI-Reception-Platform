@@ -1,0 +1,249 @@
+{
+  "timestamp": "2026-07-16T10-40-31",
+  "results": [
+    {
+      "site": "Clinica Stomatologică Trident",
+      "category": "dental",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "➖",
+          "facebook": "✅",
+          "instagram": "✅",
+          "hours": "✅",
+          "city": "✅",
+          "address": "✅",
+          "services": "✅",
+          "prices": "✅"
+        },
+        "services": 60,
+        "prices": 60,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 64,
+        "score": 100
+      }
+    },
+    {
+      "site": "Tia Dent Iași",
+      "category": "dental",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "✅",
+          "facebook": "✅",
+          "instagram": "✅",
+          "hours": "✅",
+          "city": "✅",
+          "address": "➖",
+          "services": "⚠️ 0/10",
+          "prices": "✅"
+        },
+        "services": 0,
+        "prices": 0,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 64,
+        "score": 88
+      }
+    },
+    {
+      "site": "Cabinet Stomatologic Diacicov",
+      "category": "dental",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "✅",
+          "facebook": "➖",
+          "instagram": "➖",
+          "hours": "❌",
+          "city": "✅",
+          "address": "✅",
+          "services": "✅",
+          "prices": "✅"
+        },
+        "services": 60,
+        "prices": 60,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 62,
+        "score": 86
+      }
+    },
+    {
+      "site": "Life Dental Spa",
+      "category": "dental",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "✅",
+          "facebook": "✅",
+          "instagram": "✅",
+          "hours": "✅",
+          "city": "✅",
+          "address": "✅",
+          "services": "⚠️ 8/40",
+          "prices": "⚠️ 8/40"
+        },
+        "services": 8,
+        "prices": 8,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 36,
+        "score": 78
+      }
+    },
+    {
+      "site": "DentalMed Brașov",
+      "category": "dental",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "✅",
+          "facebook": "✅",
+          "instagram": "✅",
+          "hours": "❌",
+          "city": "✅",
+          "address": "✅",
+          "services": "⚠️ 0/10",
+          "prices": "✅"
+        },
+        "services": 0,
+        "prices": 0,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 80,
+        "score": 78
+      }
+    },
+    {
+      "site": "Amon Vet Care",
+      "category": "vet",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "➖",
+          "facebook": "✅",
+          "instagram": "✅",
+          "hours": "✅",
+          "city": "✅",
+          "address": "✅",
+          "services": "✅",
+          "prices": "✅"
+        },
+        "services": 60,
+        "prices": 60,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 59,
+        "score": 100
+      }
+    },
+    {
+      "site": "Vetconsult Brăila",
+      "category": "vet",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "✅",
+          "facebook": "✅",
+          "instagram": "➖",
+          "hours": "✅",
+          "city": "❌",
+          "address": "✅",
+          "services": "⚠️ 0/5",
+          "prices": "✅"
+        },
+        "services": 0,
+        "prices": 0,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 50,
+        "score": 75
+      }
+    },
+    {
+      "site": "Mobile Vet",
+      "category": "vet",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "➖",
+          "facebook": "✅",
+          "instagram": "➖",
+          "hours": "❌",
+          "city": "✅",
+          "address": "➖",
+          "services": "✅",
+          "prices": "✅"
+        },
+        "services": 60,
+        "prices": 60,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 27,
+        "score": 83
+      }
+    },
+    {
+      "site": "Salon Esthetique Bacău",
+      "category": "beauty",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "✅",
+          "facebook": "✅",
+          "instagram": "✅",
+          "hours": "❌",
+          "city": "✅",
+          "address": "✅",
+          "services": "⚠️ 0/20",
+          "prices": "⚠️ 0/20"
+        },
+        "services": 0,
+        "prices": 0,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 12,
+        "score": 67
+      }
+    },
+    {
+      "site": "Salon Fabrica de Frumusețe",
+      "category": "beauty",
+      "v1": {
+        "checks": {
+          "phone": "✅",
+          "email": "➖",
+          "facebook": "➖",
+          "instagram": "➖",
+          "hours": "❌",
+          "city": "❌",
+          "address": "✅",
+          "services": "⚠️ 0/5",
+          "prices": "✅"
+        },
+        "services": 0,
+        "prices": 0,
+        "doctors": 0,
+        "facilities": 0,
+        "confidence": 0,
+        "durationMs": 39,
+        "score": 50
+      }
+    }
+  ],
+  "summary": {
+    "v1Avg": 81,
+    "v2Avg": 0
+  }
+}

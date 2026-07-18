@@ -10,7 +10,9 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
-const { generateSystemPrompt, analyzeConversation } = require('./brainbank/brainbank');
+const { saveConversation, getAnalytics, addGlobalAnswer, loadGaps } = require('./learning/conversationAnalyzer');
+const { createJob, getJob, getAllJobs } = require('./jobs/scanQueue');
+const { runScanJob } = require('./jobs/scanWorker');
 const { renderWithBrowser, needsBrowser } = require('./browser');
 
 const PORT = process.env.PORT || 8080;
@@ -514,32 +516,56 @@ function makeFallback(domain) {
 
 // ── CHAT ──────────────────────────────────────
 async function chatWithAI(messages, profile, personality) {
+  const tones = {
+    prietenos: 'prietenos și cald, folosești emoji-uri cu moderație',
+    profesionist: 'profesionist și formal, fără emoji-uri',
+    elegant: 'elegant și sofisticat',
+    cald: 'foarte empatic și grijuliu',
+    dinamic: 'rapid și direct la obiect'
+  };
+  
+  const services = (profile.services || [])
+    .filter(s => s.name)
+    .map(s => `• ${s.name}${s.price ? ': ' + s.price : ''}${s.duration ? ' (' + s.duration + ')' : ''}`)
+    .join('\n');
+  
+  const now = new Date();
+  const hour = now.getHours();
+  const isWorkingHours = hour >= 9 && hour < 18;
+  
+  const system = `Ești recepționistul virtual al "${profile.name || 'acestei afaceri'}" din ${profile.city || 'România'}.
+Ton: ${tones[personality || 'prietenos'] || tones.prietenos}
+
+REGULI STRICTE:
+- Vorbești DOAR în română
+- Nu dai sfaturi medicale sau veterinare
+- Nu inventezi prețuri sau servicii inexistente
+- Dacă nu știi → "Vă rog sunați la ${profile.phone || 'recepție'}"
+- Răspunsuri scurte — maxim 4 propoziții
+- Colectezi întotdeauna: NUME + TELEFON + SERVICIU dorit
+
+SERVICII DISPONIBILE:
+${services || 'Contactați-ne pentru lista completă de servicii'}
+
+PROGRAM: ${profile.hours || 'Luni-Vineri 09:00-19:00'}
+
+CÂND CLIENTUL VREA PROGRAMARE:
+1. Cere numele
+2. Cere telefonul
+3. Cere serviciul dorit
+4. Cere ziua preferată
+5. ${isWorkingHours
+    ? 'Confirmă: "Veți fi contactat în maximum 2 ore!"'
+    : 'Confirmă: "Solicitarea a fost înregistrată! Vă vom contacta mâine în cursul programului nostru de lucru."'}`;
+
+  const userMsg = messages
+    .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
+    .join('\n\n');
+
   try {
-    const system = generateSystemPrompt({
-      industry: profile.type || profile.industry || 'general',
-      companyData: profile,
-      conversationHistory: messages,
-      learningData: null,
-      includeAppointments: true,
-      userMessage: messages[messages.length - 1]?.content || '',
-      businessRules: profile.businessRules || [],
-    });
-
-    const userMsg = messages
-      .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
-      .join('\n\n');
-
     const reply = await callClaude(system, userMsg);
-
-    setImmediate(() => {
-      try {
-        analyzeConversation([...messages, { role: 'assistant', content: reply }]);
-      } catch(e) {}
-    });
-
     return { success: true, message: reply };
   } catch (e) {
-    console.error('[CHAT] BrainBank error:', e.message);
     return { success: false, message: 'Îmi pare rău, a apărut o eroare. Vă rog sunați direct.' };
   }
 }
@@ -583,6 +609,45 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Analyze
+  // ── SCAN JOB ENDPOINTS ──────────────────────
+  if (pathname === '/api/scan/start' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.url) { sendJson(res, { error: 'URL lipsa' }, 400); return; }
+    const job = createJob(body.url, { version: body.version || 'hybrid' });
+    // Start in background
+    setImmediate(() => runScanJob(job.id, body.url).catch(e => console.error('[SCAN]', e.message)));
+    sendJson(res, { success: true, jobId: job.id, status: 'pending' });
+    return;
+  }
+
+  if (pathname.startsWith('/api/scan/status/') && req.method === 'GET') {
+    const jobId = pathname.replace('/api/scan/status/', '');
+    const job = getJob(jobId);
+    if (!job) { sendJson(res, { error: 'Job negasit' }, 404); return; }
+    sendJson(res, {
+      success: true,
+      jobId: job.id,
+      status: job.status,
+      progress: job.progress,
+      progressText: job.progressText,
+      result: job.status === 'completed' ? job.result : null,
+      error: job.error || null,
+      createdAt: job.createdAt,
+      completedAt: job.completedAt,
+    });
+    return;
+  }
+
+  if (pathname === '/api/scan/jobs' && req.method === 'GET') {
+    const jobs = getAllJobs().slice(0, 20).map(j => ({
+      id: j.id, url: j.url, status: j.status,
+      progress: j.progress, progressText: j.progressText,
+      createdAt: j.createdAt, completedAt: j.completedAt,
+    }));
+    sendJson(res, { success: true, jobs });
+    return;
+  }
+
   if (pathname === '/api/analyze' && req.method === 'POST') {
     const body = await parseBody(req);
     if (!body.url) { sendJson(res, { error: 'URL lipsă' }, 400); return; }
@@ -613,9 +678,101 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     try {
-      const result = await chatWithAI(body.messages, body.businessProfile, body.personality);
+      // Use saved profile if available
+      let businessProfile = body.businessProfile || {};
+      const clientId = businessProfile.clientId || body.clientId;
+      if (clientId && global.businessProfiles?.[clientId]) {
+        businessProfile = { ...global.businessProfiles[clientId], ...businessProfile };
+      }
+      const result = await chatWithAI(body.messages, businessProfile, body.personality);
+      // Save conversation for Learning Engine
+      setImmediate(() => {
+        try {
+          saveConversation(body.messages, body.businessProfile, result.message || '');
+        } catch(e) {}
+      });
       sendJson(res, result);
     } catch (e) { sendJson(res, { error: 'Chat error' }, 500); }
+    return;
+  }
+
+  // BrainBank generate
+  if (pathname === '/api/brainbank/generate' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { serviceName, servicePrice, industry } = body;
+    if (!serviceName) { sendJson(res, { error: 'serviceName lipsa' }, 400); return; }
+    
+    const prompt = `Ești expert în ${industry || 'servicii medicale'}. Generează informații detaliate pentru serviciul "${serviceName}"${servicePrice ? ' cu prețul ' + servicePrice : ''}.
+
+Returnează DOAR JSON valid fără text suplimentar:
+{
+  "description": "descriere specifică 1-2 propoziții pentru client",
+  "duration": "durata estimată (ex: 45 minute)",
+  "benefits": ["beneficiu specific 1", "beneficiu specific 2", "beneficiu specific 3"],
+  "preparation": "ce trebuie să facă clientul înainte",
+  "faq": [
+    {"q": "întrebare frecventă specifică", "a": "răspuns detaliat"},
+    {"q": "altă întrebare frecventă", "a": "răspuns detaliat"}
+  ]
+}`;
+
+    try {
+      const result = await callClaude('Returnezi DOAR JSON valid, fără markdown, fără text extra.', prompt);
+      const clean = result.replace(/\`\`\`json|\`\`\`/g, '').trim();
+      const jsonMatch = clean.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        const parsed = JSON.parse(jsonMatch[0]);
+        sendJson(res, { success: true, data: parsed });
+      } else {
+        sendJson(res, { success: false, error: 'JSON invalid' });
+      }
+    } catch(e) {
+      sendJson(res, { success: false, error: e.message });
+    }
+    return;
+  }
+
+  // Save business profile
+  if (pathname === '/api/profile/save' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    if (!global.businessProfiles) global.businessProfiles = {};
+    global.businessProfiles[body.clientId] = body;
+    console.log('[PROFILE] Saved profile for:', body.clientId, body.name);
+    sendJson(res, { success: true, clientId: body.clientId });
+    return;
+  }
+
+  if (pathname.startsWith('/api/profile/') && req.method === 'GET') {
+    const clientId = pathname.replace('/api/profile/', '');
+    const profile = global.businessProfiles?.[clientId];
+    if (!profile) { sendJson(res, { error: 'Profile negasit' }, 404); return; }
+    sendJson(res, { success: true, profile });
+    return;
+  }
+
+  // Learning Engine Analytics
+  if (pathname === '/api/learning/analytics' && req.method === 'GET') {
+    const industry = new URL('http://x' + req.url).searchParams.get('industry');
+    sendJson(res, { success: true, data: getAnalytics(industry) });
+    return;
+  }
+
+  if (pathname === '/api/learning/gaps' && req.method === 'GET') {
+    const gaps = loadGaps();
+    const topGaps = Object.entries(gaps)
+      .filter(([k,v]) => v.status === 'open')
+      .sort(([,a],[,b]) => b.count - a.count)
+      .slice(0, 50)
+      .map(([key, gap]) => ({ key, ...gap }));
+    sendJson(res, { success: true, gaps: topGaps });
+    return;
+  }
+
+  if (pathname === '/api/learning/answer' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const ok = addGlobalAnswer(body.key, body.answer);
+    sendJson(res, { success: ok });
     return;
   }
 

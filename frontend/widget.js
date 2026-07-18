@@ -513,7 +513,7 @@ Apoi adaugă exact: [LEAD_READY]`;
     const typing = document.getElementById('rcpai-typing');
     
     // Curăță textul de markers interni
-    const cleanText = text.replace('[LEAD_READY]', '').trim();
+    const cleanText = text.replace('[LEAD_READY]', '').replace(/\*\*(.*?)\*\*/g, '$1').replace(/\*(.*?)\*/g, '$1').trim();
     if (!cleanText) return;
 
     const div = document.createElement('div');

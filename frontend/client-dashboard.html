@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecepAI — Panoul Meu</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root {
+  --bg:#0A0A0A;--s1:#111;--s2:#181818;--s3:#202020;
+  --b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.1);
+  --tx:#f0f0f0;--t2:#888;--t3:#555;
+  --teal:#00D4AA;--td:rgba(0,212,170,.1);
+  --red:#ff4455;--ylw:#f5a623;--pur:#a78bfa;--grn:#4ade80;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex}
+
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100}
+.logo{padding:20px;border-bottom:1px solid var(--b1);font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.logo span{color:var(--teal)}
+.biz-card{margin:12px;background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:12px}
+.biz-name{font-size:13px;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.biz-domain{font-size:11px;color:var(--t3)}
+.biz-status{display:flex;align-items:center;gap:5px;margin-top:8px;font-size:11px;color:var(--grn);font-weight:600}
+.biz-status::before{content:'';width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.nav{flex:1;padding:8px 0;overflow-y:auto}
+.nav-section{padding:16px 12px 6px;font-size:10px;font-weight:600;color:var(--t3);letter-spacing:.8px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 14px;margin:1px 8px;border-radius:8px;cursor:pointer;color:var(--t2);font-size:13px;font-weight:500;transition:all .15s;position:relative}
+.nav-item:hover{background:var(--s2);color:var(--tx)}
+.nav-item.active{background:var(--td);color:var(--teal)}
+.nav-item.active::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:3px;background:var(--teal);border-radius:0 3px 3px 0}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.sidebar-footer{padding:12px;border-top:1px solid var(--b1)}
+.plan-badge{background:var(--td);border:1px solid rgba(0,212,170,.2);border-radius:8px;padding:8px 12px;display:flex;align-items:center;justify-content:space-between}
+.plan-name{font-size:12px;font-weight:600;color:var(--teal)}
+.plan-days{font-size:11px;color:var(--t3)}
+
+/* MAIN */
+.main{margin-left:220px;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{padding:14px 24px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:12px;background:var(--bg);position:sticky;top:0;z-index:50}
+.page-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.topbar-actions{margin-left:auto;display:flex;gap:8px}
+.btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-primary{background:var(--teal);color:#000}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;border:1px solid var(--b2);color:var(--t2)}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.content{padding:24px;flex:1}
+.panel{display:none}
+.panel.active{display:block}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.metric{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+.metric::after{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.metric.teal::after{background:var(--teal)}
+.metric.ylw::after{background:var(--ylw)}
+.metric.pur::after{background:var(--pur)}
+.metric.grn::after{background:var(--grn)}
+.metric-label{font-size:11px;color:var(--t3);font-weight:500;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.metric-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;margin-bottom:4px}
+.metric.teal .metric-val{color:var(--teal)}
+.metric.ylw .metric-val{color:var(--ylw)}
+.metric.pur .metric-val{color:var(--pur)}
+.metric.grn .metric-val{color:var(--grn)}
+.metric-sub{font-size:11px;color:var(--t3)}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.card-head{padding:14px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:600}
+.card-body{padding:16px}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid-3{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+
+/* LEADS */
+.lead-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--b1)}
+.lead-item:last-child{border-bottom:none}
+.lead-av{width:36px;height:36px;border-radius:50%;background:var(--td);border:1px solid rgba(0,212,170,.3);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--teal);flex-shrink:0}
+.lead-info{flex:1;min-width:0}
+.lead-name{font-size:13px;font-weight:600;margin-bottom:2px}
+.lead-meta{font-size:11px;color:var(--t3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lead-time{font-size:11px;color:var(--t3);flex-shrink:0}
+.badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px}
+.badge-new{background:rgba(0,212,170,.15);color:var(--teal)}
+.badge-seen{background:var(--s2);color:var(--t3)}
+
+/* SUGGESTIONS */
+.suggestion-card{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:14px;margin-bottom:10px}
+.suggestion-card:last-child{margin-bottom:0}
+.suggestion-q{font-size:11px;color:var(--t3);margin-bottom:6px}
+.suggestion-text{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--tx)}
+.suggestion-proposed{background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;font-size:12px;color:var(--t2);line-height:1.6;margin-bottom:10px;font-style:italic}
+.suggestion-actions{display:flex;gap:6px}
+.btn-accept-s{flex:1;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.3);color:var(--grn);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-accept-s:hover{background:rgba(74,222,128,.3)}
+.btn-edit-s{flex:1;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);color:var(--ylw);border-radius:7px;padding:7px 12px;font-size:11px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-edit-s:hover{background:rgba(245,166,35,.3)}
+.btn-later-s{background:transparent;border:1px solid var(--b2);color:var(--t3);border-radius:7px;padding:7px 10px;font-size:11px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-later-s:hover{border-color:var(--t2);color:var(--t2)}
+
+/* SERVICE EDITOR */
+.svc-row{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--b1)}
+.svc-row:last-child{border-bottom:none}
+.svc-inp{background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+.svc-inp:focus{border-color:var(--teal)}
+.svc-name{flex:1}
+.svc-price{width:100px}
+.svc-del{background:transparent;border:none;color:var(--t3);cursor:pointer;font-size:16px;padding:4px;transition:color .15s}
+.svc-del:hover{color:var(--red)}
+
+/* HOURS */
+.hours-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1)}
+.hours-row:last-child{border-bottom:none}
+.hours-day{width:90px;font-size:12px;font-weight:600;color:var(--t2)}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--s2);border:1px solid var(--b2);cursor:pointer;position:relative;transition:all .2s;flex-shrink:0}
+.toggle.on{background:var(--teal);border-color:var(--teal)}
+.toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:transform .2s}
+.toggle.on::after{transform:translateX(16px)}
+.time-inp{background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:4px 8px;color:var(--tx);font-size:12px;width:75px;text-align:center;font-family:'Inter',sans-serif;outline:none}
+.hours-sep{color:var(--t3);font-size:12px}
+
+/* MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:200;display:none;align-items:center;justify-content:center}
+.modal-overlay.show{display:flex}
+.modal{background:var(--s1);border:1px solid var(--b2);border-radius:16px;width:100%;max-width:500px;padding:24px;max-height:80vh;overflow-y:auto}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.modal-close{background:transparent;border:none;color:var(--t3);font-size:20px;cursor:pointer}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.field textarea{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;resize:vertical;min-height:80px;line-height:1.5;transition:border-color .15s}
+.field textarea:focus{border-color:var(--teal)}
+
+/* CHART */
+.chart-bars{display:flex;align-items:flex-end;gap:4px;height:70px}
+.chart-bar{flex:1;border-radius:3px 3px 0 0;background:rgba(0,212,170,.2);transition:background .15s;cursor:pointer}
+.chart-bar:hover{background:rgba(0,212,170,.5)}
+.chart-bar.today{background:var(--teal)}
+.chart-labels{display:flex;gap:4px;margin-top:4px}
+.chart-label{flex:1;text-align:center;font-size:9px;color:var(--t3)}
+
+/* EMBED */
+.embed-code{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);word-break:break-all;line-height:1.6}
+
+/* EMPTY */
+.empty{text-align:center;padding:32px 20px;color:var(--t3)}
+.empty-icon{font-size:28px;margin-bottom:8px}
+.empty-title{font-size:13px;font-weight:600;color:var(--t2);margin-bottom:4px}
+.empty-sub{font-size:12px}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--s1);border:1px solid var(--b2);border-radius:10px;padding:10px 16px;font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);z-index:999;transform:translateY(20px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="logo">Recep<span>AI</span></div>
+  <div class="biz-card">
+    <div class="biz-name" id="sb-name">Afacerea Ta</div>
+    <div class="biz-domain" id="sb-domain">—</div>
+    <div class="biz-status">Widget Activ</div>
+  </div>
+  <nav class="nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="showPanel('dashboard',this)">📊 Dashboard</div>
+    <div class="nav-item" onclick="showPanel('leads',this)">
+      👤 Lead-uri
+      <span class="nav-badge" id="leads-badge" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="showPanel('conversations',this)">💬 Conversații</div>
+    <div class="nav-section">Configurare</div>
+    <div class="nav-item" onclick="showPanel('services',this)">🔧 Servicii & Prețuri</div>
+    <div class="nav-item" onclick="showPanel('hours',this)">🕐 Program</div>
+    <div class="nav-item" onclick="showPanel('widget',this)">⚡ Widget</div>
+    <div class="nav-section">Analiză</div>
+    <div class="nav-item" onclick="showPanel('stats',this)">📈 Statistici</div>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="plan-badge">
+      <div><div class="plan-name">Trial Gratuit</div><div class="plan-days">30 zile rămase</div></div>
+      <span style="color:var(--teal)">→</span>
+    </div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div class="page-title" id="page-title">Dashboard</div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost" onclick="copyEmbedCode()">⚡ Cod Widget</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="metrics">
+        <div class="metric teal">
+          <div class="metric-label">Lead-uri</div>
+          <div class="metric-val" id="m-leads">0</div>
+          <div class="metric-sub">total primit</div>
+        </div>
+        <div class="metric ylw">
+          <div class="metric-label">Conversații</div>
+          <div class="metric-val" id="m-convs">0</div>
+          <div class="metric-sub">total</div>
+        </div>
+        <div class="metric pur">
+          <div class="metric-label">Servicii</div>
+          <div class="metric-val" id="m-svcs">0</div>
+          <div class="metric-sub">configurate</div>
+        </div>
+        <div class="metric grn">
+          <div class="metric-label">Disponibil</div>
+          <div class="metric-val">24/7</div>
+          <div class="metric-sub">răspuns AI</div>
+        </div>
+      </div>
+
+      <div class="grid-3">
+        <div>
+          <!-- Recent leads -->
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head">
+              <span class="card-title">👤 Lead-uri recente</span>
+              <span style="font-size:11px;color:var(--t3)" id="dash-leads-label">0 lead-uri</span>
+            </div>
+            <div class="card-body" id="dash-leads"></div>
+          </div>
+
+          <!-- AI Suggestions — inline on dashboard -->
+          <div class="card" id="suggestions-card" style="display:none">
+            <div class="card-head">
+              <span class="card-title">💡 Sugestii AI</span>
+              <span style="font-size:11px;background:rgba(255,68,85,.15);color:var(--red);padding:2px 8px;border-radius:10px;font-weight:600" id="suggestions-count-badge"></span>
+            </div>
+            <div class="card-body" id="suggestions-list"></div>
+          </div>
+        </div>
+
+        <div>
+          <!-- Activity chart -->
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head"><span class="card-title">📊 Activitate 7 zile</span></div>
+            <div class="card-body">
+              <div class="chart-bars" id="chart-bars"></div>
+              <div class="chart-labels" id="chart-labels"></div>
+            </div>
+          </div>
+
+          <!-- Business profile -->
+          <div class="card">
+            <div class="card-head"><span class="card-title">🏢 Profil</span></div>
+            <div class="card-body" style="font-size:12px;color:var(--t2);line-height:2">
+              <div>📞 <span id="p-phone">—</span></div>
+              <div>📧 <span id="p-email">—</span></div>
+              <div>🏙️ <span id="p-city">—</span></div>
+              <div>🕐 <span id="p-hours">—</span></div>
+              <div>👨‍⚕️ <span id="p-doctors">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="panel" id="panel-leads">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Toate Lead-urile</span>
+          <span style="font-size:11px;color:var(--t3)" id="all-leads-count">0</span>
+        </div>
+        <div class="card-body" id="all-leads"></div>
+      </div>
+    </div>
+
+    <!-- CONVERSATIONS -->
+    <div class="panel" id="panel-conversations">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Conversații</span></div>
+        <div class="card-body" id="all-convs">
+          <div class="empty"><div class="empty-icon">💬</div><div class="empty-title">Nicio conversație</div><div class="empty-sub">Apar după instalarea widget-ului</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SERVICES -->
+    <div class="panel" id="panel-services">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">Servicii și Prețuri</span>
+          <button class="btn btn-primary" style="font-size:11px;padding:5px 12px" onclick="addService()">+ Adaugă</button>
+        </div>
+        <div class="card-body">
+          <div style="display:flex;gap:8px;font-size:11px;color:var(--t3);padding-bottom:8px;border-bottom:1px solid var(--b1);margin-bottom:8px">
+            <span style="flex:1">Serviciu</span><span style="width:100px">Preț</span><span style="width:32px"></span>
+          </div>
+          <div id="services-editor"></div>
+        </div>
+        <div style="padding:12px 16px;border-top:1px solid var(--b1)">
+          <button class="btn btn-primary" onclick="saveServices()">💾 Salvează</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOURS -->
+    <div class="panel" id="panel-hours">
+      <div class="card">
+        <div class="card-head"><span class="card-title">Program de Lucru</span></div>
+        <div class="card-body" id="hours-editor"></div>
+        <div style="padding:12px 16px;border-top:1px solid var(--b1)">
+          <button class="btn btn-primary" onclick="saveHours()">💾 Salvează</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- WIDGET -->
+    <div class="panel" id="panel-widget">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">Setări Widget</span></div>
+          <div class="card-body">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1)">
+              <div><div style="font-size:13px;font-weight:500">Culoare</div><div style="font-size:11px;color:var(--t3)">Culoarea butonului</div></div>
+              <input type="color" id="widget-color" value="#00D4AA" onchange="updateEmbed()" style="width:36px;height:36px;border-radius:6px;border:1px solid var(--b2);cursor:pointer">
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1)">
+              <div><div style="font-size:13px;font-weight:500">Poziție</div></div>
+              <select id="widget-pos" onchange="updateEmbed()" style="background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:6px 10px;color:var(--tx);font-size:12px;font-family:'Inter',sans-serif;outline:none">
+                <option value="dreapta-jos">Dreapta jos</option>
+                <option value="stanga-jos">Stânga jos</option>
+              </select>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
+              <div><div style="font-size:13px;font-weight:500">Avatar</div></div>
+              <input id="widget-avatar" value="💬" maxlength="4" style="background:var(--s2);border:1px solid var(--b1);border-radius:6px;padding:6px;color:var(--tx);font-size:20px;width:50px;text-align:center;font-family:'Inter',sans-serif;outline:none" onchange="updateEmbed()">
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">Cod de Instalare</span></div>
+          <div class="card-body">
+            <p style="font-size:12px;color:var(--t3);margin-bottom:12px">Adaugă înainte de <code style="color:var(--teal)">&lt;/body&gt;</code>:</p>
+            <div class="embed-code" id="embed-display"></div>
+            <button class="btn btn-primary" style="margin-top:12px;width:100%" onclick="copyEmbedCode()">📋 Copiază</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATS -->
+    <div class="panel" id="panel-stats">
+      <div class="metrics">
+        <div class="metric teal"><div class="metric-label">Lead-uri</div><div class="metric-val" id="s-leads">0</div></div>
+        <div class="metric ylw"><div class="metric-label">Conversații</div><div class="metric-val" id="s-convs">0</div></div>
+        <div class="metric pur"><div class="metric-label">Conversie</div><div class="metric-val" id="s-rate">0%</div></div>
+        <div class="metric grn"><div class="metric-label">Timp mediu</div><div class="metric-val">2.4m</div></div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- EDIT SUGGESTION MODAL -->
+<div class="modal-overlay" id="edit-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-question">Adaugă răspuns</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="field">
+      <label>Răspunsul AI-ului</label>
+      <textarea id="modal-answer" rows="4" placeholder="Scrie răspunsul pe care AI-ul să îl dea..."></textarea>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-primary" style="flex:1" onclick="saveModalAnswer()">✓ Salvează răspunsul</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Anulează</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = typeof CONFIG !== 'undefined' ? CONFIG.API_URL : 'http://localhost:8080';
+
+let BIZ = JSON.parse(localStorage.getItem('recepai_client_profile') || 'null');
+if (!BIZ) {
+  const db = JSON.parse(localStorage.getItem('recepai_intelligence_db') || '[]');
+  if (db.length > 0) { BIZ = db[0]; }
+}
+let LEADS = JSON.parse(localStorage.getItem('recepai_client_leads') || '[]');
+let SERVICES = BIZ?.services || [];
+let CLIENT_ID = localStorage.getItem('recepai_client_id') || genId();
+let currentSuggestionKey = null;
+
+const DAYS = ['Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă','Duminică'];
+let HOURS_DATA = DAYS.map((d,i) => ({ day:d, open:i<5, start:'09:00', end:i<5?'19:00':'14:00' }));
+
+function genId() {
+  const id = 'CLI-' + Math.random().toString(36).substring(2,8).toUpperCase();
+  localStorage.setItem('recepai_client_id', id);
+  return id;
+}
+
+// ── INIT ──────────────────────────────────
+function init() {
+  updateSidebar();
+  renderDashboard();
+  renderServicesEditor();
+  renderHoursEditor();
+  updateEmbed();
+  renderChart();
+  loadLeadsFromServer();
+  loadSuggestions();
+}
+
+function updateSidebar() {
+  if (!BIZ) return;
+  document.getElementById('sb-name').textContent = BIZ.name || 'Afacerea Ta';
+  document.getElementById('sb-domain').textContent = BIZ.domain || BIZ.url || '—';
+}
+
+// ── NAVIGATION ────────────────────────────
+const TITLES = { dashboard:'Dashboard', leads:'Lead-uri', conversations:'Conversații', services:'Servicii & Prețuri', hours:'Program', widget:'Widget', stats:'Statistici' };
+
+function showPanel(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name)?.classList.add('active');
+  if (el) el.classList.add('active');
+  document.getElementById('page-title').textContent = TITLES[name] || name;
+}
+
+// ── DASHBOARD ─────────────────────────────
+function renderDashboard() {
+  document.getElementById('m-leads').textContent = LEADS.length;
+  document.getElementById('m-svcs').textContent = SERVICES.length;
+  document.getElementById('m-convs').textContent = 0;
+  document.getElementById('s-leads').textContent = LEADS.length;
+  document.getElementById('s-convs').textContent = 0;
+  document.getElementById('s-rate').textContent = '0%';
+  document.getElementById('dash-leads-label').textContent = LEADS.length + ' lead-uri';
+  document.getElementById('all-leads-count').textContent = LEADS.length;
+
+  const newLeads = LEADS.filter(l => !l.seen).length;
+  const badge = document.getElementById('leads-badge');
+  badge.style.display = newLeads > 0 ? '' : 'none';
+  badge.textContent = newLeads;
+
+  if (BIZ) {
+    document.getElementById('p-phone').textContent = BIZ.phone || '—';
+    document.getElementById('p-email').textContent = BIZ.email || '—';
+    document.getElementById('p-city').textContent = BIZ.city || '—';
+    document.getElementById('p-hours').textContent = BIZ.hours ? BIZ.hours.substring(0,35) + '...' : '—';
+    const docs = (BIZ.doctors || []);
+    document.getElementById('p-doctors').textContent = docs.length > 0 ? docs.slice(0,2).map(d=>d.name).join(', ') : '—';
+  }
+
+  renderLeadsList('dash-leads', 5);
+  renderLeadsList('all-leads', 999);
+}
+
+function renderLeadsList(elId, max) {
+  const el = document.getElementById(elId);
+  if (!el) return;
+  if (LEADS.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">👤</div><div class="empty-title">Niciun lead</div><div class="empty-sub">Apar după instalarea widget-ului</div></div>';
+    return;
+  }
+  el.innerHTML = LEADS.slice(0, max).map(l => `
+    <div class="lead-item">
+      <div class="lead-av">${(l.nume||'?')[0].toUpperCase()}</div>
+      <div class="lead-info">
+        <div class="lead-name">${l.nume||'Client'}</div>
+        <div class="lead-meta">📞 ${l.telefon||'—'} · ${l.serviciu||'Programare'}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+        <span class="badge ${l.seen?'badge-seen':'badge-new'}">${l.seen?'Văzut':'Nou'}</span>
+        <span class="lead-time">${formatTime(l.timestamp)}</span>
+      </div>
+      <button onclick="window.open('tel:${(l.telefon||'').replace(/\s/g,'')}')" style="background:var(--teal);border:none;color:#000;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:600;margin-left:4px;flex-shrink:0">📞</button>
+    </div>`).join('');
+  LEADS.forEach(l => l.seen = true);
+  localStorage.setItem('recepai_client_leads', JSON.stringify(LEADS));
+}
+
+// ── AI SUGGESTIONS ────────────────────────
+async function loadSuggestions() {
+  try {
+    const res = await fetch(`${API}/api/learning/gaps`);
+    const data = await res.json();
+    const gaps = (data.gaps || []).slice(0, 5);
+
+    const card = document.getElementById('suggestions-card');
+    const list = document.getElementById('suggestions-list');
+    const countBadge = document.getElementById('suggestions-count-badge');
+
+    if (gaps.length === 0) { if(card) card.style.display = 'none'; return; }
+
+    if (card) card.style.display = '';
+    if (countBadge) countBadge.textContent = gaps.length + ' sugestii';
+
+    if (list) {
+      list.innerHTML = gaps.map(g => `
+        <div class="suggestion-card">
+          <div class="suggestion-q">❓ ${g.count} clienți au întrebat:</div>
+          <div class="suggestion-text">"${g.question}"</div>
+          <div class="suggestion-proposed">
+            💡 RecepAI propune: "${generateProposedAnswer(g)}"
+          </div>
+          <div class="suggestion-actions">
+            <button class="btn-accept-s" onclick="acceptSuggestion('${g.key}', '${generateProposedAnswer(g).replace(/'/g,"\\'")}')">✓ Acceptă</button>
+            <button class="btn-edit-s" onclick="editSuggestion('${g.key}', '${g.question.replace(/'/g,"\\'")}', '${generateProposedAnswer(g).replace(/'/g,"\\'")}')">✏️ Editează</button>
+            <button class="btn-later-s" onclick="this.closest('.suggestion-card').style.opacity='.3'">Mai târziu</button>
+          </div>
+        </div>`).join('');
+    }
+  } catch(e) {
+    console.log('Suggestions error:', e.message);
+  }
+}
+
+function generateProposedAnswer(gap) {
+  const q = gap.question.toLowerCase();
+  const biz = BIZ?.name || 'clinica noastră';
+  if (q.includes('parcare')) return `${biz} dispune de parcare disponibilă pentru pacienți.`;
+  if (q.includes('card') || q.includes('visa')) return `Da, acceptăm plata cu cardul (Visa, Mastercard).`;
+  if (q.includes('rate')) return `Da, oferim posibilitatea plății în rate. Contactați-ne pentru detalii.`;
+  if (q.includes('urgențe') || q.includes('urgente')) return `Da, acceptăm urgențe. Sunați la ${BIZ?.phone || 'recepție'} pentru programare prioritară.`;
+  if (q.includes('wifi')) return `Da, avem WiFi gratuit pentru pacienți.`;
+  if (q.includes('copii')) return `Da, tratăm și pacienți copii. Avem personal specializat în pedodonție.`;
+  return `Vă rugăm să contactați ${biz} la ${BIZ?.phone || 'recepție'} pentru detalii despre această întrebare.`;
+}
+
+async function acceptSuggestion(key, answer) {
+  try {
+    await fetch(`${API}/api/learning/answer`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ key, answer })
+    });
+    showToast('✅ Răspuns salvat! AI-ul știe acum.');
+    loadSuggestions();
+  } catch(e) { showToast('❌ Eroare la salvare'); }
+}
+
+function editSuggestion(key, question, proposedAnswer) {
+  currentSuggestionKey = key;
+  document.getElementById('modal-question').textContent = '"' + question + '"';
+  document.getElementById('modal-answer').value = proposedAnswer;
+  document.getElementById('edit-modal').classList.add('show');
+}
+
+async function saveModalAnswer() {
+  const answer = document.getElementById('modal-answer').value.trim();
+  if (!answer) return;
+  await acceptSuggestion(currentSuggestionKey, answer);
+  closeModal();
+}
+
+function closeModal() { document.getElementById('edit-modal').classList.remove('show'); }
+
+// ── SERVICES EDITOR ───────────────────────
+function renderServicesEditor() {
+  const el = document.getElementById('services-editor');
+  if (SERVICES.length === 0) {
+    el.innerHTML = '<div class="empty"><div class="empty-icon">🔧</div><div class="empty-title">Niciun serviciu</div></div>';
+    return;
+  }
+  el.innerHTML = SERVICES.map((s,i) => `
+    <div class="svc-row">
+      <input class="svc-inp svc-name" value="${s.name||''}" placeholder="Serviciu" onchange="SERVICES[${i}].name=this.value">
+      <input class="svc-inp svc-price" value="${s.price||''}" placeholder="Preț" onchange="SERVICES[${i}].price=this.value">
+      <button class="svc-del" onclick="SERVICES.splice(${i},1);renderServicesEditor()">✕</button>
+    </div>`).join('');
+}
+
+function addService() {
+  SERVICES.push({name:'',price:''});
+  renderServicesEditor();
+  setTimeout(()=>{ const inputs=document.querySelectorAll('.svc-name'); inputs[inputs.length-1]?.focus(); },50);
+}
+
+function saveServices() {
+  if (BIZ) { BIZ.services=SERVICES; localStorage.setItem('recepai_client_profile',JSON.stringify(BIZ)); }
+  showToast('✓ Servicii salvate');
+  renderDashboard();
+}
+
+// ── HOURS EDITOR ──────────────────────────
+function renderHoursEditor() {
+  document.getElementById('hours-editor').innerHTML = HOURS_DATA.map((h,i) => `
+    <div class="hours-row">
+      <span class="hours-day">${h.day}</span>
+      <div class="toggle ${h.open?'on':''}" onclick="HOURS_DATA[${i}].open=!HOURS_DATA[${i}].open;renderHoursEditor()"></div>
+      <input class="time-inp" value="${h.start}" ${h.open?'':'disabled'} onchange="HOURS_DATA[${i}].start=this.value">
+      <span class="hours-sep">—</span>
+      <input class="time-inp" value="${h.end}" ${h.open?'':'disabled'} onchange="HOURS_DATA[${i}].end=this.value">
+      <span style="font-size:11px;color:var(--t3);margin-left:6px">${h.open?'':'Închis'}</span>
+    </div>`).join('');
+}
+
+function saveHours() {
+  const hours = HOURS_DATA.filter(h=>h.open).map(h=>`${h.day}: ${h.start}-${h.end}`).join(' | ');
+  if (BIZ) { BIZ.hours=hours; localStorage.setItem('recepai_client_profile',JSON.stringify(BIZ)); }
+  showToast('✓ Program salvat');
+}
+
+// ── EMBED CODE ────────────────────────────
+function updateEmbed() {
+  const color = document.getElementById('widget-color')?.value || '#00D4AA';
+  const pos = document.getElementById('widget-pos')?.value || 'dreapta-jos';
+  const avatar = document.getElementById('widget-avatar')?.value || '💬';
+  const code = `&lt;script src="https://receptieai.ro/widget.js"\n  data-id="${CLIENT_ID}"\n  data-culoare="${color}"\n  data-pozitie="${pos}"\n  data-avatar="${avatar}"\n  data-api-url="${API}"&gt;&lt;/script&gt;`;
+  const el = document.getElementById('embed-display');
+  if (el) el.innerHTML = code;
+}
+
+function copyEmbedCode() {
+  const color = document.getElementById('widget-color')?.value || '#00D4AA';
+  const pos = document.getElementById('widget-pos')?.value || 'dreapta-jos';
+  const avatar = document.getElementById('widget-avatar')?.value || '💬';
+  const code = `<script src="https://receptieai.ro/widget.js" data-id="${CLIENT_ID}" data-culoare="${color}" data-pozitie="${pos}" data-avatar="${avatar}" data-api-url="${API}"><\/script>`;
+  navigator.clipboard.writeText(code).then(()=>showToast('✓ Cod copiat!'));
+}
+
+// ── CHART ─────────────────────────────────
+function renderChart() {
+  const data = Array.from({length:7},()=>Math.floor(Math.random()*6));
+  data[6] = Math.min(LEADS.length, 10);
+  const max = Math.max(...data, 1);
+  const days = ['L','M','M','J','V','S','D'];
+  document.getElementById('chart-bars').innerHTML = data.map((v,i)=>
+    `<div class="chart-bar ${i===6?'today':''}" style="height:${Math.max(v/max*100,4)}%" title="${v} lead-uri"></div>`).join('');
+  document.getElementById('chart-labels').innerHTML = days.map(d=>`<span class="chart-label">${d}</span>`).join('');
+}
+
+// ── SERVER SYNC ───────────────────────────
+async function loadLeadsFromServer() {
+  try {
+    const res = await fetch(`${API}/api/leads/${CLIENT_ID}`);
+    const data = await res.json();
+    if (data.leads?.length > 0) {
+      const existing = new Set(LEADS.map(l=>l.id));
+      const newLeads = data.leads.filter(l=>!existing.has(l.id));
+      if (newLeads.length > 0) {
+        LEADS = [...newLeads, ...LEADS];
+        localStorage.setItem('recepai_client_leads', JSON.stringify(LEADS));
+        renderDashboard();
+        showToast(`🔔 ${newLeads.length} lead-uri noi!`);
+      }
+    }
+  } catch(e) {}
+}
+
+// ── LOAD DEMO DATA ────────────────────────
+function loadDemoData() {
+  if (LEADS.length === 0) {
+    LEADS = [
+      {id:'1',nume:'Maria Ionescu',telefon:'0721 234 567',serviciu:'Consultație',timestamp:new Date(Date.now()-3600000).toISOString(),seen:false},
+      {id:'2',nume:'Ion Popescu',telefon:'0742 987 654',serviciu:'Detartraj',timestamp:new Date(Date.now()-86400000).toISOString(),seen:true},
+    ];
+    localStorage.setItem('recepai_client_leads', JSON.stringify(LEADS));
+  }
+}
+
+// ── HELPERS ───────────────────────────────
+function formatTime(ts) {
+  if (!ts) return '—';
+  const diff = Date.now() - new Date(ts).getTime();
+  if (diff < 60000) return 'acum';
+  if (diff < 3600000) return Math.floor(diff/60000) + 'm';
+  if (diff < 86400000) return Math.floor(diff/3600000) + 'h';
+  return new Date(ts).toLocaleDateString('ro-RO',{day:'numeric',month:'short'});
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── START ──────────────────────────────────
+loadDemoData();
+init();
+setInterval(loadLeadsFromServer, 30000);
+setInterval(loadSuggestions, 60000);
+</script>
+</body>
+</html>
