@@ -681,8 +681,12 @@ const server = http.createServer(async (req, res) => {
       // Use saved profile if available
       let businessProfile = body.businessProfile || {};
       const clientId = businessProfile.clientId || body.clientId;
-      if (clientId && global.businessProfiles?.[clientId]) {
-        businessProfile = { ...global.businessProfiles[clientId], ...businessProfile };
+      if (clientId) {
+        try {
+          const pFile = require('path').join(__dirname, '../data/profiles.json');
+          const profiles = JSON.parse(require('fs').readFileSync(pFile, 'utf8'));
+          if (profiles[clientId]) businessProfile = { ...profiles[clientId], ...businessProfile };
+        } catch(e) {}
       }
       const result = await chatWithAI(body.messages, businessProfile, body.personality);
       // Save conversation for Learning Engine
@@ -770,8 +774,12 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/profile/save' && req.method === 'POST') {
     const body = await parseBody(req);
     if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
-    if (!global.businessProfiles) global.businessProfiles = {};
-    global.businessProfiles[body.clientId] = body;
+    const profilesFile = path.join(__dirname, '../data/profiles.json');
+    let profiles = {};
+    try { profiles = JSON.parse(fs.readFileSync(profilesFile, 'utf8')); } catch(e) {}
+    profiles[body.clientId] = body;
+    fs.mkdirSync(path.dirname(profilesFile), { recursive: true });
+    fs.writeFileSync(profilesFile, JSON.stringify(profiles, null, 2));
     console.log('[PROFILE] Saved profile for:', body.clientId, body.name);
     sendJson(res, { success: true, clientId: body.clientId });
     return;
@@ -779,7 +787,10 @@ Returnează DOAR JSON valid fără text suplimentar:
 
   if (pathname.startsWith('/api/profile/') && req.method === 'GET') {
     const clientId = pathname.replace('/api/profile/', '');
-    const profile = global.businessProfiles?.[clientId];
+    const profilesFile = path.join(__dirname, '../data/profiles.json');
+    let profiles = {};
+    try { profiles = JSON.parse(fs.readFileSync(profilesFile, 'utf8')); } catch(e) {}
+    const profile = profiles[clientId];
     if (!profile) { sendJson(res, { error: 'Profile negasit' }, 404); return; }
     sendJson(res, { success: true, profile });
     return;

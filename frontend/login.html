@@ -139,7 +139,7 @@ async function doRegister() {
   const btn = document.getElementById('reg-btn');
   btn.textContent = 'Se creează...'; btn.disabled = true;
 
-  const clientId = localStorage.getItem('recepai_client_id') || 'CLI-' + Math.random().toString(36).substring(2,8).toUpperCase();
+  const clientId = 'CLI-' + Math.random().toString(36).substring(2,8).toUpperCase();
   const profile = JSON.parse(localStorage.getItem('recepai_client_profile') || '{}');
 
   try {
