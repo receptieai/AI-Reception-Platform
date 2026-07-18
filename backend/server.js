@@ -10,6 +10,31 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
+
+// ── PROFILES — încărcat o singură dată la startup ──
+const PROFILES_FILE = path.join(__dirname, '../data/profiles.json');
+let _profiles = {};
+try { _profiles = JSON.parse(fs.readFileSync(PROFILES_FILE, 'utf8')); console.log('[PROFILES] Loaded', Object.keys(_profiles).length, 'profiles'); } catch(e) { _profiles = {}; }
+
+function saveProfiles() {
+  try { fs.writeFileSync(PROFILES_FILE, JSON.stringify(_profiles, null, 2)); } catch(e) { console.error('[PROFILES] Save error:', e.message); }
+}
+
+function getBusinessProfile(clientId, incomingProfile) {
+  const incoming = incomingProfile || {};
+  if (!clientId) {
+    console.log('[CHAT] Missing clientId - using request profile only');
+    return incoming;
+  }
+  const stored = _profiles[clientId];
+  if (!stored) {
+    console.log('[CHAT] Profile', clientId, 'not found');
+    return incoming;
+  }
+  console.log('[CHAT] Loaded profile', clientId, stored.name);
+  // stored is base, incoming overrides
+  return { ...stored, ...incoming };
+}
 const { saveConversation, getAnalytics, addGlobalAnswer, loadGaps } = require('./learning/conversationAnalyzer');
 const { createJob, getJob, getAllJobs } = require('./jobs/scanQueue');
 const { runScanJob } = require('./jobs/scanWorker');
@@ -678,16 +703,8 @@ const server = http.createServer(async (req, res) => {
       return;
     }
     try {
-      // Use saved profile if available
-      let businessProfile = body.businessProfile || {};
-      const clientId = businessProfile.clientId || body.clientId;
-      if (clientId) {
-        try {
-          const pFile = require('path').join(__dirname, '../data/profiles.json');
-          const profiles = JSON.parse(require('fs').readFileSync(pFile, 'utf8'));
-          if (profiles[clientId]) businessProfile = { ...profiles[clientId], ...businessProfile };
-        } catch(e) {}
-      }
+      const clientId = body.clientId ?? body.businessProfile?.clientId ?? null;
+      const businessProfile = getBusinessProfile(clientId, body.businessProfile);
       const result = await chatWithAI(body.messages, businessProfile, body.personality);
       // Save conversation for Learning Engine
       setImmediate(() => {
@@ -778,6 +795,7 @@ Returnează DOAR JSON valid fără text suplimentar:
     let profiles = {};
     try { profiles = JSON.parse(fs.readFileSync(profilesFile, 'utf8')); } catch(e) {}
     profiles[body.clientId] = body;
+    _profiles[body.clientId] = body;
     fs.mkdirSync(path.dirname(profilesFile), { recursive: true });
     fs.writeFileSync(profilesFile, JSON.stringify(profiles, null, 2));
     console.log('[PROFILE] Saved profile for:', body.clientId, body.name);
