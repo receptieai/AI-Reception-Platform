@@ -182,6 +182,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="nav-section">Cont</div>
     <div class="nav-item" onclick="window.location.href='onboarding-v2.html'">🔄 Rescană site-ul</div>
     <div class="nav-item" onclick="doLogout()">🚪 Deconectare</div>
+    <div class="nav-item" onclick="if(confirm('Șterge toate datele locale?'))clearAllData()" style="color:var(--red);font-size:11px">🗑 Reset date locale</div>
     <div class="nav-section">Analiză</div>
     <div class="nav-item" onclick="showPanel('stats',this)">📈 Statistici</div>
   </nav>
@@ -416,6 +417,22 @@ function genId() {
 
 // ── INIT ──────────────────────────────────
 function init() {
+  // Load profile from server if we have clientId
+  const clientId = localStorage.getItem('recepai_client_id');
+  if (clientId && !BIZ?.name) {
+    fetch(`${API}/api/profile/${clientId}`)
+      .then(r=>r.json())
+      .then(d => {
+        if (d.success && d.profile) {
+          BIZ = d.profile;
+          SERVICES = BIZ.services || [];
+          localStorage.setItem('recepai_client_profile', JSON.stringify(BIZ));
+          updateSidebar();
+          renderDashboard();
+          renderServicesEditor();
+        }
+      }).catch(()=>{});
+  }
   updateSidebar();
   renderDashboard();
   renderServicesEditor();
@@ -678,6 +695,11 @@ function formatTime(ts) {
   if (diff < 3600000) return Math.floor(diff/60000) + 'm';
   if (diff < 86400000) return Math.floor(diff/3600000) + 'h';
   return new Date(ts).toLocaleDateString('ro-RO',{day:'numeric',month:'short'});
+}
+
+function clearAllData() {
+  localStorage.clear();
+  window.location.href = 'login.html';
 }
 
 function doLogout() {
