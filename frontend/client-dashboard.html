@@ -179,6 +179,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="nav-item" onclick="showPanel('services',this)">🔧 Servicii & Prețuri</div>
     <div class="nav-item" onclick="showPanel('hours',this)">🕐 Program</div>
     <div class="nav-item" onclick="showPanel('widget',this)">⚡ Widget</div>
+    <div class="nav-section">Cont</div>
+    <div class="nav-item" onclick="window.location.href='onboarding-v2.html'">🔄 Rescană site-ul</div>
+    <div class="nav-item" onclick="doLogout()">🚪 Deconectare</div>
     <div class="nav-section">Analiză</div>
     <div class="nav-item" onclick="showPanel('stats',this)">📈 Statistici</div>
   </nav>
@@ -675,6 +678,12 @@ function formatTime(ts) {
   if (diff < 3600000) return Math.floor(diff/60000) + 'm';
   if (diff < 86400000) return Math.floor(diff/3600000) + 'h';
   return new Date(ts).toLocaleDateString('ro-RO',{day:'numeric',month:'short'});
+}
+
+function doLogout() {
+  localStorage.removeItem('recepai_token');
+  localStorage.removeItem('recepai_email');
+  window.location.href = 'login.html';
 }
 
 function showToast(msg) {
