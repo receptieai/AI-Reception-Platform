@@ -664,13 +664,7 @@ async function loadLeadsFromServer() {
 
 // ── LOAD DEMO DATA ────────────────────────
 function loadDemoData() {
-  if (LEADS.length === 0) {
-    LEADS = [
-      {id:'1',nume:'Maria Ionescu',telefon:'0721 234 567',serviciu:'Consultație',timestamp:new Date(Date.now()-3600000).toISOString(),seen:false},
-      {id:'2',nume:'Ion Popescu',telefon:'0742 987 654',serviciu:'Detartraj',timestamp:new Date(Date.now()-86400000).toISOString(),seen:true},
-    ];
-    localStorage.setItem('recepai_client_leads', JSON.stringify(LEADS));
-  }
+  // No demo data — real data only
 }
 
 // ── HELPERS ───────────────────────────────
