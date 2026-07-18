@@ -1,0 +1,103 @@
+{
+  "CLI-8ULSIV": {
+    "clientId": "CLI-8ULSIV",
+    "name": "DentaVita — Clinică Stomatologică București",
+    "phone": "+40 312 345 678",
+    "email": "contact@dentavita.ro",
+    "city": "București",
+    "hours": "Luni: 08:00-20:00 | Marți: 09:00-19:00 | Miercuri: 09:00-19:00 | Joi: 09:00-19:00 | Vineri: 08:00-20:00",
+    "type": "dental",
+    "services": [
+      {
+        "name": "Consultație + radiografie",
+        "price": "150 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Detartraj + periaj profesional",
+        "price": "250 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Obturație compozită (1 suprafață)",
+        "price": "200 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Tratament de canal (monoradicular)",
+        "price": "500 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Extractie simplă",
+        "price": "200 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Bont de vindecare",
+        "price": "350 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Bont protetic individualizat",
+        "price": "600 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Sinus lifting intern",
+        "price": "800 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Kit albire la domiciliu",
+        "price": "800 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Contenție fixă (per arcadă)",
+        "price": "500 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      },
+      {
+        "name": "Control lunar",
+        "price": "200 LEI",
+        "source": "consecutive",
+        "method": "consecutive lines",
+        "confidence": 78,
+        "page": "homepage"
+      }
+    ],
+    "facebook": null,
+    "instagram": null
+  }
+}

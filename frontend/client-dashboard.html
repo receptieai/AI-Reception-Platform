@@ -936,13 +936,13 @@ async function startOnboarding() {
         fill.style.width = '100%';
         status.textContent = '✅ Scanare completă! ' + SERVICES.length + ' servicii găsite.';
         await new Promise(r => setTimeout(r, 1500));
-        // Go to AI Knowledge for review
         document.getElementById('panel-onboarding').classList.remove('active');
         updateSidebar();
         renderKnowledge();
         renderOverview();
+        renderServicesEditor();
         nav('knowledge', document.querySelector('.nav-item:nth-child(2)'));
-        showToast('✅ Site scanat! Verifică și completează informațiile.');
+        showToast('✅ Site rescanat! ' + SERVICES.length + ' servicii, ' + (BIZ.facebook ? 'Facebook ✓' : '') + ' ' + (BIZ.instagram ? 'Instagram ✓' : ''));
         return;
       }
       if (s.status === 'failed') throw new Error(s.error || 'Scanare eșuată');
@@ -962,7 +962,11 @@ function skipOnboarding() {
 }
 
 function logout() { localStorage.removeItem('recepai_token'); window.location.href='login.html'; }
-function rescan() { window.location.href='onboarding-v2.html'; }
+function rescan() {
+  // Show onboarding panel for rescan
+  showOnboarding();
+  nav('overview', document.querySelector('.nav-item'));
+}
 function resetData() { localStorage.clear(); window.location.href='login.html'; }
 
 // ── START ──────────────────────────────────
