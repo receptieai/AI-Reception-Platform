@@ -690,6 +690,10 @@ function showToast(msg) {
   setTimeout(()=>t.classList.remove('show'),3000);
 }
 
+// ── AUTH CHECK ───────────────────────────────
+const token = localStorage.getItem('recepai_token');
+if (!token) window.location.href = 'login.html';
+
 // ── START ──────────────────────────────────
 loadDemoData();
 init();

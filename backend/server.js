@@ -732,6 +732,40 @@ Returnează DOAR JSON valid fără text suplimentar:
     return;
   }
 
+  // ── AUTH ──────────────────────────────────
+  if (pathname === '/api/auth/register' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { email, password, clientId, businessName } = body;
+    if (!email || !password) { sendJson(res, { error: 'Email și parolă obligatorii' }, 400); return; }
+    if (!global.users) global.users = {};
+    if (global.users[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
+    const token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
+    global.users[email] = { email, password, clientId, businessName, token, createdAt: new Date().toISOString() };
+    console.log('[AUTH] Registered:', email, 'clientId:', clientId);
+    sendJson(res, { success: true, token, email, clientId, businessName });
+    return;
+  }
+
+  if (pathname === '/api/auth/login' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { email, password } = body;
+    if (!global.users) global.users = {};
+    const user = global.users[email];
+    if (!user || user.password !== password) { sendJson(res, { error: 'Email sau parolă incorecte' }, 401); return; }
+    console.log('[AUTH] Login:', email);
+    sendJson(res, { success: true, token: user.token, email: user.email, clientId: user.clientId, businessName: user.businessName });
+    return;
+  }
+
+  if (pathname === '/api/auth/me' && req.method === 'GET') {
+    const token = req.headers['authorization']?.replace('Bearer ', '');
+    if (!token || !global.users) { sendJson(res, { error: 'Neautentificat' }, 401); return; }
+    const user = Object.values(global.users).find(u => u.token === token);
+    if (!user) { sendJson(res, { error: 'Token invalid' }, 401); return; }
+    sendJson(res, { success: true, email: user.email, clientId: user.clientId, businessName: user.businessName });
+    return;
+  }
+
   // Save business profile
   if (pathname === '/api/profile/save' && req.method === 'POST') {
     const body = await parseBody(req);

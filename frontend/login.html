@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecepAI — Autentificare</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="config.js"></script>
+<style>
+:root{--bg:#0A0A0A;--s1:#111;--s2:#181818;--b1:rgba(255,255,255,.06);--b2:rgba(255,255,255,.1);--tx:#f0f0f0;--t2:#888;--t3:#555;--teal:#00D4AA;--red:#ff4455;}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;align-items:center;justify-content:center}
+.container{width:100%;max-width:400px;padding:24px}
+.logo{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;text-align:center;margin-bottom:32px}
+.logo span{color:var(--teal)}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:28px}
+.card-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:6px}
+.card-sub{font-size:13px;color:var(--t2);margin-bottom:24px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:11px;font-weight:600;color:var(--t3);margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px}
+.field input{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px 12px;color:var(--tx);font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s}
+.field input:focus{border-color:var(--teal)}
+.btn{width:100%;padding:12px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s;margin-top:4px}
+.btn-primary{background:var(--teal);color:#000}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-ghost{background:transparent;border:1px solid var(--b2);color:var(--t2);margin-top:10px}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
+.error{background:rgba(255,68,85,.1);border:1px solid rgba(255,68,85,.3);border-radius:8px;padding:10px 12px;font-size:13px;color:var(--red);margin-bottom:16px;display:none}
+.divider{text-align:center;font-size:12px;color:var(--t3);margin:16px 0}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="logo">Recep<span>AI</span></div>
+  
+  <!-- LOGIN FORM -->
+  <div class="card" id="login-card">
+    <div class="card-title">Bine ai revenit!</div>
+    <div class="card-sub">Intră în contul tău RecepAI</div>
+    <div class="error" id="login-error"></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="login-email" placeholder="email@clinica.ro">
+    </div>
+    <div class="field">
+      <label>Parolă</label>
+      <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn btn-primary" onclick="doLogin()" id="login-btn">Intră în cont</button>
+    <div class="divider">sau</div>
+    <button class="btn btn-ghost" onclick="showRegister()">Creează cont nou</button>
+    <div style="text-align:center;margin-top:16px">
+      <a href="onboarding-v2.html" style="font-size:12px;color:var(--teal);text-decoration:none">← Înapoi la Onboarding</a>
+    </div>
+  </div>
+
+  <!-- REGISTER FORM -->
+  <div class="card" id="register-card" style="display:none">
+    <div class="card-title">Creează cont</div>
+    <div class="card-sub">Înregistrează-te pentru a accesa dashboard-ul</div>
+    <div class="error" id="register-error"></div>
+    <div class="field">
+      <label>Email</label>
+      <input type="email" id="reg-email" placeholder="email@clinica.ro">
+    </div>
+    <div class="field">
+      <label>Parolă</label>
+      <input type="password" id="reg-pass" placeholder="Minimum 6 caractere">
+    </div>
+    <div class="field">
+      <label>Confirmă parola</label>
+      <input type="password" id="reg-pass2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doRegister()">
+    </div>
+    <button class="btn btn-primary" onclick="doRegister()" id="reg-btn">Creează cont</button>
+    <div class="divider">sau</div>
+    <button class="btn btn-ghost" onclick="showLogin()">Am deja cont</button>
+  </div>
+</div>
+
+<script>
+const API = typeof CONFIG !== 'undefined' ? CONFIG.API_URL : 'http://localhost:8080';
+
+// Check if already logged in
+const token = localStorage.getItem('recepai_token');
+if (token) window.location.href = 'client-dashboard.html';
+
+function showRegister() {
+  document.getElementById('login-card').style.display = 'none';
+  document.getElementById('register-card').style.display = '';
+}
+
+function showLogin() {
+  document.getElementById('register-card').style.display = 'none';
+  document.getElementById('login-card').style.display = '';
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = '';
+}
+
+async function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass = document.getElementById('login-pass').value;
+  if (!email || !pass) { showError('login-error', 'Completează email și parola'); return; }
+  
+  const btn = document.getElementById('login-btn');
+  btn.textContent = 'Se verifică...'; btn.disabled = true;
+
+  try {
+    const res = await fetch(`${API}/api/auth/login`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password: pass })
+    });
+    const data = await res.json();
+    if (!data.success) { showError('login-error', data.error || 'Eroare autentificare'); btn.textContent = 'Intră în cont'; btn.disabled = false; return; }
+    
+    localStorage.setItem('recepai_token', data.token);
+    localStorage.setItem('recepai_email', data.email);
+    localStorage.setItem('recepai_client_id', data.clientId);
+    window.location.href = 'client-dashboard.html';
+  } catch(e) {
+    showError('login-error', 'Eroare conexiune. Verifică că serverul rulează.');
+    btn.textContent = 'Intră în cont'; btn.disabled = false;
+  }
+}
+
+async function doRegister() {
+  const email = document.getElementById('reg-email').value.trim();
+  const pass = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  
+  if (!email || !pass) { showError('register-error', 'Completează toate câmpurile'); return; }
+  if (pass.length < 6) { showError('register-error', 'Parola trebuie să aibă minim 6 caractere'); return; }
+  if (pass !== pass2) { showError('register-error', 'Parolele nu coincid'); return; }
+
+  const btn = document.getElementById('reg-btn');
+  btn.textContent = 'Se creează...'; btn.disabled = true;
+
+  const clientId = localStorage.getItem('recepai_client_id') || 'CLI-' + Math.random().toString(36).substring(2,8).toUpperCase();
+  const profile = JSON.parse(localStorage.getItem('recepai_client_profile') || '{}');
+
+  try {
+    const res = await fetch(`${API}/api/auth/register`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password: pass, clientId, businessName: profile.name || 'Afacerea mea' })
+    });
+    const data = await res.json();
+    if (!data.success) { showError('register-error', data.error || 'Eroare înregistrare'); btn.textContent = 'Creează cont'; btn.disabled = false; return; }
+
+    // Save profile on server
+    if (profile.name) {
+      await fetch(`${API}/api/profile/save`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ ...profile, clientId })
+      }).catch(()=>{});
+    }
+
+    localStorage.setItem('recepai_token', data.token);
+    localStorage.setItem('recepai_email', data.email);
+    localStorage.setItem('recepai_client_id', clientId);
+    window.location.href = 'client-dashboard.html';
+  } catch(e) {
+    showError('register-error', 'Eroare conexiune.');
+    btn.textContent = 'Creează cont'; btn.disabled = false;
+  }
+}
+
+// Pre-fill email if coming from onboarding
+const savedEmail = localStorage.getItem('recepai_email');
+if (savedEmail) document.getElementById('login-email').value = savedEmail;
+
+// Show register if no account yet
+const hasAccount = localStorage.getItem('recepai_token');
+if (!hasAccount && localStorage.getItem('recepai_client_profile')) showRegister();
+</script>
+</body>
+</html>
