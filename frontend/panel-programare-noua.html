@@ -550,6 +550,30 @@ function selectDate(d) {
   selectedDoctor = null;
   renderDateGrid();
   renderSlots();
+  // AI suggest
+  if (selectedService) aiSuggest();
+}
+
+async function aiSuggest() {
+  try {
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    const res = await fetch(`${API}/api/availability/suggest`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        clientId: CLIENT_ID,
+        duration: selectedService?.durProc || 30,
+        preferredDate: dateStr,
+        count: 1
+      })
+    });
+    const data = await res.json();
+    const s = data.suggestions?.[0];
+    if (s) {
+      const badge = document.querySelector('.ai-badge');
+      if (badge) badge.textContent = `🤖 AI recomandă: ${s.doctorName} la ${s.time} (${s.dateFormatted})`;
+    }
+  } catch(e) {}
 }
 
 function prevWeek() {
@@ -561,45 +585,54 @@ function nextWeek() {
   renderDateGrid();
 }
 
-function renderSlots() {
+async function renderSlots() {
   const grid = document.getElementById('doc-slots-grid');
-  if (!selectedDate) { grid.innerHTML = '<div style="font-size:13px;color:var(--t3);text-align:center;padding:14px">Selectează o dată</div>'; return; }
+  if (!selectedDate) {
+    grid.innerHTML = '<div style="font-size:13px;color:var(--t3);text-align:center;padding:14px">Selectează o dată</div>';
+    return;
+  }
 
-  // Filter doctors who can do this service
-  const eligibleDocs = selectedService
-    ? DOCTORS.filter(d => !d.cats || d.cats.includes(selectedService.cat))
-    : DOCTORS;
+  grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t3)">⏳ Se încarcă orele disponibile...</div>';
 
-  const slots = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','13:00','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+  try {
+    const dateStr = selectedDate.toISOString().split('T')[0];
+    const duration = selectedService ? (selectedService.durProc || 30) : 30;
 
-  grid.innerHTML = eligibleDocs.map(doc => {
-    // Simulate some taken slots
-    const taken = ['10:00','11:30','14:00'];
-    const slotsHtml = slots.map(slot => {
-      const isTaken = taken.includes(slot) && Math.random() > 0.5;
-      const isSel = selectedSlot === slot && selectedDoctor?.id === doc.id;
-      return `<button class="slot-btn ${isTaken ? 'unavailable' : ''} ${isSel ? 'selected' : ''}"
-        onclick="${isTaken ? '' : `pickSlot('${slot}','${doc.id}')`}"
-        ${isTaken ? 'disabled' : ''}>${slot}</button>`;
-    }).join('');
+    const res = await fetch(`${API}/api/availability/slots?clientId=${CLIENT_ID}&date=${dateStr}&duration=${duration}`);
+    const data = await res.json();
+    const doctors = data.doctors || [];
 
-    return `<div class="doc-slot-group">
-      <div class="dsg-header">
-        <div class="dsg-av">${doc.avatar}</div>
-        <div>
-          <div class="dsg-name">${doc.name}</div>
-          <div class="dsg-spec">${doc.spec}</div>
+    if (!doctors.length) {
+      grid.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t3)">Nicio disponibilitate în această zi</div>';
+      return;
+    }
+
+    grid.innerHTML = doctors.map(doc => {
+      const slotsHtml = doc.slots.map(s => {
+        const isSel = selectedSlot === s.time && selectedDoctor?.id === doc.doctorId;
+        return `<button class="slot-btn ${isSel ? 'selected' : ''}" onclick="pickSlot('${s.time}','${doc.doctorId}',${JSON.stringify(doc).replace(/"/g,'&quot;')})">${s.time}</button>`;
+      }).join('');
+
+      return `<div class="doc-slot-group">
+        <div class="dsg-header">
+          <div class="dsg-av">👨‍⚕️</div>
+          <div>
+            <div class="dsg-name">${doc.doctorName}</div>
+            <div class="dsg-spec">${doc.doctorSpec || ''}</div>
+          </div>
+          <span class="dsg-badge">${doc.totalSlots} ore libere</span>
         </div>
-        <span class="dsg-badge">Disponibil</span>
-      </div>
-      <div class="slots-row">${slotsHtml}</div>
-    </div>`;
-  }).join('');
+        <div class="slots-row">${slotsHtml || '<span style="font-size:11px;color:var(--t3);padding:8px">Ocupat</span>'}</div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    grid.innerHTML = `<div style="text-align:center;padding:20px;color:var(--red)">Eroare: ${e.message}</div>`;
+  }
 }
 
-function pickSlot(slot, docId) {
+function pickSlot(slot, docId, docData) {
   selectedSlot = slot;
-  selectedDoctor = DOCTORS.find(d => d.id === docId);
+  selectedDoctor = docData ? { id: docId, name: docData.doctorName, spec: docData.doctorSpec } : { id: docId };
   renderSlots();
 }
 
