@@ -207,26 +207,26 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="nav-item active" onclick="nav('overview',this)">
       <span class="nav-icon">🏠</span> Overview
     </div>
-    <div class="nav-item" onclick="nav('knowledge',this)">
+    <div class="nav-item" onclick="nav('knowledge',this)" data-role="owner">
       <span class="nav-icon">🧠</span> Ce știe AI-ul
     </div>
-    <div class="nav-item" onclick="nav('suggestions',this)">
+    <div class="nav-item" onclick="nav('suggestions',this)" data-role="owner">
       <span class="nav-icon">💡</span> Sugestii AI
       <span class="nav-badge" id="badge-suggestions" style="display:none">0</span>
     </div>
     <div class="nav-group">Activitate</div>
-    <div class="nav-item" onclick="nav('leads',this)">
+    <div class="nav-item" onclick="nav('leads',this)" data-role="staff">
       <span class="nav-icon">👤</span> Lead-uri
       <span class="nav-badge" id="badge-leads" style="display:none">0</span>
     </div>
-    <div class="nav-item" onclick="nav('conversations',this)">
+    <div class="nav-item" onclick="nav('conversations',this)" data-role="staff">
       <span class="nav-icon">💬</span> Conversații
     </div>
     <div class="nav-group">Cont</div>
-    <div class="nav-item" onclick="nav('settings',this)">
+    <div class="nav-item" onclick="nav('settings',this)" data-role="owner">
       <span class="nav-icon">⚙️</span> Setări
     </div>
-    <div class="nav-item" onclick="rescan()">
+    <div class="nav-item" onclick="rescan()" data-role="owner">
       <span class="nav-icon">🔄</span> Rescană site-ul
     </div>
     <div class="nav-item" onclick="logout()" style="color:var(--red)">
@@ -252,6 +252,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
       <div class="topbar-sub" id="topbar-sub">Bun venit în panoul tău RecepAI</div>
     </div>
     <div class="topbar-right">
+      <span id="role-badge" style="font-size:11px;background:var(--td);color:var(--teal);padding:3px 10px;border-radius:10px;font-weight:600;margin-right:6px"></span>
       <button class="btn btn-ghost" onclick="copyEmbed()">⚡ Cod Widget</button>
     </div>
   </div>
@@ -476,6 +477,7 @@ let BIZ = null;
 let LEADS = JSON.parse(localStorage.getItem('recepai_client_leads') || '[]');
 let SERVICES = [];
 let CLIENT_ID = localStorage.getItem('recepai_client_id') || 'CLI-UNKNOWN';
+let USER_ROLE = localStorage.getItem('recepai_role') || 'owner';
 
 const DAYS = ['Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă','Duminică'];
 let HOURS = DAYS.map((d,i) => ({ day:d, open:i<5, start:'09:00', end:i<5?'19:00':'14:00' }));
@@ -981,10 +983,23 @@ function rescan() {
 }
 function resetData() { localStorage.clear(); window.location.href='login.html'; }
 
+// ── ROLE-BASED UI ────────────────────────────
+function applyRoleUI() {
+  const role = USER_ROLE;
+  document.querySelectorAll('[data-role="owner"]').forEach(el => el.style.display = role === 'owner' ? '' : 'none');
+  document.querySelectorAll('[data-role="staff"]').forEach(el => el.style.display = role !== 'doctor' ? '' : 'none');
+  document.querySelectorAll('[data-role="doctor"]').forEach(el => el.style.display = role === 'doctor' ? '' : 'none');
+  const badge = document.getElementById('role-badge');
+  if (badge) {
+    const labels = { owner: '👑 Proprietar', reception: '📋 Recepție', doctor: '👨‍⚕️ Doctor' };
+    badge.textContent = labels[role] || role;
+  }
+}
+
 // ── START ──────────────────────────────────
 (async () => {
   await init();
-  // If no profile after init, show onboarding
+  applyRoleUI();
   if (!BIZ || !BIZ.name) {
     showOnboarding();
   }
