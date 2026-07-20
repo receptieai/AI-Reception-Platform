@@ -521,6 +521,7 @@ async function startAnalysis() {
       body: JSON.stringify({ url: input, clientId })
     });
     const brainData = await brainRes.json();
+    console.log('[BRAIN] Response:', JSON.stringify(brainData).substring(0, 200));
     if (!brainData.success) throw new Error(brainData.error || 'Scanare eșuată');
     updateLoadingProgress(100, 'Business Brain construit!');
     const brain = brainData.brain;
