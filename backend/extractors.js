@@ -340,10 +340,12 @@ function extractName(html, page = 'homepage') {
   }
 
   // Strategie 3: title tag (70%)
-  const titleMatch = html.match(/<title[^>]*>([^<|–\-]{3,80})/i);
+  const titleMatch = html.match(/<title[^>]*>([^<]{3,120})<\/title>/i);
   if (titleMatch) {
     const title = titleMatch[1].trim();
-    candidates.push(field(title, 'title_tag', 70, 'HTML title tag', page));
+    // Use first part before separator as business name
+    const shortTitle = title.split(/\s*[|–—-]\s*/)[0].trim();
+    candidates.push(field(shortTitle || title, 'title_tag', 70, 'HTML title tag', page));
   }
 
   // Strategie 4: h1 tag (65%)
@@ -361,6 +363,18 @@ function extractName(html, page = 'homepage') {
 function extractServicesWithPrices(html, page = 'homepage') {
   const services = [];
   const seen = new Set();
+
+  // Pattern: <div class="price-row"><span>Serviciu</span><span class="price">150 RON</span></div>
+  const priceRowMatches = html.matchAll(/<div[^>]*class="[^"]*price-row[^"]*"[^>]*>\s*<span[^>]*>([^<]+)<\/span>\s*<span[^>]*>([^<]+)<\/span>/gi);
+  for (const m of priceRowMatches) {
+    addService(m[1].trim(), m[2].trim(), page, 'price-row-html', 90);
+  }
+
+  // Pattern: <span class="service-price">de la 150 RON</span> (preceded by service name)
+  const servicePriceMatches = html.matchAll(/<[^>]+class="[^"]*service[^"]*"[^>]*>([^<]{3,60})<\/[^>]+>\s*(?:<[^>]+>\s*)*<span[^>]*class="[^"]*service-price[^"]*">([^<]+)<\/span>/gi);
+  for (const m of servicePriceMatches) {
+    addService(m[1].trim(), m[2].trim(), page, 'service-price-html', 85);
+  }
 
   function addService(name, price, source, method, confidence) {
     const cleanName = name.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').replace(/^[\-–—•·\s]+/, '').trim();

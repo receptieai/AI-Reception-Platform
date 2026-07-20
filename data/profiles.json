@@ -1,103 +1,566 @@
 {
   "CLI-8ULSIV": {
-    "clientId": "CLI-8ULSIV",
     "name": "DentaVita — Clinică Stomatologică București",
     "phone": "+40 312 345 678",
     "email": "contact@dentavita.ro",
     "city": "București",
-    "hours": "Luni: 08:00-20:00 | Marți: 09:00-19:00 | Miercuri: 09:00-19:00 | Joi: 09:00-19:00 | Vineri: 08:00-20:00",
-    "type": "dental",
+    "address": "Str. Doctor Felix nr. 87",
+    "hours": "Luni – Vineri  08:00 – 20:00",
+    "facebook": "https://facebook.com/DentaVitaBucuresti",
+    "instagram": "https://instagram.com/dentavita.ro",
+    "tiktok": null,
+    "youtube": null,
+    "whatsapp": null,
     "services": [
       {
         "name": "Consultație + radiografie",
-        "price": "150 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "150 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Detartraj + periaj profesional",
-        "price": "250 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "250 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Obturație compozită (1 suprafață)",
-        "price": "200 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "200 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Obturație compozită (2+ suprafețe)",
+        "price": "250 – 350 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Tratament de canal (monoradicular)",
-        "price": "500 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "500 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Tratament de canal (pluriradicular)",
+        "price": "700 – 900 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Retratament endodontic",
+        "price": "800 – 1.200 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Extractie simplă",
-        "price": "200 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "200 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Extractie chirurgicală",
+        "price": "400 – 600 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Implant Straumann (elvețian)",
+        "price": "3.500 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Implant Nobel Biocare (suedez)",
+        "price": "3.800 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Implant MegaGen (corean)",
+        "price": "2.500 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Bont de vindecare",
-        "price": "350 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "350 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Bont protetic individualizat",
-        "price": "600 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "600 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Sinus lifting intern",
-        "price": "800 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "800 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Sinus lifting extern",
+        "price": "2.000 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Adiție osoasă",
+        "price": "1.000 – 2.500 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "All-on-4 (o arcadă completă)",
+        "price": "25.000 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Albire profesională in-office",
+        "price": "1.200 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Kit albire la domiciliu",
-        "price": "800 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "800 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Fațetă ceramică E-max (per dinte)",
+        "price": "2.200 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Coroană zirconiu",
+        "price": "1.500 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Coroană E-max",
+        "price": "1.800 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Coroană pe implant (zirconiu)",
+        "price": "1.800 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Punte ceramică (3 elemente)",
+        "price": "4.500 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Proteză acrilică totală",
+        "price": "1.500 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Proteză flexibilă Valplast",
+        "price": "2.200 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Consultație ortodontică + plan",
+        "price": "GRATUITĂ",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Aparat metalic fix (o arcadă)",
+        "price": "3.000 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Aparat ceramic fix (o arcadă)",
+        "price": "4.000 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Invisalign Lite (până la 14 gutiere)",
+        "price": "8.000 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
+        "page": "homepage"
+      },
+      {
+        "name": "Invisalign Comprehensive",
+        "price": "14.000 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Contenție fixă (per arcadă)",
-        "price": "500 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "500 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       },
       {
         "name": "Control lunar",
-        "price": "200 LEI",
-        "source": "consecutive",
-        "method": "consecutive lines",
-        "confidence": 78,
+        "price": "200 RON",
+        "source": "homepage",
+        "method": "price-row-html",
+        "confidence": 90,
         "page": "homepage"
       }
     ],
-    "facebook": null,
-    "instagram": null
+    "doctors": [
+      {
+        "name": "Dr. Diana Marinescu Medic Primar",
+        "specialties": [
+          "implantologie",
+          "ortodonție"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Andrei Popescu Medic Specialist",
+        "specialties": [
+          "ortodonție",
+          "chirurgie orală"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Elena Constantinescu Medic Specialist",
+        "specialties": [
+          "endodonție",
+          "chirurgie orală"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Mihai Vlad Medic Specialist",
+        "specialties": [
+          "endodonție",
+          "pedodonție",
+          "stomatologie"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Raluca Stan Medic Specialist",
+        "specialties": [
+          "protetică",
+          "pedodonție",
+          "stomatologie"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Cristian Ionescu Medic Specialist",
+        "specialties": [
+          "protetică"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Diana Marinescu",
+        "specialties": [
+          "implantologie",
+          "ortodonție"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Andrei Popescu",
+        "specialties": [
+          "ortodonție",
+          "chirurgie orală"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Elena Constantinescu",
+        "specialties": [
+          "endodonție",
+          "chirurgie orală"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Mihai Vlad",
+        "specialties": [
+          "endodonție",
+          "pedodonție",
+          "stomatologie"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Raluca Stan",
+        "specialties": [
+          "protetică",
+          "pedodonție",
+          "stomatologie"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      },
+      {
+        "name": "Dr. Cristian Ionescu",
+        "specialties": [
+          "protetică"
+        ],
+        "source": [
+          "regex_dr"
+        ],
+        "confidence": 80,
+        "page": "homepage"
+      }
+    ],
+    "facilities": {
+      "parking": {
+        "available": true,
+        "details": "gratuită",
+        "source": "homepage",
+        "confidence": 75,
+        "question": "Există parcare?"
+      },
+      "card": {
+        "available": true,
+        "details": null,
+        "source": "homepage",
+        "confidence": 75,
+        "question": "Acceptați plata cu cardul?"
+      },
+      "cas": {
+        "available": true,
+        "details": null,
+        "source": "homepage",
+        "confidence": 75,
+        "question": "Acceptați asigurări?"
+      },
+      "urgency": {
+        "available": true,
+        "details": "gratuită",
+        "source": "homepage",
+        "confidence": 75,
+        "question": "Acceptați urgențe?"
+      },
+      "lift": {
+        "available": true,
+        "details": null,
+        "source": "homepage",
+        "confidence": 75,
+        "question": "Există lift?"
+      },
+      "disability": {
+        "available": true,
+        "details": "gratuită",
+        "source": "homepage",
+        "confidence": 75,
+        "question": "Există acces pentru persoane cu dizabilități?"
+      },
+      "online_booking": {
+        "available": true,
+        "details": null,
+        "source": "homepage",
+        "confidence": 75,
+        "question": "Există programare online?"
+      },
+      "rates": {
+        "available": true,
+        "details": "gratuită",
+        "source": "homepage",
+        "confidence": 75,
+        "question": "Acceptați plata în rate?"
+      }
+    },
+    "payments": {
+      "cash": {
+        "keywords": [
+          "numerar",
+          "cash"
+        ],
+        "available": true,
+        "confidence": 85
+      },
+      "card": {
+        "keywords": [
+          "card",
+          "visa",
+          "mastercard",
+          "pos"
+        ],
+        "available": true,
+        "confidence": 85
+      },
+      "transfer": {
+        "keywords": [
+          "transfer bancar",
+          "ordin de plată",
+          "op bancar"
+        ],
+        "available": true,
+        "confidence": 85
+      },
+      "rates": {
+        "keywords": [
+          "rate",
+          "tbi",
+          "unicredit",
+          "finanțare",
+          "plată în rate"
+        ],
+        "available": true,
+        "provider": "TBI",
+        "confidence": 85
+      },
+      "cas": {
+        "keywords": [
+          "cas",
+          "cnas",
+          "asigurare",
+          "decontat"
+        ],
+        "available": true,
+        "confidence": 85
+      }
+    },
+    "confidence": 82,
+    "fieldConfidence": {
+      "phone": 99,
+      "email": 99,
+      "name": 70,
+      "city": 60,
+      "address": 75,
+      "hours": 75,
+      "facebook": 0,
+      "instagram": 0,
+      "services": 90,
+      "prices": 90
+    },
+    "missing": [],
+    "_scanVersion": "hybrid",
+    "_v1Complete": true,
+    "_v2Complete": true,
+    "_playwrightPages": 0,
+    "clientId": "CLI-8ULSIV",
+    "url": "satoshicourt.com"
   }
 }
