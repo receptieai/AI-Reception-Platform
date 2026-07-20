@@ -12,6 +12,7 @@ const url = require('url');
 const { extractAll } = require('./extractors');
 const storage = require('./storage');
 const clinicConfig = require('./clinicConfig');
+const availability = require('./availabilityEngine');
 const { buildBusinessBrain } = require('./businessBrainScanner');
 
 // ── STORAGE ENGINE ──
@@ -832,6 +833,45 @@ Returnează DOAR JSON valid fără text suplimentar:
     if (!profile) { sendJson(res, { error: 'Profilul nu exista' }, 404); return; }
     const config = clinicConfig.importFromBrain(body.clientId, profile);
     sendJson(res, { success: true, config });
+    return;
+  }
+
+  // ── AVAILABILITY ────────────────────────────────
+  if (pathname === '/api/availability/slots' && req.method === 'GET') {
+    const p = new URL('http://x' + req.url).searchParams;
+    const clientId = p.get('clientId');
+    const doctorId = p.get('doctorId');
+    const date = p.get('date');
+    const duration = parseInt(p.get('duration') || '30');
+    if (!clientId || !date) { sendJson(res, { error: 'clientId si date lipsesc' }, 400); return; }
+    if (doctorId) {
+      sendJson(res, { success: true, ...availability.getSlots(clientId, doctorId, date, duration) });
+    } else {
+      sendJson(res, { success: true, doctors: availability.getSlotsAllDoctors(clientId, date, null, duration) });
+    }
+    return;
+  }
+
+  if (pathname === '/api/availability/suggest' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { clientId, serviceId, duration, preferredDate, preferredTime, count } = body;
+    if (!clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    const suggestions = availability.suggestSlots(clientId, serviceId, duration || 30, preferredDate, preferredTime, count || 3);
+    sendJson(res, { success: true, suggestions });
+    return;
+  }
+
+  if (pathname === '/api/availability/doctors' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    sendJson(res, { success: true, doctors: availability.getDoctors(clientId) });
+    return;
+  }
+
+  if (pathname === '/api/availability/doctors' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId || !body.doctors) { sendJson(res, { error: 'Date lipsesc' }, 400); return; }
+    availability.saveDoctors(body.clientId, body.doctors);
+    sendJson(res, { success: true });
     return;
   }
 
