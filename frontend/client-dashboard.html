@@ -223,6 +223,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
       <span class="nav-icon">💬</span> Conversații
     </div>
     <div class="nav-group">Cont</div>
+    <div class="nav-item" onclick="nav('users',this)" data-role="owner">
+      <span class="nav-icon">👥</span> Utilizatori
+    </div>
     <div class="nav-item" onclick="nav('settings',this)" data-role="owner">
       <span class="nav-icon">⚙️</span> Setări
     </div>
@@ -399,6 +402,40 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
       </div>
     </div>
 
+    <!-- ── USERS ── -->
+    <div class="panel" id="panel-users">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-head">
+          <span class="card-title">👥 Echipa ta</span>
+        </div>
+        <div class="card-body" id="team-list">
+          <div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Niciun utilizator</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">➕ Adaugă membru echipă</span></div>
+        <div class="card-body">
+          <div class="field" style="margin-bottom:12px">
+            <label style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Email</label>
+            <input id="invite-email" type="email" placeholder="doctor@clinica.ro" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none">
+          </div>
+          <div class="field" style="margin-bottom:12px">
+            <label style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Parolă temporară</label>
+            <input id="invite-password" type="text" placeholder="parola123" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none">
+          </div>
+          <div class="field" style="margin-bottom:14px">
+            <label style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:5px">Rol</label>
+            <select id="invite-role" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none">
+              <option value="doctor">👨‍⚕️ Doctor</option>
+              <option value="reception">📋 Recepție</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" style="width:100%" onclick="inviteUser()">➕ Adaugă în echipă</button>
+          <div id="invite-msg" style="margin-top:10px;font-size:12px"></div>
+        </div>
+      </div>
+    </div>
+
     <!-- ── SETTINGS ── -->
     <div class="panel" id="panel-settings">
       <div class="grid-2">
@@ -529,6 +566,7 @@ async function init() {
   renderChart();
   loadLeadsFromServer();
   loadSuggestions();
+  loadTeam();
 
   // Settings
   document.getElementById('s-email').textContent = localStorage.getItem('recepai_email') || '—';
@@ -975,6 +1013,60 @@ function skipOnboarding() {
   BIZ = { clientId: CLIENT_ID, name: '', services: [] };
   nav('knowledge', document.querySelector('.nav-item:nth-child(2)'));
   renderKnowledge();
+}
+
+async function inviteUser() {
+  const email = document.getElementById('invite-email').value.trim();
+  const password = document.getElementById('invite-password').value.trim();
+  const role = document.getElementById('invite-role').value;
+  const msg = document.getElementById('invite-msg');
+
+  if (!email || !password) { msg.textContent = '⚠ Completează email și parola'; msg.style.color='var(--red)'; return; }
+
+  try {
+    const res = await fetch(`${API}/api/team/invite`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password, role, clientId: CLIENT_ID, businessName: BIZ?.name || '' })
+    });
+    const data = await res.json();
+    if (data.success) {
+      msg.textContent = '✅ ' + email + ' adăugat ca ' + role;
+      msg.style.color = 'var(--grn)';
+      document.getElementById('invite-email').value = '';
+      document.getElementById('invite-password').value = '';
+      loadTeam();
+    } else {
+      msg.textContent = '❌ ' + (data.error || 'Eroare');
+      msg.style.color = 'var(--red)';
+    }
+  } catch(e) {
+    msg.textContent = '❌ Eroare conexiune';
+    msg.style.color = 'var(--red)';
+  }
+}
+
+async function loadTeam() {
+  try {
+    const res = await fetch(`${API}/api/team/list?clientId=${CLIENT_ID}`);
+    const data = await res.json();
+    const el = document.getElementById('team-list');
+    if (!el) return;
+    const users = data.users || [];
+    if (users.length === 0) {
+      el.innerHTML = '<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Niciun utilizator</div><div class="empty-sub">Adaugă doctori și recepție</div></div>';
+      return;
+    }
+    const roleLabels = { owner: '👑 Proprietar', doctor: '👨‍⚕️ Doctor', reception: '📋 Recepție' };
+    el.innerHTML = users.map(u => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--b1)">
+        <div style="width:36px;height:36px;border-radius:50%;background:var(--td);display:flex;align-items:center;justify-content:center;font-size:16px">${u.role === 'doctor' ? '👨‍⚕️' : u.role === 'reception' ? '📋' : '👑'}</div>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${u.email}</div>
+          <div style="font-size:11px;color:var(--t3)">${roleLabels[u.role] || u.role}</div>
+        </div>
+      </div>`).join('');
+  } catch(e) {}
 }
 
 function logout() { localStorage.removeItem('recepai_token'); window.location.href='login.html'; }

@@ -777,6 +777,30 @@ Returnează DOAR JSON valid fără text suplimentar:
     return;
   }
 
+  // ── TEAM USERS ──────────────────────────────────
+  if (pathname === '/api/team/invite' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { email, password, role, clientId, businessName } = body;
+    if (!email || !password || !role || !clientId) { sendJson(res, { error: 'Date lipsă' }, 400); return; }
+    if (!global.users) global.users = {};
+    if (global.users[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
+    const token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
+    global.users[email] = { email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() };
+    console.log('[TEAM] Invited:', email, 'role:', role, 'clientId:', clientId);
+    sendJson(res, { success: true, email, role });
+    return;
+  }
+
+  if (pathname === '/api/team/list' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    if (!clientId || !global.users) { sendJson(res, { success: true, users: [] }); return; }
+    const team = Object.values(global.users)
+      .filter(u => u.clientId === clientId)
+      .map(u => ({ email: u.email, role: u.role, createdAt: u.createdAt }));
+    sendJson(res, { success: true, users: team });
+    return;
+  }
+
   // ── BUSINESS BRAIN SCAN ──────────────────────
   if (pathname === '/api/brain/scan' && req.method === 'POST') {
     const body = await parseBody(req);

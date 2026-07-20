@@ -422,5 +422,458 @@
     "scannedAt": "2026-07-20T10:14:53.859Z",
     "scannerVersion": "brain-v1",
     "clientId": "CLI-8ULSIV"
+  },
+  "CLI-IT2S1N": {
+    "name": "DentaVita — Clinică Stomatologică București",
+    "brand": "DentaVita",
+    "description": "Clinică stomatologică completă în București, Sector 1, oferind servicii de la consultații de rutină la implantologie, ortodonție, estetică dentară și pedodonție. Dotată cu tehnologie de ultimă generație și o echipă de 6 medici specialiști cu experiență internațională.",
+    "industry": "dental",
+    "address": "Str. Doctor Felix nr. 87, Sector 1, București, 011033, Etaj 2, Clădirea MedCenter (lângă Piața Victoriei)",
+    "city": "București",
+    "phone": "031 234 56 78",
+    "phone_urgente": "0722 123 456",
+    "email": "contact@dentavita.ro",
+    "email_programari": "programari@dentavita.ro",
+    "whatsapp": null,
+    "facebook": "https://facebook.com/DentaVitaBucuresti",
+    "instagram": "https://instagram.com/dentavita.ro",
+    "website": "satoshicourt.com",
+    "hours": "Luni–Vineri 08:00–20:00, Sâmbătă 09:00–15:00, Duminică Închis. Urgențe dentare 24/7 (apel telefonic).",
+    "hours_structured": {
+      "luni": "08:00-20:00",
+      "marti": "08:00-20:00",
+      "miercuri": "08:00-20:00",
+      "joi": "08:00-20:00",
+      "vineri": "08:00-20:00",
+      "sambata": "09:00-15:00",
+      "duminica": "Închis",
+      "urgente": "24/7"
+    },
+    "parking": "Parcare subterană gratuită, 100 de locuri",
+    "accessibility": "Acces persoane cu dizabilități: Da",
+    "payment_methods": [
+      "numerar",
+      "card Visa",
+      "card Mastercard",
+      "transfer bancar",
+      "rate BRD Finance",
+      "rate TBI Credit"
+    ],
+    "financing": "Rate prin BRD Finance și TBI Credit, 3–36 rate, dobândă 0% pentru primele 12 rate pentru tratamente peste 2.000 RON, avans minim 20%, aprobare în 15 minute.",
+    "insurance": [
+      "CASMB",
+      "Signal Iduna",
+      "Allianz-Țiriac",
+      "Generali",
+      "Medicover",
+      "MedLife",
+      "Asigurări corporate"
+    ],
+    "languages": [
+      "română"
+    ],
+    "doctors": [
+      {
+        "name": "Dr. Diana Marinescu",
+        "specialty": "Medic Primar Implantologie, fondatoarea clinicii, specializare Universitatea din Berna, membră EAO, peste 3.000 de implanturi inserate"
+      },
+      {
+        "name": "Dr. Andrei Popescu",
+        "specialty": "Medic Specialist Ortodonție, certificat Diamond Invisalign Provider, specializare University of Pennsylvania"
+      },
+      {
+        "name": "Dr. Elena Constantinescu",
+        "specialty": "Medic Specialist Chirurgie Orală, specializare Charité Berlin"
+      },
+      {
+        "name": "Dr. Mihai Vlad",
+        "specialty": "Medic Specialist Endodonție, tratamente sub microscop, specializare Universitatea din Zürich"
+      },
+      {
+        "name": "Dr. Raluca Stan",
+        "specialty": "Medic Specialist Pedodonție, certificată în sedare conștientă cu protoxid de azot, specializare King's College London"
+      },
+      {
+        "name": "Dr. Cristian Ionescu",
+        "specialty": "Medic Specialist Protetică Dentară, specialist reabilitări protetice complexe CAD/CAM, specializare Universitatea din Milano"
+      }
+    ],
+    "services": [
+      {
+        "name": "Consultație + radiografie",
+        "price": "150 RON",
+        "duration": null,
+        "description": "Consultație generală cu plan de tratament inclus"
+      },
+      {
+        "name": "Detartraj + periaj profesional",
+        "price": "250 RON",
+        "duration": null,
+        "description": "Igienizare profesională"
+      },
+      {
+        "name": "Obturație compozită (1 suprafață)",
+        "price": "200 RON",
+        "duration": null,
+        "description": "Plombă estetică compozită"
+      },
+      {
+        "name": "Obturație compozită (2+ suprafețe)",
+        "price": "250–350 RON",
+        "duration": null,
+        "description": "Plombă estetică compozită pe mai multe suprafețe"
+      },
+      {
+        "name": "Tratament de canal monoradicular",
+        "price": "500 RON",
+        "duration": null,
+        "description": "Endodonție dinte cu un canal"
+      },
+      {
+        "name": "Tratament de canal pluriradicular",
+        "price": "700–900 RON",
+        "duration": null,
+        "description": "Endodonție dinte cu mai multe canale"
+      },
+      {
+        "name": "Retratament endodontic",
+        "price": "800–1.200 RON",
+        "duration": null,
+        "description": "Retratament tratament de canal anterior"
+      },
+      {
+        "name": "Extracție simplă",
+        "price": "200 RON",
+        "duration": null,
+        "description": "Extracție dentară simplă"
+      },
+      {
+        "name": "Extracție chirurgicală",
+        "price": "400–600 RON",
+        "duration": null,
+        "description": "Extracție dentară chirurgicală"
+      },
+      {
+        "name": "Implant Straumann (elvețian)",
+        "price": "3.500 RON",
+        "duration": "3–6 luni proces complet",
+        "description": "Implant dentar premium Straumann elvețian"
+      },
+      {
+        "name": "Implant Nobel Biocare (suedez)",
+        "price": "3.800 RON",
+        "duration": "3–6 luni proces complet",
+        "description": "Implant dentar premium Nobel Biocare suedez"
+      },
+      {
+        "name": "Implant MegaGen (corean)",
+        "price": "2.500 RON",
+        "duration": "3–6 luni proces complet",
+        "description": "Implant dentar MegaGen corean"
+      },
+      {
+        "name": "Bont de vindecare",
+        "price": "350 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Bont protetic individualizat",
+        "price": "600 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Sinus lifting intern",
+        "price": "800 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Sinus lifting extern",
+        "price": "2.000 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Adiție osoasă",
+        "price": "1.000–2.500 RON",
+        "duration": null,
+        "description": "Regenerare osoasă"
+      },
+      {
+        "name": "All-on-4 (o arcadă completă)",
+        "price": "25.000 RON",
+        "duration": null,
+        "description": "Reabilitare completă arcadă pe 4 implanturi"
+      },
+      {
+        "name": "Albire profesională in-office (Zoom)",
+        "price": "1.200 RON",
+        "duration": "60–90 minute",
+        "description": "Albire dentară profesională în cabinet, rezultat 4–8 nuanțe mai deschis, se menține 1–2 ani"
+      },
+      {
+        "name": "Kit albire la domiciliu",
+        "price": "800 RON",
+        "duration": null,
+        "description": "Gutiere personalizate pentru albire acasă"
+      },
+      {
+        "name": "Fațetă ceramică E-max (per dinte)",
+        "price": "2.200 RON",
+        "duration": null,
+        "description": "Fațetă din porțelan E-max"
+      },
+      {
+        "name": "Coroană zirconiu",
+        "price": "1.500 RON",
+        "duration": null,
+        "description": "Coroană din zirconiu"
+      },
+      {
+        "name": "Coroană E-max",
+        "price": "1.800 RON",
+        "duration": null,
+        "description": "Coroană integral ceramică E-max"
+      },
+      {
+        "name": "Coroană pe implant (zirconiu)",
+        "price": "1.800 RON",
+        "duration": null,
+        "description": "Coroană zirconiu pe implant"
+      },
+      {
+        "name": "Punte ceramică (3 elemente)",
+        "price": "4.500 RON",
+        "duration": null,
+        "description": "Punte dentară ceramică 3 elemente"
+      },
+      {
+        "name": "Proteză acrilică totală",
+        "price": "1.500 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Proteză flexibilă Valplast",
+        "price": "2.200 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Consultație ortodontică + plan de tratament",
+        "price": "GRATUITĂ",
+        "duration": null,
+        "description": "Prima consultație ortodontică este gratuită"
+      },
+      {
+        "name": "Aparat metalic fix (o arcadă)",
+        "price": "3.000 RON",
+        "duration": null,
+        "description": "Aparat dentar metalic clasic"
+      },
+      {
+        "name": "Aparat ceramic fix (o arcadă)",
+        "price": "4.000 RON",
+        "duration": null,
+        "description": "Aparat dentar ceramic transparent"
+      },
+      {
+        "name": "Invisalign Lite (până la 14 gutiere)",
+        "price": "8.000 RON",
+        "duration": null,
+        "description": "Aliniere invizibilă Invisalign Lite"
+      },
+      {
+        "name": "Invisalign Comprehensive",
+        "price": "14.000 RON",
+        "duration": null,
+        "description": "Aliniere invizibilă Invisalign pachet complet"
+      },
+      {
+        "name": "Contenție fixă (per arcadă)",
+        "price": "500 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Control lunar ortodonție",
+        "price": "200 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Extracție molar de minte inclus",
+        "price": "400 RON",
+        "duration": null,
+        "description": "Chirurgie orală, extracție molar de minte inclus (preț de la)"
+      },
+      {
+        "name": "Rezecție apicală",
+        "price": null,
+        "duration": null,
+        "description": "Chirurgie orală"
+      },
+      {
+        "name": "Chiuretaj parodontal",
+        "price": null,
+        "duration": null,
+        "description": "Chirurgie parodontală"
+      },
+      {
+        "name": "Grefe gingivale și osoase",
+        "price": null,
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Frenectomie",
+        "price": null,
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Consultație copii (2–16 ani)",
+        "price": "100 RON",
+        "duration": null,
+        "description": "Pedodonție, preț de la"
+      },
+      {
+        "name": "Sigilare fisuri și șanțuri",
+        "price": null,
+        "duration": null,
+        "description": "Prevenție carii la copii"
+      },
+      {
+        "name": "Fluoruizare profesională",
+        "price": null,
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Obturații pentru dinți de lapte",
+        "price": null,
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Sedare conștientă (gaz ilariant)",
+        "price": null,
+        "duration": null,
+        "description": "Sedare cu protoxid de azot pentru pacienți anxioși și copii"
+      },
+      {
+        "name": "Menținătoare de spațiu",
+        "price": null,
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Evaluare parodontală completă",
+        "price": "200 RON",
+        "duration": null,
+        "description": "Parodontologie, preț de la"
+      },
+      {
+        "name": "Detartraj subgingival (deep cleaning)",
+        "price": null,
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Chirurgie parodontală cu lambou",
+        "price": null,
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Terapie laser diodă",
+        "price": null,
+        "duration": null,
+        "description": "Tratament gingival fără sângerare, vindecare de 3x mai rapidă"
+      },
+      {
+        "name": "Regenerare tisulară ghidată",
+        "price": null,
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Urgență dentară",
+        "price": "200 RON (tarif suplimentar)",
+        "duration": null,
+        "description": "Consultație de urgență 24/7, tarif suplimentar față de procedură"
+      }
+    ],
+    "packages": [],
+    "promotions": [
+      "Ofertă iulie: Albire dentară profesională cu 40% reducere"
+    ],
+    "faq": [
+      {
+        "question": "Cât durează un implant dentar de la inserare până la coroana finală?",
+        "answer": "Procesul complet durează 3-6 luni. După inserare, osteointegrarea durează 3-4 luni (mandibulă) sau 4-6 luni (maxilar). În cazurile eligibile oferim încărcare imediată — dinți în aceeași zi."
+      },
+      {
+        "question": "Este dureros tratamentul dentar?",
+        "answer": "Nu. Toate procedurile se efectuează sub anestezie locală. Pentru pacienții anxioși oferim sedare conștientă cu protoxid de azot sau sedare intravenoasă cu medic anestezist."
+      },
+      {
+        "question": "Ce fac în caz de urgență dentară noaptea sau în weekend?",
+        "answer": "Sunați la 0722 123 456. Avem medic de gardă 24/7. Tarif suplimentar de urgență: 200 RON."
+      },
+      {
+        "question": "Pot plăti în rate?",
+        "answer": "Da. Rate prin BRD Finance și TBI Credit (3-36 rate). Dobândă 0% primele 12 rate pentru tratamente peste 2.000 RON. Avans minim 20%. Aprobare în 15 minute."
+      },
+      {
+        "question": "Ce garanție oferiți?",
+        "answer": "10 ani implanturi, 5 ani coroane și fațete, 3 ani obturații, 2 ani proteze mobile. Condiționat de controale la 6 luni."
+      },
+      {
+        "question": "Acceptați pacienți din străinătate?",
+        "answer": "Da. Pachete de turism dentar cu planificare la distanță. Trimiteți radiografia pe email, primiți plan de tratament în 24h. Sesiuni intensive de 3-5 zile."
+      },
+      {
+        "question": "Ce vârstă minimă pentru prima vizită la copii?",
+        "answer": "Recomandăm prima vizită la 1 an sau la apariția primului dinte. Între 2-3 ani se fac primele sigilări."
+      },
+      {
+        "question": "Cât durează albirea dentară și cât rezistă?",
+        "answer": "60-90 minute, rezultat de 4-8 nuanțe mai deschis, se menține 1-2 ani. Nu albim gravide, copii sub 16 ani sau pacienți cu carii active."
+      }
+    ],
+    "guarantees": "10 ani implanturi, 5 ani coroane și fațete, 3 ani obturații, 2 ani proteze mobile. Condiționat de controale la 6 luni.",
+    "emergency": "Urgențe dentare 24/7 la 0722 123 456. Medic de gardă disponibil. Tarif suplimentar urgență: 200 RON.",
+    "booking": "Programare online prin formularul de pe site (răspuns în maxim 2 ore) sau telefonic la 031 234 56 78. Se poate selecta serviciul dorit și medicul preferat.",
+    "children": "Da. Pedodonție pentru copii de la 1 an, mediu prietenos, sedare conștientă cu protoxid de azot disponibilă. Dr. Raluca Stan specializată în stomatologie pediatrică.",
+    "specialties": [
+      "Stomatologie Generală",
+      "Estetică Dentară",
+      "Implantologie",
+      "Ortodonție",
+      "Chirurgie Orală",
+      "Pedodonție",
+      "Protetică Dentară",
+      "Parodontologie",
+      "Endodonție",
+      "Turism Dentar"
+    ],
+    "technologies": [
+      "CBCT 3D Planmeca (tomografie computerizată cu fascicul conic)",
+      "Scanner Intraoral iTero 5D (amprente digitale)",
+      "Laser Diodă Biolase",
+      "Microscop Dentar Zeiss (mărire până la 25x)",
+      "CAD/CAM CEREC (coroane și fațete în aceeași zi)",
+      "Chirurgie Ghidată Digital (ghiduri chirurgicale printate 3D)",
+      "Design Digital al Zâmbetului (DSD)",
+      "Sisteme rotative endodontice de ultimă generație"
+    ],
+    "certificates": "Dr. Andrei Popescu — certificat Diamond Invisalign Provider; Dr. Diana Marinescu — membră EAO (European Association of Osseointegration); Dr. Raluca Stan — certificată în sedare conștientă cu protoxid de azot. Toți medicii au minim 8 ani experiență și participă anual la conferințe internaționale. Companie: SC DentaVita Medical SRL, CUI: RO12345678, Nr. Reg. Com.: J40/1234/2011.",
+    "confidence": 97,
+    "scannedAt": "2026-07-20T09:35:49.220Z",
+    "scannerVersion": "brain-v1",
+    "clientId": "CLI-IT2S1N"
   }
 }
