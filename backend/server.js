@@ -791,6 +791,30 @@ Returnează DOAR JSON valid fără text suplimentar:
     return;
   }
 
+  if (pathname === '/api/team/delete' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { email, clientId } = body;
+    if (!global.users?.[email]) { sendJson(res, { error: 'Utilizator negăsit' }, 404); return; }
+    if (global.users[email].clientId !== clientId) { sendJson(res, { error: 'Acces interzis' }, 403); return; }
+    if (global.users[email].role === 'owner') { sendJson(res, { error: 'Nu poți șterge proprietarul' }, 400); return; }
+    delete global.users[email];
+    sendJson(res, { success: true });
+    return;
+  }
+
+  if (pathname === '/api/team/update' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { email, role, password, clientId } = body;
+    if (!global.users?.[email]) { sendJson(res, { error: 'Utilizator negăsit' }, 404); return; }
+    if (global.users[email].clientId !== clientId) { sendJson(res, { error: 'Acces interzis' }, 403); return; }
+    if (role) global.users[email].role = role;
+    if (password) global.users[email].password = password;
+    // Regenerate token
+    global.users[email].token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
+    sendJson(res, { success: true });
+    return;
+  }
+
   if (pathname === '/api/team/list' && req.method === 'GET') {
     const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
     if (!clientId || !global.users) { sendJson(res, { success: true, users: [] }); return; }
@@ -830,7 +854,9 @@ Returnează DOAR JSON valid fără text suplimentar:
     if (!global.users) global.users = {};
     if (global.users[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
     const token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
-    const role = body.role || 'owner';
+    // First user for this clientId = owner, rest = specified role
+    const existingForClient = Object.values(global.users).filter(u => u.clientId === clientId);
+    const role = existingForClient.length === 0 ? 'owner' : (body.role || 'reception');
     global.users[email] = { email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() };
     console.log('[AUTH] Registered:', email, 'clientId:', clientId);
     sendJson(res, { success: true, token, email, clientId, businessName, role: body.role || 'owner' });

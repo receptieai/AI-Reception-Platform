@@ -1046,6 +1046,52 @@ async function inviteUser() {
   }
 }
 
+async function deleteUser(email) {
+  if (!confirm('Șterge utilizatorul ' + email + '?')) return;
+  try {
+    const res = await fetch(`${API}/api/team/delete`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ email, clientId: CLIENT_ID })
+    });
+    const data = await res.json();
+    if (data.success) { showToast('✅ Utilizator șters'); loadTeam(); }
+    else showToast('❌ ' + (data.error || 'Eroare'));
+  } catch(e) { showToast('❌ Eroare conexiune'); }
+}
+
+function editUser(email, currentRole) {
+  document.getElementById('modal-title').textContent = 'Editează ' + email;
+  document.getElementById('modal-body').innerHTML = `
+    <div class="field">
+      <label>Rol</label>
+      <select id="edit-role" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none">
+        <option value="doctor" ${currentRole==='doctor'?'selected':''}>👨‍⚕️ Doctor</option>
+        <option value="reception" ${currentRole==='reception'?'selected':''}>📋 Recepție</option>
+        <option value="owner" ${currentRole==='owner'?'selected':''}>👑 Proprietar</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Parolă nouă (opțional)</label>
+      <input id="edit-password" type="text" placeholder="Lasă gol pentru a nu schimba" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none">
+    </div>`;
+  modalSaveFn = async () => {
+    const role = document.getElementById('edit-role').value;
+    const password = document.getElementById('edit-password').value.trim();
+    try {
+      const res = await fetch(`${API}/api/team/update`, {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({ email, role, password: password || undefined, clientId: CLIENT_ID })
+      });
+      const data = await res.json();
+      if (data.success) { showToast('✅ Utilizator actualizat'); loadTeam(); closeModal(); }
+      else showToast('❌ ' + (data.error || 'Eroare'));
+    } catch(e) { showToast('❌ Eroare'); }
+  };
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
 async function loadTeam() {
   try {
     const res = await fetch(`${API}/api/team/list?clientId=${CLIENT_ID}`);
@@ -1064,6 +1110,10 @@ async function loadTeam() {
         <div style="flex:1">
           <div style="font-size:13px;font-weight:600">${u.email}</div>
           <div style="font-size:11px;color:var(--t3)">${roleLabels[u.role] || u.role}</div>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button onclick="editUser('${u.email}','${u.role}')" style="background:var(--td);border:none;color:var(--teal);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:600">✏️</button>
+          ${u.role !== 'owner' ? `<button onclick="deleteUser('${u.email}')" style="background:rgba(255,68,85,.12);border:none;color:var(--red);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:600">✕</button>` : ''}
         </div>
       </div>`).join('');
   } catch(e) {}
