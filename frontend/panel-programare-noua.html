@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programare Nouă — RecepAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0A;--s1:#131313;--s2:#1A1A1A;
+  --b1:#252525;--b2:#303030;
+  --tx:#F0F0F0;--t2:#999;--t3:#555;
+  --teal:#00D4AA;--td:rgba(0,212,170,.1);--tm:rgba(0,212,170,.2);
+  --grn:#00CC88;--ylw:#FFB800;--red:#FF4455;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+
+.wizard{width:100%;max-width:560px;background:var(--s1);border:1px solid var(--b2);border-radius:18px;overflow:hidden}
+
+/* PROGRESS */
+.progress{padding:20px 24px 0;display:flex;align-items:center;gap:0}
+.step{display:flex;align-items:center;flex:1}
+.step:last-child{flex:0}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;border:1.5px solid var(--b2);color:var(--t3);background:var(--s2);transition:all .3s}
+.step-dot.active{background:var(--teal);border-color:var(--teal);color:#000}
+.step-dot.done{background:var(--grn);border-color:var(--grn);color:#000}
+.step-line{flex:1;height:1px;background:var(--b2);margin:0 6px;transition:background .3s}
+.step-line.done{background:var(--grn)}
+.step-label{font-size:10px;color:var(--t3);margin-top:4px;white-space:nowrap}
+
+.progress-steps{display:flex;flex-direction:column;align-items:center;flex:1}
+.progress-steps:last-child .step-line{display:none}
+.prog-row{display:flex;align-items:center;width:100%}
+
+/* PANELS */
+.wizard-body{padding:24px}
+.wstep{display:none}.wstep.active{display:block}
+
+.step-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px}
+.step-sub{font-size:13px;color:var(--t3);margin-bottom:20px}
+
+/* SEARCH */
+.search-box{position:relative;margin-bottom:14px}
+.search-input{width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:10px;padding:11px 14px 11px 40px;color:var(--tx);font-size:14px;outline:none;transition:border-color .2s}
+.search-input:focus{border-color:var(--teal)}
+.search-icon{position:absolute;left:13px;top:50%;transform:translateY(-50%);font-size:16px;pointer-events:none}
+.search-results{background:var(--s2);border:1px solid var(--b1);border-radius:10px;overflow:hidden;margin-top:4px}
+.search-item{display:flex;align-items:center;gap:12px;padding:11px 14px;cursor:pointer;transition:background .15s}
+.search-item:hover{background:var(--s1)}
+.search-item-av{width:32px;height:32px;border-radius:50%;background:var(--td);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;color:var(--teal)}
+.search-item-name{font-size:13px;font-weight:600}
+.search-item-meta{font-size:11px;color:var(--t3)}
+
+/* NEW PATIENT FORM */
+.new-patient-form{background:var(--s2);border:1.5px dashed var(--b2);border-radius:10px;padding:14px;margin-top:10px}
+.npf-title{font-size:12px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px}
+.npf-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.npf-field label{font-size:11px;font-weight:600;color:var(--t3);display:block;margin-bottom:4px}
+.npf-field input{width:100%;background:var(--s1);border:1px solid var(--b1);border-radius:8px;padding:8px 11px;color:var(--tx);font-size:13px;outline:none;transition:border-color .2s}
+.npf-field input:focus{border-color:var(--teal)}
+
+/* SELECTED PATIENT */
+.selected-card{background:var(--td);border:1.5px solid var(--teal);border-radius:10px;padding:12px 16px;display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.sc-av{width:36px;height:36px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;color:#000}
+.sc-info{flex:1}
+.sc-name{font-size:14px;font-weight:700}
+.sc-meta{font-size:11px;color:var(--teal)}
+.sc-change{font-size:11px;color:var(--t3);cursor:pointer;text-decoration:underline}
+.sc-change:hover{color:var(--tx)}
+
+/* SERVICES LIST */
+.svc-search{width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:10px;padding:10px 14px;color:var(--tx);font-size:13px;outline:none;margin-bottom:12px;transition:border-color .2s}
+.svc-search:focus{border-color:var(--teal)}
+.svc-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto}
+.svc-item{display:flex;align-items:center;gap:12px;padding:11px 14px;background:var(--s2);border:1.5px solid var(--b1);border-radius:9px;cursor:pointer;transition:all .15s}
+.svc-item:hover{border-color:var(--b2);background:var(--s1)}
+.svc-item.selected{border-color:var(--teal);background:var(--td)}
+.svc-item-icon{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.svc-item-info{flex:1}
+.svc-item-name{font-size:13px;font-weight:600}
+.svc-item-meta{font-size:11px;color:var(--t3);margin-top:1px}
+.svc-item-price{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--teal);flex-shrink:0}
+
+/* DOCTOR + SLOT SELECTION */
+.doc-slots-grid{display:flex;flex-direction:column;gap:10px}
+.doc-slot-group{background:var(--s2);border:1px solid var(--b1);border-radius:10px;overflow:hidden}
+.dsg-header{padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b1);background:var(--s1)}
+.dsg-av{width:30px;height:30px;border-radius:50%;background:var(--td);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.dsg-name{font-size:13px;font-weight:700;flex:1}
+.dsg-spec{font-size:11px;color:var(--t3)}
+.dsg-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:var(--td);color:var(--teal)}
+.slots-row{display:flex;flex-wrap:wrap;gap:6px;padding:12px 14px}
+.slot-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:1.5px solid var(--b2);color:var(--t2);background:transparent;font-family:'JetBrains Mono',monospace;transition:all .15s}
+.slot-btn:hover{border-color:var(--teal);color:var(--teal);background:var(--td)}
+.slot-btn.selected{border-color:var(--teal);color:#000;background:var(--teal)}
+.slot-btn.unavailable{opacity:.35;cursor:not-allowed;text-decoration:line-through}
+
+/* DATE PICKER */
+.date-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.date-nav-btn{background:transparent;border:1px solid var(--b2);color:var(--t2);padding:5px 12px;border-radius:7px;cursor:pointer;font-size:13px;transition:all .15s}
+.date-nav-btn:hover{color:var(--tx);border-color:var(--b3)}
+.date-nav-label{font-size:14px;font-weight:700}
+.date-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:14px}
+.date-cell{text-align:center;padding:7px 4px;border-radius:7px;cursor:pointer;font-size:12px;transition:all .15s;border:1px solid transparent}
+.date-cell:hover{background:var(--s2);border-color:var(--b2)}
+.date-cell.today{border-color:var(--teal);color:var(--teal);font-weight:700}
+.date-cell.selected{background:var(--teal);color:#000;font-weight:700}
+.date-cell.past{opacity:.3;cursor:not-allowed}
+.date-cell.has-slots{position:relative}
+.date-cell.has-slots::after{content:'';position:absolute;bottom:2px;left:50%;transform:translateX(-50%);width:4px;height:4px;border-radius:50%;background:var(--grn)}
+.date-day-label{font-size:10px;color:var(--t3);text-align:center;margin-bottom:4px}
+
+/* CONFIRM */
+.confirm-card{background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:16px 18px;margin-bottom:14px}
+.cc-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid var(--b1)}
+.cc-row:last-child{border-bottom:none}
+.cc-icon{font-size:18px;width:28px;text-align:center;flex-shrink:0}
+.cc-label{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.3px;width:80px;flex-shrink:0}
+.cc-value{font-size:13px;font-weight:600;flex:1}
+.notes-area{width:100%;background:var(--s2);border:1.5px solid var(--b1);border-radius:9px;padding:10px 13px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;resize:none;transition:border-color .2s;min-height:70px}
+.notes-area:focus{border-color:var(--teal)}
+
+/* SUCCESS */
+.success-wrap{text-align:center;padding:20px 0}
+.success-emoji{font-size:56px;display:block;margin-bottom:14px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
+@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
+.success-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:6px}
+.success-sub{font-size:13px;color:var(--t2);margin-bottom:20px}
+
+/* FOOTER */
+.wizard-foot{padding:16px 24px;border-top:1px solid var(--b1);display:flex;gap:10px;justify-content:space-between;align-items:center}
+.foot-steps{font-size:11px;color:var(--t3)}
+
+/* BUTTONS */
+.btn{padding:9px 20px;border-radius:9px;font-size:13px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-primary{background:var(--teal);color:#000}
+.btn-primary:hover{background:#00FFCC}
+.btn-primary:disabled{background:var(--b2);color:var(--t3);cursor:not-allowed}
+.btn-ghost{background:transparent;color:var(--t2);border:1.5px solid var(--b2)}
+.btn-ghost:hover{color:var(--tx)}
+
+.ai-badge{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:var(--teal);background:var(--td);padding:3px 10px;border-radius:8px;margin-bottom:12px}
+</style>
+</head>
+<body>
+
+<div class="wizard">
+
+  <!-- PROGRESS BAR -->
+  <div style="padding:20px 24px 0">
+    <div style="display:flex;align-items:center">
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="step-dot active" id="dot1">1</div>
+        <div class="step-label">Pacient</div>
+      </div>
+      <div class="step-line" id="line1"></div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="step-dot" id="dot2">2</div>
+        <div class="step-label">Serviciu</div>
+      </div>
+      <div class="step-line" id="line2"></div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="step-dot" id="dot3">3</div>
+        <div class="step-label">Oră</div>
+      </div>
+      <div class="step-line" id="line3"></div>
+      <div style="display:flex;flex-direction:column;align-items:center">
+        <div class="step-dot" id="dot4">4</div>
+        <div class="step-label">Confirmare</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wizard-body">
+
+    <!-- STEP 1: PATIENT -->
+    <div class="wstep active" id="wstep1">
+      <div class="step-title">👤 Cine este pacientul?</div>
+      <div class="step-sub">Caută un pacient existent sau adaugă unul nou</div>
+
+      <div id="patient-selected-view" style="display:none">
+        <div class="selected-card">
+          <div class="sc-av">👤</div>
+          <div class="sc-info">
+            <div class="sc-name" id="sel-patient-name">—</div>
+            <div class="sc-meta" id="sel-patient-meta">—</div>
+          </div>
+          <span class="sc-change" onclick="resetPatient()">Schimbă</span>
+        </div>
+      </div>
+
+      <div id="patient-search-view">
+        <div class="search-box">
+          <span class="search-icon">🔍</span>
+          <input class="search-input" id="patient-search" placeholder="Caută după nume sau telefon..." oninput="searchPatients(this.value)" autocomplete="off">
+        </div>
+        <div class="search-results" id="patient-results" style="display:none"></div>
+
+        <div style="text-align:center;padding:10px 0;font-size:12px;color:var(--t3)">— sau —</div>
+
+        <div class="new-patient-form">
+          <div class="npf-title">✨ Pacient nou</div>
+          <div class="npf-row">
+            <div class="npf-field"><label>Prenume și Nume *</label><input id="np-name" placeholder="Maria Ionescu"></div>
+            <div class="npf-field"><label>Telefon *</label><input id="np-phone" placeholder="0721 234 567" type="tel"></div>
+          </div>
+          <div class="npf-row">
+            <div class="npf-field"><label>Email</label><input id="np-email" placeholder="maria@email.ro" type="email"></div>
+            <div class="npf-field"><label>Data nașterii</label><input id="np-dob" type="date"></div>
+          </div>
+          <button class="btn btn-ghost" style="font-size:12px;padding:6px 14px;margin-top:2px" onclick="createNewPatient()">+ Adaugă pacient nou</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 2: SERVICE -->
+    <div class="wstep" id="wstep2">
+      <div class="step-title">🔧 Ce serviciu?</div>
+      <div class="step-sub">Selectează serviciul dorit</div>
+
+      <input class="svc-search" id="svc-search" placeholder="🔍 Caută serviciu..." oninput="filterServices(this.value)">
+      <div class="svc-list" id="svc-list">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- STEP 3: DATE + DOCTOR + SLOT -->
+    <div class="wstep" id="wstep3">
+      <div class="step-title">📅 Când?</div>
+      <div class="step-sub">Alege data și ora</div>
+
+      <!-- DATE PICKER -->
+      <div class="date-nav">
+        <button class="date-nav-btn" onclick="prevWeek()">← Săpt. trecută</button>
+        <span class="date-nav-label" id="week-label">20–26 Iulie</span>
+        <button class="date-nav-btn" onclick="nextWeek()">Săpt. viitoare →</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:6px">
+        <div class="date-day-label">Lun</div>
+        <div class="date-day-label">Mar</div>
+        <div class="date-day-label">Mie</div>
+        <div class="date-day-label">Joi</div>
+        <div class="date-day-label">Vin</div>
+        <div class="date-day-label">Sâm</div>
+        <div class="date-day-label">Dum</div>
+      </div>
+      <div class="date-grid" id="date-grid"></div>
+
+      <!-- AI SLOTS -->
+      <div class="ai-badge">🤖 AI propune orele libere</div>
+      <div class="doc-slots-grid" id="doc-slots-grid">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+    <!-- STEP 4: CONFIRM -->
+    <div class="wstep" id="wstep4">
+      <div class="step-title">✅ Confirmă programarea</div>
+      <div class="step-sub">Verifică detaliile și salvează</div>
+
+      <div class="confirm-card">
+        <div class="cc-row">
+          <span class="cc-icon">👤</span>
+          <span class="cc-label">Pacient</span>
+          <span class="cc-value" id="conf-patient">—</span>
+        </div>
+        <div class="cc-row">
+          <span class="cc-icon">🔧</span>
+          <span class="cc-label">Serviciu</span>
+          <span class="cc-value" id="conf-service">—</span>
+        </div>
+        <div class="cc-row">
+          <span class="cc-icon">👨‍⚕️</span>
+          <span class="cc-label">Doctor</span>
+          <span class="cc-value" id="conf-doctor">—</span>
+        </div>
+        <div class="cc-row">
+          <span class="cc-icon">📅</span>
+          <span class="cc-label">Data & Ora</span>
+          <span class="cc-value" id="conf-datetime">—</span>
+        </div>
+        <div class="cc-row">
+          <span class="cc-icon">⏱</span>
+          <span class="cc-label">Durată</span>
+          <span class="cc-value" id="conf-duration">—</span>
+        </div>
+        <div class="cc-row">
+          <span class="cc-icon">💰</span>
+          <span class="cc-label">Preț</span>
+          <span class="cc-value" id="conf-price">—</span>
+        </div>
+      </div>
+
+      <div style="margin-bottom:14px">
+        <label style="font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.3px;display:block;margin-bottom:6px">📝 Notițe (opțional)</label>
+        <textarea class="notes-area" id="conf-notes" placeholder="Observații, solicitări speciale, prima vizită..."></textarea>
+      </div>
+
+      <div style="display:flex;gap:10px">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--t2)">
+          <input type="checkbox" id="conf-sms" checked style="accent-color:var(--teal)"> Trimite SMS confirmare pacient
+        </label>
+      </div>
+    </div>
+
+    <!-- STEP 5: SUCCESS -->
+    <div class="wstep" id="wstep5">
+      <div class="success-wrap">
+        <span class="success-emoji">🎉</span>
+        <div class="success-title">Programare salvată!</div>
+        <div class="success-sub" id="success-msg">Pacientul va fi contactat pentru confirmare.</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn btn-primary" onclick="newAppointment()">+ Programare nouă</button>
+          <button class="btn btn-ghost" onclick="goBack()">← Înapoi la dashboard</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="wizard-foot" id="wizard-foot">
+    <span class="foot-steps" id="foot-label">Pasul 1 din 4</span>
+    <div style="display:flex;gap:10px">
+      <button class="btn btn-ghost" id="btn-back" onclick="prevStep()" style="display:none">← Înapoi</button>
+      <button class="btn btn-primary" id="btn-next" onclick="nextStep()">Continuă →</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const API = (window.parent?.localStorage || localStorage).getItem('recepai_api') || 'http://localhost:8080';
+const CLIENT_ID = (window.parent?.localStorage || localStorage).getItem('recepai_client_id') || 'CLI-UNKNOWN';
+
+let currentStep = 1;
+const totalSteps = 4;
+
+// ── STATE ──
+let selectedPatient = null;
+let selectedService = null;
+let selectedDoctor = null;
+let selectedDate = null;
+let selectedSlot = null;
+
+let currentWeekStart = getMonday(new Date());
+
+// ── MOCK DATA ──
+const PATIENTS = [
+  { id: 'p1', name: 'Maria Ionescu', phone: '0721 234 567', email: 'maria@email.ro', visits: 3 },
+  { id: 'p2', name: 'Alexandru Popa', phone: '0741 111 222', email: '', visits: 1 },
+  { id: 'p3', name: 'Elena Constantin', phone: '0733 456 789', email: 'elena@email.ro', visits: 5 },
+  { id: 'p4', name: 'Mihai Vlad', phone: '0766 789 012', email: '', visits: 2 },
+  { id: 'p5', name: 'Radu Ionescu', phone: '0722 333 444', email: 'radu@email.ro', visits: 8 },
+];
+
+const SERVICES_DEFAULT = [
+  { id: 's1', name: 'Consultație + radiografie', cat: 'stomatologie', price: '150', durProc: 30, durClean: 10, durPrep: 5, online: 'yes' },
+  { id: 's2', name: 'Detartraj + periaj profesional', cat: 'stomatologie', price: '250', durProc: 45, durClean: 10, durPrep: 5, online: 'yes' },
+  { id: 's3', name: 'Implant Straumann (elvețian)', cat: 'implant', price: '3500', durProc: 90, durClean: 15, durPrep: 10, online: 'phone' },
+  { id: 's4', name: 'Tratament de canal monoradicular', cat: 'stomatologie', price: '500', durProc: 60, durClean: 10, durPrep: 5, online: 'yes' },
+  { id: 's5', name: 'Extracție simplă', cat: 'chirurgie', price: '200', durProc: 30, durClean: 10, durPrep: 5, online: 'yes' },
+  { id: 's6', name: 'Aparat dentar fix (o arcadă)', cat: 'ortodontie', price: '3000', durProc: 60, durClean: 10, durPrep: 10, online: 'phone' },
+  { id: 's7', name: 'Albire profesională Zoom', cat: 'estetica', price: '1200', durProc: 90, durClean: 10, durPrep: 10, online: 'yes' },
+  { id: 's8', name: 'Urgență dentară', cat: 'urgente', price: '200', durProc: 30, durClean: 10, durPrep: 0, online: 'yes' },
+];
+
+const SERVICES = JSON.parse(localStorage.getItem('recepai_services_' + CLIENT_ID) || 'null') || SERVICES_DEFAULT;
+
+const DOCTORS = [
+  { id: 'd1', name: 'Dr. Andrei Popescu', spec: 'Implantologie', avatar: '👨‍⚕️', cats: ['implant','stomatologie','chirurgie'] },
+  { id: 'd2', name: 'Dr. Raluca Stan', spec: 'Ortodonție', avatar: '👩‍⚕️', cats: ['ortodontie','stomatologie'] },
+  { id: 'd3', name: 'Dr. Elena Maria', spec: 'Stomatologie', avatar: '👩‍⚕️', cats: ['stomatologie','estetica','urgente','pediatrie'] },
+  { id: 'd4', name: 'Dr. Mihai Vlad', spec: 'Endodonție', avatar: '👨‍⚕️', cats: ['stomatologie','urgente'] },
+];
+
+const CAT_ICONS = { stomatologie:'🦷', implant:'🔩', ortodontie:'😬', estetica:'✨', urgente:'🚨', pediatrie:'👶', parodontologie:'🔬', chirurgie:'⚕️' };
+const CAT_COLORS = { stomatologie:'#00D4AA', implant:'#4488FF', ortodontie:'#FFB800', estetica:'#FF69B4', urgente:'#FF4455', pediatrie:'#00CC88', chirurgie:'#E67E22' };
+
+// ── STEP NAVIGATION ──
+function goToStep(n) {
+  currentStep = n;
+  document.querySelectorAll('.wstep').forEach((s,i) => s.classList.toggle('active', i === n-1));
+
+  // Update dots
+  for (let i = 1; i <= 4; i++) {
+    const dot = document.getElementById('dot' + i);
+    dot.className = 'step-dot' + (i < n ? ' done' : i === n ? ' active' : '');
+    dot.textContent = i < n ? '✓' : i;
+    if (i < 4) document.getElementById('line' + i).className = 'step-line' + (i < n ? ' done' : '');
+  }
+
+  document.getElementById('btn-back').style.display = n > 1 && n < 5 ? '' : 'none';
+  document.getElementById('btn-next').style.display = n < 5 ? '' : 'none';
+  document.getElementById('wizard-foot').style.display = n === 5 ? 'none' : '';
+  document.getElementById('foot-label').textContent = `Pasul ${n} din ${totalSteps}`;
+
+  const nextBtn = document.getElementById('btn-next');
+  if (n === 4) {
+    nextBtn.textContent = '✅ Confirmă programarea';
+    nextBtn.style.background = 'var(--grn)';
+  } else {
+    nextBtn.textContent = 'Continuă →';
+    nextBtn.style.background = '';
+  }
+
+  if (n === 2) renderServices('');
+  if (n === 3) renderDateAndSlots();
+  if (n === 4) renderConfirm();
+}
+
+function nextStep() {
+  if (currentStep === 1) {
+    if (!selectedPatient) {
+      alert('Selectează sau creează un pacient');
+      return;
+    }
+  }
+  if (currentStep === 2) {
+    if (!selectedService) { alert('Selectează un serviciu'); return; }
+  }
+  if (currentStep === 3) {
+    if (!selectedSlot) { alert('Selectează o oră'); return; }
+  }
+  if (currentStep === 4) {
+    saveAppointment();
+    return;
+  }
+  goToStep(currentStep + 1);
+}
+
+function prevStep() {
+  if (currentStep > 1) goToStep(currentStep - 1);
+}
+
+// ── STEP 1: PATIENT ──
+function searchPatients(q) {
+  const res = document.getElementById('patient-results');
+  if (!q.trim()) { res.style.display = 'none'; return; }
+  const matches = PATIENTS.filter(p =>
+    p.name.toLowerCase().includes(q.toLowerCase()) ||
+    p.phone.includes(q)
+  );
+  if (matches.length === 0) { res.style.display = 'none'; return; }
+  res.style.display = 'block';
+  res.innerHTML = matches.map(p => `
+    <div class="search-item" onclick="selectPatient(${JSON.stringify(p).replace(/"/g,'&quot;')})">
+      <div class="search-item-av">👤</div>
+      <div>
+        <div class="search-item-name">${p.name}</div>
+        <div class="search-item-meta">${p.phone} · ${p.visits} vizite</div>
+      </div>
+    </div>`).join('');
+}
+
+function selectPatient(p) {
+  selectedPatient = p;
+  document.getElementById('sel-patient-name').textContent = p.name;
+  document.getElementById('sel-patient-meta').textContent = `${p.phone} · ${p.visits} vizite`;
+  document.getElementById('patient-selected-view').style.display = '';
+  document.getElementById('patient-search-view').style.display = 'none';
+}
+
+function resetPatient() {
+  selectedPatient = null;
+  document.getElementById('patient-selected-view').style.display = 'none';
+  document.getElementById('patient-search-view').style.display = '';
+  document.getElementById('patient-search').value = '';
+  document.getElementById('patient-results').style.display = 'none';
+}
+
+function createNewPatient() {
+  const name = document.getElementById('np-name').value.trim();
+  const phone = document.getElementById('np-phone').value.trim();
+  if (!name || !phone) { alert('Completează numele și telefonul'); return; }
+  const p = { id: 'new_' + Date.now(), name, phone, email: document.getElementById('np-email').value, visits: 0 };
+  PATIENTS.unshift(p);
+  selectPatient(p);
+}
+
+// ── STEP 2: SERVICE ──
+function renderServices(q) {
+  const list = document.getElementById('svc-list');
+  const filtered = q ? SERVICES.filter(s => s.name.toLowerCase().includes(q.toLowerCase())) : SERVICES;
+  list.innerHTML = filtered.map(s => {
+    const icon = CAT_ICONS[s.cat] || '🔧';
+    const color = CAT_COLORS[s.cat] || '#00D4AA';
+    const total = (s.durProc||0) + (s.durClean||0) + (s.durPrep||0);
+    const price = s.price ? Number(s.price).toLocaleString('ro') + ' RON' : '—';
+    return `<div class="svc-item ${selectedService?.id === s.id ? 'selected' : ''}" onclick="selectService(${JSON.stringify(s).replace(/"/g,'&quot;')})">
+      <div class="svc-item-icon" style="background:${color}22;color:${color}">${icon}</div>
+      <div class="svc-item-info">
+        <div class="svc-item-name">${s.name}</div>
+        <div class="svc-item-meta">${s.durProc || '—'} min procedură · total ${total} min rezervat</div>
+      </div>
+      <div class="svc-item-price">${price}</div>
+    </div>`;
+  }).join('');
+}
+
+function filterServices(q) { renderServices(q); }
+
+function selectService(s) {
+  selectedService = s;
+  renderServices(document.getElementById('svc-search').value);
+}
+
+// ── STEP 3: DATE + SLOTS ──
+function getMonday(d) {
+  const day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+}
+
+function renderDateAndSlots() {
+  renderDateGrid();
+  if (selectedDate) renderSlots();
+}
+
+function renderDateGrid() {
+  const grid = document.getElementById('date-grid');
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(currentWeekStart);
+    d.setDate(d.getDate() + i);
+    days.push(d);
+  }
+
+  const months = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec'];
+  const start = days[0], end = days[6];
+  document.getElementById('week-label').textContent =
+    `${start.getDate()} ${months[start.getMonth()]} – ${end.getDate()} ${months[end.getMonth()]}`;
+
+  grid.innerHTML = days.map(d => {
+    const isPast = d < today;
+    const isToday = d.getTime() === today.getTime();
+    const isSel = selectedDate && d.toDateString() === selectedDate.toDateString();
+    const isSunday = d.getDay() === 0;
+    return `<div class="date-cell ${isPast || isSunday ? 'past' : 'has-slots'} ${isToday ? 'today' : ''} ${isSel ? 'selected' : ''}"
+      onclick="${isPast || isSunday ? '' : `selectDate(new Date('${d.toISOString()}'))`}">
+      <div>${d.getDate()}</div>
+    </div>`;
+  }).join('');
+}
+
+function selectDate(d) {
+  selectedDate = new Date(d);
+  selectedSlot = null;
+  selectedDoctor = null;
+  renderDateGrid();
+  renderSlots();
+}
+
+function prevWeek() {
+  currentWeekStart.setDate(currentWeekStart.getDate() - 7);
+  renderDateGrid();
+}
+function nextWeek() {
+  currentWeekStart.setDate(currentWeekStart.getDate() + 7);
+  renderDateGrid();
+}
+
+function renderSlots() {
+  const grid = document.getElementById('doc-slots-grid');
+  if (!selectedDate) { grid.innerHTML = '<div style="font-size:13px;color:var(--t3);text-align:center;padding:14px">Selectează o dată</div>'; return; }
+
+  // Filter doctors who can do this service
+  const eligibleDocs = selectedService
+    ? DOCTORS.filter(d => !d.cats || d.cats.includes(selectedService.cat))
+    : DOCTORS;
+
+  const slots = ['09:00','09:30','10:00','10:30','11:00','11:30','12:00','13:00','14:00','14:30','15:00','15:30','16:00','16:30','17:00'];
+
+  grid.innerHTML = eligibleDocs.map(doc => {
+    // Simulate some taken slots
+    const taken = ['10:00','11:30','14:00'];
+    const slotsHtml = slots.map(slot => {
+      const isTaken = taken.includes(slot) && Math.random() > 0.5;
+      const isSel = selectedSlot === slot && selectedDoctor?.id === doc.id;
+      return `<button class="slot-btn ${isTaken ? 'unavailable' : ''} ${isSel ? 'selected' : ''}"
+        onclick="${isTaken ? '' : `pickSlot('${slot}','${doc.id}')`}"
+        ${isTaken ? 'disabled' : ''}>${slot}</button>`;
+    }).join('');
+
+    return `<div class="doc-slot-group">
+      <div class="dsg-header">
+        <div class="dsg-av">${doc.avatar}</div>
+        <div>
+          <div class="dsg-name">${doc.name}</div>
+          <div class="dsg-spec">${doc.spec}</div>
+        </div>
+        <span class="dsg-badge">Disponibil</span>
+      </div>
+      <div class="slots-row">${slotsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+function pickSlot(slot, docId) {
+  selectedSlot = slot;
+  selectedDoctor = DOCTORS.find(d => d.id === docId);
+  renderSlots();
+}
+
+// ── STEP 4: CONFIRM ──
+function renderConfirm() {
+  const months = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  const days = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+  const dateStr = selectedDate ? `${days[selectedDate.getDay()]}, ${selectedDate.getDate()} ${months[selectedDate.getMonth()]} ${selectedDate.getFullYear()}` : '—';
+  const total = selectedService ? (selectedService.durProc||0) + (selectedService.durClean||0) + (selectedService.durPrep||0) : 0;
+  const price = selectedService?.price ? Number(selectedService.price).toLocaleString('ro') + ' RON' : '—';
+
+  document.getElementById('conf-patient').textContent = selectedPatient ? `${selectedPatient.name} · ${selectedPatient.phone}` : '—';
+  document.getElementById('conf-service').textContent = selectedService?.name || '—';
+  document.getElementById('conf-doctor').textContent = selectedDoctor?.name || '—';
+  document.getElementById('conf-datetime').textContent = `${dateStr} la ${selectedSlot || '—'}`;
+  document.getElementById('conf-duration').textContent = total ? `${selectedService.durProc} min procedură (${total} min rezervat)` : '—';
+  document.getElementById('conf-price').textContent = price;
+}
+
+// ── SAVE ──
+function saveAppointment() {
+  const appt = {
+    id: 'appt_' + Date.now(),
+    patient: selectedPatient,
+    service: selectedService,
+    doctor: selectedDoctor,
+    date: selectedDate?.toISOString(),
+    slot: selectedSlot,
+    notes: document.getElementById('conf-notes').value,
+    status: 'confirmed',
+    createdAt: new Date().toISOString(),
+    clientId: CLIENT_ID,
+  };
+
+  // Save to localStorage
+  const appts = JSON.parse(localStorage.getItem('recepai_appointments_' + CLIENT_ID) || '[]');
+  appts.push(appt);
+  localStorage.setItem('recepai_appointments_' + CLIENT_ID, JSON.stringify(appts));
+
+  // Update success message
+  const months = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  document.getElementById('success-msg').textContent =
+    `${selectedPatient?.name} — ${selectedService?.name} — ${selectedDate?.getDate()} ${months[selectedDate?.getMonth()]} la ${selectedSlot} cu ${selectedDoctor?.name}`;
+
+  goToStep(5);
+  document.getElementById('wizard-foot').style.display = 'none';
+}
+
+function newAppointment() {
+  selectedPatient = null; selectedService = null;
+  selectedDoctor = null; selectedDate = null; selectedSlot = null;
+  currentWeekStart = getMonday(new Date());
+  resetPatient();
+  goToStep(1);
+  document.getElementById('wizard-foot').style.display = '';
+}
+
+function goBack() {
+  if (window.parent && window.parent !== window) {
+    window.parent.postMessage('close-appointment', '*');
+  } else {
+    window.history.back();
+  }
+}
+
+// ── INIT ──
+goToStep(1);
+</script>
+</body>
+</html>

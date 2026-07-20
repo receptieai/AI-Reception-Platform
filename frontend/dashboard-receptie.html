@@ -188,7 +188,7 @@ nav{flex:1;padding:8px 0}
     <!-- APPOINTMENTS -->
     <div class="panel" id="panel-appointments">
       <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-p">+ Programare nouă</button>
+        <button class="btn btn-p" onclick="openAppt()">+ Programare nouă</button>
         <button class="btn btn-g">📅 Astăzi</button>
         <button class="btn btn-g">← Ieri</button>
         <button class="btn btn-g">Mâine →</button>
@@ -307,6 +307,28 @@ function logout(){
   localStorage.removeItem('recepai_role');
   window.location.href='login.html';
 }
+</script>
+
+<!-- PROGRAMARE NOUA MODAL -->
+<div id="appt-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;padding:20px">
+  <div style="width:100%;max-width:580px;position:relative">
+    <button onclick="closeAppt()" style="position:absolute;top:-40px;right:0;background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer">✕ Închide</button>
+    <iframe id="appt-frame" src="panel-programare-noua.html" style="width:100%;height:620px;border:none;border-radius:18px"></iframe>
+  </div>
+</div>
+
+<script>
+function openAppt() {
+  const overlay = document.getElementById('appt-overlay');
+  overlay.style.display = 'flex';
+}
+function closeAppt() {
+  document.getElementById('appt-overlay').style.display = 'none';
+}
+// Listen for close message from iframe
+window.addEventListener('message', (e) => {
+  if (e.data === 'close-appointment') closeAppt();
+});
 </script>
 </body>
 </html>
