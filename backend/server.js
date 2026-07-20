@@ -10,6 +10,7 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
+const { buildBusinessBrain } = require('./businessBrainScanner');
 
 // ── PROFILES — încărcat o singură dată la startup ──
 const PROFILES_FILE = path.join(__dirname, '../data/profiles.json');
@@ -558,21 +559,44 @@ async function chatWithAI(messages, profile, personality) {
   const hour = now.getHours();
   const isWorkingHours = hour >= 9 && hour < 18;
   
+  // Build FAQ section
+  const faqText = (profile.faq || [])
+    .map(f => `  Î: ${f.question}\n  R: ${f.answer}`)
+    .join('\n');
+
+  // Build insurance section
+  const insuranceText = (profile.insurance || []).length > 0
+    ? (profile.insurance || []).join(', ')
+    : null;
+
   const system = `Ești recepționistul virtual al "${profile.name || 'acestei afaceri'}" din ${profile.city || 'România'}.
 Ton: ${tones[personality || 'prietenos'] || tones.prietenos}
 
 REGULI STRICTE:
 - Vorbești DOAR în română
 - Nu dai sfaturi medicale sau veterinare
-- Nu inventezi prețuri sau servicii inexistente
-- Dacă nu știi → "Vă rog sunați la ${profile.phone || 'recepție'}"
+- Nu inventa NICIODATĂ informații care nu sunt în datele de mai jos
+- Dacă informația nu există în date → "Nu dețin această informație. Vă rog sunați la ${profile.phone_urgente || profile.phone || 'recepție'}"
 - Răspunsuri scurte — maxim 4 propoziții
-- Colectezi întotdeauna: NUME + TELEFON + SERVICIU dorit
+- Colectezi: NUME + TELEFON + SERVICIU dorit
+
+DATE AFACERE:
+- Telefon recepție: ${profile.phone || 'nedisponibil'}
+- Telefon urgențe: ${profile.phone_urgente || 'același număr'}
+- Email: ${profile.email || 'nedisponibil'}
+- Adresă: ${profile.address || 'nedisponibilă'}
+- Parcare: ${profile.parking || 'informație nedisponibilă'}
+- Asigurări acceptate: ${insuranceText || 'verificați la recepție'}
+- Finanțare/Rate: ${profile.financing || 'verificați la recepție'}
+- Urgențe: ${profile.emergency || 'sunați la ' + (profile.phone_urgente || profile.phone)}
+- Garanții: ${profile.guarantees || 'verificați la recepție'}
 
 SERVICII DISPONIBILE:
-${services || 'Contactați-ne pentru lista completă de servicii'}
+${services || 'Contactați-ne pentru lista completă'}
 
 PROGRAM: ${profile.hours || 'Luni-Vineri 09:00-19:00'}
+
+${faqText ? 'ÎNTREBĂRI FRECVENTE (răspunde EXACT cu aceste informații):\n' + faqText : ''}
 
 CÂND CLIENTUL VREA PROGRAMARE:
 1. Cere numele
@@ -581,7 +605,7 @@ CÂND CLIENTUL VREA PROGRAMARE:
 4. Cere ziua preferată
 5. ${isWorkingHours
     ? 'Confirmă: "Veți fi contactat în maximum 2 ore!"'
-    : 'Confirmă: "Solicitarea a fost înregistrată! Vă vom contacta mâine în cursul programului nostru de lucru."'}`;
+    : 'Confirmă: "Solicitarea a fost înregistrată! Vă vom contacta în ziua lucrătoare următoare."'}`;
 
   const userMsg = messages
     .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
@@ -749,6 +773,27 @@ Returnează DOAR JSON valid fără text suplimentar:
       }
     } catch(e) {
       sendJson(res, { success: false, error: e.message });
+    }
+    return;
+  }
+
+  // ── BUSINESS BRAIN SCAN ──────────────────────
+  if (pathname === '/api/brain/scan' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.url) { sendJson(res, { error: 'URL lipsa' }, 400); return; }
+    if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    try {
+      const brain = await buildBusinessBrain(body.url, {
+        onProgress: (pct, text) => console.log(`[BRAIN] ${pct}% ${text}`)
+      });
+      brain.clientId = body.clientId;
+      // Save to profiles
+      _profiles[body.clientId] = brain;
+      saveProfiles();
+      sendJson(res, { success: true, brain, clientId: body.clientId });
+    } catch(e) {
+      console.error('[BRAIN] Error:', e.message);
+      sendJson(res, { success: false, error: e.message }, 500);
     }
     return;
   }
