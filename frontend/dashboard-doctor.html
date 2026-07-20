@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Doctor — RecepAI</title>
+<script>
+  // Redirect if not doctor
+  const role = localStorage.getItem('recepai_role');
+  if (!role) window.location.href = 'login.html';
+  if (role === 'owner') window.location.href = 'client-dashboard.html';
+  if (role === 'reception') window.location.href = 'dashboard-receptie.html';
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0A;--s1:#131313;--s2:#1A1A1A;--b1:#252525;--b2:#303030;--tx:#F0F0F0;--t2:#999;--t3:#555;--teal:#00D4AA;--td:rgba(0,212,170,.1);--grn:#00CC88;--ylw:#FFB800;--red:#FF4455}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex}
+.sidebar{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0}
+.sidebar-top{padding:18px 20px;border-bottom:1px solid var(--b1)}
+.logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.logo span{color:var(--teal)}
+.role-badge{font-size:10px;background:rgba(0,212,170,.15);color:var(--teal);padding:2px 8px;border-radius:8px;font-weight:700;margin-top:4px;display:inline-block}
+.doctor-info{padding:14px 20px;border-bottom:1px solid var(--b1)}
+.doc-av{width:40px;height:40px;border-radius:50%;background:var(--td);border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px}
+.doc-name{font-size:13px;font-weight:700}
+.doc-spec{font-size:11px;color:var(--t3)}
+nav{flex:1;padding:8px 0}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
+.ni:hover{color:var(--tx);background:var(--s2)}
+.ni.active{color:var(--teal);background:var(--td);border-left-color:var(--teal)}
+.ni-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.sidebar-bottom{padding:14px 20px;border-top:1px solid var(--b1)}
+.logout{font-size:12px;color:var(--t3);cursor:pointer}
+.logout:hover{color:var(--red)}
+.main{flex:1;overflow-y:auto}
+.topbar{padding:14px 28px;border-bottom:1px solid var(--b1);background:var(--s1);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}
+.topbar-title{font-size:15px;font-weight:700}
+.topbar-sub{font-size:11px;color:var(--t3);margin-top:2px}
+.topbar-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--grn);font-weight:600}
+.topbar-status::before{content:'';width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.content{padding:22px 28px}
+.panel{display:none}.panel.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
+.stat{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px 18px}
+.stat.hi{border-color:var(--teal);background:var(--td)}
+.stat-lbl{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
+.stat-sub{font-size:11px;color:var(--t3);margin-top:4px}
+.next-box{background:var(--s1);border:2px solid var(--teal);border-radius:12px;padding:18px 20px;margin-bottom:20px;display:flex;gap:20px;align-items:center}
+.next-time{font-family:'Syne',sans-serif;font-size:30px;font-weight:800;color:var(--teal);width:80px;flex-shrink:0}
+.next-info{flex:1}
+.next-proc{font-size:15px;font-weight:700;margin-bottom:3px}
+.next-patient{font-size:13px;color:var(--t2)}
+.next-note{font-size:11px;color:var(--t3);margin-top:4px;font-style:italic}
+.next-btns{display:flex;gap:8px}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.card-head{padding:13px 18px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:700}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+.badge-teal{background:var(--td);color:var(--teal)}
+.badge-ylw{background:rgba(255,184,0,.12);color:var(--ylw)}
+.arow{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
+.arow:last-child{border-bottom:none}
+.arow:hover{background:var(--s2)}
+.arow.now{background:var(--td);border-left:2px solid var(--teal)}
+.arow.done{opacity:.5}
+.atime{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--teal);width:52px;flex-shrink:0}
+.adot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.ainfo{flex:1}
+.aproc{font-size:13px;font-weight:600}
+.apat{font-size:11px;color:var(--t3);margin-top:1px}
+.astatus{font-size:10px;font-weight:700;padding:2px 8px;border-radius:7px}
+.s-ok{background:rgba(0,204,136,.12);color:var(--grn)}
+.s-pend{background:rgba(255,184,0,.12);color:var(--ylw)}
+.s-now{background:var(--td);color:var(--teal)}
+.s-done{background:var(--s2);color:var(--t3)}
+.btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-p{background:var(--teal);color:#000}.btn-p:hover{background:#00FFCC}
+.btn-g{background:transparent;color:var(--t2);border:1px solid var(--b2)}.btn-g:hover{color:var(--tx)}
+.btn-sm{padding:5px 11px;font-size:11px;border-radius:6px}
+.lead-card{padding:13px 18px;border-bottom:1px solid var(--b1)}
+.lead-card:last-child{border-bottom:none}
+.lead-top{display:flex;justify-content:space-between;margin-bottom:6px}
+.lead-name{font-size:13px;font-weight:700}
+.lead-time{font-size:10px;color:var(--t3)}
+.lead-msg{font-size:12px;color:var(--t2);font-style:italic;background:var(--s2);padding:8px 11px;border-radius:7px;margin-bottom:8px}
+.lead-tags{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.lead-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--td);color:var(--teal)}
+.lead-acts{display:flex;gap:7px}
+.prow{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
+.prow:last-child{border-bottom:none}
+.prow:hover{background:var(--s2)}
+.pav{width:34px;height:34px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t2);flex-shrink:0}
+.pname{font-size:13px;font-weight:600}
+.pmeta{font-size:11px;color:var(--t3)}
+.fnext{margin-left:auto;font-size:11px;text-align:right}
+.form-sec{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:18px 20px;margin-bottom:14px}
+.form-sec-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.ffield label{font-size:11px;font-weight:600;color:var(--t3);display:block;margin-bottom:5px}
+.ffield input,.ffield select,.ffield textarea{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
+.ffield input:focus,.ffield select:focus,.ffield textarea:focus{border-color:var(--teal)}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="logo">Recep<span>AI</span></div>
+    <div class="role-badge">👨‍⚕️ Doctor</div>
+  </div>
+  <div class="doctor-info">
+    <div class="doc-av">👨‍⚕️</div>
+    <div class="doc-name" id="sb-name">Dr. —</div>
+    <div class="doc-spec">Medic specialist</div>
+  </div>
+  <nav>
+    <div class="ni active" onclick="show('overview',this)"><span class="ni-icon">🏠</span>Astăzi</div>
+    <div class="ni" onclick="show('calendar',this)"><span class="ni-icon">📅</span>Calendarul meu</div>
+    <div class="ni" onclick="show('patients',this)"><span class="ni-icon">👥</span>Pacienții mei</div>
+    <div class="ni" onclick="show('notes',this)"><span class="ni-icon">📝</span>Consultații</div>
+    <div class="ni" onclick="show('leads',this)"><span class="ni-icon">💬</span>Lead-uri atribuite</div>
+    <div class="ni" onclick="show('profile',this)"><span class="ni-icon">⚙️</span>Profilul meu</div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="logout" onclick="logout()">🚪 Deconectare</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title" id="greeting">Bună ziua, Doctor</div>
+      <div class="topbar-sub" id="today-date"></div>
+    </div>
+    <div class="topbar-status">Activ</div>
+  </div>
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats">
+        <div class="stat hi">
+          <div class="stat-lbl">Programări azi</div>
+          <div class="stat-val" style="color:var(--teal)">8</div>
+          <div class="stat-sub">09:00 – 17:30</div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">Următoarea</div>
+          <div class="stat-val" style="font-size:22px">10:30</div>
+          <div class="stat-sub">Implant · Maria P.</div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">Pacienți azi</div>
+          <div class="stat-val">8</div>
+          <div class="stat-sub">confirmate</div>
+        </div>
+        <div class="stat">
+          <div class="stat-lbl">Lead-uri atribuite</div>
+          <div class="stat-val" style="color:var(--ylw)">2</div>
+          <div class="stat-sub">de confirmat</div>
+        </div>
+      </div>
+
+      <div class="next-box">
+        <div class="next-time">10:30</div>
+        <div class="next-info">
+          <div class="next-proc">Implant dentar — Straumann BL 4.1×10mm</div>
+          <div class="next-patient">👤 Maria Ionescu · 📞 0721 234 567</div>
+          <div class="next-note">Prima vizită · Trimisă de AI widget</div>
+        </div>
+        <div class="next-btns">
+          <button class="btn btn-p btn-sm">✓ Sosit</button>
+          <button class="btn btn-g btn-sm">📝 Notițe</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">📅 Programările mele azi</span>
+          <span class="badge badge-teal">8 programări</span>
+        </div>
+        <div class="arow done">
+          <div class="atime">09:00</div>
+          <div class="adot" style="background:var(--grn)"></div>
+          <div class="ainfo"><div class="aproc">Consultație generală</div><div class="apat">Alexandru Popa</div></div>
+          <span class="astatus s-done">Finalizat</span>
+        </div>
+        <div class="arow now">
+          <div class="atime">10:30</div>
+          <div class="adot" style="background:var(--teal)"></div>
+          <div class="ainfo"><div class="aproc">Implant Straumann</div><div class="apat">Maria Ionescu</div></div>
+          <span class="astatus s-now">▶ Acum</span>
+        </div>
+        <div class="arow">
+          <div class="atime">12:00</div>
+          <div class="adot" style="background:var(--grn)"></div>
+          <div class="ainfo"><div class="aproc">Control implant</div><div class="apat">Elena Constantin</div></div>
+          <span class="astatus s-ok">Confirmată</span>
+        </div>
+        <div class="arow">
+          <div class="atime">14:00</div>
+          <div class="adot" style="background:var(--ylw)"></div>
+          <div class="ainfo"><div class="aproc">Consultație implant</div><div class="apat">Mihai Vlad</div></div>
+          <span class="astatus s-pend">În așteptare</span>
+        </div>
+        <div class="arow">
+          <div class="atime">15:30</div>
+          <div class="adot" style="background:var(--grn)"></div>
+          <div class="ainfo"><div class="aproc">All-on-4 planning</div><div class="apat">Gheorghe Stanciu</div></div>
+          <span class="astatus s-ok">Confirmată</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALENDAR -->
+    <div class="panel" id="panel-calendar">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">📅 Calendarul meu — Săptămâna aceasta</span>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-g btn-sm">← Înapoi</button>
+            <button class="btn btn-g btn-sm">Înainte →</button>
+          </div>
+        </div>
+        <div style="padding:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
+          <div style="text-align:center">
+            <div style="font-size:11px;color:var(--teal);font-weight:700;margin-bottom:8px;background:var(--td);border-radius:6px;padding:4px">LUN 20</div>
+            <div style="background:var(--td);border:1px solid var(--teal);border-radius:7px;padding:7px 5px;font-size:11px;margin-bottom:5px;color:var(--teal)">09:00 Consultație</div>
+            <div style="background:var(--td);border:1px solid var(--teal);border-radius:7px;padding:7px 5px;font-size:11px;margin-bottom:5px;color:var(--teal)">10:30 Implant</div>
+            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2)">12:00 Control</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;padding:4px">MAR 21</div>
+            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2);margin-bottom:5px">10:00 Implant</div>
+            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2)">14:00 Planning</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;padding:4px">MIE 22</div>
+            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2);margin-bottom:5px">09:30 Consultație</div>
+            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2)">11:00 Control</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;padding:4px">JOI 23</div>
+            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2)">10:00 All-on-4</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;padding:4px">VIN 24</div>
+            <div style="font-size:11px;color:var(--t3);padding:20px 0">Liber</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div class="panel" id="panel-patients">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:15px;font-weight:700">👥 Pacienții mei</div>
+        <input placeholder="🔍 Caută..." style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:8px 14px;color:var(--tx);font-size:13px;outline:none;width:200px">
+      </div>
+      <div class="card">
+        <div class="prow"><div class="pav">👤</div><div><div class="pname">Maria Ionescu</div><div class="pmeta">Implant Straumann · 3 vizite</div></div><div class="fnext"><div style="color:var(--teal);font-size:12px">Azi 10:30</div><div style="color:var(--t3);font-size:10px">Programată</div></div><button class="btn btn-g btn-sm" style="margin-left:10px">📁 Fișă</button></div>
+        <div class="prow"><div class="pav">👤</div><div><div class="pname">Alexandru Popa</div><div class="pmeta">Consultație · Prima vizită</div></div><div class="fnext"><div style="color:var(--grn);font-size:12px">Azi 09:00</div><div style="color:var(--t3);font-size:10px">Finalizat</div></div><button class="btn btn-g btn-sm" style="margin-left:10px">📁 Fișă</button></div>
+        <div class="prow"><div class="pav">👤</div><div><div class="pname">Elena Constantin</div><div class="pmeta">Control implant · 5 vizite</div></div><div class="fnext"><div style="color:var(--t2);font-size:12px">12:00</div><div style="color:var(--t3);font-size:10px">Confirmată</div></div><button class="btn btn-g btn-sm" style="margin-left:10px">📁 Fișă</button></div>
+        <div class="prow"><div class="pav">👤</div><div><div class="pname">Mihai Vlad</div><div class="pmeta">Consultație implant · Prima vizită</div></div><div class="fnext"><div style="color:var(--t2);font-size:12px">14:00</div><div style="color:var(--t3);font-size:10px">În așteptare</div></div><button class="btn btn-g btn-sm" style="margin-left:10px">📁 Fișă</button></div>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="panel" id="panel-notes">
+      <div class="form-sec">
+        <div class="form-sec-title">📝 Adaugă notițe consultație</div>
+        <div class="frow">
+          <div class="ffield"><label>Pacient</label><select><option>Maria Ionescu — 10:30</option><option>Alexandru Popa — 09:00</option><option>Elena Constantin — 12:00</option></select></div>
+          <div class="ffield"><label>Data</label><input type="date" value="2026-07-20"></div>
+        </div>
+        <div class="ffield" style="margin-bottom:12px"><label>Procedură efectuată</label><input placeholder="ex: Inserare implant Straumann BL 4.1×10mm #35"></div>
+        <div class="ffield" style="margin-bottom:12px"><label>Observații clinice</label><textarea rows="4" style="resize:vertical" placeholder="Stare pacient, observații, recomandări post-procedură..."></textarea></div>
+        <div class="frow">
+          <div class="ffield"><label>Următoarea programare</label><input type="date"></div>
+          <div class="ffield"><label>Procedura viitoare</label><input placeholder="ex: Control osteointegrare 3 luni"></div>
+        </div>
+        <button class="btn btn-p" style="margin-top:6px">💾 Salvează notițele</button>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">📋 Consultații recente</span></div>
+        <div class="arow"><div class="atime" style="font-size:11px;width:64px">15 Ian</div><div class="ainfo"><div class="aproc">Implant Straumann — Maria Ionescu</div><div class="apat">Inserare implant BL 4.1×10mm, osteointegrare în curs</div></div><button class="btn btn-g btn-sm">👁 Vezi</button></div>
+        <div class="arow"><div class="atime" style="font-size:11px;width:64px">10 Ian</div><div class="ainfo"><div class="aproc">Control implant — Elena Constantin</div><div class="apat">Osteointegrare completă, programare coroană</div></div><button class="btn btn-g btn-sm">👁 Vezi</button></div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="panel" id="panel-leads">
+      <div class="card">
+        <div class="card-head"><span class="card-title">💬 Lead-uri atribuite mie</span><span class="badge badge-ylw">2 noi</span></div>
+        <div class="lead-card">
+          <div class="lead-top"><span class="lead-name">Ion Marinescu</span><span class="lead-time">Azi, 09:14</span></div>
+          <div class="lead-msg">„Vreau implant dentar, am pierdut un dinte în față. Cât costă?"</div>
+          <div class="lead-tags"><span class="lead-tag">📞 0722 345 678</span><span class="lead-tag">🦷 Implant</span><span class="lead-tag">AI → Dr. tău</span></div>
+          <div class="lead-acts"><button class="btn btn-p btn-sm">📞 Sună</button><button class="btn btn-g btn-sm">📅 Programează</button><button class="btn btn-g btn-sm">✓ Contactat</button></div>
+        </div>
+        <div class="lead-card">
+          <div class="lead-top"><span class="lead-name">Ana Gheorghiu</span><span class="lead-time">Ieri, 18:32</span></div>
+          <div class="lead-msg">„Am nevoie de All-on-4, am 3 dinți lipsă. Cine mă poate consulta?"</div>
+          <div class="lead-tags"><span class="lead-tag">📞 0741 123 456</span><span class="lead-tag">🦷 All-on-4</span><span class="lead-tag">AI → Dr. tău</span></div>
+          <div class="lead-acts"><button class="btn btn-p btn-sm">📞 Sună</button><button class="btn btn-g btn-sm">📅 Programează</button><button class="btn btn-g btn-sm">✓ Contactat</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFILE -->
+    <div class="panel" id="panel-profile">
+      <div class="form-sec">
+        <div class="form-sec-title">👨‍⚕️ Profilul meu</div>
+        <div class="frow">
+          <div class="ffield"><label>Prenume și Nume</label><input id="prof-name" value="Dr. —"></div>
+          <div class="ffield"><label>Specializare</label><input value="Medic specialist"></div>
+        </div>
+        <div class="frow">
+          <div class="ffield"><label>Email</label><input type="email" id="prof-email"></div>
+          <div class="ffield"><label>Telefon</label><input value="—"></div>
+        </div>
+        <button class="btn btn-p" style="margin-top:4px">💾 Salvează</button>
+      </div>
+      <div class="form-sec">
+        <div class="form-sec-title">🕐 Program de lucru</div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center">
+          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Lun</div><div style="font-size:12px;color:var(--teal)">09-18</div></div>
+          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Mar</div><div style="font-size:12px;color:var(--teal)">09-18</div></div>
+          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Mie</div><div style="font-size:12px;color:var(--teal)">09-18</div></div>
+          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Joi</div><div style="font-size:12px;color:var(--teal)">09-18</div></div>
+          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Vin</div><div style="font-size:12px;color:var(--teal)">09-14</div></div>
+          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Sâm</div><div style="font-size:12px;color:var(--t3)">—</div></div>
+          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Dum</div><div style="font-size:12px;color:var(--t3)">—</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const email = localStorage.getItem('recepai_email') || '';
+document.getElementById('sb-name').textContent = email ? ('Dr. ' + email.split('@')[0]) : 'Doctor';
+document.getElementById('prof-name').value = email ? ('Dr. ' + email.split('@')[0]) : '';
+document.getElementById('prof-email').value = email;
+
+const hour = new Date().getHours();
+const greet = hour < 12 ? 'Bună dimineața' : hour < 18 ? 'Bună ziua' : 'Bună seara';
+const name = email ? email.split('@')[0] : 'Doctor';
+document.getElementById('greeting').textContent = greet + ', Dr. ' + name;
+
+const days = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+const months = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+const now = new Date();
+document.getElementById('today-date').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+function show(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name)?.classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+function logout() {
+  localStorage.removeItem('recepai_token');
+  localStorage.removeItem('recepai_role');
+  window.location.href = 'login.html';
+}
+</script>
+</body>
+</html>
