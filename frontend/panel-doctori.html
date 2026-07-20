@@ -262,8 +262,8 @@ body{background:var(--bg);color:var(--tx);min-height:100vh;padding:24px}
 <div class="toast" id="toast"></div>
 
 <script>
-const CLIENT_ID = (window.parent?.localStorage || localStorage).getItem('recepai_client_id') || 'CLI-UNKNOWN';
-const API = (window.parent?.localStorage || localStorage).getItem('recepai_api') || 'http://localhost:8080';
+const CLIENT_ID = localStorage.getItem('recepai_client_id') || 'CLI-8ULSIV';
+const API = localStorage.getItem('recepai_api') || 'http://localhost:8080';
 
 let DOCTORS = JSON.parse(localStorage.getItem('recepai_doctors_' + CLIENT_ID) || 'null') || [
   {

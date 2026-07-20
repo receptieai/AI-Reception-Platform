@@ -1,5 +1,12 @@
 [
   {
+    "ts": "2026-07-20T19:57:10.843Z",
+    "action": "appointment.save",
+    "id": "appt_test_001",
+    "clientId": "CLI-8ULSIV",
+    "patient": "Test Pacient"
+  },
+  {
     "ts": "2026-07-20T19:41:02.172Z",
     "action": "settings.save",
     "clientId": "CLI-8ULSIV"
