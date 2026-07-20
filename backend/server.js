@@ -10,16 +10,13 @@ const fs = require('fs');
 const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
+const storage = require('./storage');
 const { buildBusinessBrain } = require('./businessBrainScanner');
 
-// ── PROFILES — încărcat o singură dată la startup ──
-const PROFILES_FILE = path.join(__dirname, '../data/profiles.json');
-let _profiles = {};
-try { _profiles = JSON.parse(fs.readFileSync(PROFILES_FILE, 'utf8')); console.log('[PROFILES] Loaded', Object.keys(_profiles).length, 'profiles'); } catch(e) { _profiles = {}; }
+// ── STORAGE ENGINE ──
+storage.migrate();
 
-function saveProfiles() {
-  try { fs.writeFileSync(PROFILES_FILE, JSON.stringify(_profiles, null, 2)); } catch(e) { console.error('[PROFILES] Save error:', e.message); }
-}
+function saveProfiles() { /* handled by storage */ }
 
 function getBusinessProfile(clientId, incomingProfile) {
   const incoming = incomingProfile || {};
@@ -27,13 +24,12 @@ function getBusinessProfile(clientId, incomingProfile) {
     console.log('[CHAT] Missing clientId - using request profile only');
     return incoming;
   }
-  const stored = _profiles[clientId];
+  const stored = storage.getProfile(clientId);
   if (!stored) {
     console.log('[CHAT] Profile', clientId, 'not found');
     return incoming;
   }
   console.log('[CHAT] Loaded profile', clientId, stored.name);
-  // stored is base, incoming overrides
   return { ...stored, ...incoming };
 }
 const { saveConversation, getAnalytics, addGlobalAnswer, loadGaps } = require('./learning/conversationAnalyzer');
@@ -782,10 +778,10 @@ Returnează DOAR JSON valid fără text suplimentar:
     const body = await parseBody(req);
     const { email, password, role, clientId, businessName } = body;
     if (!email || !password || !role || !clientId) { sendJson(res, { error: 'Date lipsă' }, 400); return; }
-    if (!global.users) global.users = {};
-    if (global.users[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
+    
+    if (storage.getUsers()[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
     const token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
-    global.users[email] = { email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() };
+    storage.saveUser({ email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() });
     console.log('[TEAM] Invited:', email, 'role:', role, 'clientId:', clientId);
     sendJson(res, { success: true, email, role });
     return;
@@ -794,10 +790,11 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/team/delete' && req.method === 'POST') {
     const body = await parseBody(req);
     const { email, clientId } = body;
-    if (!global.users?.[email]) { sendJson(res, { error: 'Utilizator negăsit' }, 404); return; }
-    if (global.users[email].clientId !== clientId) { sendJson(res, { error: 'Acces interzis' }, 403); return; }
-    if (global.users[email].role === 'owner') { sendJson(res, { error: 'Nu poți șterge proprietarul' }, 400); return; }
-    delete global.users[email];
+    const userToUp = storage.getUser(email);
+    if (!userToUp) { sendJson(res, { error: 'Utilizator negăsit' }, 404); return; }
+    if (storage.getUsers()[email].clientId !== clientId) { sendJson(res, { error: 'Acces interzis' }, 403); return; }
+    if (storage.getUsers()[email].role === 'owner') { sendJson(res, { error: 'Nu poți șterge proprietarul' }, 400); return; }
+    delete storage.getUsers()[email];
     sendJson(res, { success: true });
     return;
   }
@@ -805,23 +802,58 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/team/update' && req.method === 'POST') {
     const body = await parseBody(req);
     const { email, role, password, clientId } = body;
-    if (!global.users?.[email]) { sendJson(res, { error: 'Utilizator negăsit' }, 404); return; }
-    if (global.users[email].clientId !== clientId) { sendJson(res, { error: 'Acces interzis' }, 403); return; }
-    if (role) global.users[email].role = role;
-    if (password) global.users[email].password = password;
+    const userToUp = storage.getUser(email);
+    if (!userToUp) { sendJson(res, { error: 'Utilizator negăsit' }, 404); return; }
+    if (storage.getUsers()[email].clientId !== clientId) { sendJson(res, { error: 'Acces interzis' }, 403); return; }
+    if (role) storage.getUsers()[email].role = role;
+    if (password) storage.getUsers()[email].password = password;
     // Regenerate token
-    global.users[email].token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
+    storage.getUsers()[email].token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
     sendJson(res, { success: true });
     return;
   }
 
   if (pathname === '/api/team/list' && req.method === 'GET') {
     const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
-    if (!clientId || !global.users) { sendJson(res, { success: true, users: [] }); return; }
-    const team = Object.values(global.users)
-      .filter(u => u.clientId === clientId)
+    if (!clientId) { sendJson(res, { success: true, users: [] }); return; }
+    const team = storage.getUsersByClientId(clientId)
       .map(u => ({ email: u.email, role: u.role, createdAt: u.createdAt }));
     sendJson(res, { success: true, users: team });
+    return;
+  }
+
+  // ── AUDIT LOG ──────────────────────────────────
+  if (pathname === '/api/audit' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    sendJson(res, { success: true, audit: storage.getAudit(clientId, 100) });
+    return;
+  }
+
+  // ── STORAGE HEALTH ──────────────────────────────
+  if (pathname === '/api/storage/health' && req.method === 'GET') {
+    sendJson(res, { success: true, health: storage.health() });
+    return;
+  }
+
+  // ── APPOINTMENTS ────────────────────────────────
+  if (pathname === '/api/appointments' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    sendJson(res, { success: true, appointments: storage.getAppointments(clientId) });
+    return;
+  }
+
+  if (pathname === '/api/appointments/save' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    const appt = storage.saveAppointment({ ...body, id: body.id || 'appt_' + Date.now() });
+    sendJson(res, { success: true, appointment: appt });
+    return;
+  }
+
+  if (pathname === '/api/appointments/status' && req.method === 'POST') {
+    const body = await parseBody(req);
+    storage.updateAppointmentStatus(body.clientId, body.id, body.status);
+    sendJson(res, { success: true });
     return;
   }
 
@@ -836,7 +868,7 @@ Returnează DOAR JSON valid fără text suplimentar:
       });
       brain.clientId = body.clientId;
       // Save to profiles
-      _profiles[body.clientId] = brain;
+      storage.saveProfile({ ...brain, clientId: body.clientId });
       saveProfiles();
       sendJson(res, { success: true, brain, clientId: body.clientId });
     } catch(e) {
@@ -851,13 +883,13 @@ Returnează DOAR JSON valid fără text suplimentar:
     const body = await parseBody(req);
     const { email, password, clientId, businessName } = body;
     if (!email || !password) { sendJson(res, { error: 'Email și parolă obligatorii' }, 400); return; }
-    if (!global.users) global.users = {};
-    if (global.users[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
+    
+    if (storage.getUsers()[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
     const token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
     // First user for this clientId = owner, rest = specified role
-    const existingForClient = Object.values(global.users).filter(u => u.clientId === clientId);
+    const existingForClient = storage.getUsersByClientId(clientId);
     const role = existingForClient.length === 0 ? 'owner' : (body.role || 'reception');
-    global.users[email] = { email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() };
+    storage.saveUser({ email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() });
     console.log('[AUTH] Registered:', email, 'clientId:', clientId);
     sendJson(res, { success: true, token, email, clientId, businessName, role: body.role || 'owner' });
     return;
@@ -866,8 +898,8 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/auth/login' && req.method === 'POST') {
     const body = await parseBody(req);
     const { email, password } = body;
-    if (!global.users) global.users = {};
-    const user = global.users[email];
+    
+    const user = storage.getUser(email);
     if (!user || user.password !== password) { sendJson(res, { error: 'Email sau parolă incorecte' }, 401); return; }
     console.log('[AUTH] Login:', email);
     sendJson(res, { success: true, token: user.token, email: user.email, clientId: user.clientId, businessName: user.businessName, role: user.role || 'owner' });
@@ -876,8 +908,8 @@ Returnează DOAR JSON valid fără text suplimentar:
 
   if (pathname === '/api/auth/me' && req.method === 'GET') {
     const token = req.headers['authorization']?.replace('Bearer ', '');
-    if (!token || !global.users) { sendJson(res, { error: 'Neautentificat' }, 401); return; }
-    const user = Object.values(global.users).find(u => u.token === token);
+    if (!token) { sendJson(res, { error: 'Neautentificat' }, 401); return; }
+    const user = Object.values(storage.getUsers()).find(u => u.token === token);
     if (!user) { sendJson(res, { error: 'Token invalid' }, 401); return; }
     sendJson(res, { success: true, email: user.email, clientId: user.clientId, businessName: user.businessName });
     return;
@@ -891,7 +923,7 @@ Returnează DOAR JSON valid fără text suplimentar:
     let profiles = {};
     try { profiles = JSON.parse(fs.readFileSync(profilesFile, 'utf8')); } catch(e) {}
     profiles[body.clientId] = body;
-    _profiles[body.clientId] = body;
+    storage.saveProfile({ ...body, clientId: body.clientId });
     fs.mkdirSync(path.dirname(profilesFile), { recursive: true });
     fs.writeFileSync(profilesFile, JSON.stringify(profiles, null, 2));
     console.log('[PROFILE] Saved profile for:', body.clientId, body.name);
