@@ -20,5 +20,38 @@
       "status": "confirmed",
       "createdAt": "2026-07-20T19:57:10.843Z"
     }
+  ],
+  "CLI-V08HJK": [
+    {
+      "id": "appt_1784578576753",
+      "patient": {
+        "id": "new_1784578566585",
+        "name": "maria ion",
+        "phone": "072233678657",
+        "email": "bitcoinfoot@gmail.com",
+        "visits": 0
+      },
+      "service": {
+        "id": "s2",
+        "name": "Detartraj + periaj profesional",
+        "cat": "stomatologie",
+        "price": "250",
+        "durProc": 45,
+        "durClean": 10,
+        "durPrep": 5,
+        "online": "yes"
+      },
+      "doctor": {
+        "id": "d2",
+        "name": "Dr. Raluca Stan",
+        "spec": "Ortodonție"
+      },
+      "date": "2026-07-23T20:15:34.243Z",
+      "slot": "10:00",
+      "notes": "",
+      "status": "confirmed",
+      "createdAt": "2026-07-20T20:16:16.755Z",
+      "clientId": "CLI-V08HJK"
+    }
   ]
 }
