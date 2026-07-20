@@ -672,6 +672,15 @@ function saveAppointment() {
   appts.push(appt);
   localStorage.setItem('recepai_appointments_' + CLIENT_ID, JSON.stringify(appts));
 
+  // Save to server
+  try {
+    await fetch(`${API}/api/appointments/save`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ ...appt, clientId: CLIENT_ID })
+    });
+  } catch(e) { console.error('Server save failed:', e); }
+
   // Update success message
   const months = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
   document.getElementById('success-msg').textContent =
