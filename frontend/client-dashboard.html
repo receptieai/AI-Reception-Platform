@@ -226,6 +226,12 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="nav-item" onclick="nav('users',this)" data-role="owner">
       <span class="nav-icon">👥</span> Utilizatori
     </div>
+    <div class="nav-item" onclick="nav('doctors',this)" data-role="owner">
+      <span class="nav-icon">👨‍⚕️</span> Doctori
+    </div>
+    <div class="nav-item" onclick="nav('patients',this)" data-role="staff">
+      <span class="nav-icon">👥</span> Pacienți
+    </div>
     <div class="nav-item" onclick="nav('services',this)" data-role="owner">
       <span class="nav-icon">🔧</span> Servicii
     </div>
@@ -403,6 +409,16 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
           <div class="empty"><div class="empty-icon">💬</div><div class="empty-title">Nicio conversație</div><div class="empty-sub">Conversațiile apar după ce clienții folosesc widget-ul</div></div>
         </div>
       </div>
+    </div>
+
+    <!-- ── DOCTORS ── -->
+    <div class="panel" id="panel-doctors">
+      <iframe src="panel-doctori.html" style="width:100%;height:calc(100vh - 60px);border:none"></iframe>
+    </div>
+
+    <!-- ── PATIENTS ── -->
+    <div class="panel" id="panel-patients">
+      <iframe src="panel-pacienti.html" style="width:100%;height:calc(100vh - 60px);border:none"></iframe>
     </div>
 
     <!-- ── SERVICES ── -->
