@@ -1,0 +1,8 @@
+[
+  {
+    "ts": "2026-07-20T19:32:49.305Z",
+    "action": "user.save",
+    "email": "test@dentavita.ro",
+    "role": "owner"
+  }
+]

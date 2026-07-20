@@ -1,0 +1,11 @@
+{
+  "test@dentavita.ro": {
+    "email": "test@dentavita.ro",
+    "password": "test123",
+    "clientId": "CLI-8ULSIV",
+    "businessName": "DentaVita",
+    "token": "tok_it3vc90t0y71784575969305",
+    "role": "owner",
+    "createdAt": "2026-07-20T19:32:49.305Z"
+  }
+}
