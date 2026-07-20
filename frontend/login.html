@@ -120,6 +120,7 @@ async function doLogin() {
     localStorage.setItem('recepai_token', data.token);
     localStorage.setItem('recepai_email', data.email);
     localStorage.setItem('recepai_client_id', data.clientId);
+    localStorage.setItem('recepai_role', data.role || 'owner');
     window.location.href = 'client-dashboard.html';
   } catch(e) {
     showError('login-error', 'Eroare conexiune. Verifică că serverul rulează.');

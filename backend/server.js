@@ -806,9 +806,10 @@ Returnează DOAR JSON valid fără text suplimentar:
     if (!global.users) global.users = {};
     if (global.users[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
     const token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
-    global.users[email] = { email, password, clientId, businessName, token, createdAt: new Date().toISOString() };
+    const role = body.role || 'owner';
+    global.users[email] = { email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() };
     console.log('[AUTH] Registered:', email, 'clientId:', clientId);
-    sendJson(res, { success: true, token, email, clientId, businessName });
+    sendJson(res, { success: true, token, email, clientId, businessName, role: body.role || 'owner' });
     return;
   }
 
@@ -819,7 +820,7 @@ Returnează DOAR JSON valid fără text suplimentar:
     const user = global.users[email];
     if (!user || user.password !== password) { sendJson(res, { error: 'Email sau parolă incorecte' }, 401); return; }
     console.log('[AUTH] Login:', email);
-    sendJson(res, { success: true, token: user.token, email: user.email, clientId: user.clientId, businessName: user.businessName });
+    sendJson(res, { success: true, token: user.token, email: user.email, clientId: user.clientId, businessName: user.businessName, role: user.role || 'owner' });
     return;
   }
 
