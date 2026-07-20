@@ -510,28 +510,37 @@ async function startAnalysis() {
   runLoadingAnimation();
 
   try {
-    // Start async job
-    const startRes = await fetch(API + '/api/scan/start', {
+    // Business Brain Scan
+    const clientId = localStorage.getItem('recepai_client_id') || ('CLI-' + Math.random().toString(36).substring(2,8).toUpperCase());
+    localStorage.setItem('recepai_client_id', clientId);
+
+    updateLoadingProgress(10, 'Se descarcă site-ul...');
+    const brainRes = await fetch(API + '/api/brain/scan', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url: input })
+      body: JSON.stringify({ url: input, clientId })
     });
-    const startData = await startRes.json();
-    if (!startData.jobId) throw new Error('Nu s-a putut porni scanarea');
-
-    // Poll for results
-    let data = null;
-    let attempts = 0;
-    while (attempts < 90) {
-      await new Promise(r => setTimeout(r, 2000));
-      const statusRes = await fetch(API + '/api/scan/status/' + startData.jobId);
-      const status = await statusRes.json();
-      if (status.progress) updateLoadingProgress(status.progress, status.progressText);
-      if (status.status === 'completed') { data = status.result; break; }
-      if (status.status === 'failed') throw new Error(status.error || 'Scanare eșuată');
-      attempts++;
-    }
-    if (!data) throw new Error('Timeout scanare');
+    const brainData = await brainRes.json();
+    if (!brainData.success) throw new Error(brainData.error || 'Scanare eșuată');
+    updateLoadingProgress(100, 'Business Brain construit!');
+    const brain = brainData.brain;
+    const data = {
+      name: brain.name, type: brain.industry,
+      phone: brain.phone, email: brain.email,
+      city: brain.city, address: brain.address,
+      hours: brain.hours, facebook: brain.facebook,
+      instagram: brain.instagram, parking: brain.parking,
+      emergency: brain.emergency, financing: brain.financing,
+      insurance: brain.insurance, guarantees: brain.guarantees,
+      faq: brain.faq || [], services: brain.services || [],
+      doctors: brain.doctors || [], confidence: brain.confidence || 85,
+      fieldConfidence: {
+        phone: brain.phone ? 95 : 0, email: brain.email ? 95 : 0,
+        city: brain.city ? 90 : 0, hours: brain.hours ? 85 : 0,
+        services: (brain.services||[]).length > 5 ? 90 : 50,
+        facebook: brain.facebook ? 80 : 0, instagram: brain.instagram ? 80 : 0,
+      }
+    };
     const result = { success: true, data };
     if (result.success && result.data) {
       S.data = result.data;
