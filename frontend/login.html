@@ -82,7 +82,12 @@ const API = typeof CONFIG !== 'undefined' ? CONFIG.API_URL : 'http://localhost:8
 
 // Check if already logged in
 const token = localStorage.getItem('recepai_token');
-if (token) window.location.href = 'client-dashboard.html';
+if (token) {
+  const r = localStorage.getItem('recepai_role') || 'owner';
+  if (r === 'doctor') window.location.href = 'dashboard-doctor.html';
+  else if (r === 'reception') window.location.href = 'dashboard-receptie.html';
+  else window.location.href = 'client-dashboard.html';
+}
 
 function showRegister() {
   document.getElementById('login-card').style.display = 'none';
@@ -120,8 +125,11 @@ async function doLogin() {
     localStorage.setItem('recepai_token', data.token);
     localStorage.setItem('recepai_email', data.email);
     localStorage.setItem('recepai_client_id', data.clientId);
-    localStorage.setItem('recepai_role', data.role || 'owner');
-    window.location.href = 'client-dashboard.html';
+    const role = data.role || 'owner';
+    localStorage.setItem('recepai_role', role);
+    if (role === 'doctor') window.location.href = 'dashboard-doctor.html';
+    else if (role === 'reception') window.location.href = 'dashboard-receptie.html';
+    else window.location.href = 'client-dashboard.html';
   } catch(e) {
     showError('login-error', 'Eroare conexiune. Verifică că serverul rulează.');
     btn.textContent = 'Intră în cont'; btn.disabled = false;
@@ -164,6 +172,7 @@ async function doRegister() {
     localStorage.setItem('recepai_token', data.token);
     localStorage.setItem('recepai_email', data.email);
     localStorage.setItem('recepai_client_id', clientId);
+    localStorage.setItem('recepai_role', data.role || 'owner');
     window.location.href = 'client-dashboard.html';
   } catch(e) {
     showError('register-error', 'Eroare conexiune.');
@@ -175,9 +184,8 @@ async function doRegister() {
 const savedEmail = localStorage.getItem('recepai_email');
 if (savedEmail) document.getElementById('login-email').value = savedEmail;
 
-// Show register if no account yet
-const hasAccount = localStorage.getItem('recepai_token');
-if (!hasAccount && localStorage.getItem('recepai_client_profile')) showRegister();
+// Always show login first
+// showRegister only if explicitly requested
 </script>
 </body>
 </html>
