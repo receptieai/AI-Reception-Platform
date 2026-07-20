@@ -1,5 +1,12 @@
 [
   {
+    "ts": "2026-07-20T20:16:16.755Z",
+    "action": "appointment.save",
+    "id": "appt_1784578576753",
+    "clientId": "CLI-V08HJK",
+    "patient": "maria ion"
+  },
+  {
     "ts": "2026-07-20T19:57:10.843Z",
     "action": "appointment.save",
     "id": "appt_test_001",

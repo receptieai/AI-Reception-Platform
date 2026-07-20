@@ -653,7 +653,7 @@ function renderConfirm() {
 }
 
 // ── SAVE ──
-function saveAppointment() {
+async function saveAppointment() {
   const appt = {
     id: 'appt_' + Date.now(),
     patient: selectedPatient,
