@@ -598,6 +598,9 @@ function renderKnowledge() {
     {key:'hours', label:'Program', icon:'🕐'},
     {key:'facebook', label:'Facebook', icon:'📘'},
     {key:'instagram', label:'Instagram', icon:'📸'},
+    {key:'parking', label:'Parcare', icon:'🅿️'},
+    {key:'emergency', label:'Urgențe', icon:'🚨'},
+    {key:'financing', label:'Rate/Finanțare', icon:'💳'},
   ];
   document.getElementById('profile-fields').innerHTML = fields.map(f => `
     <div class="info-field" onclick="editField('${f.key}','${f.label}')">
@@ -785,12 +788,22 @@ function editSuggestion(key, question, proposed) {
 // ── PROFILE SYNC ──────────────────────────
 async function saveProfileToServer() {
   if (!BIZ) return;
+  const payload = { ...BIZ, clientId: CLIENT_ID };
   try {
+    // Save locally
     await fetch(`${API}/api/profile/save`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ ...BIZ, clientId: CLIENT_ID })
+      body: JSON.stringify(payload)
     });
     localStorage.setItem('recepai_client_profile', JSON.stringify(BIZ));
+    // Sync to Railway if different
+    const railwayUrl = 'https://ai-reception-platform-production.up.railway.app/api/profile/save';
+    if (!API.includes('railway')) {
+      fetch(railwayUrl, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify(payload)
+      }).catch(()=>{});
+    }
   } catch(e) {}
 }
 
