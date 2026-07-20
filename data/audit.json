@@ -1,5 +1,10 @@
 [
   {
+    "ts": "2026-07-20T19:41:02.172Z",
+    "action": "settings.save",
+    "clientId": "CLI-8ULSIV"
+  },
+  {
     "ts": "2026-07-20T19:32:49.305Z",
     "action": "user.save",
     "email": "test@dentavita.ro",

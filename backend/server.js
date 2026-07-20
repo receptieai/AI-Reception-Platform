@@ -11,6 +11,7 @@ const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
 const storage = require('./storage');
+const clinicConfig = require('./clinicConfig');
 const { buildBusinessBrain } = require('./businessBrainScanner');
 
 // ── STORAGE ENGINE ──
@@ -555,51 +556,22 @@ async function chatWithAI(messages, profile, personality) {
   const hour = now.getHours();
   const isWorkingHours = hour >= 9 && hour < 18;
   
-  // Build FAQ section
-  const faqText = (profile.faq || [])
-    .map(f => `  Î: ${f.question}\n  R: ${f.answer}`)
-    .join('\n');
+  // Build AI context from clinicConfig + brain profile
+  const clientIdForConfig = profile.clientId || null;
+  const aiContext = clinicConfig.buildAIContext(clientIdForConfig, profile);
+  const isOpen = clientIdForConfig ? clinicConfig.isOpenNow(clientIdForConfig) : isWorkingHours;
 
-  // Build insurance section
-  const insuranceText = (profile.insurance || []).length > 0
-    ? (profile.insurance || []).join(', ')
-    : null;
-
-  const system = `Ești recepționistul virtual al "${profile.name || 'acestei afaceri'}" din ${profile.city || 'România'}.
+  const system = `Ești recepționistul virtual. Vorbești DOAR în română. Răspunsuri scurte — maxim 4 propoziții.
 Ton: ${tones[personality || 'prietenos'] || tones.prietenos}
 
-REGULI STRICTE:
-- Vorbești DOAR în română
-- Nu dai sfaturi medicale sau veterinare
-- Nu inventa NICIODATĂ informații care nu sunt în datele de mai jos
-- Dacă informația nu există în date → "Nu dețin această informație. Vă rog sunați la ${profile.phone_urgente || profile.phone || 'recepție'}"
-- Răspunsuri scurte — maxim 4 propoziții
-- Colectezi: NUME + TELEFON + SERVICIU dorit
-
-DATE AFACERE:
-- Telefon recepție: ${profile.phone || 'nedisponibil'}
-- Telefon urgențe: ${profile.phone_urgente || 'același număr'}
-- Email: ${profile.email || 'nedisponibil'}
-- Adresă: ${profile.address || 'nedisponibilă'}
-- Parcare: ${profile.parking || 'informație nedisponibilă'}
-- Asigurări acceptate: ${insuranceText || 'verificați la recepție'}
-- Finanțare/Rate: ${profile.financing || 'verificați la recepție'}
-- Urgențe: ${profile.emergency || 'sunați la ' + (profile.phone_urgente || profile.phone)}
-- Garanții: ${profile.guarantees || 'verificați la recepție'}
-
-SERVICII DISPONIBILE:
-${services || 'Contactați-ne pentru lista completă'}
-
-PROGRAM: ${profile.hours || 'Luni-Vineri 09:00-19:00'}
-
-${faqText ? 'ÎNTREBĂRI FRECVENTE (răspunde EXACT cu aceste informații):\n' + faqText : ''}
+${aiContext}
 
 CÂND CLIENTUL VREA PROGRAMARE:
 1. Cere numele
 2. Cere telefonul
 3. Cere serviciul dorit
 4. Cere ziua preferată
-5. ${isWorkingHours
+5. ${isOpen
     ? 'Confirmă: "Veți fi contactat în maximum 2 ore!"'
     : 'Confirmă: "Solicitarea a fost înregistrată! Vă vom contacta în ziua lucrătoare următoare."'}`;
 
@@ -819,6 +791,47 @@ Returnează DOAR JSON valid fără text suplimentar:
     const team = storage.getUsersByClientId(clientId)
       .map(u => ({ email: u.email, role: u.role, createdAt: u.createdAt }));
     sendJson(res, { success: true, users: team });
+    return;
+  }
+
+  // ── CLINIC CONFIG ──────────────────────────────
+  if (pathname === '/api/clinic/config' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    if (!clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    sendJson(res, { success: true, config: clinicConfig.get(clientId) });
+    return;
+  }
+
+  if (pathname === '/api/clinic/config' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    const config = clinicConfig.patch(body.clientId, body.config || body);
+    sendJson(res, { success: true, config });
+    return;
+  }
+
+  if (pathname === '/api/clinic/config/section' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { clientId, section, data } = body;
+    if (!clientId || !section) { sendJson(res, { error: 'clientId si section lipsesc' }, 400); return; }
+    const sectionMap = {
+      hours: 'saveHours', booking: 'saveBooking', aiRules: 'saveAiRules',
+      cabinets: 'saveCabinets', widget: 'saveWidget', features: 'saveFeatures',
+      notifications: 'saveNotifications',
+    };
+    if (!sectionMap[section]) { sendJson(res, { error: 'Section necunoscut' }, 400); return; }
+    const config = clinicConfig[sectionMap[section]](clientId, data);
+    sendJson(res, { success: true, config });
+    return;
+  }
+
+  if (pathname === '/api/clinic/import-brain' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    const profile = storage.getProfile(body.clientId);
+    if (!profile) { sendJson(res, { error: 'Profilul nu exista' }, 404); return; }
+    const config = clinicConfig.importFromBrain(body.clientId, profile);
+    sendJson(res, { success: true, config });
     return;
   }
 
