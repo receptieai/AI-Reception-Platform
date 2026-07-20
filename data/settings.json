@@ -1,0 +1,64 @@
+{
+  "CLI-8ULSIV": {
+    "name": "DentaVita — Clinică Stomatologică București",
+    "phone": "031 234 56 78",
+    "phone_urgente": "0722 123 456",
+    "email": "contact@dentavita.ro",
+    "city": "București",
+    "address": "Str. Doctor Felix nr. 87, Sector 1, București, 011033, Etaj 2, Clădirea MedCenter (lângă Piața Victoriei)",
+    "facebook": "/DentaVitaBucuresti",
+    "instagram": "@dentavita.ro",
+    "facilities": {
+      "parking": "Parcare subterană gratuită, 30 locuri"
+    },
+    "payment": {
+      "insurance": [
+        "CASMB — decontare parțială",
+        "Signal Iduna — partener direct",
+        "Allianz-Țiriac — partener direct",
+        "Generali — pe bază de factură",
+        "Medicover — acceptată",
+        "MedLife — acceptată",
+        "Asigurări corporate (pe factură)"
+      ],
+      "financing": "Rate prin BRD Finance și TBI Credit, 3–36 rate, dobândă 0% pentru primele 12 rate pentru tratamente peste 2.000 RON. Avans minim 20%. Aprobare în 15 minute."
+    },
+    "hoursRaw": "Luni – Vineri 08:00 – 20:00, Sâmbătă 09:00 – 15:00, Duminică Închis, Urgențe dentare 24/7 (apel telefonic)",
+    "faq": [
+      {
+        "question": "Cât durează un implant dentar de la inserare până la coroana finală?",
+        "answer": "Procesul complet durează 3-6 luni. După inserare, osteointegrarea durează 3-4 luni (mandibulă) sau 4-6 luni (maxilar). În cazurile eligibile oferim încărcare imediată — dinți în aceeași zi."
+      },
+      {
+        "question": "Este dureros tratamentul dentar?",
+        "answer": "Nu. Toate procedurile se efectuează sub anestezie locală. Pentru pacienții anxioși oferim sedare conștientă cu protoxid de azot sau sedare intravenoasă cu medic anestezist."
+      },
+      {
+        "question": "Ce fac în caz de urgență dentară noaptea sau în weekend?",
+        "answer": "Sunați la 0722 123 456. Avem medic de gardă 24/7. Tarif suplimentar de urgență: 200 RON."
+      },
+      {
+        "question": "Pot plăti în rate?",
+        "answer": "Da. Rate prin BRD Finance și TBI Credit (3-36 rate). Dobândă 0% primele 12 rate pentru tratamente peste 2.000 RON. Avans minim 20%. Aprobare în 15 minute."
+      },
+      {
+        "question": "Ce garanție oferiți?",
+        "answer": "10 ani implanturi, 5 ani coroane și fațete, 3 ani obturații, 2 ani proteze mobile. Condiționat de controale la 6 luni."
+      },
+      {
+        "question": "Acceptați pacienți din străinătate?",
+        "answer": "Da. Pachete de turism dentar cu planificare la distanță. Trimiteți radiografia pe email, primiți plan de tratament în 24h. Sesiuni intensive de 3-5 zile."
+      },
+      {
+        "question": "Ce vârstă minimă pentru prima vizită la copii?",
+        "answer": "Recomandăm prima vizită la 1 an sau la apariția primului dinte. Între 2-3 ani se fac primele sigilări."
+      },
+      {
+        "question": "Cât durează albirea dentară și cât rezistă?",
+        "answer": "60-90 minute, rezultat de 4-8 nuanțe mai deschis, se menține 1-2 ani. Nu albim gravide, copii sub 16 ani sau pacienți cu carii active."
+      }
+    ],
+    "emergencyNote": "Medic de gardă 24/7, telefon urgențe: 0722 123 456. Tarif suplimentar urgență: 200 RON.",
+    "updatedAt": "2026-07-20T19:41:02.172Z"
+  }
+}
