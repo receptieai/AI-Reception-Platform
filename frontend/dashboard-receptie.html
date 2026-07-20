@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Recepție — RecepAI</title>
+<script>
+  const role = localStorage.getItem('recepai_role');
+  if (!role) window.location.href = 'login.html';
+  if (role === 'owner') window.location.href = 'client-dashboard.html';
+  if (role === 'doctor') window.location.href = 'dashboard-doctor.html';
+</script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0A;--s1:#131313;--s2:#1A1A1A;--b1:#252525;--b2:#303030;--tx:#F0F0F0;--t2:#999;--t3:#555;--teal:#00D4AA;--td:rgba(0,212,170,.1);--grn:#00CC88;--ylw:#FFB800;--red:#FF4455}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex}
+.sidebar{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0}
+.sidebar-top{padding:18px 20px;border-bottom:1px solid var(--b1)}
+.logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
+.logo span{color:var(--teal)}
+.role-badge{font-size:10px;background:rgba(255,184,0,.15);color:var(--ylw);padding:2px 8px;border-radius:8px;font-weight:700;margin-top:4px;display:inline-block}
+nav{flex:1;padding:8px 0}
+.ni{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .15s;border-left:2px solid transparent;position:relative}
+.ni:hover{color:var(--tx);background:var(--s2)}
+.ni.active{color:var(--teal);background:var(--td);border-left-color:var(--teal)}
+.ni-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
+.nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
+.sidebar-bottom{padding:14px 20px;border-top:1px solid var(--b1)}
+.logout{font-size:12px;color:var(--t3);cursor:pointer}
+.logout:hover{color:var(--red)}
+.main{flex:1;overflow-y:auto}
+.topbar{padding:14px 28px;border-bottom:1px solid var(--b1);background:var(--s1);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}
+.topbar-l .title{font-size:15px;font-weight:700}
+.topbar-l .sub{font-size:11px;color:var(--t3);margin-top:2px}
+.search{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:8px 14px;color:var(--tx);font-size:13px;outline:none;width:240px}
+.search:focus{border-color:var(--teal)}
+.content{padding:20px 28px}
+.panel{display:none}.panel.active{display:block}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.stat{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.s-red::before{background:var(--red)}
+.s-teal::before{background:var(--teal)}
+.s-grn::before{background:var(--grn)}
+.s-ylw::before{background:var(--ylw)}
+.stat-lbl{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
+.stat-sub{font-size:11px;color:var(--t3);margin-top:4px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;margin-bottom:16px}
+.card-head{padding:13px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:13px;font-weight:700}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
+.b-red{background:rgba(255,68,85,.12);color:var(--red)}
+.b-grn{background:rgba(0,204,136,.12);color:var(--grn)}
+.b-ylw{background:rgba(255,184,0,.12);color:var(--ylw)}
+.b-teal{background:var(--td);color:var(--teal)}
+.arow{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
+.arow:last-child{border-bottom:none}
+.arow:hover{background:var(--s2)}
+.atime{font-size:12px;font-weight:700;color:var(--teal);width:46px;flex-shrink:0}
+.adoc{font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;flex-shrink:0}
+.ainfo{flex:1}
+.aproc{font-size:12px;font-weight:600}
+.apat{font-size:11px;color:var(--t3)}
+.astatus{font-size:10px;font-weight:700;padding:2px 7px;border-radius:7px;flex-shrink:0}
+.s-ok{background:rgba(0,204,136,.12);color:var(--grn)}
+.s-pend{background:rgba(255,184,0,.12);color:var(--ylw)}
+.s-urg{background:rgba(255,68,85,.12);color:var(--red)}
+.aacts{display:flex;gap:5px;margin-left:6px}
+.lcard{padding:12px 16px;border-bottom:1px solid var(--b1)}
+.lcard:last-child{border-bottom:none}
+.ltop{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+.lname{font-size:13px;font-weight:700}
+.ltime{font-size:10px;color:var(--t3)}
+.lmsg{font-size:12px;color:var(--t2);font-style:italic;margin-bottom:8px}
+.ltags{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+.ltag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--td);color:var(--teal)}
+.lacts{display:flex;gap:6px}
+.btn{padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
+.btn-p{background:var(--teal);color:#000}.btn-p:hover{background:#00FFCC}
+.btn-g{background:transparent;color:var(--t2);border:1px solid var(--b2)}.btn-g:hover{color:var(--tx)}
+.btn-r{background:rgba(255,68,85,.12);color:var(--red);border:1px solid rgba(255,68,85,.2)}
+.prow{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
+.prow:last-child{border-bottom:none}
+.prow:hover{background:var(--s2)}
+.pav{width:32px;height:32px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t2);flex-shrink:0}
+.pname{font-size:13px;font-weight:600}
+.pmeta{font-size:11px;color:var(--t3)}
+.pdoc{margin-left:auto;font-size:10px;color:var(--teal);font-weight:600}
+.doc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px}
+.doc-col{background:var(--s2);border-radius:8px;padding:10px}
+.doc-head{font-size:11px;font-weight:700;color:var(--teal);margin-bottom:8px}
+.doc-slot{font-size:11px;color:var(--t2);padding:5px 8px;border-radius:6px;background:var(--s1);margin-bottom:4px;border-left:2px solid var(--b2)}
+.doc-slot.busy{border-left-color:var(--teal)}
+.slot-time{color:var(--teal);font-weight:600;font-size:10px}
+.conv-item{padding:12px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
+.conv-item:hover{background:var(--s2)}
+.conv-item:last-child{border-bottom:none}
+.conv-top{display:flex;justify-content:space-between;margin-bottom:4px}
+.conv-name{font-size:13px;font-weight:600}
+.conv-time{font-size:10px;color:var(--t3)}
+.conv-last{font-size:12px;color:var(--t2)}
+.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:5px}
+</style>
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-top">
+    <div class="logo">Recep<span>AI</span></div>
+    <div class="role-badge">📋 Recepție</div>
+  </div>
+  <nav>
+    <div class="ni active" onclick="show('overview',this)"><span class="ni-icon">🏠</span>Dashboard</div>
+    <div class="ni" onclick="show('appointments',this)"><span class="ni-icon">📅</span>Toate programările<span class="nbadge">5</span></div>
+    <div class="ni" onclick="show('doctors',this)"><span class="ni-icon">👨‍⚕️</span>Calendare doctori</div>
+    <div class="ni" onclick="show('patients',this)"><span class="ni-icon">👥</span>Pacienți</div>
+    <div class="ni" onclick="show('leads',this)"><span class="ni-icon">💬</span>Lead-uri AI<span class="nbadge">12</span></div>
+    <div class="ni" onclick="show('conversations',this)"><span class="ni-icon">🗨️</span>Conversații AI</div>
+  </nav>
+  <div class="sidebar-bottom">
+    <div class="logout" onclick="logout()">🚪 Deconectare</div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-l">
+      <div class="title" id="panel-title">Dashboard Recepție</div>
+      <div class="sub" id="today-date"></div>
+    </div>
+    <input class="search" placeholder="🔍 Caută pacient, telefon...">
+  </div>
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="panel active" id="panel-overview">
+      <div class="stats">
+        <div class="stat s-red"><div class="stat-lbl">Lead-uri noi</div><div class="stat-val" style="color:var(--red)">12</div><div class="stat-sub">astăzi · necontactate</div></div>
+        <div class="stat s-teal"><div class="stat-lbl">Conversații AI</div><div class="stat-val" style="color:var(--teal)">47</div><div class="stat-sub">astăzi</div></div>
+        <div class="stat s-grn"><div class="stat-lbl">Programări azi</div><div class="stat-val" style="color:var(--grn)">28</div><div class="stat-sub">toți doctorii</div></div>
+        <div class="stat s-ylw"><div class="stat-lbl">Neconfirmate</div><div class="stat-val" style="color:var(--ylw)">5</div><div class="stat-sub">de sunat</div></div>
+      </div>
+
+      <div class="two-col">
+        <div class="card">
+          <div class="card-head"><span class="card-title">⚠️ De confirmat</span><span class="badge b-ylw">5 în așteptare</span></div>
+          <div class="lcard">
+            <div class="ltop"><span class="lname">Maria Ionescu</span><span class="ltime">Mâine 10:00 · Dr. Popescu</span></div>
+            <div class="lmsg">Implant Straumann · 3.500 RON</div>
+            <div class="lacts"><button class="btn btn-p">✓ Confirmă</button><button class="btn btn-g">↔ Reprogramează</button><button class="btn btn-r">✕</button></div>
+          </div>
+          <div class="lcard">
+            <div class="ltop"><span class="lname">Andrei Popa</span><span class="ltime">Mâine 14:00 · Dr. Stan</span></div>
+            <div class="lmsg">Consultație ortodontică · GRATUITĂ</div>
+            <div class="lacts"><button class="btn btn-p">✓ Confirmă</button><button class="btn btn-g">↔ Reprogramează</button><button class="btn btn-r">✕</button></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><span class="card-title">🤖 Lead-uri AI recente</span><span class="badge b-red">12 noi</span></div>
+          <div class="lcard">
+            <div class="ltop"><span class="lname">Alex Popescu</span><span class="ltime" style="color:var(--red);font-weight:700">NOU · 09:14</span></div>
+            <div class="lmsg">„Vreau implant dentar, cât costă?"</div>
+            <div class="ltags"><span class="ltag">📞 0722 345 678</span><span class="ltag">🦷 Implant</span></div>
+            <div class="lacts"><button class="btn btn-p">📞 Sună</button><button class="btn btn-g">📅 Program.</button><button class="btn btn-g">→ Dr.</button></div>
+          </div>
+          <div class="lcard">
+            <div class="ltop"><span class="lname">Ioana Mihai</span><span class="ltime" style="color:var(--red);font-weight:700">NOU · 08:55</span></div>
+            <div class="lmsg">„Vreau Invisalign, ce opțiuni aveți?"</div>
+            <div class="ltags"><span class="ltag">📞 0741 567 890</span><span class="ltag">🦷 Invisalign</span></div>
+            <div class="lacts"><button class="btn btn-p">📞 Sună</button><button class="btn btn-g">📅 Program.</button><button class="btn btn-g">→ Dr.</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-title">📅 Programările de azi — Toată clinica</span><span class="badge b-grn">28 programări</span></div>
+        <div class="arow"><div class="atime">09:00</div><span class="adoc" style="background:rgba(0,212,170,.12);color:var(--teal)">Dr. Popescu</span><div class="ainfo"><div class="aproc">Consultație generală</div><div class="apat">Alexandru Popa</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">↔</button></div></div>
+        <div class="arow"><div class="atime">09:30</div><span class="adoc" style="background:rgba(255,184,0,.12);color:var(--ylw)">Dr. Stan</span><div class="ainfo"><div class="aproc">Aparat dentar control</div><div class="apat">Radu Ionescu</div></div><span class="astatus s-pend">⚠</span><div class="aacts"><button class="btn btn-p">✓</button><button class="btn btn-g">↔</button></div></div>
+        <div class="arow"><div class="atime">10:00</div><span class="adoc" style="background:rgba(0,204,136,.12);color:var(--grn)">Dr. Maria</span><div class="ainfo"><div class="aproc">Detartraj + periaj</div><div class="apat">Elena Constantin</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">↔</button></div></div>
+        <div class="arow"><div class="atime">10:30</div><span class="adoc" style="background:rgba(0,212,170,.12);color:var(--teal)">Dr. Popescu</span><div class="ainfo"><div class="aproc">Implant Straumann</div><div class="apat">Maria Ionescu</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">↔</button></div></div>
+        <div class="arow"><div class="atime">11:00</div><span class="adoc" style="background:rgba(255,68,85,.12);color:var(--red)">Dr. Vlad</span><div class="ainfo"><div class="aproc">Urgență dentară</div><div class="apat">Ion Marinescu</div></div><span class="astatus s-urg">🚨</span><div class="aacts"><button class="btn btn-g">↔</button></div></div>
+      </div>
+    </div>
+
+    <!-- APPOINTMENTS -->
+    <div class="panel" id="panel-appointments">
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
+        <button class="btn btn-p">+ Programare nouă</button>
+        <button class="btn btn-g">📅 Astăzi</button>
+        <button class="btn btn-g">← Ieri</button>
+        <button class="btn btn-g">Mâine →</button>
+        <select style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:6px 12px;color:var(--tx);font-size:12px;outline:none">
+          <option>Toți doctorii</option><option>Dr. Popescu</option><option>Dr. Stan</option><option>Dr. Maria</option>
+        </select>
+      </div>
+      <div class="card">
+        <div class="card-head"><span class="card-title">📅 Toate programările — 20 Iulie</span><span class="badge b-ylw">5 neconfirmate</span></div>
+        <div class="arow"><div class="atime">09:00</div><span class="adoc" style="background:rgba(0,212,170,.12);color:var(--teal)">Dr. Popescu</span><div class="ainfo"><div class="aproc">Consultație</div><div class="apat">Alexandru Popa · 0721 234 567</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">✏️</button><button class="btn btn-g">↔</button><button class="btn btn-r">✕</button></div></div>
+        <div class="arow"><div class="atime">09:30</div><span class="adoc" style="background:rgba(255,184,0,.12);color:var(--ylw)">Dr. Stan</span><div class="ainfo"><div class="aproc">Control aparat</div><div class="apat">Radu Ionescu · 0741 111 222</div></div><span class="astatus s-pend">⚠ Neconf.</span><div class="aacts"><button class="btn btn-p">✓</button><button class="btn btn-g">↔</button><button class="btn btn-r">✕</button></div></div>
+        <div class="arow"><div class="atime">10:30</div><span class="adoc" style="background:rgba(0,212,170,.12);color:var(--teal)">Dr. Popescu</span><div class="ainfo"><div class="aproc">Implant Straumann</div><div class="apat">Maria Ionescu · 0722 345 678</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">✏️</button><button class="btn btn-g">↔</button><button class="btn btn-r">✕</button></div></div>
+      </div>
+    </div>
+
+    <!-- DOCTORS -->
+    <div class="panel" id="panel-doctors">
+      <div class="card">
+        <div class="card-head"><span class="card-title">👨‍⚕️ Calendarele doctorilor — Astăzi</span></div>
+        <div class="doc-grid">
+          <div class="doc-col">
+            <div class="doc-head">🦷 Dr. Andrei Popescu</div>
+            <div class="doc-slot busy"><div class="slot-time">09:00</div>Consultație · Alexandru P.</div>
+            <div class="doc-slot busy"><div class="slot-time">10:30</div>Implant · Maria I.</div>
+            <div class="doc-slot busy"><div class="slot-time">12:00</div>Control · Elena C.</div>
+            <div class="doc-slot"><div class="slot-time">13:00</div>Liber</div>
+            <div class="doc-slot busy"><div class="slot-time">14:00</div>Planning · Mihai V.</div>
+          </div>
+          <div class="doc-col">
+            <div class="doc-head">🦷 Dr. Raluca Stan</div>
+            <div class="doc-slot"><div class="slot-time">09:00</div>Liber</div>
+            <div class="doc-slot busy"><div class="slot-time">09:30</div>Aparat · Radu I.</div>
+            <div class="doc-slot busy"><div class="slot-time">11:00</div>Invisalign · Ana G.</div>
+            <div class="doc-slot"><div class="slot-time">13:00</div>Liber</div>
+            <div class="doc-slot busy"><div class="slot-time">14:00</div>Control · Mihai S.</div>
+          </div>
+          <div class="doc-col">
+            <div class="doc-head">🦷 Dr. Elena Maria</div>
+            <div class="doc-slot busy"><div class="slot-time">10:00</div>Detartraj · Elena C.</div>
+            <div class="doc-slot busy"><div class="slot-time">11:00</div>Plombă · George T.</div>
+            <div class="doc-slot"><div class="slot-time">12:00</div>Pauză</div>
+            <div class="doc-slot busy"><div class="slot-time">14:00</div>Canal · Ioana M.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div class="panel" id="panel-patients">
+      <div class="card">
+        <div class="card-head"><span class="card-title">👥 Pacienți</span><button class="btn btn-p" style="font-size:11px">+ Pacient nou</button></div>
+        <div class="prow"><div class="pav">👤</div><div><div class="pname">Maria Ionescu</div><div class="pmeta">📞 0722 345 678 · Implant · 3 vizite</div></div><div class="pdoc">Dr. Popescu</div><button class="btn btn-g" style="margin-left:10px;font-size:11px">📁 Fișă</button></div>
+        <div class="prow"><div class="pav">👤</div><div><div class="pname">Alexandru Popa</div><div class="pmeta">📞 0721 234 567 · Consultație · Prima vizită</div></div><div class="pdoc">Dr. Popescu</div><button class="btn btn-g" style="margin-left:10px;font-size:11px">📁 Fișă</button></div>
+        <div class="prow"><div class="pav">👤</div><div><div class="pname">Radu Ionescu</div><div class="pmeta">📞 0741 111 222 · Aparat fix · 8 vizite</div></div><div class="pdoc">Dr. Stan</div><button class="btn btn-g" style="margin-left:10px;font-size:11px">📁 Fișă</button></div>
+        <div class="prow"><div class="pav">👤</div><div><div class="pname">Elena Constantin</div><div class="pmeta">📞 0733 456 789 · Detartraj · 2 vizite</div></div><div class="pdoc">Dr. Maria</div><button class="btn btn-g" style="margin-left:10px;font-size:11px">📁 Fișă</button></div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="panel" id="panel-leads">
+      <div class="card">
+        <div class="card-head"><span class="card-title">💬 Lead-uri AI — Toate</span><span class="badge b-red">12 noi astăzi</span></div>
+        <div class="lcard">
+          <div class="ltop"><span class="lname">Alex Popescu</span><span class="ltime" style="color:var(--red);font-weight:700">NOU · 09:14</span></div>
+          <div class="lmsg">„Vreau implant dentar, am pierdut un dinte în față. Cât costă?"</div>
+          <div class="ltags"><span class="ltag">📞 0722 345 678</span><span class="ltag">🦷 Implant</span><span class="ltag">Necontactat</span></div>
+          <div class="lacts"><button class="btn btn-p">📞 Sună</button><button class="btn btn-g">📅 Programează</button><button class="btn btn-g">→ Dr. Popescu</button><button class="btn btn-g">✓ Contactat</button></div>
+        </div>
+        <div class="lcard">
+          <div class="ltop"><span class="lname">Ioana Mihai</span><span class="ltime" style="color:var(--red);font-weight:700">NOU · 08:55</span></div>
+          <div class="lmsg">„Vreau Invisalign, ce opțiuni aveți? Am dinți strâmbi."</div>
+          <div class="ltags"><span class="ltag">📞 0741 567 890</span><span class="ltag">🦷 Invisalign</span><span class="ltag">Necontactat</span></div>
+          <div class="lacts"><button class="btn btn-p">📞 Sună</button><button class="btn btn-g">📅 Programează</button><button class="btn btn-g">→ Dr. Stan</button><button class="btn btn-g">✓ Contactat</button></div>
+        </div>
+        <div class="lcard">
+          <div class="ltop"><span class="lname">George Tudor</span><span class="ltime">Ieri 18:32</span></div>
+          <div class="lmsg">„Aveți urgențe dentare? Am durere de dinți de ieri seară."</div>
+          <div class="ltags"><span class="ltag">📞 0766 123 456</span><span class="ltag">🚨 Urgență</span><span class="ltag" style="background:rgba(0,204,136,.12);color:var(--grn)">Contactat</span></div>
+          <div class="lacts"><button class="btn btn-p">📞 Sună din nou</button><button class="btn btn-g">📅 Programează</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONVERSATIONS -->
+    <div class="panel" id="panel-conversations">
+      <div class="card">
+        <div class="card-head"><span class="card-title">🗨️ Conversații AI — Astăzi</span><span class="badge b-teal">47 conversații</span></div>
+        <div class="conv-item"><div class="conv-top"><span class="conv-name"><span class="cdot"></span>Alex Popescu</span><span class="conv-time">09:14</span></div><div class="conv-last">„Vreau implant dentar, am pierdut un dinte..."</div></div>
+        <div class="conv-item"><div class="conv-top"><span class="conv-name"><span class="cdot"></span>Ioana Mihai</span><span class="conv-time">08:55</span></div><div class="conv-last">„Vreau Invisalign, ce opțiuni aveți?"</div></div>
+        <div class="conv-item"><div class="conv-top"><span class="conv-name">George Tudor</span><span class="conv-time">Ieri 18:32</span></div><div class="conv-last">„Aveți urgențe dentare? Am durere..."</div></div>
+        <div class="conv-item"><div class="conv-top"><span class="conv-name">Ana Gheorghiu</span><span class="conv-time">Ieri 16:10</span></div><div class="conv-last">„Cât costă albirea dentară profesională?"</div></div>
+        <div class="conv-item"><div class="conv-top"><span class="conv-name">Mihai Stanescu</span><span class="conv-time">Ieri 14:20</span></div><div class="conv-last">„Acceptați Signal Iduna? Am asigurare..."</div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const days=['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+const months=['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+const now=new Date();
+document.getElementById('today-date').textContent=`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+
+function show(name,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+name)?.classList.add('active');
+  if(el)el.classList.add('active');
+  const titles={overview:'Dashboard Recepție',appointments:'Toate programările',doctors:'Calendare doctori',patients:'Pacienți',leads:'Lead-uri AI',conversations:'Conversații AI'};
+  document.getElementById('panel-title').textContent=titles[name]||name;
+}
+
+function logout(){
+  localStorage.removeItem('recepai_token');
+  localStorage.removeItem('recepai_role');
+  window.location.href='login.html';
+}
+</script>
+</body>
+</html>
