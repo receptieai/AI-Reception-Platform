@@ -7,8 +7,8 @@
 <script>
   const role = localStorage.getItem('recepai_role');
   if (!role) window.location.href = 'login.html';
-  if (role === 'owner') window.location.href = 'client-dashboard.html';
-  if (role === 'doctor') window.location.href = 'dashboard-doctor.html';
+  else if (role === 'owner') window.location.href = 'client-dashboard.html';
+  else if (role === 'doctor') window.location.href = 'dashboard-doctor.html';
 </script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
