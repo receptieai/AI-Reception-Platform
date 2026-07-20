@@ -302,6 +302,24 @@ function show(name,el){
   document.getElementById('panel-title').textContent=titles[name]||name;
 }
 
+function showIframe(src, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  if (el) el.classList.add('active');
+  const key = src.replace('.html','').replace('panel-','');
+  let panel = document.getElementById('panel-iframe-' + key);
+  if (!panel) {
+    panel = document.createElement('div');
+    panel.className = 'panel';
+    panel.id = 'panel-iframe-' + key;
+    panel.innerHTML = '<iframe src="' + src + '" style="width:100%;height:calc(100vh - 60px);border:none"></iframe>';
+    document.querySelector('.content').appendChild(panel);
+  }
+  panel.classList.add('active');
+  const titles = {'pacienti':'Pacienți','doctori':'Doctori','servicii':'Servicii'};
+  document.getElementById('panel-title').textContent = titles[key] || key;
+}
+
 function logout(){
   localStorage.removeItem('recepai_token');
   localStorage.removeItem('recepai_role');
