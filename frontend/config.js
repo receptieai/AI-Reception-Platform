@@ -23,7 +23,7 @@ const CONFIG = (function() {
     (
       location.hostname === 'localhost' || location.hostname === '127.0.0.1'
         ? 'http://localhost:8080'
-        : 'https://api.receptieai.ro'
+        : 'https://ai-reception-platform-production.up.railway.app'
     );
 
   const ENV =
