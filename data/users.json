@@ -21,9 +21,18 @@
     "email": "bitcoinfootprint@gmail.com",
     "password": "Megamind1987",
     "clientId": "CLI-JTRO1D",
-    "businessName": "DentaVita — Clinică Stomatologică București",
+    "businessName": "DentaVita \u2014 Clinic\u0103 Stomatologic\u0103 Bucure\u0219ti",
     "token": "tok_kh7epa4s591784802700342",
     "role": "owner",
     "createdAt": "2026-07-23T10:31:40.342Z"
+  },
+  "receptieaitest@gmail.com": {
+    "email": "receptieaitest@gmail.com",
+    "password": "Megamind1987...",
+    "clientId": "CLI-8ULSIV",
+    "businessName": "DentaVita",
+    "token": "tok_owner_recepai_test_2026",
+    "role": "owner",
+    "createdAt": "2026-07-23T00:00:00.000Z"
   }
 }

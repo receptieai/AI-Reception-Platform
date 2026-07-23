@@ -4,6 +4,20 @@
  * Lecții învățate: fetch pagini cu prețuri + extragere directă linkuri din HTML
  */
 
+// ── LOAD .ENV ──
+try {
+  require('fs').readFileSync(require('path').join(__dirname, '../.env'), 'utf8')
+    .split('\n').forEach(line => {
+      const idx = line.indexOf('=');
+      if (idx > 0) {
+        const k = line.substring(0, idx).trim();
+        const v = line.substring(idx + 1).trim();
+        if (k && !process.env[k]) process.env[k] = v;
+      }
+    });
+  console.log('[ENV] Loaded .env');
+} catch(e) { console.log('[ENV] No .env file'); }
+
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
@@ -17,11 +31,7 @@ const { notify, checkAndSendReminders } = require('./notificationEngine');
 const healthMonitor = require('./healthMonitor');
 const googleAuth = require('./googleAuth');
 
-// Load .env
-require('fs').readFileSync('.env', 'utf8').split('\n').forEach(line => {
-  const [k, v] = line.split('=');
-  if (k && v) process.env[k.trim()] = v.trim();
-});
+
 const { buildBusinessBrain } = require('./businessBrainScanner');
 
 // ── STORAGE ENGINE ──
