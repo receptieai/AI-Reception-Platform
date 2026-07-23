@@ -879,7 +879,7 @@ Returnează DOAR JSON valid fără text suplimentar:
     const code = p.get('code');
     const stateStr = p.get('state');
     if (!code) {
-      res.writeHead(302, { Location: 'http://localhost:9090/frontend/client-dashboard.html?error=no_code' });
+      res.writeHead(302, { Location: 'https://receptieai-frontend.pages.dev/client-dashboard.html?error=no_code' });
       res.end(); return;
     }
     try {
@@ -904,11 +904,11 @@ Returnează DOAR JSON valid fără text suplimentar:
       storage.audit('integration.connect', { clientId, scope, email: userInfo.email });
       console.log('[GOOGLE] Connected', scope, 'for', clientId, '-', userInfo.email);
 
-      res.writeHead(302, { Location: 'http://localhost:9090/frontend/client-dashboard.html?connected=' + scope });
+      res.writeHead(302, { Location: 'https://receptieai-frontend.pages.dev/client-dashboard.html?connected=' + scope });
       res.end();
     } catch(e) {
       console.error('[GOOGLE] OAuth error:', e.message);
-      res.writeHead(302, { Location: 'http://localhost:9090/frontend/client-dashboard.html?error=' + encodeURIComponent(e.message) });
+      res.writeHead(302, { Location: 'https://receptieai-frontend.pages.dev/client-dashboard.html?error=' + encodeURIComponent(e.message) });
       res.end();
     }
     return;
