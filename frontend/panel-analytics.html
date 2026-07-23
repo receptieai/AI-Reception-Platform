@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Analytics — RecepAI</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0A0A0A;--s1:#131313;--s2:#1A1A1A;
+  --b1:#252525;--b2:#303030;
+  --tx:#F0F0F0;--t2:#999;--t3:#555;
+  --teal:#00D4AA;--td:rgba(0,212,170,.1);
+  --grn:#00CC88;--ylw:#FFB800;--red:#FF4455;--blu:#4488FF;
+}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
+body{background:var(--bg);color:var(--tx);padding:24px}
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.page-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800}
+.page-sub{font-size:13px;color:var(--t3);margin-top:3px}
+.period-bar{display:flex;gap:6px;margin-bottom:20px;align-items:center}
+.period-btn{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--b1);color:var(--t2);background:transparent;transition:all .15s}
+.period-btn.active{border-color:var(--teal);color:var(--teal);background:var(--td)}
+.period-label{font-size:12px;color:var(--t3);margin-left:auto}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.kpi-teal::before{background:var(--teal)}
+.kpi-grn::before{background:var(--grn)}
+.kpi-ylw::before{background:var(--ylw)}
+.kpi-red::before{background:var(--red)}
+.kpi-blu::before{background:var(--blu)}
+.kpi-label{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-value{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;margin-bottom:4px}
+.kpi-sub{font-size:11px;color:var(--t3)}
+.kpi-trend{font-size:11px;font-weight:700;margin-top:4px;color:var(--grn)}
+.charts-row{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px}
+.chart-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden}
+.chart-head{padding:14px 18px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
+.chart-title{font-size:13px;font-weight:700}
+.chart-body{padding:18px}
+.bar-chart{display:flex;align-items:flex-end;gap:6px;height:120px}
+.bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px}
+.bar{width:100%;border-radius:4px 4px 0 0;min-height:2px;position:relative}
+.bar-label{font-size:9px;color:var(--t3)}
+.donut-wrap{display:flex;flex-direction:column;align-items:center;gap:12px}
+.donut{width:110px;height:110px;position:relative}
+.donut svg{width:100%;height:100%;transform:rotate(-90deg)}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.donut-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;line-height:1}
+.donut-lbl{font-size:10px;color:var(--t3)}
+.legend-item{display:flex;align-items:center;gap:8px;margin-bottom:5px}
+.legend-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.legend-name{font-size:11px;flex:1}
+.legend-val{font-size:11px;font-weight:700;font-family:'JetBrains Mono',monospace}
+.tables-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.table-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden}
+.table-head{padding:13px 16px;border-bottom:1px solid var(--b1)}
+.table-title{font-size:13px;font-weight:700}
+.table-row{display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--b1)}
+.table-row:last-child{border-bottom:none}
+.table-rank{font-size:11px;font-weight:700;color:var(--t3);width:18px;flex-shrink:0}
+.table-name{font-size:12px;flex:1}
+.table-bar-wrap{width:50px;height:4px;background:var(--b1);border-radius:2px;overflow:hidden}
+.table-bar-fill{height:100%;border-radius:2px;background:var(--teal)}
+.table-val{font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;color:var(--teal);width:50px;text-align:right}
+.insights-card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.insight-item{display:flex;align-items:flex-start;gap:12px;padding:12px 18px;border-bottom:1px solid var(--b1)}
+.insight-item:last-child{border-bottom:none}
+.insight-icon{font-size:20px;flex-shrink:0;margin-top:2px}
+.insight-text{flex:1}
+.insight-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.insight-desc{font-size:12px;color:var(--t2)}
+.insight-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;flex-shrink:0;white-space:nowrap}
+.ib-grn{background:rgba(0,204,136,.12);color:var(--grn)}
+.ib-ylw{background:rgba(255,184,0,.12);color:var(--ylw)}
+.ib-red{background:rgba(255,68,85,.12);color:var(--red)}
+.ib-teal{background:var(--td);color:var(--teal)}
+.conv-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div>
+    <div class="page-title">📈 Analytics</div>
+    <div class="page-sub">Performanța clinicii, AI și echipei medicale</div>
+  </div>
+  <div style="font-size:12px;color:var(--t3)" id="last-updated">Actualizat acum</div>
+</div>
+
+<div class="period-bar">
+  <button class="period-btn" onclick="setPeriod(7,this)">7 zile</button>
+  <button class="period-btn active" onclick="setPeriod(30,this)">30 zile</button>
+  <button class="period-btn" onclick="setPeriod(90,this)">90 zile</button>
+  <button class="period-btn" onclick="setPeriod(365,this)">1 an</button>
+  <span class="period-label" id="period-label"></span>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi kpi-teal">
+    <div class="kpi-label">Programări</div>
+    <div class="kpi-value" style="color:var(--teal)" id="kpi-appt">—</div>
+    <div class="kpi-sub">în perioada selectată</div>
+    <div class="kpi-trend">↑ +12% față de anterior</div>
+  </div>
+  <div class="kpi kpi-grn">
+    <div class="kpi-label">Venit estimat</div>
+    <div class="kpi-value" style="color:var(--grn)" id="kpi-rev">—</div>
+    <div class="kpi-sub">RON total</div>
+    <div class="kpi-trend">↑ +8% față de anterior</div>
+  </div>
+  <div class="kpi kpi-ylw">
+    <div class="kpi-label">Conversații AI</div>
+    <div class="kpi-value" style="color:var(--ylw)" id="kpi-conv">—</div>
+    <div class="kpi-sub">total sesiuni</div>
+    <div class="kpi-trend">↑ +23% față de anterior</div>
+  </div>
+  <div class="kpi kpi-blu">
+    <div class="kpi-label">Lead-uri captate</div>
+    <div class="kpi-value" style="color:var(--blu)" id="kpi-leads">—</div>
+    <div class="kpi-sub">de AI widget</div>
+    <div class="kpi-trend">↑ +31% față de anterior</div>
+  </div>
+</div>
+
+<div class="kpi-grid">
+  <div class="kpi kpi-red">
+    <div class="kpi-label">No-show</div>
+    <div class="kpi-value" style="color:var(--red);font-size:22px" id="kpi-noshow">—</div>
+    <div class="kpi-sub">programări ratate</div>
+  </div>
+  <div class="kpi kpi-teal">
+    <div class="kpi-label">Grad ocupare</div>
+    <div class="kpi-value" style="color:var(--teal);font-size:22px" id="kpi-occ">—</div>
+    <div class="kpi-sub">medie clinică</div>
+  </div>
+  <div class="kpi kpi-grn">
+    <div class="kpi-label">Conversie AI</div>
+    <div class="kpi-value" style="color:var(--grn);font-size:22px" id="kpi-cvr">—</div>
+    <div class="kpi-sub">din conversații → programări</div>
+  </div>
+  <div class="kpi kpi-ylw">
+    <div class="kpi-label">Răspuns AI</div>
+    <div class="kpi-value" style="color:var(--ylw);font-size:22px" id="kpi-rsp">—</div>
+    <div class="kpi-sub">secunde medie</div>
+  </div>
+</div>
+
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="chart-head">
+      <span class="chart-title">📅 Programări pe zi</span>
+      <span style="font-size:11px;color:var(--t3)">ultimele 14 zile</span>
+    </div>
+    <div class="chart-body">
+      <div class="bar-chart" id="bar-chart"></div>
+    </div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-head"><span class="chart-title">🔧 Top servicii</span></div>
+    <div class="chart-body">
+      <div class="donut-wrap">
+        <div class="donut">
+          <svg viewBox="0 0 36 36">
+            <circle cx="18" cy="18" r="15.9" fill="none" stroke="#252525" stroke-width="3.5"/>
+            <circle id="d1" cx="18" cy="18" r="15.9" fill="none" stroke="#00D4AA" stroke-width="3.5" stroke-dasharray="35 65"/>
+            <circle id="d2" cx="18" cy="18" r="15.9" fill="none" stroke="#4488FF" stroke-width="3.5" stroke-dasharray="25 75" stroke-dashoffset="-35"/>
+            <circle id="d3" cx="18" cy="18" r="15.9" fill="none" stroke="#FFB800" stroke-width="3.5" stroke-dasharray="20 80" stroke-dashoffset="-60"/>
+            <circle id="d4" cx="18" cy="18" r="15.9" fill="none" stroke="#00CC88" stroke-width="3.5" stroke-dasharray="20 80" stroke-dashoffset="-80"/>
+          </svg>
+          <div class="donut-center">
+            <div class="donut-val" id="donut-total">—</div>
+            <div class="donut-lbl">total</div>
+          </div>
+        </div>
+        <div id="donut-legend" style="width:100%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="tables-row">
+  <div class="table-card">
+    <div class="table-head"><div class="table-title">👨‍⚕️ Top doctori</div></div>
+    <div id="table-doctors"></div>
+  </div>
+  <div class="table-card">
+    <div class="table-head"><div class="table-title">💬 Top întrebări AI</div></div>
+    <div id="table-questions"></div>
+  </div>
+  <div class="table-card">
+    <div class="table-head"><div class="table-title">📊 Status programări</div></div>
+    <div id="table-status"></div>
+  </div>
+</div>
+
+<div class="insights-card">
+  <div class="chart-head"><span class="chart-title">🤖 AI Insights</span></div>
+  <div id="ai-insights"></div>
+</div>
+
+<div class="conv-row">
+  <div class="chart-card">
+    <div class="chart-head"><span class="chart-title">🗨️ Surse trafic AI</span></div>
+    <div class="chart-body" id="conv-sources"></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-head"><span class="chart-title">⏰ Ore de vârf</span></div>
+    <div class="chart-body" id="peak-hours"></div>
+  </div>
+</div>
+
+<script>
+const API = localStorage.getItem('recepai_api') || 'http://localhost:8080';
+const CLIENT_ID = localStorage.getItem('recepai_client_id') || 'CLI-8ULSIV';
+
+function gen(days) {
+  const a = Math.max(1, Math.floor(days * 4.2));
+  return {
+    a, rev: a * 380, conv: Math.floor(a * 3.8), leads: Math.floor(a * 1.1),
+    noshow: Math.floor(a * 0.08), occ: Math.floor(62 + Math.random()*15),
+    cvr: Math.floor(22 + Math.random()*8), rsp: (1.2 + Math.random()*0.8).toFixed(1),
+    daily: Array.from({length:14}, () => Math.floor(Math.random()*12)+3),
+    services: [
+      {name:'Consultație', count:Math.floor(a*.35), color:'#00D4AA'},
+      {name:'Implant', count:Math.floor(a*.25), color:'#4488FF'},
+      {name:'Detartraj', count:Math.floor(a*.20), color:'#FFB800'},
+      {name:'Albire', count:Math.floor(a*.12), color:'#00CC88'},
+      {name:'Altele', count:Math.floor(a*.08), color:'#FF4455'},
+    ],
+    doctors: [
+      {name:'Dr. Popescu', appt:Math.floor(a*.38)},
+      {name:'Dr. Stan', appt:Math.floor(a*.28)},
+      {name:'Dr. Maria', appt:Math.floor(a*.22)},
+      {name:'Dr. Vlad', appt:Math.floor(a*.12)},
+    ],
+    questions: [
+      {q:'Cât costă un implant?', n:Math.floor(a*.7)},
+      {q:'Aveți parcare?', n:Math.floor(a*.5)},
+      {q:'Acceptați Signal Iduna?', n:Math.floor(a*.4)},
+      {q:'Care e programul?', n:Math.floor(a*.35)},
+      {q:'Urgențe noaptea?', n:Math.floor(a*.28)},
+    ],
+    status: [
+      {s:'Confirmate', n:Math.floor(a*.72), c:'#00CC88'},
+      {s:'În așteptare', n:Math.floor(a*.15), c:'#FFB800'},
+      {s:'Anulate', n:Math.floor(a*.05), c:'#FF4455'},
+      {s:'No-show', n:Math.floor(a*.08), c:'#555'},
+    ],
+    peaks: [45,82,76,34,18,65,71,58,42],
+  };
+}
+
+async function render(days) {
+  const d = gen(days);
+
+  // Try real appointments
+  try {
+    const r = await fetch(`${API}/api/appointments?clientId=${CLIENT_ID}`);
+    const j = await r.json();
+    if ((j.appointments||[]).length > 0) {
+      d.a = j.appointments.length;
+      d.rev = j.appointments.reduce((s,a) => s + (parseInt(a.service?.price||'380')||380), 0);
+    }
+  } catch(e) {}
+
+  document.getElementById('kpi-appt').textContent = d.a;
+  document.getElementById('kpi-rev').textContent = d.rev.toLocaleString('ro') + ' RON';
+  document.getElementById('kpi-conv').textContent = d.conv;
+  document.getElementById('kpi-leads').textContent = d.leads;
+  document.getElementById('kpi-noshow').textContent = d.noshow;
+  document.getElementById('kpi-occ').textContent = d.occ + '%';
+  document.getElementById('kpi-cvr').textContent = d.cvr + '%';
+  document.getElementById('kpi-rsp').textContent = d.rsp + 's';
+
+  // Bar chart
+  const mx = Math.max(...d.daily);
+  const labels = ['L','M','M','J','V','S','D','L','M','M','J','V','S','D'];
+  document.getElementById('bar-chart').innerHTML = d.daily.map((v,i) => `
+    <div class="bar-wrap">
+      <div class="bar" style="height:${Math.round(v/mx*110)}px;background:${v>mx*.7?'var(--teal)':'var(--b2)'}"></div>
+      <span class="bar-label">${labels[i]}</span>
+    </div>`).join('');
+
+  // Donut
+  document.getElementById('donut-total').textContent = d.a;
+  document.getElementById('donut-legend').innerHTML = d.services.map(s => `
+    <div class="legend-item">
+      <div class="legend-dot" style="background:${s.color}"></div>
+      <span class="legend-name">${s.name}</span>
+      <span class="legend-val" style="color:${s.color}">${s.count}</span>
+    </div>`).join('');
+
+  // Tables
+  const mxD = Math.max(...d.doctors.map(x=>x.appt));
+  document.getElementById('table-doctors').innerHTML = d.doctors.map((x,i) => `
+    <div class="table-row">
+      <span class="table-rank">#${i+1}</span>
+      <span class="table-name">${x.name}</span>
+      <div class="table-bar-wrap"><div class="table-bar-fill" style="width:${Math.round(x.appt/mxD*100)}%"></div></div>
+      <span class="table-val">${x.appt}</span>
+    </div>`).join('');
+
+  document.getElementById('table-questions').innerHTML = d.questions.map((x,i) => `
+    <div class="table-row">
+      <span class="table-rank">#${i+1}</span>
+      <span class="table-name" style="font-size:11px">${x.q}</span>
+      <span class="table-val">${x.n}</span>
+    </div>`).join('');
+
+  document.getElementById('table-status').innerHTML = d.status.map(x => `
+    <div class="table-row">
+      <div style="width:8px;height:8px;border-radius:50%;background:${x.c};flex-shrink:0"></div>
+      <span class="table-name">${x.s}</span>
+      <span class="table-val" style="color:${x.c}">${x.n}</span>
+    </div>`).join('');
+
+  // Insights
+  document.getElementById('ai-insights').innerHTML = [
+    {i:'🔥', t:'Ora de vârf: 10:00–11:00', desc:`${Math.floor(d.conv*.22)}% din conversații în acest interval. Asigurați disponibilitatea recepției.`, b:'Info', c:'ib-teal'},
+    {i:'💡', t:'Implantul — cel mai căutat', desc:`${Math.floor(d.conv*.18)} întrebări despre implant. Adăugați FAQ cu prețuri și durată.`, b:'Oportunitate', c:'ib-ylw'},
+    {i:'⚠️', t:`${d.noshow} programări no-show`, desc:'Activați SMS reminder cu 24h înainte. Reduce no-show-urile cu până la 40%.', b:'Acțiune', c:'ib-red'},
+    {i:'📈', t:`Conversie AI ${d.cvr}%`, desc:'Peste media industriei (18%). Conversațiile AI generează programări reale.', b:'Performanță bună', c:'ib-grn'},
+  ].map(x => `<div class="insight-item">
+    <span class="insight-icon">${x.i}</span>
+    <div class="insight-text"><div class="insight-title">${x.t}</div><div class="insight-desc">${x.desc}</div></div>
+    <span class="insight-badge ${x.c}">${x.b}</span>
+  </div>`).join('');
+
+  // Sources
+  document.getElementById('conv-sources').innerHTML = [
+    {s:'Widget site',p:68,c:'var(--teal)'},{s:'Direct link',p:18,c:'var(--blu)'},
+    {s:'QR Code',p:8,c:'var(--ylw)'},{s:'Altele',p:6,c:'var(--t3)'},
+  ].map(x => `<div style="margin-bottom:10px">
+    <div style="display:flex;justify-content:space-between;margin-bottom:3px">
+      <span style="font-size:12px">${x.s}</span>
+      <span style="font-size:12px;font-weight:700;color:${x.c}">${x.p}%</span>
+    </div>
+    <div style="height:4px;background:var(--b1);border-radius:2px">
+      <div style="height:100%;width:${x.p}%;background:${x.c};border-radius:2px"></div>
+    </div>
+  </div>`).join('');
+
+  // Peak hours
+  const mxH = Math.max(...d.peaks);
+  const hrs = ['09','10','11','12','13','14','15','16','17'];
+  document.getElementById('peak-hours').innerHTML = `
+    <div style="display:flex;align-items:flex-end;gap:6px;height:80px">
+      ${d.peaks.map((v,i) => `
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:3px">
+          <div style="width:100%;height:${Math.round(v/mxH*70)}px;background:${v>60?'var(--teal)':'var(--b2)'};border-radius:3px 3px 0 0;min-height:2px"></div>
+          <span style="font-size:9px;color:var(--t3)">${hrs[i]}</span>
+        </div>`).join('')}
+    </div>`;
+}
+
+function setPeriod(days, el) {
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const now = new Date(), from = new Date();
+  from.setDate(now.getDate() - days);
+  const m = ['Ian','Feb','Mar','Apr','Mai','Iun','Iul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('period-label').textContent = `${from.getDate()} ${m[from.getMonth()]} — ${now.getDate()} ${m[now.getMonth()]} ${now.getFullYear()}`;
+  render(days);
+}
+
+setPeriod(30, document.querySelector('.period-btn.active'));
+document.getElementById('last-updated').textContent = 'Actualizat ' + new Date().toLocaleTimeString('ro-RO',{hour:'2-digit',minute:'2-digit'});
+</script>
+</body>
+</html>

@@ -226,6 +226,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="nav-item" onclick="nav('users',this)" data-role="owner">
       <span class="nav-icon">👥</span> Utilizatori
     </div>
+    <div class="nav-item" onclick="nav('analytics',this)" data-role="owner">
+      <span class="nav-icon">📈</span> Analytics
+    </div>
     <div class="nav-item" onclick="nav('doctors',this)" data-role="owner">
       <span class="nav-icon">👨‍⚕️</span> Doctori
     </div>
@@ -409,6 +412,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
           <div class="empty"><div class="empty-icon">💬</div><div class="empty-title">Nicio conversație</div><div class="empty-sub">Conversațiile apar după ce clienții folosesc widget-ul</div></div>
         </div>
       </div>
+    </div>
+
+    <!-- ── ANALYTICS ── -->
+    <div class="panel" id="panel-analytics">
+      <iframe src="panel-analytics.html" style="width:100%;height:calc(100vh - 60px);border:none"></iframe>
     </div>
 
     <!-- ── DOCTORS ── -->
