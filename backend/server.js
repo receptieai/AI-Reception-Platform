@@ -15,6 +15,13 @@ const clinicConfig = require('./clinicConfig');
 const availability = require('./availabilityEngine');
 const { notify, checkAndSendReminders } = require('./notificationEngine');
 const healthMonitor = require('./healthMonitor');
+const googleAuth = require('./googleAuth');
+
+// Load .env
+require('fs').readFileSync('.env', 'utf8').split('\n').forEach(line => {
+  const [k, v] = line.split('=');
+  if (k && v) process.env[k.trim()] = v.trim();
+});
 const { buildBusinessBrain } = require('./businessBrainScanner');
 
 // ── STORAGE ENGINE ──
@@ -835,6 +842,93 @@ Returnează DOAR JSON valid fără text suplimentar:
     if (!profile) { sendJson(res, { error: 'Profilul nu exista' }, 404); return; }
     const config = clinicConfig.importFromBrain(body.clientId, profile);
     sendJson(res, { success: true, config });
+    return;
+  }
+
+  // ── GOOGLE OAUTH ──────────────────────────────────
+  if (pathname === '/auth/google' && req.method === 'GET') {
+    const p = new URL('http://x' + req.url).searchParams;
+    const clientId = p.get('clientId');
+    const scope = p.get('scope') || 'gmail';
+    if (!clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    const url = googleAuth.getAuthUrl(clientId, scope);
+    res.writeHead(302, { Location: url });
+    res.end();
+    return;
+  }
+
+  if (pathname === '/auth/google/callback' && req.method === 'GET') {
+    const p = new URL('http://x' + req.url).searchParams;
+    const code = p.get('code');
+    const stateStr = p.get('state');
+    if (!code) {
+      res.writeHead(302, { Location: 'http://localhost:9090/frontend/client-dashboard.html?error=no_code' });
+      res.end(); return;
+    }
+    try {
+      const state = JSON.parse(stateStr || '{}');
+      const tokens = await googleAuth.exchangeCode(code);
+      const userInfo = await googleAuth.getUserInfo(tokens.access_token);
+      const scope = state.scope || 'gmail';
+      const clientId = state.clientId;
+
+      // Save integration
+      const settings = storage.getSettings(clientId);
+      settings[scope] = {
+        connected: true,
+        email: userInfo.email,
+        name: userInfo.name,
+        picture: userInfo.picture,
+        accessToken: tokens.access_token,
+        refreshToken: tokens.refresh_token,
+        connectedAt: new Date().toISOString(),
+      };
+      storage.saveSettings(clientId, settings);
+      storage.audit('integration.connect', { clientId, scope, email: userInfo.email });
+      console.log('[GOOGLE] Connected', scope, 'for', clientId, '-', userInfo.email);
+
+      res.writeHead(302, { Location: 'http://localhost:9090/frontend/client-dashboard.html?connected=' + scope });
+      res.end();
+    } catch(e) {
+      console.error('[GOOGLE] OAuth error:', e.message);
+      res.writeHead(302, { Location: 'http://localhost:9090/frontend/client-dashboard.html?error=' + encodeURIComponent(e.message) });
+      res.end();
+    }
+    return;
+  }
+
+  if (pathname === '/api/integrations/status' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    const settings = storage.getSettings(clientId);
+    sendJson(res, {
+      success: true,
+      integrations: {
+        gmail: { connected: !!settings.gmail?.connected, email: settings.gmail?.email || null },
+        calendar: { connected: !!settings.calendar?.connected, email: settings.calendar?.email || null },
+        whatsapp: { connected: !!settings.whatsapp?.connected },
+      }
+    });
+    return;
+  }
+
+  if (pathname === '/api/integrations/disconnect' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId || !body.scope) { sendJson(res, { error: 'Date lipsesc' }, 400); return; }
+    googleAuth.disconnect(body.clientId, body.scope);
+    sendJson(res, { success: true });
+    return;
+  }
+
+  if (pathname === '/api/gmail/send' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { clientId, to, subject, html, toName } = body;
+    if (!clientId || !to || !subject) { sendJson(res, { error: 'Date lipsesc' }, 400); return; }
+    try {
+      const result = await googleAuth.sendGmail(clientId, to, subject, html || subject, toName);
+      sendJson(res, { success: true, messageId: result.id });
+    } catch(e) {
+      sendJson(res, { success: false, error: e.message }, 500);
+    }
     return;
   }
 

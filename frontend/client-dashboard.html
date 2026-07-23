@@ -238,6 +238,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="nav-item" onclick="nav('services',this)" data-role="owner">
       <span class="nav-icon">🔧</span> Servicii
     </div>
+    <div class="nav-item" onclick="nav('integrations',this);loadIntegrations()" data-role="owner">
+      <span class="nav-icon">🔌</span> Integrări
+    </div>
     <div class="nav-item" onclick="nav('health',this);loadHealth()" data-role="owner">
       <span class="nav-icon">❤️</span> Health
     </div>
@@ -470,6 +473,75 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
           </div>
           <button class="btn btn-primary" style="width:100%" onclick="inviteUser()">➕ Adaugă în echipă</button>
           <div id="invite-msg" style="margin-top:10px;font-size:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── INTEGRATIONS ── -->
+    <div class="panel" id="panel-integrations">
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:4px">🔌 Integrări</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:20px">Conectează instrumentele clinicii tale</div>
+
+      <!-- GMAIL -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-body" style="padding:18px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:48px;height:48px;border-radius:12px;background:#EA4335;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">📧</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700">Gmail</div>
+              <div style="font-size:12px;color:var(--t3);margin-top:2px">Trimite confirmări și remindere din Gmail-ul clinicii</div>
+              <div id="gmail-status" style="font-size:11px;margin-top:4px;color:var(--t3)">⚪ Neconectat</div>
+            </div>
+            <div id="gmail-actions">
+              <button class="btn btn-primary" onclick="connectGoogle('gmail')">🔗 Conectează Gmail</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- GOOGLE CALENDAR -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-body" style="padding:18px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:48px;height:48px;border-radius:12px;background:#4285F4;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">📅</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700">Google Calendar</div>
+              <div style="font-size:12px;color:var(--t3);margin-top:2px">Sincronizează programările cu Google Calendar</div>
+              <div id="calendar-status" style="font-size:11px;margin-top:4px;color:var(--t3)">⚪ Neconectat</div>
+            </div>
+            <div id="calendar-actions">
+              <button class="btn btn-ghost" onclick="connectGoogle('calendar')">🔗 Conectează Calendar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- WHATSAPP -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-body" style="padding:18px">
+          <div style="display:flex;align-items:center;gap:14px">
+            <div style="width:48px;height:48px;border-radius:12px;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0">💬</div>
+            <div style="flex:1">
+              <div style="font-size:15px;font-weight:700">WhatsApp Business</div>
+              <div style="font-size:12px;color:var(--t3);margin-top:2px">Trimite notificări pe WhatsApp pacienților</div>
+              <div id="whatsapp-status" style="font-size:11px;margin-top:4px;color:var(--t3)">⚪ Neconectat</div>
+            </div>
+            <div>
+              <button class="btn btn-ghost" onclick="showToast('WhatsApp — în curând!')">🔗 Conectează WhatsApp</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TEST GMAIL -->
+      <div class="card" id="gmail-test-card" style="display:none">
+        <div class="card-head"><span class="card-title">🧪 Testează Gmail</span></div>
+        <div class="card-body" style="padding:18px">
+          <div style="display:flex;gap:10px;margin-bottom:10px">
+            <input id="gmail-test-to" type="email" placeholder="email@test.ro" style="flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;outline:none">
+            <button class="btn btn-primary" onclick="testGmail()">📤 Trimite test</button>
+          </div>
+          <div id="gmail-test-result" style="font-size:12px"></div>
         </div>
       </div>
     </div>
@@ -1352,6 +1424,72 @@ async function loadNotifLog() {
         </div>
       </div>`).join('');
   } catch(e) {}
+}
+
+// ── INTEGRATIONS ──
+async function loadIntegrations() {
+  try {
+    const res = await fetch(`${API}/api/integrations/status?clientId=${CLIENT_ID}`);
+    const d = await res.json();
+    const intg = d.integrations || {};
+
+    // Gmail
+    const gmailStatus = document.getElementById('gmail-status');
+    const gmailActions = document.getElementById('gmail-actions');
+    const gmailTest = document.getElementById('gmail-test-card');
+    if (intg.gmail?.connected) {
+      if (gmailStatus) { gmailStatus.textContent = '✅ Conectat: ' + intg.gmail.email; gmailStatus.style.color = 'var(--grn)'; }
+      if (gmailActions) gmailActions.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="disconnectIntegration('gmail')">Deconectează</button>`;
+      if (gmailTest) gmailTest.style.display = '';
+    }
+
+    // Calendar
+    const calStatus = document.getElementById('calendar-status');
+    if (intg.calendar?.connected) {
+      if (calStatus) { calStatus.textContent = '✅ Conectat: ' + intg.calendar.email; calStatus.style.color = 'var(--grn)'; }
+    }
+
+    // Check URL params for just-connected
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('connected')) { showToast('✅ ' + urlParams.get('connected') + ' conectat cu succes!'); history.replaceState({}, '', window.location.pathname); }
+    if (urlParams.get('error')) { showToast('❌ Eroare: ' + urlParams.get('error')); history.replaceState({}, '', window.location.pathname); }
+  } catch(e) {}
+}
+
+function connectGoogle(scope) {
+  window.location.href = `${API}/auth/google?clientId=${CLIENT_ID}&scope=${scope}`;
+}
+
+async function disconnectIntegration(scope) {
+  if (!confirm('Deconectezi ' + scope + '?')) return;
+  await fetch(`${API}/api/integrations/disconnect`, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({ clientId: CLIENT_ID, scope })
+  });
+  showToast('✅ ' + scope + ' deconectat');
+  loadIntegrations();
+}
+
+async function testGmail() {
+  const to = document.getElementById('gmail-test-to')?.value;
+  const result = document.getElementById('gmail-test-result');
+  if (!to) { result.textContent = '⚠ Completează emailul'; return; }
+  result.textContent = '⏳ Se trimite...'; result.style.color = 'var(--t2)';
+  try {
+    const res = await fetch(`${API}/api/gmail/send`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        clientId: CLIENT_ID, to,
+        subject: 'Test RecepAI — Gmail conectat!',
+        html: '<h2>✅ Gmail funcționează!</h2><p>RecepAI poate trimite emailuri din contul clinicii tale.</p>'
+      })
+    });
+    const d = await res.json();
+    if (d.success) { result.textContent = '✅ Email trimis cu succes!'; result.style.color = 'var(--grn)'; }
+    else { result.textContent = '❌ ' + (d.error || 'Eroare'); result.style.color = 'var(--red)'; }
+  } catch(e) { result.textContent = '❌ ' + e.message; result.style.color = 'var(--red)'; }
 }
 
 // ── HEALTH MONITOR ──
