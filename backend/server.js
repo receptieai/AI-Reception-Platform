@@ -608,6 +608,18 @@ CÂND CLIENTUL VREA PROGRAMARE:
 }
 
 // ── HELPERS ───────────────────────────────────
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let body = '';
+    req.on('data', chunk => { body += chunk.toString(); if (body.length > 1e6) req.destroy(); });
+    req.on('end', () => {
+      try { resolve(body ? JSON.parse(body) : {}); }
+      catch(e) { resolve({}); }
+    });
+    req.on('error', reject);
+  });
+}
+
 function setCors(res, origin) {
   res.setHeader('Access-Control-Allow-Origin', origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
