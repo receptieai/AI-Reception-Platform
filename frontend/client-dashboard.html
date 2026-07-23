@@ -238,6 +238,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="nav-item" onclick="nav('services',this)" data-role="owner">
       <span class="nav-icon">🔧</span> Servicii
     </div>
+    <div class="nav-item" onclick="nav('notifications',this);loadNotifSettings()" data-role="owner">
+      <span class="nav-icon">🔔</span> Notificări
+    </div>
     <div class="nav-item" onclick="nav('settings',this)" data-role="owner">
       <span class="nav-icon">⚙️</span> Setări
     </div>
@@ -464,6 +467,81 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
           </div>
           <button class="btn btn-primary" style="width:100%" onclick="inviteUser()">➕ Adaugă în echipă</button>
           <div id="invite-msg" style="margin-top:10px;font-size:12px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── NOTIFICATIONS ── -->
+    <div class="panel" id="panel-notifications">
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-head"><span class="card-title">📱 SMS & Email — Configurare</span></div>
+        <div class="card-body" style="padding:18px">
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--b1)">
+            <div>
+              <div style="font-size:13px;font-weight:700">📱 SMS Notificări</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">Confirmare programare, reminder 24h, anulare</div>
+            </div>
+            <div id="sms-toggle" onclick="toggleNotif('sms')" style="width:44px;height:24px;background:var(--b2);border-radius:12px;position:relative;cursor:pointer;transition:background .2s">
+              <div id="sms-knob" style="position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s"></div>
+            </div>
+          </div>
+
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--b1)">
+            <div>
+              <div style="font-size:13px;font-weight:700">📧 Email Notificări</div>
+              <div style="font-size:11px;color:var(--t3);margin-top:2px">Confirmare și reminder prin email</div>
+            </div>
+            <div id="email-toggle" onclick="toggleNotif('email')" style="width:44px;height:24px;background:var(--b2);border-radius:12px;position:relative;cursor:pointer;transition:background .2s">
+              <div id="email-knob" style="position:absolute;width:20px;height:20px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s"></div>
+            </div>
+          </div>
+
+          <div style="padding:12px 0;border-bottom:1px solid var(--b1)">
+            <div style="font-size:13px;font-weight:700;margin-bottom:8px">⏰ Reminder cu</div>
+            <select id="reminder-hours" onchange="saveNotifSettings()" style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:13px;outline:none;width:200px">
+              <option value="2">2 ore înainte</option>
+              <option value="12">12 ore înainte</option>
+              <option value="24" selected>24 ore înainte</option>
+              <option value="48">48 ore înainte</option>
+            </select>
+          </div>
+
+          <div style="padding:12px 0">
+            <div style="font-size:13px;font-weight:700;margin-bottom:4px">🔑 Brevo API Key</div>
+            <div style="font-size:11px;color:var(--t3);margin-bottom:8px">Necesară pentru SMS și Email. Creează cont gratuit pe brevo.com</div>
+            <div style="display:flex;gap:8px">
+              <input id="brevo-key" type="password" placeholder="xkeysib-..." style="flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;outline:none">
+              <button class="btn btn-primary" onclick="saveBrevoKey()" style="padding:9px 16px;font-size:12px">💾 Salvează</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom:14px">
+        <div class="card-head">
+          <span class="card-title">🧪 Testează notificările</span>
+        </div>
+        <div class="card-body" style="padding:18px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--t3);display:block;margin-bottom:5px">TELEFON TEST</label>
+              <input id="test-phone" placeholder="0721 234 567" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;outline:none">
+            </div>
+            <div>
+              <label style="font-size:11px;font-weight:600;color:var(--t3);display:block;margin-bottom:5px">EMAIL TEST</label>
+              <input id="test-email" type="email" placeholder="test@email.ro" style="width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;outline:none">
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="testNotification()">📤 Trimite notificare test</button>
+          <div id="test-result" style="margin-top:10px;font-size:12px"></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><span class="card-title">📋 Log notificări recente</span></div>
+        <div id="notif-log" style="padding:14px">
+          <div style="text-align:center;padding:20px;color:var(--t3)">Nicio notificare trimisă încă</div>
         </div>
       </div>
     </div>
@@ -1146,6 +1224,108 @@ async function loadTeam() {
         <div style="display:flex;gap:6px">
           <button onclick="editUser('${u.email}','${u.role}')" style="background:var(--td);border:none;color:var(--teal);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:600">✏️</button>
           ${u.role !== 'owner' ? `<button onclick="deleteUser('${u.email}')" style="background:rgba(255,68,85,.12);border:none;color:var(--red);border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-weight:600">✕</button>` : ''}
+        </div>
+      </div>`).join('');
+  } catch(e) {}
+}
+
+// ── NOTIFICATIONS ──
+let notifSettings = { smsEnabled: false, emailEnabled: false, reminderHours: 24 };
+
+async function loadNotifSettings() {
+  try {
+    const res = await fetch(`${API}/api/clinic/config?clientId=${CLIENT_ID}`);
+    const d = await res.json();
+    notifSettings = d.config?.notifications || notifSettings;
+    updateNotifUI();
+    loadNotifLog();
+  } catch(e) {}
+}
+
+function updateNotifUI() {
+  const smsT = document.getElementById('sms-toggle');
+  const smsK = document.getElementById('sms-knob');
+  const emailT = document.getElementById('email-toggle');
+  const emailK = document.getElementById('email-knob');
+  const rh = document.getElementById('reminder-hours');
+  if (smsT) { smsT.style.background = notifSettings.smsEnabled ? 'var(--teal)' : 'var(--b2)'; smsK.style.left = notifSettings.smsEnabled ? '22px' : '2px'; }
+  if (emailT) { emailT.style.background = notifSettings.emailEnabled ? 'var(--teal)' : 'var(--b2)'; emailK.style.left = notifSettings.emailEnabled ? '22px' : '2px'; }
+  if (rh) rh.value = notifSettings.reminderHours || 24;
+}
+
+function toggleNotif(type) {
+  if (type === 'sms') notifSettings.smsEnabled = !notifSettings.smsEnabled;
+  if (type === 'email') notifSettings.emailEnabled = !notifSettings.emailEnabled;
+  updateNotifUI();
+  saveNotifSettings();
+}
+
+async function saveNotifSettings() {
+  notifSettings.reminderHours = parseInt(document.getElementById('reminder-hours')?.value || 24);
+  try {
+    await fetch(`${API}/api/clinic/config/section`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ clientId: CLIENT_ID, section: 'notifications', data: notifSettings })
+    });
+    showToast('✅ Setări salvate');
+  } catch(e) { showToast('❌ Eroare salvare'); }
+}
+
+async function saveBrevoKey() {
+  const key = document.getElementById('brevo-key')?.value.trim();
+  if (!key) return;
+  try {
+    await fetch(`${API}/api/clinic/config/section`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ clientId: CLIENT_ID, section: 'notifications', data: { ...notifSettings, brevoKey: key } })
+    });
+    showToast('✅ Brevo key salvat');
+  } catch(e) { showToast('❌ Eroare'); }
+}
+
+async function testNotification() {
+  const phone = document.getElementById('test-phone')?.value;
+  const email = document.getElementById('test-email')?.value;
+  const result = document.getElementById('test-result');
+  if (!phone && !email) { result.textContent = '⚠ Completează telefonul sau emailul'; result.style.color = 'var(--ylw)'; return; }
+  result.textContent = '⏳ Se trimite...'; result.style.color = 'var(--t2)';
+  try {
+    const res = await fetch(`${API}/api/notify/test`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ clientId: CLIENT_ID, phone, email })
+    });
+    const d = await res.json();
+    if (d.sent) {
+      result.textContent = `✅ Trimis! SMS: ${d.sms ? '✓' : '✗'} Email: ${d.email ? '✓' : '✗'}`;
+      result.style.color = 'var(--grn)';
+    } else {
+      result.textContent = '❌ Nu s-a trimis — verifică Brevo API key și setările';
+      result.style.color = 'var(--red)';
+    }
+  } catch(e) { result.textContent = '❌ Eroare: ' + e.message; result.style.color = 'var(--red)'; }
+}
+
+async function loadNotifLog() {
+  try {
+    const res = await fetch(`${API}/api/audit?clientId=${CLIENT_ID}`);
+    const d = await res.json();
+    const notifs = (d.audit || []).filter(e => e.action?.startsWith('notification.'));
+    const el = document.getElementById('notif-log');
+    if (!el) return;
+    if (!notifs.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--t3)">Nicio notificare trimisă încă</div>'; return; }
+    el.innerHTML = notifs.slice(0,10).map(n => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;border-bottom:1px solid var(--b1)">
+        <span style="font-size:16px">${n.action.includes('Confirmed') ? '✅' : n.action.includes('Reminder') ? '⏰' : '📤'}</span>
+        <div style="flex:1">
+          <div style="font-size:13px;font-weight:600">${n.patient || 'Pacient'}</div>
+          <div style="font-size:11px;color:var(--t3)">${n.action} · ${new Date(n.ts).toLocaleString('ro-RO')}</div>
+        </div>
+        <div style="font-size:11px">
+          ${n.sms ? '<span style="color:var(--grn)">SMS ✓</span>' : '<span style="color:var(--t3)">SMS ✗</span>'}
+          ${n.email !== undefined ? (n.email ? ' <span style="color:var(--grn)">Email ✓</span>' : ' <span style="color:var(--t3)">Email ✗</span>') : ''}
         </div>
       </div>`).join('');
   } catch(e) {}

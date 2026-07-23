@@ -1,5 +1,19 @@
 [
   {
+    "ts": "2026-07-23T10:15:29.780Z",
+    "action": "notification.appointmentConfirmed",
+    "clientId": "CLI-8ULSIV",
+    "patient": "Test Pacient",
+    "phone": "0721234567",
+    "email": false
+  },
+  {
+    "ts": "2026-07-23T10:03:02.297Z",
+    "action": "profile.save",
+    "clientId": "CLI-V08HJK",
+    "name": "DentaVita — Clinică Stomatologică București"
+  },
+  {
     "ts": "2026-07-20T20:16:16.755Z",
     "action": "appointment.save",
     "id": "appt_1784578576753",

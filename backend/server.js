@@ -13,6 +13,7 @@ const { extractAll } = require('./extractors');
 const storage = require('./storage');
 const clinicConfig = require('./clinicConfig');
 const availability = require('./availabilityEngine');
+const { notify, checkAndSendReminders } = require('./notificationEngine');
 const { buildBusinessBrain } = require('./businessBrainScanner');
 
 // ── STORAGE ENGINE ──
@@ -836,6 +837,34 @@ Returnează DOAR JSON valid fără text suplimentar:
     return;
   }
 
+  // ── NOTIFICATIONS ────────────────────────────────
+  if (pathname === '/api/notify/send' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { type, appointmentId, clientId } = body;
+    if (!type || !clientId) { sendJson(res, { error: 'type si clientId lipsesc' }, 400); return; }
+    const appts = storage.getAppointments(clientId);
+    const appt = appts.find(a => a.id === appointmentId) || body.appointment;
+    if (!appt) { sendJson(res, { error: 'Programarea nu exista' }, 404); return; }
+    const result = await notify(type, appt, clientId);
+    sendJson(res, { success: true, ...result });
+    return;
+  }
+
+  if (pathname === '/api/notify/test' && req.method === 'POST') {
+    const body = await parseBody(req);
+    const { clientId, phone, email } = body;
+    const testAppt = {
+      patient: { name: 'Test Pacient', phone, email },
+      service: { name: 'Consultație test' },
+      doctor: { name: 'Dr. Test' },
+      date: new Date(Date.now() + 86400000).toISOString(),
+      slot: '10:00',
+    };
+    const result = await notify('appointmentConfirmed', testAppt, clientId);
+    sendJson(res, { success: true, ...result });
+    return;
+  }
+
   // ── AVAILABILITY ────────────────────────────────
   if (pathname === '/api/availability/slots' && req.method === 'GET') {
     const p = new URL('http://x' + req.url).searchParams;
@@ -899,6 +928,10 @@ Returnează DOAR JSON valid fără text suplimentar:
     const body = await parseBody(req);
     if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
     const appt = storage.saveAppointment({ ...body, id: body.id || 'appt_' + Date.now() });
+    // Auto-notify patient
+    if (body.notify !== false) {
+      notify('appointmentConfirmed', appt, body.clientId).catch(e => console.error('[NOTIFY]', e.message));
+    }
     sendJson(res, { success: true, appointment: appt });
     return;
   }
