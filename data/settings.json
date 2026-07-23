@@ -60,5 +60,15 @@
     ],
     "emergencyNote": "Medic de gardă 24/7, telefon urgențe: 0722 123 456. Tarif suplimentar urgență: 200 RON.",
     "updatedAt": "2026-07-20T19:41:02.172Z"
+  },
+  "CLI-JTRO1D": {
+    "notifications": {
+      "smsEnabled": false,
+      "emailEnabled": true,
+      "reminderHours": 24,
+      "confirmationSms": false,
+      "noShowAlert": true
+    },
+    "updatedAt": "2026-07-23T10:42:29.630Z"
   }
 }

@@ -14,6 +14,7 @@ const storage = require('./storage');
 const clinicConfig = require('./clinicConfig');
 const availability = require('./availabilityEngine');
 const { notify, checkAndSendReminders } = require('./notificationEngine');
+const healthMonitor = require('./healthMonitor');
 const { buildBusinessBrain } = require('./businessBrainScanner');
 
 // ── STORAGE ENGINE ──
@@ -834,6 +835,14 @@ Returnează DOAR JSON valid fără text suplimentar:
     if (!profile) { sendJson(res, { error: 'Profilul nu exista' }, 404); return; }
     const config = clinicConfig.importFromBrain(body.clientId, profile);
     sendJson(res, { success: true, config });
+    return;
+  }
+
+  // ── HEALTH MONITOR ──────────────────────────────
+  if (pathname === '/api/health/full' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    const result = await healthMonitor.runAll(clientId);
+    sendJson(res, result);
     return;
   }
 

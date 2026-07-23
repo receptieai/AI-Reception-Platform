@@ -1,5 +1,57 @@
 [
   {
+    "ts": "2026-07-23T10:42:29.630Z",
+    "action": "settings.save",
+    "clientId": "CLI-JTRO1D"
+  },
+  {
+    "ts": "2026-07-23T10:42:25.167Z",
+    "action": "settings.save",
+    "clientId": "CLI-JTRO1D"
+  },
+  {
+    "ts": "2026-07-23T10:37:03.382Z",
+    "action": "profile.save",
+    "clientId": "CLI-JTRO1D",
+    "name": "DentaVita — Clinică Stomatologică București"
+  },
+  {
+    "ts": "2026-07-23T10:35:10.712Z",
+    "action": "profile.save",
+    "clientId": "CLI-JTRO1D",
+    "name": "DentaVita — Clinică Stomatologică București"
+  },
+  {
+    "ts": "2026-07-23T10:35:09.870Z",
+    "action": "profile.save",
+    "clientId": "CLI-JTRO1D",
+    "name": "DentaVita — Clinică Stomatologică București"
+  },
+  {
+    "ts": "2026-07-23T10:31:40.932Z",
+    "action": "profile.save",
+    "clientId": "CLI-JTRO1D",
+    "name": "DentaVita — Clinică Stomatologică București"
+  },
+  {
+    "ts": "2026-07-23T10:31:40.360Z",
+    "action": "profile.save",
+    "clientId": "CLI-JTRO1D",
+    "name": "DentaVita — Clinică Stomatologică București"
+  },
+  {
+    "ts": "2026-07-23T10:31:40.342Z",
+    "action": "user.save",
+    "email": "bitcoinfootprint@gmail.com",
+    "role": "owner"
+  },
+  {
+    "ts": "2026-07-23T10:31:13.099Z",
+    "action": "user.save",
+    "email": "owner@dentavita.ro",
+    "role": "reception"
+  },
+  {
     "ts": "2026-07-23T10:15:29.780Z",
     "action": "notification.appointmentConfirmed",
     "clientId": "CLI-8ULSIV",

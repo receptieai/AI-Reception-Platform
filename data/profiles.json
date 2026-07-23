@@ -2095,5 +2095,1121 @@
         "active": true
       }
     ]
+  },
+  "CLI-JTRO1D": {
+    "name": "DentaVita — Clinică Stomatologică București",
+    "brand": "DentaVita",
+    "description": "Clinică stomatologică completă în București, Sector 1, oferind servicii de la consultații de rutină la implantologie, ortodonție, estetică dentară și pedodonție. Echipă cu 6 medici specialiști și tehnologie de ultimă generație.",
+    "industry": "dental",
+    "address": "Str. Doctor Felix nr. 87, Sector 1, București, 011033, Etaj 2, Clădirea MedCenter (lângă Piața Victoriei)",
+    "city": "București",
+    "phone": "031 234 56 78",
+    "phone_urgente": "0722 123 456",
+    "email": "contact@dentavita.ro",
+    "email_programari": "programari@dentavita.ro",
+    "whatsapp": null,
+    "facebook": "/DentaVitaBucuresti",
+    "instagram": "@dentavita.ro",
+    "website": "satoshicourt.com",
+    "hours": "Luni – Vineri 08:00 – 20:00, Sâmbătă 09:00 – 15:00, Duminică Închis, Urgențe dentare 24/7 (apel telefonic)",
+    "hours_structured": {
+      "luni": "08:00-20:00",
+      "marti": "08:00-20:00",
+      "miercuri": "08:00-20:00",
+      "joi": "08:00-20:00",
+      "vineri": "08:00-20:00",
+      "sambata": "09:00-15:00",
+      "duminica": "Închis",
+      "urgente": "24/7"
+    },
+    "parking": "Parcare subterană gratuită, 30 locuri",
+    "accessibility": "Acces persoane cu dizabilități: Da",
+    "payment_methods": [
+      "numerar",
+      "card Visa",
+      "card Mastercard",
+      "transfer bancar",
+      "rate BRD Finance",
+      "rate TBI Credit"
+    ],
+    "financing": "Rate prin BRD Finance și TBI Credit, 3–36 rate, dobândă 0% pentru primele 12 rate pentru tratamente peste 2.000 RON. Avans minim 20%. Aprobare în 15 minute.",
+    "insurance": [
+      "CASMB — decontare parțială",
+      "Signal Iduna — partener direct",
+      "Allianz-Țiriac — partener direct",
+      "Generali — pe bază de factură",
+      "Medicover — acceptată",
+      "MedLife — acceptată",
+      "Asigurări corporate (pe factură)"
+    ],
+    "languages": [
+      "română"
+    ],
+    "doctors": [
+      {
+        "name": "Dr. Diana Marinescu",
+        "specialty": "Medic Primar Implantologie, fondatoarea clinicii, specializare Universitatea din Berna, membră EAO, peste 3.000 implanturi inserate"
+      },
+      {
+        "name": "Dr. Andrei Popescu",
+        "specialty": "Medic Specialist Ortodonție, certificat Diamond Invisalign Provider, tratează pacienți de la 6 ani"
+      },
+      {
+        "name": "Dr. Elena Constantinescu",
+        "specialty": "Medic Specialist Chirurgie Orală, specializare Charité Berlin, expert extracții complexe și chirurgie ghidată digital"
+      },
+      {
+        "name": "Dr. Mihai Vlad",
+        "specialty": "Medic Specialist Endodonție, expert retratamente endodontice sub microscop, sisteme rotative de ultimă generație"
+      },
+      {
+        "name": "Dr. Raluca Stan",
+        "specialty": "Medic Specialist Pedodonție, certificată în sedare conștientă cu protoxid de azot"
+      },
+      {
+        "name": "Dr. Cristian Ionescu",
+        "specialty": "Medic Specialist Protetică Dentară, specialist reabilitări protetice complexe pe implanturi, lucrări CAD/CAM"
+      }
+    ],
+    "services": [
+      {
+        "name": "Consultație + radiografie",
+        "price": "150 RON",
+        "duration": null,
+        "description": "Consultație generală cu plan de tratament"
+      },
+      {
+        "name": "Detartraj + periaj profesional",
+        "price": "250 RON",
+        "duration": null,
+        "description": "Igienizare profesională completă"
+      },
+      {
+        "name": "Obturație compozită (1 suprafață)",
+        "price": "200 RON",
+        "duration": null,
+        "description": "Plombare estetică cu compozit"
+      },
+      {
+        "name": "Obturație compozită (2+ suprafețe)",
+        "price": "250–350 RON",
+        "duration": null,
+        "description": "Plombare estetică extinsă"
+      },
+      {
+        "name": "Tratament de canal monoradicular",
+        "price": "500 RON",
+        "duration": null,
+        "description": "Endodonție dinte monoradicular"
+      },
+      {
+        "name": "Tratament de canal pluriradicular",
+        "price": "700–900 RON",
+        "duration": null,
+        "description": "Endodonție dinte pluriradicular"
+      },
+      {
+        "name": "Retratament endodontic",
+        "price": "800–1.200 RON",
+        "duration": null,
+        "description": "Retratament canal radicular"
+      },
+      {
+        "name": "Extracție simplă",
+        "price": "200 RON",
+        "duration": null,
+        "description": "Extracție dentară simplă"
+      },
+      {
+        "name": "Extracție chirurgicală",
+        "price": "400–600 RON",
+        "duration": null,
+        "description": "Extracție chirurgicală inclusiv molari de minte"
+      },
+      {
+        "name": "Implant Straumann (elvețian)",
+        "price": "3.500 RON",
+        "duration": "3–6 luni proces complet",
+        "description": "Implant dentar premium elvețian"
+      },
+      {
+        "name": "Implant Nobel Biocare (suedez)",
+        "price": "3.800 RON",
+        "duration": "3–6 luni proces complet",
+        "description": "Implant dentar premium suedez"
+      },
+      {
+        "name": "Implant MegaGen (corean)",
+        "price": "2.500 RON",
+        "duration": "3–6 luni proces complet",
+        "description": "Implant dentar corean"
+      },
+      {
+        "name": "Bont de vindecare",
+        "price": "350 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Bont protetic individualizat",
+        "price": "600 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Sinus lifting intern",
+        "price": "800 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Sinus lifting extern",
+        "price": "2.000 RON",
+        "duration": null,
+        "description": null
+      },
+      {
+        "name": "Adiție osoasă",
+        "price": "1.000–2.500 RON",
+        "duration": null,
+        "description": "Regenerare și adiție osoasă"
+      },
+      {
+        "name": "All-on-4 (o arcadă completă)",
+        "price": "25.000 RON",
+        "duration": null,
+        "description": "Reabilitare completă arcadă pe 4 implanturi"
+      },
+      {
+        "name": "Albire profesională in-office (Zoom)",
+        "price": "1.200 RON",
+        "duration": "60–90 minute",
+        "description": "Albire dentară profesională în cabinet, rezultat 4–8 nuanțe mai deschis, se menține 1–2 ani"
+      },
+      {
+        "name": "Kit albire la domiciliu",
+        "price": "800 RON",
+        "duration": null,
+        "description": "Albire dentară cu gutiere la domiciliu"
+      },
+      {
+        "name": "Fațetă ceramică E-max (per dinte)",
+        "price": "2.200 RON",
+        "duration": null,
+        "description": "Fațetă din porțelan E-max"
+      },
+      {
+        "name": "Coroană zirconiu",
+        "price": "1.500 RON",
+        "duration": null,
+        "description": "Coroană integral ceramică din zirconiu"
+      },
+      {
+        "name": "Coroană E-max",
+        "price": "1.800 RON",
+        "duration": null,
+        "description": "Coroană integral ceramică E-max"
+      },
+      {
+        "name": "Coroană pe implant (zirconiu)",
+        "price": "1.800 RON",
+        "duration": null,
+        "description": "Coroană zirconiu montată pe implant"
+      },
+      {
+        "name": "Punte ceramică (3 elemente)",
+        "price": "4.500 RON",
+        "duration": null,
+        "description": "Punte dentară ceramică 3 elemente"
+      },
+      {
+        "name": "Proteză acrilică totală",
+        "price": "1.500 RON",
+        "duration": null,
+        "description": "Proteză mobilă acrilică totală"
+      },
+      {
+        "name": "Proteză flexibilă Valplast",
+        "price": "2.200 RON",
+        "duration": null,
+        "description": "Proteză mobilă flexibilă Valplast"
+      },
+      {
+        "name": "Consultație ortodontică + plan",
+        "price": "GRATUITĂ",
+        "duration": null,
+        "description": "Prima consultație ortodontică cu plan de tratament gratuit"
+      },
+      {
+        "name": "Aparat metalic fix (o arcadă)",
+        "price": "3.000 RON",
+        "duration": null,
+        "description": "Aparat dentar metalic clasic fix"
+      },
+      {
+        "name": "Aparat ceramic fix (o arcadă)",
+        "price": "4.000 RON",
+        "duration": null,
+        "description": "Aparat dentar ceramic transparent fix"
+      },
+      {
+        "name": "Invisalign Lite (până la 14 gutiere)",
+        "price": "8.000 RON",
+        "duration": null,
+        "description": "Aliniere invizibilă Invisalign variantă ușoară"
+      },
+      {
+        "name": "Invisalign Comprehensive",
+        "price": "14.000 RON",
+        "duration": null,
+        "description": "Aliniere invizibilă Invisalign complet"
+      },
+      {
+        "name": "Contenție fixă (per arcadă)",
+        "price": "500 RON",
+        "duration": null,
+        "description": "Menținere după tratament ortodontic"
+      },
+      {
+        "name": "Control lunar ortodonție",
+        "price": "200 RON",
+        "duration": null,
+        "description": "Control lunar aparat dentar"
+      },
+      {
+        "name": "Consultație copii (2–16 ani)",
+        "price": "de la 100 RON",
+        "duration": null,
+        "description": "Consultație pediatrică stomatologică"
+      },
+      {
+        "name": "Sigilare fisuri și șanțuri",
+        "price": null,
+        "duration": null,
+        "description": "Sigilare preventivă pentru copii"
+      },
+      {
+        "name": "Fluoruizare profesională",
+        "price": null,
+        "duration": null,
+        "description": "Tratament fluor pentru copii"
+      },
+      {
+        "name": "Sedare conștientă (protoxid de azot)",
+        "price": null,
+        "duration": null,
+        "description": "Sedare cu gaz ilariant pentru pacienți anxioși și copii"
+      },
+      {
+        "name": "Evaluare parodontală completă",
+        "price": "de la 200 RON",
+        "duration": null,
+        "description": "Diagnostic boală parodontală"
+      },
+      {
+        "name": "Detartraj subgingival (deep cleaning)",
+        "price": null,
+        "duration": null,
+        "description": "Curățare profundă subgingivală"
+      },
+      {
+        "name": "Chirurgie parodontală cu lambou",
+        "price": null,
+        "duration": null,
+        "description": "Tratament chirurgical parodontal"
+      },
+      {
+        "name": "Terapie laser diodă (Biolase)",
+        "price": null,
+        "duration": null,
+        "description": "Tratament gingival cu laser fără sângerare"
+      },
+      {
+        "name": "Design digital al zâmbetului (DSD)",
+        "price": "de la 800 RON",
+        "duration": null,
+        "description": "Planificare digitală estetică zâmbet"
+      },
+      {
+        "name": "Extracție molar de minte inclus",
+        "price": "de la 400 RON",
+        "duration": null,
+        "description": "Extracție chirurgicală molar de minte inclus"
+      },
+      {
+        "name": "Rezecție apicală",
+        "price": null,
+        "duration": null,
+        "description": "Intervenție chirurgicală apicală"
+      },
+      {
+        "name": "Frenectomie",
+        "price": null,
+        "duration": null,
+        "description": "Chirurgie fren lingual/labial"
+      }
+    ],
+    "packages": [],
+    "promotions": [
+      "Ofertă iulie: Albire dentară profesională cu 40% reducere"
+    ],
+    "faq": [
+      {
+        "question": "Cât durează un implant dentar de la inserare până la coroana finală?",
+        "answer": "Procesul complet durează 3-6 luni. După inserare, osteointegrarea durează 3-4 luni (mandibulă) sau 4-6 luni (maxilar). În cazurile eligibile oferim încărcare imediată — dinți în aceeași zi."
+      },
+      {
+        "question": "Este dureros tratamentul dentar?",
+        "answer": "Nu. Toate procedurile se efectuează sub anestezie locală. Pentru pacienții anxioși oferim sedare conștientă cu protoxid de azot sau sedare intravenoasă cu medic anestezist."
+      },
+      {
+        "question": "Ce fac în caz de urgență dentară noaptea sau în weekend?",
+        "answer": "Sunați la 0722 123 456. Avem medic de gardă 24/7. Tarif suplimentar de urgență: 200 RON."
+      },
+      {
+        "question": "Pot plăti în rate?",
+        "answer": "Da. Rate prin BRD Finance și TBI Credit (3-36 rate). Dobândă 0% primele 12 rate pentru tratamente peste 2.000 RON. Avans minim 20%. Aprobare în 15 minute."
+      },
+      {
+        "question": "Ce garanție oferiți?",
+        "answer": "10 ani implanturi, 5 ani coroane și fațete, 3 ani obturații, 2 ani proteze mobile. Condiționat de controale la 6 luni."
+      },
+      {
+        "question": "Acceptați pacienți din străinătate?",
+        "answer": "Da. Pachete de turism dentar cu planificare la distanță. Trimiteți radiografia pe email, primiți plan de tratament în 24h. Sesiuni intensive de 3-5 zile."
+      },
+      {
+        "question": "Ce vârstă minimă pentru prima vizită la copii?",
+        "answer": "Recomandăm prima vizită la 1 an sau la apariția primului dinte. Între 2-3 ani se fac primele sigilări."
+      },
+      {
+        "question": "Cât durează albirea dentară și cât rezistă?",
+        "answer": "60-90 minute, rezultat de 4-8 nuanțe mai deschis, se menține 1-2 ani. Nu albim gravide, copii sub 16 ani sau pacienți cu carii active."
+      }
+    ],
+    "guarantees": "10 ani implanturi, 5 ani coroane și fațete, 3 ani obturații, 2 ani proteze mobile. Condiționat de controale la 6 luni.",
+    "emergency": "Medic de gardă 24/7, telefon urgențe: 0722 123 456. Tarif suplimentar urgență: 200 RON.",
+    "booking": "Programare online prin formularul de pe site (răspuns în maxim 2 ore) sau telefonic la 031 234 56 78. Se poate selecta serviciul dorit și medicul preferat.",
+    "children": "Da, pedodonție pentru copii 2–16 ani, prima vizită recomandată de la 1 an. Sedare conștientă cu protoxid de azot disponibilă. Medic specialist dedicat Dr. Raluca Stan.",
+    "specialties": [
+      "Stomatologie Generală",
+      "Estetică Dentară",
+      "Implantologie",
+      "Ortodonție",
+      "Chirurgie Orală",
+      "Pedodonție",
+      "Protetică Dentară",
+      "Parodontologie",
+      "Endodonție",
+      "Turism dentar"
+    ],
+    "technologies": [
+      "CBCT 3D Planmeca",
+      "Scanner Intraoral iTero 5D",
+      "Laser Diodă Biolase",
+      "Microscop Dentar Zeiss (mărire până la 25x)",
+      "CAD/CAM CEREC (coroane în aceeași zi)",
+      "Chirurgie Ghidată Digital (ghiduri 3D printate)",
+      "Implanturi Straumann",
+      "Implanturi Nobel Biocare",
+      "Sistem Invisalign"
+    ],
+    "certificates": "Dr. Andrei Popescu — Diamond Invisalign Provider; Dr. Diana Marinescu �� membră EAO (European Association of Osseointegration); Dr. Raluca Stan — certificată sedare conștientă protoxid de azot; toți medicii cu minim 8 ani experiență și specializări internaționale (Universitatea din Berna, University of Pennsylvania, Charité Berlin, Universitatea din Zürich, King's College London, Universitatea din Milano)",
+    "confidence": 97,
+    "scannedAt": "2026-07-20T10:14:53.859Z",
+    "scannerVersion": "brain-v1",
+    "clientId": "CLI-JTRO1D",
+    "services_v2": [
+      {
+        "id": "svc_1784802700926_yau6",
+        "name": "Consultație + radiografie",
+        "cat": "stomatologie",
+        "price": "150",
+        "priceType": "fix",
+        "desc": "Consultație generală cu plan de tratament",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_kwtw",
+        "name": "Detartraj + periaj profesional",
+        "cat": "stomatologie",
+        "price": "250",
+        "priceType": "fix",
+        "desc": "Igienizare profesională completă",
+        "durProc": 45,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_nqq3",
+        "name": "Obturație compozită (1 suprafață)",
+        "cat": "stomatologie",
+        "price": "200",
+        "priceType": "fix",
+        "desc": "Plombare estetică cu compozit",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_9oac",
+        "name": "Obturație compozită (2+ suprafețe)",
+        "cat": "stomatologie",
+        "price": "250350",
+        "priceType": "fix",
+        "desc": "Plombare estetică extinsă",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_zw6d",
+        "name": "Tratament de canal monoradicular",
+        "cat": "stomatologie",
+        "price": "500",
+        "priceType": "fix",
+        "desc": "Endodonție dinte monoradicular",
+        "durProc": 60,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_t8an",
+        "name": "Tratament de canal pluriradicular",
+        "cat": "stomatologie",
+        "price": "700900",
+        "priceType": "fix",
+        "desc": "Endodonție dinte pluriradicular",
+        "durProc": 60,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_vqk7",
+        "name": "Retratament endodontic",
+        "cat": "stomatologie",
+        "price": "8001200",
+        "priceType": "fix",
+        "desc": "Retratament canal radicular",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_jr9f",
+        "name": "Extracție simplă",
+        "cat": "stomatologie",
+        "price": "200",
+        "priceType": "fix",
+        "desc": "Extracție dentară simplă",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_jis3",
+        "name": "Extracție chirurgicală",
+        "cat": "stomatologie",
+        "price": "400600",
+        "priceType": "fix",
+        "desc": "Extracție chirurgicală inclusiv molari de minte",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_02iq",
+        "name": "Implant Straumann (elvețian)",
+        "cat": "implant",
+        "price": "3500",
+        "priceType": "fix",
+        "desc": "Implant dentar premium elvețian",
+        "durProc": 90,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_8dz0",
+        "name": "Implant Nobel Biocare (suedez)",
+        "cat": "implant",
+        "price": "3800",
+        "priceType": "fix",
+        "desc": "Implant dentar premium suedez",
+        "durProc": 90,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_n7on",
+        "name": "Implant MegaGen (corean)",
+        "cat": "implant",
+        "price": "2500",
+        "priceType": "fix",
+        "desc": "Implant dentar corean",
+        "durProc": 90,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700926_rpwr",
+        "name": "Bont de vindecare",
+        "cat": "stomatologie",
+        "price": "350",
+        "priceType": "fix",
+        "desc": "",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_akvi",
+        "name": "Bont protetic individualizat",
+        "cat": "stomatologie",
+        "price": "600",
+        "priceType": "fix",
+        "desc": "",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_uulq",
+        "name": "Sinus lifting intern",
+        "cat": "implant",
+        "price": "800",
+        "priceType": "fix",
+        "desc": "",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_hu34",
+        "name": "Sinus lifting extern",
+        "cat": "implant",
+        "price": "2000",
+        "priceType": "fix",
+        "desc": "",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_7s2p",
+        "name": "Adiție osoasă",
+        "cat": "stomatologie",
+        "price": "10002500",
+        "priceType": "fix",
+        "desc": "Regenerare și adiție osoasă",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_l63l",
+        "name": "All-on-4 (o arcadă completă)",
+        "cat": "stomatologie",
+        "price": "25000",
+        "priceType": "fix",
+        "desc": "Reabilitare completă arcadă pe 4 implanturi",
+        "durProc": 180,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_0za2",
+        "name": "Albire profesională in-office (Zoom)",
+        "cat": "estetica",
+        "price": "1200",
+        "priceType": "fix",
+        "desc": "Albire dentară profesională în cabinet, rezultat 4–8 nuanțe mai deschis, se menține 1–2 ani",
+        "durProc": 90,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_99ds",
+        "name": "Kit albire la domiciliu",
+        "cat": "estetica",
+        "price": "800",
+        "priceType": "fix",
+        "desc": "Albire dentară cu gutiere la domiciliu",
+        "durProc": 90,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_vz15",
+        "name": "Fațetă ceramică E-max (per dinte)",
+        "cat": "stomatologie",
+        "price": "2200",
+        "priceType": "fix",
+        "desc": "Fațetă din porțelan E-max",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_m97i",
+        "name": "Coroană zirconiu",
+        "cat": "stomatologie",
+        "price": "1500",
+        "priceType": "fix",
+        "desc": "Coroană integral ceramică din zirconiu",
+        "durProc": 60,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_ejun",
+        "name": "Coroană E-max",
+        "cat": "stomatologie",
+        "price": "1800",
+        "priceType": "fix",
+        "desc": "Coroană integral ceramică E-max",
+        "durProc": 60,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_bla8",
+        "name": "Coroană pe implant (zirconiu)",
+        "cat": "implant",
+        "price": "1800",
+        "priceType": "fix",
+        "desc": "Coroană zirconiu montată pe implant",
+        "durProc": 90,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_nyvw",
+        "name": "Punte ceramică (3 elemente)",
+        "cat": "stomatologie",
+        "price": "4500",
+        "priceType": "fix",
+        "desc": "Punte dentară ceramică 3 elemente",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_5myl",
+        "name": "Proteză acrilică totală",
+        "cat": "stomatologie",
+        "price": "1500",
+        "priceType": "fix",
+        "desc": "Proteză mobilă acrilică totală",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_3u3e",
+        "name": "Proteză flexibilă Valplast",
+        "cat": "stomatologie",
+        "price": "2200",
+        "priceType": "fix",
+        "desc": "Proteză mobilă flexibilă Valplast",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_pyzr",
+        "name": "Consultație ortodontică + plan",
+        "cat": "ortodontie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Prima consultație ortodontică cu plan de tratament gratuit",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_6ulh",
+        "name": "Aparat metalic fix (o arcadă)",
+        "cat": "ortodontie",
+        "price": "3000",
+        "priceType": "fix",
+        "desc": "Aparat dentar metalic clasic fix",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_5t5m",
+        "name": "Aparat ceramic fix (o arcadă)",
+        "cat": "ortodontie",
+        "price": "4000",
+        "priceType": "fix",
+        "desc": "Aparat dentar ceramic transparent fix",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_hp8i",
+        "name": "Invisalign Lite (până la 14 gutiere)",
+        "cat": "ortodontie",
+        "price": "8000",
+        "priceType": "fix",
+        "desc": "Aliniere invizibilă Invisalign variantă ușoară",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_cm47",
+        "name": "Invisalign Comprehensive",
+        "cat": "ortodontie",
+        "price": "14000",
+        "priceType": "fix",
+        "desc": "Aliniere invizibilă Invisalign complet",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_52qk",
+        "name": "Contenție fixă (per arcadă)",
+        "cat": "stomatologie",
+        "price": "500",
+        "priceType": "fix",
+        "desc": "Menținere după tratament ortodontic",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_55uj",
+        "name": "Control lunar ortodonție",
+        "cat": "ortodontie",
+        "price": "200",
+        "priceType": "fix",
+        "desc": "Control lunar aparat dentar",
+        "durProc": 15,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_5mfz",
+        "name": "Consultație copii (2–16 ani)",
+        "cat": "pediatrie",
+        "price": "100",
+        "priceType": "de_la",
+        "desc": "Consultație pediatrică stomatologică",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_8wi3",
+        "name": "Sigilare fisuri și șanțuri",
+        "cat": "pediatrie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Sigilare preventivă pentru copii",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_qqqx",
+        "name": "Fluoruizare profesională",
+        "cat": "pediatrie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Tratament fluor pentru copii",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_v8mr",
+        "name": "Sedare conștientă (protoxid de azot)",
+        "cat": "stomatologie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Sedare cu gaz ilariant pentru pacienți anxioși și copii",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_0yus",
+        "name": "Evaluare parodontală completă",
+        "cat": "parodontologie",
+        "price": "200",
+        "priceType": "de_la",
+        "desc": "Diagnostic boală parodontală",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_1jgg",
+        "name": "Detartraj subgingival (deep cleaning)",
+        "cat": "parodontologie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Curățare profundă subgingivală",
+        "durProc": 45,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_dsiu",
+        "name": "Chirurgie parodontală cu lambou",
+        "cat": "parodontologie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Tratament chirurgical parodontal",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_eoca",
+        "name": "Terapie laser diodă (Biolase)",
+        "cat": "stomatologie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Tratament gingival cu laser fără sângerare",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_i6rf",
+        "name": "Design digital al zâmbetului (DSD)",
+        "cat": "stomatologie",
+        "price": "800",
+        "priceType": "de_la",
+        "desc": "Planificare digitală estetică zâmbet",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_bwur",
+        "name": "Extracție molar de minte inclus",
+        "cat": "stomatologie",
+        "price": "400",
+        "priceType": "de_la",
+        "desc": "Extracție chirurgicală molar de minte inclus",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_c2xd",
+        "name": "Rezecție apicală",
+        "cat": "stomatologie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Intervenție chirurgicală apicală",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      },
+      {
+        "id": "svc_1784802700927_7rl3",
+        "name": "Frenectomie",
+        "cat": "chirurgie",
+        "price": "",
+        "priceType": "fix",
+        "desc": "Chirurgie fren lingual/labial",
+        "durProc": 30,
+        "durClean": 10,
+        "durPrep": 5,
+        "durBuffer": 0,
+        "doctors": [],
+        "online": "yes",
+        "active": true
+      }
+    ]
   }
 }
