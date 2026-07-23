@@ -625,15 +625,7 @@ function setCors(res, origin) {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
 }
 
-function setCors_old(res) {
 
-function parseBody(req) {
-  return new Promise(r => {
-    let b = '';
-    req.on('data', c => b += c);
-    req.on('end', () => { try { r(JSON.parse(b || '{}')); } catch { r({}); } });
-  });
-}
 
 function sendJson(res, data, status = 200) {
   res.writeHead(status, { 'Content-Type': 'application/json' });
