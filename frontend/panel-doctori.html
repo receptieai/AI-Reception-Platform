@@ -263,7 +263,7 @@ body{background:var(--bg);color:var(--tx);min-height:100vh;padding:24px}
 
 <script>
 const CLIENT_ID = localStorage.getItem('recepai_client_id') || 'CLI-8ULSIV';
-const API = localStorage.getItem('recepai_api') || 'http://localhost:8080';
+const API = localStorage.getItem('recepai_api') || 'https://ai-reception-platform-production.up.railway.app';
 
 let DOCTORS = JSON.parse(localStorage.getItem('recepai_doctors_' + CLIENT_ID) || 'null') || [
   {
