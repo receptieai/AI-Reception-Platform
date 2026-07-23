@@ -609,17 +609,7 @@ CÂND CLIENTUL VREA PROGRAMARE:
 
 // ── HELPERS ───────────────────────────────────
 function setCors(res, origin) {
-  const allowed = [
-    'http://localhost:9090',
-    'http://localhost:3000',
-    'https://receptieai-frontend.pages.dev',
-    'https://receptieai.ro',
-    'https://www.receptieai.ro',
-    'https://satoshicourt.com',
-  ];
-  const o = origin || '';
-  const allowedOrigin = allowed.find(a => o.startsWith(a)) ? o : allowed[0];
-  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Origin', origin || '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization');
   res.setHeader('Access-Control-Allow-Credentials', 'true');
