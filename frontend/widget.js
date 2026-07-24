@@ -486,15 +486,16 @@ Apoi adaugă exact: [LEAD_READY]`;
     };
 
     try {
-      await fetch(`${C.apiUrl}/api/lead`, {
+      await fetch(`${C.apiUrl}/api/leads/save`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           clientId: C.clientId,
-          businessName: C.name,
-          ownerEmail: C.ownerEmail,
-          businessPhone: C.phone,
-          lead,
+          name: lead.name || lead.nume,
+          phone: lead.phone || lead.telefon,
+          service: lead.service || lead.serviciu,
+          message: lead.message || lead.mesaj || '',
+          score: lead.score || 'warm',
         }),
       });
       console.log('[RecepAI] Lead trimis:', lead);
