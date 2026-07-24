@@ -623,23 +623,20 @@ async function sendLeadNotification(lead) {
     const settings = storage.getSettings ? storage.getSettings(lead.clientId) : {};
     const email = settings.notifEmail || settings.email;
     if (!email) return;
-    const scoreLabel = lead.score === 'hot' ? '🔥 URGENT' : lead.score === 'warm' ? '🟡 Interesat' : '⚪ Pasiv';
-    await sendEmail(email, 
-      `RecepAI — Lead nou: ${lead.name}`,
-      `<div style="font-family:Inter,sans-serif;max-width:480px;margin:0 auto;padding:24px">
-        <h2 style="color:#6366F1;font-size:20px;margin-bottom:16px">📥 Lead nou primit</h2>
-        <table style="width:100%;border-collapse:collapse">
-          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px;width:120px">NUME</td><td style="font-weight:700">${lead.name}</td></tr>
-          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px">TELEFON</td><td style="font-weight:700;color:#6366F1">${lead.phone || '—'}</td></tr>
-          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px">SERVICIU</td><td>${lead.service || '—'}</td></tr>
-          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px">PRIORITATE</td><td>${scoreLabel}</td></tr>
-          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px">ORA</td><td>${new Date(lead.createdAt).toLocaleString('ro-RO')}</td></tr>
-        </table>
-        ${lead.message ? `<div style="background:#F9FAFB;border-radius:8px;padding:14px;margin-top:16px;font-size:13px;color:#374151">${lead.message}</div>` : ''}
-        <p style="margin-top:20px;font-size:12px;color:#9CA3AF">RecepAI — radarul care nu lasă niciun client să se piardă</p>
+    await sendEmail({
+      to: email,
+      toName: 'Recepție',
+      subject: `RecepAI — Lead nou: ${lead.name}`,
+      html: `<div style="font-family:Inter,sans-serif;padding:24px;max-width:480px">
+        <h2 style="color:#6366F1">📥 Lead nou primit</h2>
+        <p><b>Nume:</b> ${lead.name}</p>
+        <p><b>Telefon:</b> ${lead.phone || '—'}</p>
+        <p><b>Serviciu:</b> ${lead.service || '—'}</p>
+        <p><b>Ora:</b> ${new Date(lead.createdAt).toLocaleString('ro-RO')}</p>
+        ${lead.message ? '<p><b>Mesaj:</b> ' + lead.message + '</p>' : ''}
       </div>`
-    );
-    console.log('[LEAD] Email notificare trimis la', email);
+    });
+    console.log('[LEAD] Email trimis la', email);
   } catch(e) {
     console.error('[LEAD] Eroare notificare:', e.message);
   }
