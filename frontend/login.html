@@ -129,7 +129,7 @@ async function doLogin() {
     localStorage.setItem('recepai_role', role);
     if (role === 'doctor') window.location.href = 'dashboard-doctor.html';
     else if (role === 'reception') window.location.href = 'dashboard-receptie.html';
-    else window.location.href = 'client-dashboard.html';
+    else window.location.href = 'dashboard-owner.html';
   } catch(e) {
     showError('login-error', 'Eroare conexiune. Verifică că serverul rulează.');
     btn.textContent = 'Intră în cont'; btn.disabled = false;

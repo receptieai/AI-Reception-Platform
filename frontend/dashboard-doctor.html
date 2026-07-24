@@ -3,371 +3,633 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Doctor — RecepAI</title>
-<script>
-  // Redirect if not doctor
-  const role = localStorage.getItem('recepai_role');
-  if (!role) window.location.href = 'login.html';
-  if (role === 'owner') window.location.href = 'client-dashboard.html';
-  if (role === 'reception') window.location.href = 'dashboard-receptie.html';
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>RecepAI — Doctor</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0A0A0A;--s1:#131313;--s2:#1A1A1A;--b1:#252525;--b2:#303030;--tx:#F0F0F0;--t2:#999;--t3:#555;--teal:#00D4AA;--td:rgba(0,212,170,.1);--grn:#00CC88;--ylw:#FFB800;--red:#FF4455}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex}
-.sidebar{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0}
-.sidebar-top{padding:18px 20px;border-bottom:1px solid var(--b1)}
-.logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
-.logo span{color:var(--teal)}
-.role-badge{font-size:10px;background:rgba(0,212,170,.15);color:var(--teal);padding:2px 8px;border-radius:8px;font-weight:700;margin-top:4px;display:inline-block}
-.doctor-info{padding:14px 20px;border-bottom:1px solid var(--b1)}
-.doc-av{width:40px;height:40px;border-radius:50%;background:var(--td);border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px}
-.doc-name{font-size:13px;font-weight:700}
-.doc-spec{font-size:11px;color:var(--t3)}
-nav{flex:1;padding:8px 0}
-.ni{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .15s;border-left:2px solid transparent}
-.ni:hover{color:var(--tx);background:var(--s2)}
-.ni.active{color:var(--teal);background:var(--td);border-left-color:var(--teal)}
-.ni-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
-.sidebar-bottom{padding:14px 20px;border-top:1px solid var(--b1)}
-.logout{font-size:12px;color:var(--t3);cursor:pointer}
-.logout:hover{color:var(--red)}
-.main{flex:1;overflow-y:auto}
-.topbar{padding:14px 28px;border-bottom:1px solid var(--b1);background:var(--s1);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}
-.topbar-title{font-size:15px;font-weight:700}
-.topbar-sub{font-size:11px;color:var(--t3);margin-top:2px}
-.topbar-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--grn);font-weight:600}
-.topbar-status::before{content:'';width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite}
+:root{--bg:#080808;--s1:#101010;--s2:#161616;--s3:#1E1E1E;--b1:#242424;--b2:#2E2E2E;--tx:#EFEFEF;--t2:#8A8A8A;--t3:#484848;--teal:#00D4AA;--td:rgba(0,212,170,.08);--tm:rgba(0,212,170,.18);--grn:#00C278;--ylw:#F5A623;--red:#FF3B55;--r:10px;--r-sm:6px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;font-size:14px;}
+.sb{width:200px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0;}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--b1);}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.5px;}
+.logo em{color:var(--teal);font-style:normal;}
+.logo-sub{font-size:9px;color:var(--t3);font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:.8px;}
+.doc-info{padding:14px 16px;border-bottom:1px solid var(--b1);}
+.doc-av{width:42px;height:42px;border-radius:50%;background:var(--td);border:2px solid var(--teal);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:8px;}
+.doc-name{font-size:13px;font-weight:700;}
+.doc-spec{font-size:11px;color:var(--t3);}
+.sb-nav{flex:1;padding:8px;overflow-y:auto;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .12s;position:relative;}
+.ni:hover{background:var(--s2);color:var(--tx);}
+.ni.active{background:var(--td);color:var(--teal);}
+.ni.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2px;background:var(--teal);border-radius:2px;}
+.ni-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;}
+.sb-bottom{padding:12px;border-top:1px solid var(--b1);}
+.logout{background:none;border:none;color:var(--t3);cursor:pointer;font-size:12px;display:flex;align-items:center;gap:6px;}
+.logout:hover{color:var(--red);}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.topbar{padding:13px 22px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;background:var(--s1);position:sticky;top:0;z-index:10;}
+.topbar-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.topbar-sub{font-size:11px;color:var(--t3);margin-top:1px;}
+.topbar-status{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--grn);font-weight:600;}
+.topbar-status::before{content:'';width:6px;height:6px;background:var(--grn);border-radius:50%;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-.content{padding:22px 28px}
-.panel{display:none}.panel.active{display:block}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px}
-.stat{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px 18px}
-.stat.hi{border-color:var(--teal);background:var(--td)}
-.stat-lbl{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
-.stat-sub{font-size:11px;color:var(--t3);margin-top:4px}
-.next-box{background:var(--s1);border:2px solid var(--teal);border-radius:12px;padding:18px 20px;margin-bottom:20px;display:flex;gap:20px;align-items:flex-start}
-.next-time{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--teal);width:90px;flex-shrink:0;padding-top:2px}
-.next-info{flex:1}
-.next-proc{font-size:15px;font-weight:700;margin-bottom:3px}
-.next-patient{font-size:13px;color:var(--t2)}
-.next-note{font-size:11px;color:var(--t3);margin-top:4px;font-style:italic}
-.next-btns{display:flex;gap:8px}
-.card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;margin-bottom:16px}
-.card-head{padding:13px 18px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
-.card-title{font-size:13px;font-weight:700}
-.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
-.badge-teal{background:var(--td);color:var(--teal)}
-.badge-ylw{background:rgba(255,184,0,.12);color:var(--ylw)}
-.arow{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
-.arow:last-child{border-bottom:none}
-.arow:hover{background:var(--s2)}
-.arow.now{background:var(--td);border-left:2px solid var(--teal)}
-.arow.done{opacity:.5}
-.atime{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--teal);width:52px;flex-shrink:0}
-.adot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
-.ainfo{flex:1}
-.aproc{font-size:13px;font-weight:600}
-.apat{font-size:11px;color:var(--t3);margin-top:1px}
-.astatus{font-size:10px;font-weight:700;padding:2px 8px;border-radius:7px}
-.s-ok{background:rgba(0,204,136,.12);color:var(--grn)}
-.s-pend{background:rgba(255,184,0,.12);color:var(--ylw)}
-.s-now{background:var(--td);color:var(--teal)}
-.s-done{background:var(--s2);color:var(--t3)}
-.btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
-.btn-p{background:var(--teal);color:#000}.btn-p:hover{background:#00FFCC}
-.btn-g{background:transparent;color:var(--t2);border:1px solid var(--b2)}.btn-g:hover{color:var(--tx)}
-.btn-sm{padding:5px 11px;font-size:11px;border-radius:6px}
-.lead-card{padding:13px 18px;border-bottom:1px solid var(--b1)}
-.lead-card:last-child{border-bottom:none}
-.lead-top{display:flex;justify-content:space-between;margin-bottom:6px}
-.lead-name{font-size:13px;font-weight:700}
-.lead-time{font-size:10px;color:var(--t3)}
-.lead-msg{font-size:12px;color:var(--t2);font-style:italic;background:var(--s2);padding:8px 11px;border-radius:7px;margin-bottom:8px}
-.lead-tags{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
-.lead-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--td);color:var(--teal)}
-.lead-acts{display:flex;gap:7px}
-.prow{display:flex;align-items:center;gap:12px;padding:11px 18px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
-.prow:last-child{border-bottom:none}
-.prow:hover{background:var(--s2)}
-.pav{width:34px;height:34px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t2);flex-shrink:0}
-.pname{font-size:13px;font-weight:600}
-.pmeta{font-size:11px;color:var(--t3)}
-.fnext{margin-left:auto;font-size:11px;text-align:right}
-.form-sec{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:18px 20px;margin-bottom:14px}
-.form-sec-title{font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:14px}
-.frow{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.ffield label{font-size:11px;font-weight:600;color:var(--t3);display:block;margin-bottom:5px}
-.ffield input,.ffield select,.ffield textarea{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .2s}
-.ffield input:focus,.ffield select:focus,.ffield textarea:focus{border-color:var(--teal)}
+.content{padding:20px 22px;flex:1;}
+.panel{display:none;}.panel.active{display:block;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.metric{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;position:relative;overflow:hidden;}
+.metric::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.m-teal::after{background:var(--teal);}.m-grn::after{background:var(--grn);}.m-ylw::after{background:var(--ylw);}.m-red::after{background:var(--red);}
+.metric-label{font-size:10px;color:var(--t2);font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;}
+.metric-val{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;line-height:1;margin-bottom:3px;}
+.metric-sub{font-size:10px;color:var(--t3);}
+.next-box{background:var(--s1);border:2px solid var(--teal);border-radius:var(--r);padding:16px 18px;margin-bottom:18px;display:flex;align-items:center;gap:16px;}
+.next-time{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--teal);width:80px;flex-shrink:0;}
+.next-info{flex:1;}
+.next-proc{font-size:15px;font-weight:700;margin-bottom:3px;}
+.next-pat{font-size:13px;color:var(--t2);}
+.next-note{font-size:11px;color:var(--t3);margin-top:3px;font-style:italic;}
+.next-acts{display:flex;gap:8px;flex-shrink:0;}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.ch{padding:12px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;}
+.ct{font-size:13px;font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.arow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b1);transition:background .1s;}
+.arow:last-child{border-bottom:none;}
+.arow:hover{background:var(--s2);}
+.arow.now{background:var(--td);border-left:2px solid var(--teal);}
+.arow.done{opacity:.5;}
+.atime{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);width:46px;flex-shrink:0;font-weight:500;}
+.ai{flex:1;}
+.an{font-size:13px;font-weight:600;}
+.am{font-size:11px;color:var(--t3);margin-top:1px;}
+.as{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;}
+.sg{background:rgba(0,194,120,.12);color:var(--grn);}
+.sy{background:rgba(245,166,35,.12);color:var(--ylw);}
+.sd{background:var(--s3);color:var(--t3);}
+.sn{background:var(--td);color:var(--teal);}
+.prow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s;}
+.prow:hover{background:var(--s2);}
+.prow:last-child{border-bottom:none;}
+.pav{width:32px;height:32px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--teal);flex-shrink:0;}
+.lead-item{padding:12px 14px;border-bottom:1px solid var(--b1);}
+.lead-item:last-child{border-bottom:none;}
+.note-item{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-sm);padding:12px;margin-bottom:8px;}
+.note-head{display:flex;justify-content:space-between;margin-bottom:6px;}
+.note-date{font-size:10px;color:var(--t3);}
+.note-pat{font-size:10px;color:var(--teal);font-weight:600;}
+.note-text{font-size:13px;color:var(--t2);line-height:1.6;}
+.sched-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1);}
+.sched-row:last-child{border-bottom:none;}
+.day-lbl{font-size:12px;font-weight:600;width:60px;color:var(--t2);}
+.toggle{width:38px;height:20px;background:var(--b2);border-radius:10px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.toggle.on{background:var(--teal);}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:2px;left:2px;transition:left .2s;}
+.toggle.on::after{left:20px;}
+.time-in{background:var(--s2);border:1px solid var(--b1);border-radius:4px;padding:5px 8px;color:var(--tx);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;width:76px;}
+.time-in:focus{border-color:var(--teal);}
+.btn{padding:7px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .12s;display:inline-flex;align-items:center;gap:5px;}
+.bp{background:var(--teal);color:#000;}.bp:hover{background:#00FFCC;}
+.bg{background:transparent;color:var(--t2);border:1px solid var(--b2);}.bg:hover{color:var(--tx);}
+.bs{padding:5px 10px;font-size:11px;}
+.bgn{background:rgba(0,194,120,.12);color:var(--grn);border:1px solid rgba(0,194,120,.2);}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;}
+.bt{background:var(--td);color:var(--teal);}
+.bgr{background:rgba(0,194,120,.12);color:var(--grn);}
+.by{background:rgba(245,166,35,.12);color:var(--ylw);}
+.br{background:rgba(255,59,85,.12);color:var(--red);}
+.empty{text-align:center;padding:36px 20px;}
+.ei{font-size:32px;margin-bottom:8px;}
+.et{font-size:14px;font-weight:600;color:var(--t2);margin-bottom:3px;}
+.es{font-size:12px;color:var(--t3);}
+.loading{display:flex;align-items:center;gap:8px;padding:18px;color:var(--t3);font-size:12px;}
+.spin{width:14px;height:14px;border:2px solid var(--b2);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--s1);border:1px solid var(--tm);color:var(--tx);padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.5);opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+label{font-size:10px;font-weight:600;color:var(--t3);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+textarea{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-sm);padding:9px 11px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;resize:none;min-height:80px;transition:border-color .15s;}
+textarea:focus{border-color:var(--teal);}
+select,input[type=date],input[type=text]{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-sm);padding:8px 11px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;margin-bottom:10px;}
+select:focus,input:focus{border-color:var(--teal);}
 </style>
 </head>
 <body>
-<div class="sidebar">
-  <div class="sidebar-top">
-    <div class="logo">Recep<span>AI</span></div>
-    <div class="role-badge">👨‍⚕️ Doctor</div>
+
+<aside class="sb">
+  <div class="sb-logo"><div class="logo">Recep<em>AI</em></div><div class="logo-sub">Doctor</div></div>
+  <div class="doc-info">
+    <div class="doc-av" id="doc-av">👨‍⚕️</div>
+    <div class="doc-name" id="doc-name">Doctor</div>
+    <div class="doc-spec" id="doc-spec">Medic specialist</div>
   </div>
-  <div class="doctor-info">
-    <div class="doc-av">👨‍⚕️</div>
-    <div class="doc-name" id="sb-name">Dr. —</div>
-    <div class="doc-spec">Medic specialist</div>
-  </div>
-  <nav>
-    <div class="ni active" onclick="show('overview',this)"><span class="ni-icon">🏠</span>Astăzi</div>
+  <nav class="sb-nav">
+    <div class="ni active" onclick="show('today',this)"><span class="ni-icon">🏠</span>Astăzi</div>
     <div class="ni" onclick="show('calendar',this)"><span class="ni-icon">📅</span>Calendarul meu</div>
     <div class="ni" onclick="show('patients',this)"><span class="ni-icon">👥</span>Pacienții mei</div>
     <div class="ni" onclick="show('notes',this)"><span class="ni-icon">📝</span>Consultații</div>
     <div class="ni" onclick="show('leads',this)"><span class="ni-icon">💬</span>Lead-uri atribuite</div>
     <div class="ni" onclick="show('profile',this)"><span class="ni-icon">⚙️</span>Profilul meu</div>
   </nav>
-  <div class="sidebar-bottom">
-    <div class="logout" onclick="logout()">🚪 Deconectare</div>
+  <div class="sb-bottom">
+    <button class="logout" onclick="logout()">↩ Deconectare</button>
   </div>
-</div>
+</aside>
 
-<div class="main">
+<main class="main">
   <div class="topbar">
     <div>
-      <div class="topbar-title" id="greeting">Bună ziua, Doctor</div>
-      <div class="topbar-sub" id="today-date"></div>
+      <div class="topbar-title" id="ptitle">Astăzi</div>
+      <div class="topbar-sub" id="pdate">—</div>
     </div>
     <div class="topbar-status">Activ</div>
   </div>
   <div class="content">
 
-    <!-- OVERVIEW -->
-    <div class="panel active" id="panel-overview">
-      <div class="stats">
-        <div class="stat hi">
-          <div class="stat-lbl">Programări azi</div>
-          <div class="stat-val" style="color:var(--teal)">8</div>
-          <div class="stat-sub">09:00 – 17:30</div>
-        </div>
-        <div class="stat">
-          <div class="stat-lbl">Următoarea</div>
-          <div class="stat-val" style="font-size:22px">10:30</div>
-          <div class="stat-sub">Implant · Maria P.</div>
-        </div>
-        <div class="stat">
-          <div class="stat-lbl">Pacienți azi</div>
-          <div class="stat-val">8</div>
-          <div class="stat-sub">confirmate</div>
-        </div>
-        <div class="stat">
-          <div class="stat-lbl">Lead-uri atribuite</div>
-          <div class="stat-val" style="color:var(--ylw)">2</div>
-          <div class="stat-sub">de confirmat</div>
-        </div>
-      </div>
-
-      <div class="next-box">
-        <div class="next-time">10:30</div>
-        <div class="next-info">
-          <div class="next-proc">Implant dentar — Straumann BL 4.1×10mm</div>
-          <div class="next-patient">👤 Maria Ionescu · 📞 0721 234 567</div>
-          <div class="next-note">Prima vizită · Trimisă de AI widget</div>
-        </div>
-        <div class="next-btns">
-          <button class="btn btn-p btn-sm">✓ Sosit</button>
-          <button class="btn btn-g btn-sm">📝 Notițe</button>
-        </div>
-      </div>
-
+    <!-- TODAY -->
+    <div class="panel active" id="panel-today">
+      <div class="metrics" id="m-today"><div class="loading"><div class="spin"></div></div></div>
+      <div id="next-box-wrap"></div>
       <div class="card">
-        <div class="card-head">
-          <span class="card-title">📅 Programările mele azi</span>
-          <span class="badge badge-teal">8 programări</span>
-        </div>
-        <div class="arow done">
-          <div class="atime">09:00</div>
-          <div class="adot" style="background:var(--grn)"></div>
-          <div class="ainfo"><div class="aproc">Consultație generală</div><div class="apat">Alexandru Popa</div></div>
-          <span class="astatus s-done">Finalizat</span>
-        </div>
-        <div class="arow now">
-          <div class="atime">10:30</div>
-          <div class="adot" style="background:var(--teal)"></div>
-          <div class="ainfo"><div class="aproc">Implant Straumann</div><div class="apat">Maria Ionescu</div></div>
-          <span class="astatus s-now">▶ Acum</span>
-        </div>
-        <div class="arow">
-          <div class="atime">12:00</div>
-          <div class="adot" style="background:var(--grn)"></div>
-          <div class="ainfo"><div class="aproc">Control implant</div><div class="apat">Elena Constantin</div></div>
-          <span class="astatus s-ok">Confirmată</span>
-        </div>
-        <div class="arow">
-          <div class="atime">14:00</div>
-          <div class="adot" style="background:var(--ylw)"></div>
-          <div class="ainfo"><div class="aproc">Consultație implant</div><div class="apat">Mihai Vlad</div></div>
-          <span class="astatus s-pend">În așteptare</span>
-        </div>
-        <div class="arow">
-          <div class="atime">15:30</div>
-          <div class="adot" style="background:var(--grn)"></div>
-          <div class="ainfo"><div class="aproc">All-on-4 planning</div><div class="apat">Gheorghe Stanciu</div></div>
-          <span class="astatus s-ok">Confirmată</span>
-        </div>
+        <div class="ch"><span class="ct">📅 Programările mele azi</span><span class="badge bt" id="cnt-today">0</span></div>
+        <div id="list-today"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 
     <!-- CALENDAR -->
     <div class="panel" id="panel-calendar">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div>
+          <button class="btn bg bs" onclick="wNav(-1)">← Săptămâna trecută</button>
+          <span style="font-size:13px;font-weight:600;margin:0 12px" id="week-lbl">—</span>
+          <button class="btn bg bs" onclick="wNav(1)">Săptămâna viitoare →</button>
+        </div>
+      </div>
       <div class="card">
-        <div class="card-head">
-          <span class="card-title">📅 Calendarul meu — Săptămâna aceasta</span>
-          <div style="display:flex;gap:8px">
-            <button class="btn btn-g btn-sm">← Înapoi</button>
-            <button class="btn btn-g btn-sm">Înainte →</button>
-          </div>
-        </div>
-        <div style="padding:16px;display:grid;grid-template-columns:repeat(5,1fr);gap:10px">
-          <div style="text-align:center">
-            <div style="font-size:11px;color:var(--teal);font-weight:700;margin-bottom:8px;background:var(--td);border-radius:6px;padding:4px">LUN 20</div>
-            <div style="background:var(--td);border:1px solid var(--teal);border-radius:7px;padding:7px 5px;font-size:11px;margin-bottom:5px;color:var(--teal)">09:00 Consultație</div>
-            <div style="background:var(--td);border:1px solid var(--teal);border-radius:7px;padding:7px 5px;font-size:11px;margin-bottom:5px;color:var(--teal)">10:30 Implant</div>
-            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2)">12:00 Control</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;padding:4px">MAR 21</div>
-            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2);margin-bottom:5px">10:00 Implant</div>
-            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2)">14:00 Planning</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;padding:4px">MIE 22</div>
-            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2);margin-bottom:5px">09:30 Consultație</div>
-            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2)">11:00 Control</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;padding:4px">JOI 23</div>
-            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:7px 5px;font-size:11px;color:var(--t2)">10:00 All-on-4</div>
-          </div>
-          <div style="text-align:center">
-            <div style="font-size:11px;color:var(--t3);margin-bottom:8px;padding:4px">VIN 24</div>
-            <div style="font-size:11px;color:var(--t3);padding:20px 0">Liber</div>
-          </div>
-        </div>
+        <div class="ch"><span class="ct">📅 Calendarul meu</span></div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:14px" id="week-grid"></div>
       </div>
     </div>
 
     <!-- PATIENTS -->
     <div class="panel" id="panel-patients">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-        <div style="font-size:15px;font-weight:700">👥 Pacienții mei</div>
-        <input placeholder="🔍 Caută..." style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:8px 14px;color:var(--tx);font-size:13px;outline:none;width:200px">
-      </div>
       <div class="card">
-        <div class="prow"><div class="pav">👤</div><div><div class="pname">Maria Ionescu</div><div class="pmeta">Implant Straumann · 3 vizite</div></div><div class="fnext"><div style="color:var(--teal);font-size:12px">Azi 10:30</div><div style="color:var(--t3);font-size:10px">Programată</div></div><button class="btn btn-g btn-sm" style="margin-left:10px">📁 Fișă</button></div>
-        <div class="prow"><div class="pav">👤</div><div><div class="pname">Alexandru Popa</div><div class="pmeta">Consultație · Prima vizită</div></div><div class="fnext"><div style="color:var(--grn);font-size:12px">Azi 09:00</div><div style="color:var(--t3);font-size:10px">Finalizat</div></div><button class="btn btn-g btn-sm" style="margin-left:10px">📁 Fișă</button></div>
-        <div class="prow"><div class="pav">👤</div><div><div class="pname">Elena Constantin</div><div class="pmeta">Control implant · 5 vizite</div></div><div class="fnext"><div style="color:var(--t2);font-size:12px">12:00</div><div style="color:var(--t3);font-size:10px">Confirmată</div></div><button class="btn btn-g btn-sm" style="margin-left:10px">📁 Fișă</button></div>
-        <div class="prow"><div class="pav">👤</div><div><div class="pname">Mihai Vlad</div><div class="pmeta">Consultație implant · Prima vizită</div></div><div class="fnext"><div style="color:var(--t2);font-size:12px">14:00</div><div style="color:var(--t3);font-size:10px">În așteptare</div></div><button class="btn btn-g btn-sm" style="margin-left:10px">📁 Fișă</button></div>
+        <div class="ch"><span class="ct">👥 Pacienții mei</span><span class="badge bt" id="cnt-pat">0</span></div>
+        <div id="list-pat"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 
-    <!-- NOTES -->
+    <!-- NOTES / CONSULTATIONS -->
     <div class="panel" id="panel-notes">
-      <div class="form-sec">
-        <div class="form-sec-title">📝 Adaugă notițe consultație</div>
-        <div class="frow">
-          <div class="ffield"><label>Pacient</label><select><option>Maria Ionescu — 10:30</option><option>Alexandru Popa — 09:00</option><option>Elena Constantin — 12:00</option></select></div>
-          <div class="ffield"><label>Data</label><input type="date" value="2026-07-20"></div>
+      <div class="card" style="margin-bottom:14px">
+        <div class="ch"><span class="ct">📝 Adaugă notiță consultație</span></div>
+        <div style="padding:16px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+            <div><label>Pacient</label><select id="note-pat"><option value="">— Selectează pacient —</option></select></div>
+            <div><label>Data</label><input type="date" id="note-date"></div>
+          </div>
+          <div style="margin-bottom:12px"><label>Procedură efectuată</label><input type="text" id="note-proc" placeholder="ex: Inserare implant Straumann BL 4.1×10mm #35"></div>
+          <div style="margin-bottom:12px"><label>Observații clinice</label><textarea id="note-obs" placeholder="Starea pacientului, observații, recomandări..."></textarea></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px">
+            <div><label>Următoarea programare</label><input type="date" id="note-next-date"></div>
+            <div><label>Procedura viitoare</label><input type="text" id="note-next-proc" placeholder="ex: Control osteointegrare"></div>
+          </div>
+          <button class="btn bp bs" onclick="saveNote()">💾 Salvează notița</button>
         </div>
-        <div class="ffield" style="margin-bottom:12px"><label>Procedură efectuată</label><input placeholder="ex: Inserare implant Straumann BL 4.1×10mm #35"></div>
-        <div class="ffield" style="margin-bottom:12px"><label>Observații clinice</label><textarea rows="4" style="resize:vertical" placeholder="Stare pacient, observații, recomandări post-procedură..."></textarea></div>
-        <div class="frow">
-          <div class="ffield"><label>Următoarea programare</label><input type="date"></div>
-          <div class="ffield"><label>Procedura viitoare</label><input placeholder="ex: Control osteointegrare 3 luni"></div>
-        </div>
-        <button class="btn btn-p" style="margin-top:6px">💾 Salvează notițele</button>
       </div>
       <div class="card">
-        <div class="card-head"><span class="card-title">📋 Consultații recente</span></div>
-        <div class="arow"><div class="atime" style="font-size:11px;width:64px">15 Ian</div><div class="ainfo"><div class="aproc">Implant Straumann — Maria Ionescu</div><div class="apat">Inserare implant BL 4.1×10mm, osteointegrare în curs</div></div><button class="btn btn-g btn-sm">👁 Vezi</button></div>
-        <div class="arow"><div class="atime" style="font-size:11px;width:64px">10 Ian</div><div class="ainfo"><div class="aproc">Control implant — Elena Constantin</div><div class="apat">Osteointegrare completă, programare coroană</div></div><button class="btn btn-g btn-sm">👁 Vezi</button></div>
+        <div class="ch"><span class="ct">📋 Consultații recente</span></div>
+        <div id="list-notes"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 
     <!-- LEADS -->
     <div class="panel" id="panel-leads">
-      <div class="card">
-        <div class="card-head"><span class="card-title">💬 Lead-uri atribuite mie</span><span class="badge badge-ylw">2 noi</span></div>
-        <div class="lead-card">
-          <div class="lead-top"><span class="lead-name">Ion Marinescu</span><span class="lead-time">Azi, 09:14</span></div>
-          <div class="lead-msg">„Vreau implant dentar, am pierdut un dinte în față. Cât costă?"</div>
-          <div class="lead-tags"><span class="lead-tag">📞 0722 345 678</span><span class="lead-tag">🦷 Implant</span><span class="lead-tag">AI → Dr. tău</span></div>
-          <div class="lead-acts"><button class="btn btn-p btn-sm">📞 Sună</button><button class="btn btn-g btn-sm">📅 Programează</button><button class="btn btn-g btn-sm">✓ Contactat</button></div>
-        </div>
-        <div class="lead-card">
-          <div class="lead-top"><span class="lead-name">Ana Gheorghiu</span><span class="lead-time">Ieri, 18:32</span></div>
-          <div class="lead-msg">„Am nevoie de All-on-4, am 3 dinți lipsă. Cine mă poate consulta?"</div>
-          <div class="lead-tags"><span class="lead-tag">📞 0741 123 456</span><span class="lead-tag">🦷 All-on-4</span><span class="lead-tag">AI → Dr. tău</span></div>
-          <div class="lead-acts"><button class="btn btn-p btn-sm">📞 Sună</button><button class="btn btn-g btn-sm">📅 Programează</button><button class="btn btn-g btn-sm">✓ Contactat</button></div>
-        </div>
-      </div>
+      <div id="list-leads"><div class="loading"><div class="spin"></div></div></div>
     </div>
 
     <!-- PROFILE -->
     <div class="panel" id="panel-profile">
-      <div class="form-sec">
-        <div class="form-sec-title">👨‍⚕️ Profilul meu</div>
-        <div class="frow">
-          <div class="ffield"><label>Prenume și Nume</label><input id="prof-name" value="Dr. —"></div>
-          <div class="ffield"><label>Specializare</label><input value="Medic specialist"></div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><span class="ct">👨‍⚕️ Profilul meu</span></div>
+          <div style="padding:16px">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label>Prenume și Nume</label><input type="text" id="p-name" placeholder="Dr. Andrei Popescu"></div>
+              <div><label>Specializare</label><input type="text" id="p-spec" placeholder="Implantologie"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label>Email</label><input type="text" id="p-email"></div>
+              <div><label>Telefon</label><input type="text" id="p-phone" placeholder="0721 234 567"></div>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <div><label>Durată consultație (min)</label><input type="text" id="p-dur" placeholder="30"></div>
+              <div><label>Ultima oră programare</label><input type="text" id="p-lastslot" placeholder="17:00"></div>
+            </div>
+            <button class="btn bp bs" onclick="saveProfile()">💾 Salvează profilul</button>
+          </div>
         </div>
-        <div class="frow">
-          <div class="ffield"><label>Email</label><input type="email" id="prof-email"></div>
-          <div class="ffield"><label>Telefon</label><input value="—"></div>
+        <div class="card">
+          <div class="ch"><span class="ct">🕐 Program săptămânal</span></div>
+          <div style="padding:14px" id="sched-editor"><div class="loading"><div class="spin"></div></div></div>
         </div>
-        <button class="btn btn-p" style="margin-top:4px">💾 Salvează</button>
       </div>
-      <div class="form-sec">
-        <div class="form-sec-title">🕐 Program de lucru</div>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;text-align:center">
-          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Lun</div><div style="font-size:12px;color:var(--teal)">09-18</div></div>
-          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Mar</div><div style="font-size:12px;color:var(--teal)">09-18</div></div>
-          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Mie</div><div style="font-size:12px;color:var(--teal)">09-18</div></div>
-          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Joi</div><div style="font-size:12px;color:var(--teal)">09-18</div></div>
-          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Vin</div><div style="font-size:12px;color:var(--teal)">09-14</div></div>
-          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Sâm</div><div style="font-size:12px;color:var(--t3)">—</div></div>
-          <div><div style="font-size:10px;color:var(--t3);margin-bottom:6px">Dum</div><div style="font-size:12px;color:var(--t3)">—</div></div>
-        </div>
+      <div class="card">
+        <div class="ch"><span class="ct">🚫 Blocări & Concedii</span><button class="btn bg bs" onclick="addBlock()">+ Adaugă blocare</button></div>
+        <div id="blocks-list" style="padding:14px"></div>
       </div>
     </div>
 
   </div>
-</div>
+</main>
+
+<div class="toast" id="toast"></div>
 
 <script>
-const email = localStorage.getItem('recepai_email') || '';
-document.getElementById('sb-name').textContent = email ? ('Dr. ' + email.split('@')[0]) : 'Doctor';
-document.getElementById('prof-name').value = email ? ('Dr. ' + email.split('@')[0]) : '';
-document.getElementById('prof-email').value = email;
+const API = window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'?'http://localhost:8080':'https://ai-reception-platform-production.up.railway.app';
+const TOKEN=localStorage.getItem('recepai_token');
+const EMAIL=localStorage.getItem('recepai_email');
+const ROLE=localStorage.getItem('recepai_role');
+const CID=localStorage.getItem('recepai_client_id');
+if(!TOKEN||ROLE!=='doctor')window.location.href='login.html';
 
-const hour = new Date().getHours();
-const greet = hour < 12 ? 'Bună dimineața' : hour < 18 ? 'Bună ziua' : 'Bună seara';
-const name = email ? email.split('@')[0] : 'Doctor';
-document.getElementById('greeting').textContent = greet + ', Dr. ' + name;
+let APPTS=[],PATS=JSON.parse(localStorage.getItem('recepai_patients_'+CID)||'[]'),CONVS=[],NOTES=JSON.parse(localStorage.getItem('recepai_notes_'+CID+'_'+EMAIL)||'[]');
+let weekStart=getMonday(new Date());
+let DOC_INFO={name:'Doctor',spec:'Medic specialist'};
 
-const days = ['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
-const months = ['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
-const now = new Date();
-document.getElementById('today-date').textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+const DAYS_RO=['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+const MONTHS=['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+const DAY_KEYS=['duminica','luni','marti','miercuri','joi','vineri','sambata'];
+const DAY_LBLS=['Dum','Lun','Mar','Mie','Joi','Vin','Sâm'];
 
-function show(name, el) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
-  document.getElementById('panel-' + name)?.classList.add('active');
-  if (el) el.classList.add('active');
+async function init(){
+  // Set date
+  const now=new Date();
+  document.getElementById('pdate').textContent=`${DAYS_RO[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+
+  // Find doctor info from DOCS
+  const DOCS=JSON.parse(localStorage.getItem('recepai_doctors_'+CID)||'[]');
+  const myDoc=DOCS.find(d=>d.email===EMAIL);
+  if(myDoc){
+    DOC_INFO=myDoc;
+    document.getElementById('doc-name').textContent=myDoc.name||EMAIL.split('@')[0];
+    document.getElementById('doc-spec').textContent=myDoc.specs?.[0]||myDoc.spec||'Medic specialist';
+    document.getElementById('doc-av').textContent=myDoc.avatar||'👨‍⚕️';
+  } else {
+    document.getElementById('doc-name').textContent=EMAIL.split('@')[0];
+  }
+
+  // Greeting
+  const h=now.getHours();
+  const gr=h<12?'Bună dimineața':h<18?'Bună ziua':'Bună seara';
+  document.getElementById('ptitle').textContent=`${gr}, ${DOC_INFO.name||EMAIL.split('@')[0]}`;
+
+  // Load appointments
+  try{
+    const r=await fetch(`${API}/api/appointments?clientId=${CID}`);
+    const d=await r.json();
+    // Filter only MY appointments
+    APPTS=(d.appointments||[]).filter(a=>a.doctor?.email===EMAIL||a.doctor?.id===DOC_INFO.id);
+  }catch(e){}
+
+  // Load conversations (only assigned to me)
+  try{
+    const r=await fetch(`${API}/api/conversations?clientId=${CID}`);
+    const d=await r.json();
+    CONVS=(d.conversations||[]).filter(c=>c.assignedTo===EMAIL||c.isLead);
+  }catch(e){}
+
+  renderToday();
+  renderWeek();
+  renderPatients();
+  renderNotes();
+  renderLeads();
+  renderProfileForm();
+  renderSchedEditor();
+  renderBlocks();
+
+  // Populate note patient select
+  const sel=document.getElementById('note-pat');
+  PATS.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o);});
+  document.getElementById('note-date').value=new Date().toISOString().split('T')[0];
 }
 
-function logout() {
-  localStorage.removeItem('recepai_token');
-  localStorage.removeItem('recepai_role');
-  window.location.href = 'login.html';
+const TITLES={today:'Astăzi',calendar:'Calendarul meu',patients:'Pacienții mei',notes:'Consultații',leads:'Lead-uri atribuite',profile:'Profilul meu'};
+function show(n,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-'+n)?.classList.add('active');
+  if(el)el.classList.add('active');
+  // Keep greeting for today, show title for others
+  if(n!=='today'){
+    const h=new Date().getHours();
+    const gr=h<12?'Bună dimineața':h<18?'Bună ziua':'Bună seara';
+    document.getElementById('ptitle').textContent=n==='today'?`${gr}, ${DOC_INFO.name||'Doctor'}`:TITLES[n]||n;
+  }
 }
+
+// ── TODAY ──────────────────────────────────────────
+function renderToday(){
+  const td=new Date().toDateString();
+  const ta=APPTS.filter(a=>new Date(a.date).toDateString()===td);
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes();
+
+  // Find next appointment
+  let nextAppt=null;
+  for(const a of ta.sort((a,b)=>(a.slot||'').localeCompare(b.slot||''))){
+    const [h,m]=(a.slot||'00:00').split(':').map(Number);
+    if(h*60+m>=nowMin){nextAppt=a;break;}
+  }
+
+  // Metrics
+  const done=ta.filter(a=>{const[h,m]=(a.slot||'00:00').split(':').map(Number);return h*60+m<nowMin;}).length;
+  document.getElementById('m-today').innerHTML=`
+    <div class="metric m-teal"><div class="metric-label">Programări azi</div><div class="metric-val" style="color:var(--teal)">${ta.length}</div><div class="metric-sub">${done} finalizate</div></div>
+    <div class="metric m-grn"><div class="metric-label">Următoarea</div><div class="metric-val" style="color:var(--grn);font-size:20px">${nextAppt?.slot||'—'}</div><div class="metric-sub">${nextAppt?.service?.name||'Nicio programare'}</div></div>
+    <div class="metric m-ylw"><div class="metric-label">Pacienți azi</div><div class="metric-val" style="color:var(--ylw)">${ta.length}</div><div class="metric-sub">confirmați</div></div>
+    <div class="metric m-red"><div class="metric-label">Lead-uri atribuite</div><div class="metric-val" style="color:var(--red)">${CONVS.length}</div><div class="metric-sub">de contactat</div></div>`;
+
+  // Next patient box
+  const nb=document.getElementById('next-box-wrap');
+  if(nextAppt){
+    nb.innerHTML=`<div class="next-box">
+      <div class="next-time">${nextAppt.slot}</div>
+      <div class="next-info">
+        <div class="next-proc">${nextAppt.service?.name||'—'}</div>
+        <div class="next-pat">👤 ${nextAppt.patient?.name||'—'} · 📞 ${nextAppt.patient?.phone||'—'}</div>
+        <div class="next-note">${nextAppt.notes||'Nicio observație'}</div>
+      </div>
+      <div class="next-acts">
+        <button class="btn bp bs" onclick="markArrived('${nextAppt.id}')">✓ Sosit</button>
+        <button class="btn bg bs" onclick="show('notes')">📝 Notițe</button>
+      </div>
+    </div>`;
+  } else {
+    nb.innerHTML='';
+  }
+
+  // Today list
+  document.getElementById('cnt-today').textContent=ta.length;
+  if(!ta.length){
+    document.getElementById('list-today').innerHTML=`<div class="empty"><div class="ei">📅</div><div class="et">Nicio programare azi</div><div class="es">Zi liberă</div></div>`;
+    return;
+  }
+  document.getElementById('list-today').innerHTML=ta.sort((a,b)=>(a.slot||'').localeCompare(b.slot||'')).map(a=>{
+    const[h,m]=(a.slot||'00:00').split(':').map(Number);
+    const isDone=h*60+m<nowMin;
+    const isNow=nextAppt&&a.id===nextAppt.id;
+    return `<div class="arow${isDone?' done':isNow?' now':''}">
+      <span class="atime">${a.slot||'—'}</span>
+      <div class="ai"><div class="an">${a.patient?.name||'—'}</div><div class="am">${a.service?.name||'—'}${a.notes?' · '+a.notes.substring(0,30):''}</div></div>
+      <span class="as ${isDone?'sd':isNow?'sn':a.status==='confirmed'?'sg':'sy'}">${isDone?'Finalizat':isNow?'▶ Acum':a.status==='confirmed'?'Confirmată':'Așteptare'}</span>
+      <div style="display:flex;gap:4px">
+        ${isNow?`<button class="btn bgn bs" onclick="markArrived('${a.id}')">✓ Sosit</button>`:''}
+        <button class="btn bg bs" onclick="openNoteFor('${a.id}')">📝</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function markArrived(id){
+  const a=APPTS.find(a=>a.id===id);
+  if(a){a.arrived=true;renderToday();toast('✅ Pacient marcat sosit');}
+}
+
+// ── CALENDAR (WEEK VIEW) ──────────────────────────────
+function getMonday(d){
+  const day=d.getDay(),diff=d.getDate()-day+(day===0?-6:1);
+  return new Date(new Date(d).setDate(diff));
+}
+
+function renderWeek(){
+  const days=[];
+  for(let i=0;i<7;i++){
+    const d=new Date(weekStart);d.setDate(d.getDate()+i);days.push(d);
+  }
+  const start=days[0],end=days[6];
+  document.getElementById('week-lbl').textContent=`${start.getDate()} ${MONTHS[start.getMonth()]} — ${end.getDate()} ${MONTHS[end.getMonth()]} ${end.getFullYear()}`;
+
+  const today=new Date().toDateString();
+  document.getElementById('week-grid').innerHTML=days.map(d=>{
+    const ds=d.toDateString();
+    const da=APPTS.filter(a=>new Date(a.date).toDateString()===ds).sort((a,b)=>(a.slot||'').localeCompare(b.slot||''));
+    const isToday=ds===today;
+    const isSun=d.getDay()===0;
+    return `<div>
+      <div style="text-align:center;font-size:10px;color:${isToday?'var(--teal)':'var(--t3)'};font-weight:${isToday?'700':'400'};margin-bottom:6px;padding:3px;border-radius:4px;background:${isToday?'var(--td)':'transparent'}">${DAY_LBLS[d.getDay()]} ${d.getDate()}</div>
+      ${isSun?`<div style="font-size:10px;color:var(--t3);text-align:center;padding:8px 0">Duminică</div>`:da.length?da.map(a=>`
+        <div style="background:var(--td);border:1px solid var(--teal);border-radius:6px;padding:6px 7px;font-size:11px;margin-bottom:4px;color:var(--teal);cursor:pointer" title="${a.patient?.name||''}">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:9px;margin-bottom:1px">${a.slot||'—'}</div>
+          <div style="font-size:10px;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${a.service?.name||'—'}</div>
+        </div>`).join(''):`<div style="font-size:10px;color:var(--t3);text-align:center;padding:10px 0">Liber</div>`}
+    </div>`;
+  }).join('');
+}
+
+function wNav(d){weekStart.setDate(weekStart.getDate()+d*7);renderWeek();}
+
+// ── PATIENTS ──────────────────────────────────────────
+function renderPatients(){
+  // My patients = patients who have appointments with me
+  const myPatIds=new Set(APPTS.map(a=>a.patient?.name).filter(Boolean));
+  const myPats=PATS.filter(p=>myPatIds.has(p.name));
+  document.getElementById('cnt-pat').textContent=myPats.length;
+  if(!myPats.length){
+    document.getElementById('list-pat').innerHTML=`<div class="empty"><div class="ei">👥</div><div class="et">Niciun pacient atribuit</div><div class="es">Pacienții programați cu tine vor apărea aici</div></div>`;
+    return;
+  }
+  document.getElementById('list-pat').innerHTML=myPats.map(p=>{
+    const ini=p.name?.split(' ').map(n=>n[0]).join('').substring(0,2)||'P';
+    const myAppts=APPTS.filter(a=>a.patient?.name===p.name);
+    const lastAppt=myAppts.sort((a,b)=>new Date(b.date)-new Date(a.date))[0];
+    return `<div class="prow">
+      <div class="pav">${ini}</div>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">${p.name}</div>
+        <div style="font-size:11px;color:var(--t3)">📞 ${p.phone||'—'} · ${myAppts.length} vizite</div>
+      </div>
+      ${p.allergies?`<span class="badge br">⚠ ${p.allergies}</span>`:''}
+      ${lastAppt?`<div style="text-align:right;font-size:11px"><div style="color:var(--teal)">${lastAppt.slot||'—'}</div><div style="color:var(--t3);font-size:10px">${new Date(lastAppt.date).toLocaleDateString('ro-RO')}</div></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+// ── NOTES ─────────────────────────────────────────────
+function renderNotes(){
+  if(!NOTES.length){
+    document.getElementById('list-notes').innerHTML=`<div class="empty"><div class="ei">📋</div><div class="et">Nicio consultație înregistrată</div></div>`;
+    return;
+  }
+  document.getElementById('list-notes').innerHTML=NOTES.map(n=>`
+    <div class="note-item">
+      <div class="note-head">
+        <span class="note-pat">👤 ${n.patient||'—'}</span>
+        <span class="note-date">${n.date||'—'}</span>
+      </div>
+      <div style="font-size:12px;font-weight:600;color:var(--tx);margin-bottom:4px">${n.proc||'—'}</div>
+      <div class="note-text">${n.obs||'—'}</div>
+      ${n.nextDate?`<div style="font-size:11px;color:var(--teal);margin-top:6px">→ Urmează: ${n.nextProc||'Control'} pe ${n.nextDate}</div>`:''}
+    </div>`).join('');
+}
+
+function saveNote(){
+  const patId=document.getElementById('note-pat').value;
+  const pat=PATS.find(p=>p.id===patId);
+  if(!patId){toast('⚠ Selectează pacientul');return;}
+  const n={
+    id:'n'+Date.now(),
+    patient:pat?.name||patId,
+    date:document.getElementById('note-date').value,
+    proc:document.getElementById('note-proc').value.trim(),
+    obs:document.getElementById('note-obs').value.trim(),
+    nextDate:document.getElementById('note-next-date').value,
+    nextProc:document.getElementById('note-next-proc').value.trim(),
+    doctor:EMAIL,
+  };
+  NOTES.unshift(n);
+  localStorage.setItem('recepai_notes_'+CID+'_'+EMAIL,JSON.stringify(NOTES));
+  renderNotes();
+  document.getElementById('note-proc').value='';
+  document.getElementById('note-obs').value='';
+  document.getElementById('note-next-date').value='';
+  document.getElementById('note-next-proc').value='';
+  toast('✅ Notiță salvată');
+}
+
+function openNoteFor(apptId){
+  const a=APPTS.find(a=>a.id===apptId);
+  if(a){
+    const sel=document.getElementById('note-pat');
+    const pat=PATS.find(p=>p.name===a.patient?.name);
+    if(pat)sel.value=pat.id;
+    document.getElementById('note-proc').value=a.service?.name||'';
+  }
+  show('notes',document.querySelector('.ni:nth-child(4)'));
+}
+
+// ── LEADS ─────────────────────────────────────────────
+function renderLeads(){
+  if(!CONVS.length){
+    document.getElementById('list-leads').innerHTML=`<div class="card"><div class="ch"><span class="ct">💬 Lead-uri atribuite</span></div><div class="empty"><div class="ei">💬</div><div class="et">Niciun lead atribuit</div><div class="es">Lead-urile atribuite ție vor apărea aici</div></div></div>`;
+    return;
+  }
+  document.getElementById('list-leads').innerHTML=`<div class="card"><div class="ch"><span class="ct">💬 Lead-uri atribuite</span><span class="badge bt">${CONVS.length}</span></div>${CONVS.map(c=>`
+    <div class="lead-item">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span style="font-size:13px;font-weight:700">${c.userName||'Vizitator'}</span>
+        <span style="font-size:10px;color:var(--t3)">${c.savedAt?new Date(c.savedAt).toLocaleDateString('ro-RO'):'—'}</span>
+      </div>
+      <div style="font-size:12px;color:var(--t2);font-style:italic;margin-bottom:8px">${c.lastMessage||(c.messages?.slice(-1)[0]?.content?.substring(0,100))||'—'}</div>
+      <div style="display:flex;gap:6px">
+        ${c.userPhone?`<button class="btn bp bs" onclick="location.href='tel:${c.userPhone}'">📞 Sună</button>`:''}
+        <button class="btn bg bs">📅 Programează</button>
+        <button class="btn bg bs" onclick="markLead('${c.savedAt}')">✓ Contactat</button>
+      </div>
+    </div>`).join('')}</div>`;
+}
+
+function markLead(sa){const c=CONVS.find(c=>c.savedAt===sa);if(c){c.contacted=true;renderLeads();toast('✓ Marcat contactat');}}
+
+// ── PROFILE ───────────────────────────────────────────
+function renderProfileForm(){
+  document.getElementById('p-name').value=DOC_INFO.name||'';
+  document.getElementById('p-spec').value=DOC_INFO.specs?.[0]||DOC_INFO.spec||'';
+  document.getElementById('p-email').value=EMAIL||'';
+  document.getElementById('p-phone').value=DOC_INFO.phone||'';
+  document.getElementById('p-dur').value=DOC_INFO.consultDur||30;
+  document.getElementById('p-lastslot').value=DOC_INFO.lastSlot||'17:00';
+}
+
+function saveProfile(){
+  DOC_INFO={...DOC_INFO,
+    name:document.getElementById('p-name').value.trim(),
+    spec:document.getElementById('p-spec').value.trim(),
+    specs:[document.getElementById('p-spec').value.trim()],
+    phone:document.getElementById('p-phone').value.trim(),
+    consultDur:parseInt(document.getElementById('p-dur').value)||30,
+    lastSlot:document.getElementById('p-lastslot').value,
+  };
+  document.getElementById('doc-name').textContent=DOC_INFO.name;
+  document.getElementById('doc-spec').textContent=DOC_INFO.spec;
+  // Save to doctors list
+  const DOCS=JSON.parse(localStorage.getItem('recepai_doctors_'+CID)||'[]');
+  const idx=DOCS.findIndex(d=>d.email===EMAIL);
+  if(idx>=0)DOCS[idx]={...DOCS[idx],...DOC_INFO};
+  else DOCS.push({...DOC_INFO,email:EMAIL,id:'d'+Date.now()});
+  localStorage.setItem('recepai_doctors_'+CID,JSON.stringify(DOCS));
+  toast('✅ Profil salvat');
+}
+
+const SCHED_DAYS=[{k:'luni',l:'Luni'},{k:'marti',l:'Marți'},{k:'miercuri',l:'Miercuri'},{k:'joi',l:'Joi'},{k:'vineri',l:'Vineri'},{k:'sambata',l:'Sâmbătă'},{k:'duminica',l:'Duminică'}];
+
+function renderSchedEditor(){
+  const sched=DOC_INFO.schedule||{};
+  document.getElementById('sched-editor').innerHTML=SCHED_DAYS.map(d=>{
+    const s=sched[d.k]||{active:!['sambata','duminica'].includes(d.k),start:'09:00',end:'18:00'};
+    return `<div class="sched-row">
+      <span class="day-lbl">${d.l}</span>
+      <div class="toggle ${s.active?'on':''}" onclick="toggleDay('${d.k}',this)" id="st-${d.k}"></div>
+      <div id="stimes-${d.k}" style="${s.active?'':'opacity:.3;pointer-events:none'}">
+        <input class="time-in" type="time" value="${s.start||'09:00'}" id="so-${d.k}">
+        <span style="color:var(--t3);margin:0 4px">—</span>
+        <input class="time-in" type="time" value="${s.end||'18:00'}" id="sc-${d.k}">
+      </div>
+    </div>`;
+  }).join('')+`<button class="btn bg bs" style="margin-top:10px" onclick="saveSched()">💾 Salvează programul</button>`;
+}
+
+function toggleDay(key,el){
+  el.classList.toggle('on');
+  const t=document.getElementById('stimes-'+key);
+  t.style.cssText=el.classList.contains('on')?'':'opacity:.3;pointer-events:none';
+}
+
+function saveSched(){
+  const sched={};
+  SCHED_DAYS.forEach(d=>{
+    const tog=document.getElementById('st-'+d.k);
+    sched[d.k]={active:tog?.classList.contains('on')||false,start:document.getElementById('so-'+d.k)?.value||'09:00',end:document.getElementById('sc-'+d.k)?.value||'18:00'};
+  });
+  DOC_INFO.schedule=sched;
+  saveProfile();
+}
+
+function renderBlocks(){
+  const blocks=DOC_INFO.blocks||[];
+  const el=document.getElementById('blocks-list');
+  if(!blocks.length){el.innerHTML=`<div style="font-size:12px;color:var(--t3);text-align:center;padding:16px">Nicio blocare adăugată</div>`;return;}
+  const icons={vacation:'🏖',congress:'📚',blocked:'🚫',half:'🕐'};
+  el.innerHTML=blocks.map((b,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1)">
+      <span style="font-size:18px">${icons[b.type]||'🚫'}</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${b.reason||'Blocare'}</div><div style="font-size:11px;color:var(--t3)">${b.start} → ${b.end}</div></div>
+      <button class="btn bg bs" onclick="removeBlock(${i})">✕</button>
+    </div>`).join('');
+}
+
+function addBlock(){
+  const type=prompt('Tip blocare (vacation/congress/blocked):','vacation');
+  if(!type)return;
+  const reason=prompt('Motiv:','Concediu');
+  const start=prompt('Data start (YYYY-MM-DD):',new Date().toISOString().split('T')[0]);
+  const end=prompt('Data sfârșit (YYYY-MM-DD):',new Date().toISOString().split('T')[0]);
+  if(!start||!end)return;
+  if(!DOC_INFO.blocks)DOC_INFO.blocks=[];
+  DOC_INFO.blocks.push({id:'b'+Date.now(),type,reason,start,end});
+  saveProfile();renderBlocks();toast('✅ Blocare adăugată');
+}
+
+function removeBlock(i){
+  if(!confirm('Ștergi blocarea?'))return;
+  DOC_INFO.blocks.splice(i,1);
+  saveProfile();renderBlocks();toast('🗑 Blocare ștearsă');
+}
+
+function toast(msg,dur=3000){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),dur);}
+function logout(){localStorage.removeItem('recepai_token');localStorage.removeItem('recepai_role');window.location.href='login.html';}
+
+init();
 </script>
 </body>
 </html>

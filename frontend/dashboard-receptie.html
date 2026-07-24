@@ -3,350 +3,474 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Dashboard Recepție — RecepAI</title>
-<script>
-  const role = localStorage.getItem('recepai_role');
-  if (!role) window.location.href = 'login.html';
-  else if (role === 'owner') window.location.href = 'client-dashboard.html';
-  else if (role === 'doctor') window.location.href = 'dashboard-doctor.html';
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>RecepAI — Recepție</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0A0A0A;--s1:#131313;--s2:#1A1A1A;--b1:#252525;--b2:#303030;--tx:#F0F0F0;--t2:#999;--t3:#555;--teal:#00D4AA;--td:rgba(0,212,170,.1);--grn:#00CC88;--ylw:#FFB800;--red:#FF4455}
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter',sans-serif}
-body{background:var(--bg);color:var(--tx);min-height:100vh;display:flex}
-.sidebar{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0}
-.sidebar-top{padding:18px 20px;border-bottom:1px solid var(--b1)}
-.logo{font-family:'Syne',sans-serif;font-size:16px;font-weight:800}
-.logo span{color:var(--teal)}
-.role-badge{font-size:10px;background:rgba(255,184,0,.15);color:var(--ylw);padding:2px 8px;border-radius:8px;font-weight:700;margin-top:4px;display:inline-block}
-nav{flex:1;padding:8px 0}
-.ni{display:flex;align-items:center;gap:10px;padding:10px 20px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .15s;border-left:2px solid transparent;position:relative}
-.ni:hover{color:var(--tx);background:var(--s2)}
-.ni.active{color:var(--teal);background:var(--td);border-left-color:var(--teal)}
-.ni-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0}
-.nbadge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px}
-.sidebar-bottom{padding:14px 20px;border-top:1px solid var(--b1)}
-.logout{font-size:12px;color:var(--t3);cursor:pointer}
-.logout:hover{color:var(--red)}
-.main{flex:1;overflow-y:auto}
-.topbar{padding:14px 28px;border-bottom:1px solid var(--b1);background:var(--s1);position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center}
-.topbar-l .title{font-size:15px;font-weight:700}
-.topbar-l .sub{font-size:11px;color:var(--t3);margin-top:2px}
-.search{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:8px 14px;color:var(--tx);font-size:13px;outline:none;width:240px}
-.search:focus{border-color:var(--teal)}
-.content{padding:20px 28px}
-.panel{display:none}.panel.active{display:block}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
-.stat{background:var(--s1);border:1px solid var(--b1);border-radius:12px;padding:16px 18px;position:relative;overflow:hidden}
-.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
-.s-red::before{background:var(--red)}
-.s-teal::before{background:var(--teal)}
-.s-grn::before{background:var(--grn)}
-.s-ylw::before{background:var(--ylw)}
-.stat-lbl{font-size:11px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
-.stat-val{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1}
-.stat-sub{font-size:11px;color:var(--t3);margin-top:4px}
-.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
-.card{background:var(--s1);border:1px solid var(--b1);border-radius:12px;overflow:hidden;margin-bottom:16px}
-.card-head{padding:13px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
-.card-title{font-size:13px;font-weight:700}
-.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px}
-.b-red{background:rgba(255,68,85,.12);color:var(--red)}
-.b-grn{background:rgba(0,204,136,.12);color:var(--grn)}
-.b-ylw{background:rgba(255,184,0,.12);color:var(--ylw)}
-.b-teal{background:var(--td);color:var(--teal)}
-.arow{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
-.arow:last-child{border-bottom:none}
-.arow:hover{background:var(--s2)}
-.atime{font-size:12px;font-weight:700;color:var(--teal);width:46px;flex-shrink:0}
-.adoc{font-size:10px;font-weight:700;padding:1px 6px;border-radius:6px;flex-shrink:0}
-.ainfo{flex:1}
-.aproc{font-size:12px;font-weight:600}
-.apat{font-size:11px;color:var(--t3)}
-.astatus{font-size:10px;font-weight:700;padding:2px 7px;border-radius:7px;flex-shrink:0}
-.s-ok{background:rgba(0,204,136,.12);color:var(--grn)}
-.s-pend{background:rgba(255,184,0,.12);color:var(--ylw)}
-.s-urg{background:rgba(255,68,85,.12);color:var(--red)}
-.aacts{display:flex;gap:5px;margin-left:6px}
-.lcard{padding:12px 16px;border-bottom:1px solid var(--b1)}
-.lcard:last-child{border-bottom:none}
-.ltop{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
-.lname{font-size:13px;font-weight:700}
-.ltime{font-size:10px;color:var(--t3)}
-.lmsg{font-size:12px;color:var(--t2);font-style:italic;margin-bottom:8px}
-.ltags{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
-.ltag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:6px;background:var(--td);color:var(--teal)}
-.lacts{display:flex;gap:6px}
-.btn{padding:6px 12px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .15s}
-.btn-p{background:var(--teal);color:#000}.btn-p:hover{background:#00FFCC}
-.btn-g{background:transparent;color:var(--t2);border:1px solid var(--b2)}.btn-g:hover{color:var(--tx)}
-.btn-r{background:rgba(255,68,85,.12);color:var(--red);border:1px solid rgba(255,68,85,.2)}
-.prow{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
-.prow:last-child{border-bottom:none}
-.prow:hover{background:var(--s2)}
-.pav{width:32px;height:32px;border-radius:50%;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:13px;color:var(--t2);flex-shrink:0}
-.pname{font-size:13px;font-weight:600}
-.pmeta{font-size:11px;color:var(--t3)}
-.pdoc{margin-left:auto;font-size:10px;color:var(--teal);font-weight:600}
-.doc-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:14px}
-.doc-col{background:var(--s2);border-radius:8px;padding:10px}
-.doc-head{font-size:11px;font-weight:700;color:var(--teal);margin-bottom:8px}
-.doc-slot{font-size:11px;color:var(--t2);padding:5px 8px;border-radius:6px;background:var(--s1);margin-bottom:4px;border-left:2px solid var(--b2)}
-.doc-slot.busy{border-left-color:var(--teal)}
-.slot-time{color:var(--teal);font-weight:600;font-size:10px}
-.conv-item{padding:12px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s}
-.conv-item:hover{background:var(--s2)}
-.conv-item:last-child{border-bottom:none}
-.conv-top{display:flex;justify-content:space-between;margin-bottom:4px}
-.conv-name{font-size:13px;font-weight:600}
-.conv-time{font-size:10px;color:var(--t3)}
-.conv-last{font-size:12px;color:var(--t2)}
-.cdot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--teal);margin-right:5px}
+:root{--bg:#080808;--s1:#101010;--s2:#161616;--s3:#1E1E1E;--b1:#242424;--b2:#2E2E2E;--tx:#EFEFEF;--t2:#8A8A8A;--t3:#484848;--teal:#00D4AA;--td:rgba(0,212,170,.08);--tm:rgba(0,212,170,.18);--grn:#00C278;--ylw:#F5A623;--red:#FF3B55;--blu:#3B82F6;--r:10px;--r-sm:6px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;font-size:14px;}
+.sb{width:200px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0;}
+.sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--b1);}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.5px;}
+.logo em{color:var(--teal);font-style:normal;}
+.logo-sub{font-size:9px;color:var(--t3);font-weight:500;margin-top:2px;text-transform:uppercase;letter-spacing:.8px;}
+.sb-nav{flex:1;padding:8px;overflow-y:auto;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--r-sm);font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .12s;position:relative;}
+.ni:hover{background:var(--s2);color:var(--tx);}
+.ni.active{background:var(--td);color:var(--teal);}
+.ni.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2px;background:var(--teal);border-radius:2px;}
+.ni-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;}
+.nbadge{margin-left:auto;font-size:10px;font-weight:700;background:var(--red);color:#fff;padding:1px 6px;border-radius:10px;}
+.sb-bottom{padding:12px;border-top:1px solid var(--b1);}
+.sb-user{display:flex;align-items:center;gap:8px;}
+.u-av{width:28px;height:28px;border-radius:50%;background:var(--ylw);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#000;flex-shrink:0;}
+.u-name{font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;}
+.u-role{font-size:9px;color:var(--t3);}
+.logout{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;}
+.logout:hover{color:var(--red);}
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.topbar{padding:13px 22px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;background:var(--s1);position:sticky;top:0;z-index:10;}
+.topbar-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;}
+.topbar-sub{font-size:11px;color:var(--t3);margin-top:1px;}
+.topbar-r{display:flex;align-items:center;gap:8px;}
+.search{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-sm);padding:7px 12px;display:flex;align-items:center;gap:7px;}
+.search input{background:none;border:none;color:var(--tx);font-size:13px;outline:none;width:180px;}
+.search input::placeholder{color:var(--t3);}
+.content{padding:20px 22px;flex:1;}
+.panel{display:none;}.panel.active{display:block;}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+.metric{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);padding:14px;position:relative;overflow:hidden;}
+.metric::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.m-red::after{background:var(--red);}
+.m-teal::after{background:var(--teal);}
+.m-grn::after{background:var(--grn);}
+.m-ylw::after{background:var(--ylw);}
+.metric-label{font-size:10px;color:var(--t2);font-weight:500;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px;}
+.metric-val{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1;margin-bottom:3px;}
+.metric-sub{font-size:10px;color:var(--t3);}
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;}
+.ch{padding:12px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;}
+.ct{font-size:13px;font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.arow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b1);transition:background .1s;cursor:pointer;}
+.arow:last-child{border-bottom:none;}
+.arow:hover{background:var(--s2);}
+.atime{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);width:46px;flex-shrink:0;font-weight:500;}
+.dtag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:5px;flex-shrink:0;}
+.ai{flex:1;min-width:0;}
+.an{font-size:13px;font-weight:600;}
+.am{font-size:11px;color:var(--t3);margin-top:1px;}
+.as{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;flex-shrink:0;}
+.sg{background:rgba(0,194,120,.12);color:var(--grn);}
+.sy{background:rgba(245,166,35,.12);color:var(--ylw);}
+.sr{background:rgba(255,59,85,.12);color:var(--red);}
+.aa{display:flex;gap:4px;flex-shrink:0;}
+.lead{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:14px;margin-bottom:8px;}
+.lt{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;}
+.ln{font-size:13px;font-weight:700;}
+.ltime{font-size:10px;color:var(--t3);}
+.lmsg{font-size:12px;color:var(--t2);font-style:italic;margin-bottom:10px;line-height:1.5;}
+.ltags{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
+.ltag{font-size:10px;font-weight:600;padding:2px 8px;border-radius:12px;background:var(--td);color:var(--teal);}
+.la{display:flex;gap:6px;flex-wrap:wrap;}
+.prow{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s;}
+.prow:hover{background:var(--s2);}
+.prow:last-child{border-bottom:none;}
+.pav{width:30px;height:30px;border-radius:50%;background:var(--s3);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--teal);flex-shrink:0;}
+.ci{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--b1);}
+.ci:last-child{border-bottom:none;}
+.conv-i{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s;}
+.conv-i:hover{background:var(--s2);}
+.conv-i:last-child{border-bottom:none;}
+.cdot{width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:4px;}
+.cdot.r{background:var(--t3);}
+.doc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;}
+.dc{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);overflow:hidden;}
+.dc-h{padding:10px 12px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px;}
+.dc-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
+.dc-n{font-size:12px;font-weight:600;}
+.ds{padding:7px 12px;border-bottom:1px solid var(--b1);font-size:11px;}
+.ds:last-child{border-bottom:none;}
+.ds-t{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--teal);display:block;margin-bottom:1px;}
+.btn{padding:7px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .12s;display:inline-flex;align-items:center;gap:5px;}
+.bp{background:var(--teal);color:#000;}.bp:hover{background:#00FFCC;}
+.bg{background:transparent;color:var(--t2);border:1px solid var(--b2);}.bg:hover{color:var(--tx);}
+.bs{padding:5px 10px;font-size:11px;}
+.bd{background:rgba(255,59,85,.12);color:var(--red);border:1px solid rgba(255,59,85,.2);}
+.bgn{background:rgba(0,194,120,.12);color:var(--grn);border:1px solid rgba(0,194,120,.2);}
+.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:12px;}
+.bt{background:var(--td);color:var(--teal);}
+.bgr{background:rgba(0,194,120,.12);color:var(--grn);}
+.by{background:rgba(245,166,35,.12);color:var(--ylw);}
+.br{background:rgba(255,59,85,.12);color:var(--red);}
+.ca{font-size:11px;color:var(--teal);cursor:pointer;font-weight:600;}
+.empty{text-align:center;padding:36px 20px;}
+.ei{font-size:32px;margin-bottom:8px;}
+.et{font-size:14px;font-weight:600;color:var(--t2);margin-bottom:3px;}
+.es{font-size:12px;color:var(--t3);}
+.loading{display:flex;align-items:center;gap:8px;padding:18px;color:var(--t3);font-size:12px;}
+.spin{width:14px;height:14px;border:2px solid var(--b2);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.65);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+.mo.show{display:flex;}
+.md{background:var(--s1);border:1px solid var(--b2);border-radius:14px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;}
+.mh{padding:16px 20px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;}
+.mt{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;}
+.mc{background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--s1);border:1px solid var(--tm);color:var(--tx);padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.5);opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+.fl{display:flex;gap:8px;} .fl1{flex:1;}
+label{font-size:10px;font-weight:600;color:var(--t3);display:block;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px;}
+input[type=text],input[type=email],input[type=tel],input[type=date],input[type=time],select{width:100%;background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-sm);padding:8px 11px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;margin-bottom:10px;}
+input:focus,select:focus{border-color:var(--teal);}
 </style>
 </head>
 <body>
-<div class="sidebar">
-  <div class="sidebar-top">
-    <div class="logo">Recep<span>AI</span></div>
-    <div class="role-badge">📋 Recepție</div>
-  </div>
-  <nav>
-    <div class="ni active" onclick="show('overview',this)"><span class="ni-icon">🏠</span>Dashboard</div>
-    <div class="ni" onclick="show('appointments',this)"><span class="ni-icon">📅</span>Toate programările<span class="nbadge">5</span></div>
-    <div class="ni" onclick="show('doctors',this)"><span class="ni-icon">👨‍⚕️</span>Calendare doctori</div>
-    <div class="ni" onclick="showIframe('panel-pacienti.html',this)"><span class="ni-icon">👥</span>Pacienți</div>
-    <div class="ni" onclick="show('leads',this)"><span class="ni-icon">💬</span>Lead-uri AI<span class="nbadge">12</span></div>
-    <div class="ni" onclick="show('conversations',this)"><span class="ni-icon">🗨️</span>Conversații AI</div>
+<aside class="sb">
+  <div class="sb-logo"><div class="logo">Recep<em>AI</em></div><div class="logo-sub">Recepție</div></div>
+  <nav class="sb-nav">
+    <div class="ni active" onclick="show('today',this)"><span class="ni-icon">🏠</span>Astăzi</div>
+    <div class="ni" onclick="show('appts',this)"><span class="ni-icon">📅</span>Programări<span class="nbadge" id="nb-a" style="display:none">0</span></div>
+    <div class="ni" onclick="show('cal',this)"><span class="ni-icon">👨‍⚕️</span>Calendar</div>
+    <div class="ni" onclick="show('patients',this)"><span class="ni-icon">👥</span>Pacienți</div>
+    <div class="ni" onclick="show('leads',this)"><span class="ni-icon">💬</span>Lead-uri<span class="nbadge" id="nb-l" style="display:none">0</span></div>
+    <div class="ni" onclick="show('convs',this)"><span class="ni-icon">🗨️</span>Conversații</div>
+    <div class="ni" onclick="show('checkin',this)"><span class="ni-icon">✓</span>Check-in</div>
   </nav>
-  <div class="sidebar-bottom">
-    <div class="logout" onclick="logout()">🚪 Deconectare</div>
-  </div>
-</div>
-
-<div class="main">
-  <div class="topbar">
-    <div class="topbar-l">
-      <div class="title" id="panel-title">Dashboard Recepție</div>
-      <div class="sub" id="today-date"></div>
+  <div class="sb-bottom">
+    <div class="sb-user">
+      <div class="u-av" id="sb-av">R</div>
+      <div class="fl1"><div class="u-name" id="sb-em">—</div><div class="u-role">📋 Recepție</div></div>
+      <button class="logout" onclick="logout()">↩</button>
     </div>
-    <input class="search" placeholder="🔍 Caută pacient, telefon...">
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div><div class="topbar-title" id="ptitle">Astăzi</div><div class="topbar-sub" id="plabel">—</div></div>
+    <div class="topbar-r">
+      <div class="search"><span style="color:var(--t3)">🔍</span><input placeholder="Caută pacient, telefon..." id="gsearch" oninput="gSearch(this.value)"></div>
+      <button class="btn bp bs" onclick="openAppt()">+ Programare</button>
+    </div>
   </div>
   <div class="content">
 
-    <!-- OVERVIEW -->
-    <div class="panel active" id="panel-overview">
-      <div class="stats">
-        <div class="stat s-red"><div class="stat-lbl">Lead-uri noi</div><div class="stat-val" style="color:var(--red)">12</div><div class="stat-sub">astăzi · necontactate</div></div>
-        <div class="stat s-teal"><div class="stat-lbl">Conversații AI</div><div class="stat-val" style="color:var(--teal)">47</div><div class="stat-sub">astăzi</div></div>
-        <div class="stat s-grn"><div class="stat-lbl">Programări azi</div><div class="stat-val" style="color:var(--grn)">28</div><div class="stat-sub">toți doctorii</div></div>
-        <div class="stat s-ylw"><div class="stat-lbl">Neconfirmate</div><div class="stat-val" style="color:var(--ylw)">5</div><div class="stat-sub">de sunat</div></div>
-      </div>
-
-      <div class="two-col">
+    <!-- TODAY -->
+    <div class="panel active" id="panel-today">
+      <div class="metrics" id="m-today"><div class="loading"><div class="spin"></div></div></div>
+      <div class="g2">
         <div class="card">
-          <div class="card-head"><span class="card-title">⚠️ De confirmat</span><span class="badge b-ylw">5 în așteptare</span></div>
-          <div class="lcard">
-            <div class="ltop"><span class="lname">Maria Ionescu</span><span class="ltime">Mâine 10:00 · Dr. Popescu</span></div>
-            <div class="lmsg">Implant Straumann · 3.500 RON</div>
-            <div class="lacts"><button class="btn btn-p">✓ Confirmă</button><button class="btn btn-g">↔ Reprogramează</button><button class="btn btn-r">✕</button></div>
-          </div>
-          <div class="lcard">
-            <div class="ltop"><span class="lname">Andrei Popa</span><span class="ltime">Mâine 14:00 · Dr. Stan</span></div>
-            <div class="lmsg">Consultație ortodontică · GRATUITĂ</div>
-            <div class="lacts"><button class="btn btn-p">✓ Confirmă</button><button class="btn btn-g">↔ Reprogramează</button><button class="btn btn-r">✕</button></div>
-          </div>
+          <div class="ch"><span class="ct">⚠️ De confirmat</span><span class="badge by" id="cnt-pend">0</span></div>
+          <div id="list-pend"><div class="loading"><div class="spin"></div></div></div>
         </div>
-
         <div class="card">
-          <div class="card-head"><span class="card-title">🤖 Lead-uri AI recente</span><span class="badge b-red">12 noi</span></div>
-          <div class="lcard">
-            <div class="ltop"><span class="lname">Alex Popescu</span><span class="ltime" style="color:var(--red);font-weight:700">NOU · 09:14</span></div>
-            <div class="lmsg">„Vreau implant dentar, cât costă?"</div>
-            <div class="ltags"><span class="ltag">📞 0722 345 678</span><span class="ltag">🦷 Implant</span></div>
-            <div class="lacts"><button class="btn btn-p">📞 Sună</button><button class="btn btn-g">📅 Program.</button><button class="btn btn-g">→ Dr.</button></div>
-          </div>
-          <div class="lcard">
-            <div class="ltop"><span class="lname">Ioana Mihai</span><span class="ltime" style="color:var(--red);font-weight:700">NOU · 08:55</span></div>
-            <div class="lmsg">„Vreau Invisalign, ce opțiuni aveți?"</div>
-            <div class="ltags"><span class="ltag">📞 0741 567 890</span><span class="ltag">🦷 Invisalign</span></div>
-            <div class="lacts"><button class="btn btn-p">📞 Sună</button><button class="btn btn-g">📅 Program.</button><button class="btn btn-g">→ Dr.</button></div>
-          </div>
+          <div class="ch"><span class="ct">💬 Lead-uri noi</span><span class="badge br" id="cnt-leads-t">0</span></div>
+          <div id="list-leads-t"><div class="loading"><div class="spin"></div></div></div>
         </div>
       </div>
-
       <div class="card">
-        <div class="card-head"><span class="card-title">📅 Programările de azi — Toată clinica</span><span class="badge b-grn">28 programări</span></div>
-        <div class="arow"><div class="atime">09:00</div><span class="adoc" style="background:rgba(0,212,170,.12);color:var(--teal)">Dr. Popescu</span><div class="ainfo"><div class="aproc">Consultație generală</div><div class="apat">Alexandru Popa</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">↔</button></div></div>
-        <div class="arow"><div class="atime">09:30</div><span class="adoc" style="background:rgba(255,184,0,.12);color:var(--ylw)">Dr. Stan</span><div class="ainfo"><div class="aproc">Aparat dentar control</div><div class="apat">Radu Ionescu</div></div><span class="astatus s-pend">⚠</span><div class="aacts"><button class="btn btn-p">✓</button><button class="btn btn-g">↔</button></div></div>
-        <div class="arow"><div class="atime">10:00</div><span class="adoc" style="background:rgba(0,204,136,.12);color:var(--grn)">Dr. Maria</span><div class="ainfo"><div class="aproc">Detartraj + periaj</div><div class="apat">Elena Constantin</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">↔</button></div></div>
-        <div class="arow"><div class="atime">10:30</div><span class="adoc" style="background:rgba(0,212,170,.12);color:var(--teal)">Dr. Popescu</span><div class="ainfo"><div class="aproc">Implant Straumann</div><div class="apat">Maria Ionescu</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">↔</button></div></div>
-        <div class="arow"><div class="atime">11:00</div><span class="adoc" style="background:rgba(255,68,85,.12);color:var(--red)">Dr. Vlad</span><div class="ainfo"><div class="aproc">Urgență dentară</div><div class="apat">Ion Marinescu</div></div><span class="astatus s-urg">🚨</span><div class="aacts"><button class="btn btn-g">↔</button></div></div>
+        <div class="ch"><span class="ct">📅 Programările de azi</span><span class="badge bt" id="cnt-today">0</span></div>
+        <div id="list-today"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 
     <!-- APPOINTMENTS -->
-    <div class="panel" id="panel-appointments">
-      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center">
-        <button class="btn btn-p" onclick="openAppt()">+ Programare nouă</button>
-        <button class="btn btn-g">📅 Astăzi</button>
-        <button class="btn btn-g">← Ieri</button>
-        <button class="btn btn-g">Mâine →</button>
-        <select style="background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:6px 12px;color:var(--tx);font-size:12px;outline:none">
-          <option>Toți doctorii</option><option>Dr. Popescu</option><option>Dr. Stan</option><option>Dr. Maria</option>
-        </select>
+    <div class="panel" id="panel-appts">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+        <button class="btn bg bs af" onclick="fAppt('today',this)" style="border-color:var(--teal);color:var(--teal)">Azi</button>
+        <button class="btn bg bs af" onclick="fAppt('tomorrow',this)">Mâine</button>
+        <button class="btn bg bs af" onclick="fAppt('week',this)">Săptămâna</button>
+        <button class="btn bg bs af" onclick="fAppt('all',this)">Toate</button>
+        <button class="btn bp bs" onclick="openAppt()" style="margin-left:auto">+ Programare nouă</button>
       </div>
       <div class="card">
-        <div class="card-head"><span class="card-title">📅 Toate programările — 20 Iulie</span><span class="badge b-ylw">5 neconfirmate</span></div>
-        <div class="arow"><div class="atime">09:00</div><span class="adoc" style="background:rgba(0,212,170,.12);color:var(--teal)">Dr. Popescu</span><div class="ainfo"><div class="aproc">Consultație</div><div class="apat">Alexandru Popa · 0721 234 567</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">✏️</button><button class="btn btn-g">↔</button><button class="btn btn-r">✕</button></div></div>
-        <div class="arow"><div class="atime">09:30</div><span class="adoc" style="background:rgba(255,184,0,.12);color:var(--ylw)">Dr. Stan</span><div class="ainfo"><div class="aproc">Control aparat</div><div class="apat">Radu Ionescu · 0741 111 222</div></div><span class="astatus s-pend">⚠ Neconf.</span><div class="aacts"><button class="btn btn-p">✓</button><button class="btn btn-g">↔</button><button class="btn btn-r">✕</button></div></div>
-        <div class="arow"><div class="atime">10:30</div><span class="adoc" style="background:rgba(0,212,170,.12);color:var(--teal)">Dr. Popescu</span><div class="ainfo"><div class="aproc">Implant Straumann</div><div class="apat">Maria Ionescu · 0722 345 678</div></div><span class="astatus s-ok">✓</span><div class="aacts"><button class="btn btn-g">✏️</button><button class="btn btn-g">↔</button><button class="btn btn-r">✕</button></div></div>
+        <div class="ch"><span class="ct">📅 Programări</span><span class="badge bt" id="cnt-appts">0</span></div>
+        <div id="list-appts"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 
-    <!-- DOCTORS -->
-    <div class="panel" id="panel-doctors">
-      <div class="card">
-        <div class="card-head"><span class="card-title">👨‍⚕️ Calendarele doctorilor — Astăzi</span></div>
-        <div class="doc-grid">
-          <div class="doc-col">
-            <div class="doc-head">🦷 Dr. Andrei Popescu</div>
-            <div class="doc-slot busy"><div class="slot-time">09:00</div>Consultație · Alexandru P.</div>
-            <div class="doc-slot busy"><div class="slot-time">10:30</div>Implant · Maria I.</div>
-            <div class="doc-slot busy"><div class="slot-time">12:00</div>Control · Elena C.</div>
-            <div class="doc-slot"><div class="slot-time">13:00</div>Liber</div>
-            <div class="doc-slot busy"><div class="slot-time">14:00</div>Planning · Mihai V.</div>
-          </div>
-          <div class="doc-col">
-            <div class="doc-head">🦷 Dr. Raluca Stan</div>
-            <div class="doc-slot"><div class="slot-time">09:00</div>Liber</div>
-            <div class="doc-slot busy"><div class="slot-time">09:30</div>Aparat · Radu I.</div>
-            <div class="doc-slot busy"><div class="slot-time">11:00</div>Invisalign · Ana G.</div>
-            <div class="doc-slot"><div class="slot-time">13:00</div>Liber</div>
-            <div class="doc-slot busy"><div class="slot-time">14:00</div>Control · Mihai S.</div>
-          </div>
-          <div class="doc-col">
-            <div class="doc-head">🦷 Dr. Elena Maria</div>
-            <div class="doc-slot busy"><div class="slot-time">10:00</div>Detartraj · Elena C.</div>
-            <div class="doc-slot busy"><div class="slot-time">11:00</div>Plombă · George T.</div>
-            <div class="doc-slot"><div class="slot-time">12:00</div>Pauză</div>
-            <div class="doc-slot busy"><div class="slot-time">14:00</div>Canal · Ioana M.</div>
-          </div>
+    <!-- CALENDAR -->
+    <div class="panel" id="panel-cal">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div>
+          <button class="btn bg bs" onclick="cNav(-1)">←</button>
+          <span style="font-size:13px;font-weight:600;margin:0 12px" id="cal-lbl">—</span>
+          <button class="btn bg bs" onclick="cNav(1)">→</button>
         </div>
+        <button class="btn bg bs" onclick="calD=new Date();renderCal()">Azi</button>
       </div>
+      <div class="doc-grid" id="doc-cal"><div class="loading"><div class="spin"></div></div></div>
     </div>
 
     <!-- PATIENTS -->
     <div class="panel" id="panel-patients">
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <input placeholder="🔍 Caută după nume sau telefon..." id="pq" oninput="renderPatients(this.value)"
+          style="flex:1;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-sm);padding:8px 12px;color:var(--tx);font-size:13px;outline:none">
+        <button class="btn bp bs" onclick="oModal('mp')">+ Pacient nou</button>
+      </div>
       <div class="card">
-        <div class="card-head"><span class="card-title">👥 Pacienți</span><button class="btn btn-p" style="font-size:11px">+ Pacient nou</button></div>
-        <div class="prow"><div class="pav">👤</div><div><div class="pname">Maria Ionescu</div><div class="pmeta">📞 0722 345 678 · Implant · 3 vizite</div></div><div class="pdoc">Dr. Popescu</div><button class="btn btn-g" style="margin-left:10px;font-size:11px">📁 Fișă</button></div>
-        <div class="prow"><div class="pav">👤</div><div><div class="pname">Alexandru Popa</div><div class="pmeta">📞 0721 234 567 · Consultație · Prima vizită</div></div><div class="pdoc">Dr. Popescu</div><button class="btn btn-g" style="margin-left:10px;font-size:11px">📁 Fișă</button></div>
-        <div class="prow"><div class="pav">👤</div><div><div class="pname">Radu Ionescu</div><div class="pmeta">📞 0741 111 222 · Aparat fix · 8 vizite</div></div><div class="pdoc">Dr. Stan</div><button class="btn btn-g" style="margin-left:10px;font-size:11px">📁 Fișă</button></div>
-        <div class="prow"><div class="pav">👤</div><div><div class="pname">Elena Constantin</div><div class="pmeta">📞 0733 456 789 · Detartraj · 2 vizite</div></div><div class="pdoc">Dr. Maria</div><button class="btn btn-g" style="margin-left:10px;font-size:11px">📁 Fișă</button></div>
+        <div class="ch"><span class="ct">👥 Pacienți</span><span class="badge bt" id="cnt-pat">0</span></div>
+        <div id="list-pat"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 
     <!-- LEADS -->
     <div class="panel" id="panel-leads">
-      <div class="card">
-        <div class="card-head"><span class="card-title">💬 Lead-uri AI — Toate</span><span class="badge b-red">12 noi astăzi</span></div>
-        <div class="lcard">
-          <div class="ltop"><span class="lname">Alex Popescu</span><span class="ltime" style="color:var(--red);font-weight:700">NOU · 09:14</span></div>
-          <div class="lmsg">„Vreau implant dentar, am pierdut un dinte în față. Cât costă?"</div>
-          <div class="ltags"><span class="ltag">📞 0722 345 678</span><span class="ltag">🦷 Implant</span><span class="ltag">Necontactat</span></div>
-          <div class="lacts"><button class="btn btn-p">📞 Sună</button><button class="btn btn-g">📅 Programează</button><button class="btn btn-g">→ Dr. Popescu</button><button class="btn btn-g">✓ Contactat</button></div>
-        </div>
-        <div class="lcard">
-          <div class="ltop"><span class="lname">Ioana Mihai</span><span class="ltime" style="color:var(--red);font-weight:700">NOU · 08:55</span></div>
-          <div class="lmsg">„Vreau Invisalign, ce opțiuni aveți? Am dinți strâmbi."</div>
-          <div class="ltags"><span class="ltag">📞 0741 567 890</span><span class="ltag">🦷 Invisalign</span><span class="ltag">Necontactat</span></div>
-          <div class="lacts"><button class="btn btn-p">📞 Sună</button><button class="btn btn-g">📅 Programează</button><button class="btn btn-g">→ Dr. Stan</button><button class="btn btn-g">✓ Contactat</button></div>
-        </div>
-        <div class="lcard">
-          <div class="ltop"><span class="lname">George Tudor</span><span class="ltime">Ieri 18:32</span></div>
-          <div class="lmsg">„Aveți urgențe dentare? Am durere de dinți de ieri seară."</div>
-          <div class="ltags"><span class="ltag">📞 0766 123 456</span><span class="ltag">🚨 Urgență</span><span class="ltag" style="background:rgba(0,204,136,.12);color:var(--grn)">Contactat</span></div>
-          <div class="lacts"><button class="btn btn-p">📞 Sună din nou</button><button class="btn btn-g">📅 Programează</button></div>
-        </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn bg bs lf" onclick="fLead('new',this)" style="border-color:var(--teal);color:var(--teal)">Noi</button>
+        <button class="btn bg bs lf" onclick="fLead('contacted',this)">Contactate</button>
+        <button class="btn bg bs lf" onclick="fLead('all',this)">Toate</button>
       </div>
+      <div id="list-leads"><div class="loading"><div class="spin"></div></div></div>
     </div>
 
     <!-- CONVERSATIONS -->
-    <div class="panel" id="panel-conversations">
+    <div class="panel" id="panel-convs">
       <div class="card">
-        <div class="card-head"><span class="card-title">🗨️ Conversații AI — Astăzi</span><span class="badge b-teal">47 conversații</span></div>
-        <div class="conv-item"><div class="conv-top"><span class="conv-name"><span class="cdot"></span>Alex Popescu</span><span class="conv-time">09:14</span></div><div class="conv-last">„Vreau implant dentar, am pierdut un dinte..."</div></div>
-        <div class="conv-item"><div class="conv-top"><span class="conv-name"><span class="cdot"></span>Ioana Mihai</span><span class="conv-time">08:55</span></div><div class="conv-last">„Vreau Invisalign, ce opțiuni aveți?"</div></div>
-        <div class="conv-item"><div class="conv-top"><span class="conv-name">George Tudor</span><span class="conv-time">Ieri 18:32</span></div><div class="conv-last">„Aveți urgențe dentare? Am durere..."</div></div>
-        <div class="conv-item"><div class="conv-top"><span class="conv-name">Ana Gheorghiu</span><span class="conv-time">Ieri 16:10</span></div><div class="conv-last">„Cât costă albirea dentară profesională?"</div></div>
-        <div class="conv-item"><div class="conv-top"><span class="conv-name">Mihai Stanescu</span><span class="conv-time">Ieri 14:20</span></div><div class="conv-last">„Acceptați Signal Iduna? Am asigurare..."</div></div>
+        <div class="ch"><span class="ct">🗨️ Conversații AI</span><span class="badge bt" id="cnt-convs">0</span></div>
+        <div id="list-convs"><div class="loading"><div class="spin"></div></div></div>
+      </div>
+    </div>
+
+    <!-- CHECKIN -->
+    <div class="panel" id="panel-checkin">
+      <div class="card">
+        <div class="ch"><span class="ct">✓ Check-in azi</span></div>
+        <div id="list-ci"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 
   </div>
-</div>
+</main>
 
-<script>
-const days=['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
-const months=['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
-const now=new Date();
-document.getElementById('today-date').textContent=`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
-
-function show(name,el){
-  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
-  document.getElementById('panel-'+name)?.classList.add('active');
-  if(el)el.classList.add('active');
-  const titles={overview:'Dashboard Recepție',appointments:'Toate programările',doctors:'Calendare doctori',patients:'Pacienți',leads:'Lead-uri AI',conversations:'Conversații AI'};
-  document.getElementById('panel-title').textContent=titles[name]||name;
-}
-
-function showIframe(src, el) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
-  if (el) el.classList.add('active');
-  const key = src.replace('.html','').replace('panel-','');
-  let panel = document.getElementById('panel-iframe-' + key);
-  if (!panel) {
-    panel = document.createElement('div');
-    panel.className = 'panel';
-    panel.id = 'panel-iframe-' + key;
-    panel.innerHTML = '<iframe src="' + src + '" style="width:100%;height:calc(100vh - 60px);border:none"></iframe>';
-    document.querySelector('.content').appendChild(panel);
-  }
-  panel.classList.add('active');
-  const titles = {'pacienti':'Pacienți','doctori':'Doctori','servicii':'Servicii'};
-  document.getElementById('panel-title').textContent = titles[key] || key;
-}
-
-function logout(){
-  localStorage.removeItem('recepai_token');
-  localStorage.removeItem('recepai_role');
-  window.location.href='login.html';
-}
-</script>
-
-<!-- PROGRAMARE NOUA MODAL -->
-<div id="appt-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;padding:20px">
-  <div style="width:100%;max-width:580px;position:relative">
-    <button onclick="closeAppt()" style="position:absolute;top:-40px;right:0;background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer">✕ Închide</button>
-    <iframe id="appt-frame" src="panel-programare-noua.html" style="width:100%;height:620px;border:none;border-radius:18px"></iframe>
+<!-- MODAL PATIENT -->
+<div class="mo" id="mp">
+  <div class="md">
+    <div class="mh"><span class="mt">+ Pacient nou</span><button class="mc" onclick="cModal('mp')">×</button></div>
+    <div style="padding:18px">
+      <div class="fl" style="gap:10px"><div class="fl1"><label>Nume *</label><input id="mpn" placeholder="Maria Ionescu"></div><div class="fl1"><label>Telefon *</label><input id="mpp" placeholder="0721 234 567"></div></div>
+      <div class="fl" style="gap:10px"><div class="fl1"><label>Email</label><input id="mpe" type="email"></div><div class="fl1"><label>Naștere</label><input id="mpd" type="date"></div></div>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn bg bs" onclick="cModal('mp')">Anulează</button>
+        <button class="btn bp bs" onclick="savePat()">💾 Salvează</button>
+      </div>
+    </div>
   </div>
 </div>
 
+<!-- MODAL RESCHEDULE -->
+<div class="mo" id="mr">
+  <div class="md">
+    <div class="mh"><span class="mt">↔ Reprogramează</span><button class="mc" onclick="cModal('mr')">×</button></div>
+    <div style="padding:18px">
+      <div class="fl" style="gap:10px"><div class="fl1"><label>Data nouă</label><input id="rd" type="date"></div><div class="fl1"><label>Ora nouă</label><input id="rt" type="time"></div></div>
+      <label>Doctor</label><select id="rdoc"></select>
+      <div style="display:flex;gap:8px;justify-content:flex-end">
+        <button class="btn bg bs" onclick="cModal('mr')">Anulează</button>
+        <button class="btn bp bs" onclick="doReschedule()">✓ Confirmă</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
 <script>
-function openAppt() {
-  const overlay = document.getElementById('appt-overlay');
-  overlay.style.display = 'flex';
+const API = window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'?'http://localhost:8080':'https://ai-reception-platform-production.up.railway.app';
+const TOKEN=localStorage.getItem('recepai_token');
+const EMAIL=localStorage.getItem('recepai_email');
+const ROLE=localStorage.getItem('recepai_role');
+const CID=localStorage.getItem('recepai_client_id');
+if(!TOKEN||!['reception','owner'].includes(ROLE))window.location.href='login.html';
+
+let APPTS=[],PATS=JSON.parse(localStorage.getItem('recepai_patients_'+CID)||'[]'),CONVS=[],DOCS=JSON.parse(localStorage.getItem('recepai_doctors_'+CID)||'[]');
+let apptF='today',leadF='new',calD=new Date(),rschId=null;
+
+async function init(){
+  const ini=(EMAIL||'').split('@')[0].substring(0,2).toUpperCase()||'R';
+  document.getElementById('sb-av').textContent=ini;
+  document.getElementById('sb-em').textContent=EMAIL||'—';
+  const days=['Duminică','Luni','Marți','Miercuri','Joi','Vineri','Sâmbătă'];
+  const months=['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  const now=new Date();
+  document.getElementById('plabel').textContent=`${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+  try{const r=await fetch(`${API}/api/appointments?clientId=${CID}`);const d=await r.json();APPTS=d.appointments||[];}catch(e){}
+  try{const r=await fetch(`${API}/api/conversations?clientId=${CID}`);const d=await r.json();CONVS=d.conversations||[];}catch(e){}
+  const pend=APPTS.filter(a=>!a.status||a.status==='pending').length;
+  if(pend>0){const nb=document.getElementById('nb-a');nb.textContent=pend;nb.style.display='';}
+  renderToday();renderCal();renderPatients();
 }
-function closeAppt() {
-  document.getElementById('appt-overlay').style.display = 'none';
+
+const TITLES={today:'Astăzi',appts:'Programări',cal:'Calendar doctori',patients:'Pacienți',leads:'Lead-uri AI',convs:'Conversații AI',checkin:'Check-in'};
+function show(n,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  document.getElementById('panel-'+n)?.classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('ptitle').textContent=TITLES[n]||n;
+  if(n==='appts')renderAppts();
+  if(n==='leads')renderLeads();
+  if(n==='convs')renderConvs();
+  if(n==='checkin')renderCheckin();
+  if(n==='patients')renderPatients();
 }
-// Listen for close message from iframe
-window.addEventListener('message', (e) => {
-  if (e.data === 'close-appointment') closeAppt();
-});
+
+function renderToday(){
+  const td=new Date().toDateString();
+  const ta=APPTS.filter(a=>new Date(a.date).toDateString()===td);
+  const pend=APPTS.filter(a=>!a.status||a.status==='pending');
+  document.getElementById('m-today').innerHTML=`
+    <div class="metric m-teal"><div class="metric-label">Programări azi</div><div class="metric-val" style="color:var(--teal)">${ta.length}</div><div class="metric-sub">toți doctorii</div></div>
+    <div class="metric m-ylw"><div class="metric-label">De confirmat</div><div class="metric-val" style="color:var(--ylw)">${pend.length}</div><div class="metric-sub">necesită confirmare</div></div>
+    <div class="metric m-grn"><div class="metric-label">Conversații AI</div><div class="metric-val" style="color:var(--grn)">${CONVS.length}</div><div class="metric-sub">total</div></div>
+    <div class="metric m-red"><div class="metric-label">Pacienți</div><div class="metric-val" style="color:var(--red)">${PATS.length}</div><div class="metric-sub">în bază</div></div>`;
+  document.getElementById('cnt-pend').textContent=pend.length;
+  document.getElementById('list-pend').innerHTML=pend.length?pend.slice(0,4).map(a=>`
+    <div class="arow"><div class="ai"><div class="an">${a.patient?.name||'—'}</div><div class="am">${a.service?.name||'—'} · ${a.slot||'—'}</div></div>
+    <div class="aa"><button class="btn bgn bs" onclick="cfAppt('${a.id}')">✓</button><button class="btn bg bs" onclick="openRsch('${a.id}')">↔</button><button class="btn bd bs" onclick="cnAppt('${a.id}')">✕</button></div></div>`).join(''):`<div class="empty"><div class="ei">✅</div><div class="et">Toate confirmate</div></div>`;
+  const leads=CONVS.filter(c=>c.isLead||c.userName);
+  document.getElementById('cnt-leads-t').textContent=leads.length;
+  document.getElementById('list-leads-t').innerHTML=leads.length?leads.slice(0,3).map(c=>`
+    <div class="arow"><div class="ai"><div class="an">${c.userName||'Vizitator'}</div><div class="am">${(c.lastMessage||'').substring(0,40)}</div></div>
+    <button class="btn bp bs" onclick="openApptFor('${c.userName||''}','${c.userPhone||''}')">📅</button></div>`).join(''):`<div class="empty"><div class="ei">💬</div><div class="et">Niciun lead nou</div></div>`;
+  document.getElementById('cnt-today').textContent=ta.length;
+  document.getElementById('list-today').innerHTML=ta.length?ta.sort((a,b)=>(a.slot||'').localeCompare(b.slot||'')).map(a=>aRow(a)).join(''):`<div class="empty"><div class="ei">📅</div><div class="et">Nicio programare azi</div><div class="es"><span class="ca" onclick="openAppt()">+ Adaugă programare</span></div></div>`;
+}
+
+function aRow(a){
+  const s=a.status||'pending';
+  return `<div class="arow">
+    <span class="atime">${a.slot||'—'}</span>
+    ${a.doctor?.name?`<span class="dtag" style="background:var(--td);color:var(--teal)">${a.doctor.name.split(' ').pop()}</span>`:''}
+    <div class="ai"><div class="an">${a.patient?.name||'—'}</div><div class="am">${a.service?.name||'—'}${a.patient?.phone?' · '+a.patient.phone:''}</div></div>
+    <span class="as ${s==='confirmed'?'sg':s==='cancelled'?'sr':'sy'}">${s==='confirmed'?'✓':s==='cancelled'?'Anulată':'⚠'}</span>
+    <div class="aa">
+      ${s!=='confirmed'?`<button class="btn bgn bs" onclick="cfAppt('${a.id}')">✓</button>`:''}
+      <button class="btn bg bs" onclick="openRsch('${a.id}')">↔</button>
+      ${s!=='cancelled'?`<button class="btn bd bs" onclick="cnAppt('${a.id}')">✕</button>`:''}
+    </div></div>`;
+}
+
+function renderAppts(){
+  const td=new Date(),tm=new Date();tm.setDate(tm.getDate()+1);const wk=new Date();wk.setDate(wk.getDate()+7);
+  let list=APPTS;
+  if(apptF==='today')list=list.filter(a=>new Date(a.date).toDateString()===td.toDateString());
+  else if(apptF==='tomorrow')list=list.filter(a=>new Date(a.date).toDateString()===tm.toDateString());
+  else if(apptF==='week')list=list.filter(a=>new Date(a.date)<=wk);
+  list=list.sort((a,b)=>(a.slot||'').localeCompare(b.slot||''));
+  document.getElementById('cnt-appts').textContent=list.length;
+  document.getElementById('list-appts').innerHTML=list.length?list.map(a=>aRow(a)).join(''):`<div class="empty"><div class="ei">📅</div><div class="et">Nicio programare</div></div>`;
+}
+
+function fAppt(f,el){apptF=f;document.querySelectorAll('.af').forEach(b=>{b.style.borderColor='';b.style.color='';});if(el){el.style.borderColor='var(--teal)';el.style.color='var(--teal)';}renderAppts();}
+
+async function cfAppt(id){await updStatus(id,'confirmed');toast('✅ Confirmată');}
+async function cnAppt(id){if(!confirm('Anulezi?'))return;await updStatus(id,'cancelled');toast('❌ Anulată');}
+async function updStatus(id,s){
+  try{await fetch(`${API}/api/appointments/status`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clientId:CID,id,status:s})});}catch(e){}
+  const i=APPTS.findIndex(a=>a.id===id);if(i>=0)APPTS[i].status=s;
+  renderToday();renderAppts();
+}
+function openRsch(id){
+  rschId=id;const a=APPTS.find(a=>a.id===id);if(!a)return;
+  document.getElementById('rd').value=a.date?.split('T')[0]||'';
+  document.getElementById('rt').value=a.slot||'';
+  const sel=document.getElementById('rdoc');
+  sel.innerHTML=DOCS.map(d=>`<option value="${d.id}" ${d.id===a.doctor?.id?'selected':''}>${d.name}</option>`).join('');
+  oModal('mr');
+}
+async function doReschedule(){
+  const a=APPTS.find(a=>a.id===rschId);if(!a)return;
+  a.date=document.getElementById('rd').value;a.slot=document.getElementById('rt').value;
+  const did=document.getElementById('rdoc').value;a.doctor=DOCS.find(d=>d.id===did)||a.doctor;
+  try{await fetch(`${API}/api/appointments/save`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...a,clientId:CID})});}catch(e){}
+  cModal('mr');renderToday();renderAppts();toast('✅ Reprogramată');
+}
+
+function renderCal(){
+  const months=['Ianuarie','Februarie','Martie','Aprilie','Mai','Iunie','Iulie','August','Septembrie','Octombrie','Noiembrie','Decembrie'];
+  document.getElementById('cal-lbl').textContent=`${calD.getDate()} ${months[calD.getMonth()]} ${calD.getFullYear()}`;
+  const ds=calD.toDateString();
+  const da=APPTS.filter(a=>new Date(a.date).toDateString()===ds);
+  if(!DOCS.length){document.getElementById('doc-cal').innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="ei">👨‍⚕️</div><div class="et">Niciun doctor</div></div>`;return;}
+  const colors=['#00D4AA','#3B82F6','#F5A623','#00C278','#FF3B55'];
+  document.getElementById('doc-cal').innerHTML=DOCS.map((d,i)=>{
+    const da2=da.filter(a=>a.doctor?.id===d.id||a.doctor?.name===d.name);
+    const c=d.color||colors[i%colors.length];const ini=d.name?.split(' ').map(n=>n[0]).join('').substring(0,2)||'Dr';
+    return `<div class="dc"><div class="dc-h"><div class="dc-av" style="background:${c}22;color:${c}">${ini}</div><div><div class="dc-n">${d.name||'—'}</div><div style="font-size:9px;color:var(--t3)">${da2.length} progr.</div></div></div>
+    ${da2.length?da2.sort((a,b)=>(a.slot||'').localeCompare(b.slot||'')).map(a=>`<div class="ds"><span class="ds-t">${a.slot||'—'}</span>${a.patient?.name||'—'}</div>`).join(''):`<div class="ds" style="color:var(--t3)">Liber</div>`}</div>`;
+  }).join('');
+}
+function cNav(d){calD.setDate(calD.getDate()+d);renderCal();}
+
+function renderPatients(q=''){
+  const list=q?PATS.filter(p=>p.name?.toLowerCase().includes(q.toLowerCase())||p.phone?.includes(q)):PATS;
+  document.getElementById('cnt-pat').textContent=list.length;
+  document.getElementById('list-pat').innerHTML=list.length?list.map(p=>{
+    const ini=p.name?.split(' ').map(n=>n[0]).join('').substring(0,2)||'P';
+    return `<div class="prow"><div class="pav">${ini}</div><div style="flex:1"><div style="font-size:13px;font-weight:600">${p.name}</div><div style="font-size:11px;color:var(--t3)">📞 ${p.phone||'—'}</div></div>${p.allergies?`<span class="badge br">⚠ ${p.allergies}</span>`:''}<span class="badge bt">${p.visits||0}v</span><button class="btn bp bs" onclick="openApptFor('${p.name}','${p.phone||''}')">📅</button></div>`;
+  }).join(''):`<div class="empty"><div class="ei">👥</div><div class="et">${q?'Niciun rezultat':'Niciun pacient'}</div></div>`;
+}
+function savePat(){
+  const n=document.getElementById('mpn').value.trim(),ph=document.getElementById('mpp').value.trim();
+  if(!n||!ph){toast('⚠ Completează numele și telefonul');return;}
+  PATS.unshift({id:'p'+Date.now(),name:n,phone:ph,email:document.getElementById('mpe').value.trim(),dob:document.getElementById('mpd').value,visits:0,history:[],notes:[],createdAt:new Date().toISOString().split('T')[0]});
+  localStorage.setItem('recepai_patients_'+CID,JSON.stringify(PATS));
+  renderPatients();cModal('mp');toast('✅ Pacient adăugat');
+}
+
+function renderLeads(){
+  const leads=CONVS.filter(c=>c.isLead||c.userName);
+  const f=leadF==='new'?leads.filter(c=>!c.contacted):leadF==='contacted'?leads.filter(c=>c.contacted):leads;
+  const newC=leads.filter(c=>!c.contacted).length;
+  const nb=document.getElementById('nb-l');nb.textContent=newC;nb.style.display=newC?'':'none';
+  document.getElementById('list-leads').innerHTML=f.length?f.map(c=>`
+    <div class="lead">
+      <div class="lt"><span class="ln">${c.userName||'Vizitator'}</span><span class="ltime">${c.savedAt?new Date(c.savedAt).toLocaleDateString('ro-RO',{day:'numeric',month:'short'}):'—'}</span></div>
+      <div class="lmsg">${(c.lastMessage||(c.messages?.slice(-1)[0]?.content?.substring(0,100))||'—')}</div>
+      <div class="ltags">
+        ${c.userPhone?`<span class="ltag">📞 ${c.userPhone}</span>`:''}
+        ${c.contacted?'<span class="ltag" style="background:rgba(0,194,120,.12);color:var(--grn)">✓ Contactat</span>':'<span class="ltag" style="background:rgba(255,59,85,.12);color:var(--red)">NOU</span>'}
+      </div>
+      <div class="la">
+        ${c.userPhone?`<button class="btn bp bs" onclick="location.href='tel:${c.userPhone}'">📞 Sună</button>`:''}
+        <button class="btn bg bs" onclick="openApptFor('${c.userName||''}','${c.userPhone||''}')">📅 Programează</button>
+        ${!c.contacted?`<button class="btn bgn bs" onclick="markC('${c.savedAt}')">✓ Contactat</button>`:''}
+      </div>
+    </div>`).join(''):`<div class="empty"><div class="ei">💬</div><div class="et">Niciun lead</div></div>`;
+}
+function fLead(f,el){leadF=f;document.querySelectorAll('.lf').forEach(b=>{b.style.borderColor='';b.style.color='';});if(el){el.style.borderColor='var(--teal)';el.style.color='var(--teal)';}renderLeads();}
+function markC(sa){const c=CONVS.find(c=>c.savedAt===sa);if(c){c.contacted=true;renderLeads();toast('✓ Marcat contactat');}}
+
+function renderConvs(){
+  document.getElementById('cnt-convs').textContent=CONVS.length;
+  document.getElementById('list-convs').innerHTML=CONVS.length?CONVS.map(c=>`
+    <div class="conv-i"><div class="cdot ${c.contacted?'r':''}"></div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600">${c.userName||'Vizitator'}</div><div style="font-size:12px;color:var(--t2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${c.lastMessage||(c.messages?.slice(-1)[0]?.content?.substring(0,60))||'—'}</div></div><span style="font-size:10px;color:var(--t3);flex-shrink:0">${c.savedAt?new Date(c.savedAt).toLocaleDateString('ro-RO',{day:'numeric',month:'short'}):'—'}</span></div>`).join(''):`<div class="empty"><div class="ei">🗨️</div><div class="et">Nicio conversație</div></div>`;
+}
+
+function renderCheckin(){
+  const td=new Date().toDateString();
+  const ta=APPTS.filter(a=>new Date(a.date).toDateString()===td&&a.status!=='cancelled').sort((a,b)=>(a.slot||'').localeCompare(b.slot||''));
+  document.getElementById('list-ci').innerHTML=ta.length?ta.map(a=>`
+    <div class="ci">
+      <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--teal);width:50px;flex-shrink:0">${a.slot||'—'}</span>
+      <div style="flex:1"><div style="font-size:13px;font-weight:600">${a.patient?.name||'—'}</div><div style="font-size:11px;color:var(--t3)">${a.service?.name||'—'} · ${a.doctor?.name||'—'}</div></div>
+      <span class="badge ${a.checkedIn?'bgr':a.status==='confirmed'?'bt':'by'}">${a.checkedIn?'✓ Sosit':a.status==='confirmed'?'Așteptare':'Neconfirmat'}</span>
+      ${!a.checkedIn?`<button class="btn bgn bs" style="margin-left:8px" onclick="doCI('${a.id}')">✓ Sosit</button>`:''}
+    </div>`).join(''):`<div class="empty"><div class="ei">✓</div><div class="et">Nicio programare azi</div></div>`;
+}
+function doCI(id){const a=APPTS.find(a=>a.id===id);if(a){a.checkedIn=true;renderCheckin();toast('✅ Pacient înregistrat');}}
+
+function gSearch(q){if(!q.trim())return;show('patients',document.querySelector('.ni:nth-child(4)'));document.getElementById('pq').value=q;renderPatients(q);}
+function openAppt(){window.open('panel-programare-noua.html','_blank');}
+function openApptFor(n,p){localStorage.setItem('recepai_prefill_name',n);localStorage.setItem('recepai_prefill_phone',p);window.open('panel-programare-noua.html','_blank');}
+function oModal(id){document.getElementById(id).classList.add('show');}
+function cModal(id){document.getElementById(id).classList.remove('show');}
+function toast(msg,dur=3000){const el=document.getElementById('toast');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),dur);}
+function logout(){localStorage.removeItem('recepai_token');localStorage.removeItem('recepai_role');window.location.href='login.html';}
+init();
 </script>
 </body>
 </html>

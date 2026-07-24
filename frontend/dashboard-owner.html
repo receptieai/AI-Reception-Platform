@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecepAI — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────── */
+:root {
+  --bg:    #080808;
+  --s1:    #101010;
+  --s2:    #161616;
+  --s3:    #1E1E1E;
+  --b1:    #242424;
+  --b2:    #2E2E2E;
+  --tx:    #EFEFEF;
+  --t2:    #8A8A8A;
+  --t3:    #484848;
+  --teal:  #00D4AA;
+  --td:    rgba(0,212,170,.08);
+  --tm:    rgba(0,212,170,.18);
+  --grn:   #00C278;
+  --ylw:   #F5A623;
+  --red:   #FF3B55;
+  --blu:   #3B82F6;
+  --r:     10px;
+  --r-sm:  6px;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--tx); min-height:100vh; display:flex; font-size:14px; }
+
+/* ── SIDEBAR ────────────────────────────── */
+.sb { width:216px; background:var(--s1); border-right:1px solid var(--b1); display:flex; flex-direction:column; height:100vh; position:sticky; top:0; flex-shrink:0; }
+.sb-logo { padding:20px 18px 16px; border-bottom:1px solid var(--b1); }
+.logo { font-family:'Syne',sans-serif; font-size:18px; font-weight:800; letter-spacing:-.5px; }
+.logo em { color:var(--teal); font-style:normal; }
+.logo-sub { font-size:10px; color:var(--t3); font-weight:500; margin-top:2px; text-transform:uppercase; letter-spacing:.8px; }
+
+.sb-nav { flex:1; padding:10px 10px; overflow-y:auto; }
+.nav-section { font-size:9px; font-weight:600; color:var(--t3); text-transform:uppercase; letter-spacing:1px; padding:14px 8px 6px; }
+.nav-item { display:flex; align-items:center; gap:9px; padding:8px 10px; border-radius:var(--r-sm); font-size:13px; font-weight:500; color:var(--t2); cursor:pointer; transition:all .12s; position:relative; }
+.nav-item:hover { background:var(--s2); color:var(--tx); }
+.nav-item.active { background:var(--td); color:var(--teal); }
+.nav-item.active::before { content:''; position:absolute; left:0; top:20%; bottom:20%; width:2px; background:var(--teal); border-radius:2px; }
+.nav-icon { font-size:15px; width:18px; text-align:center; flex-shrink:0; }
+.nav-badge { margin-left:auto; font-size:10px; font-weight:700; background:var(--red); color:#fff; padding:1px 6px; border-radius:10px; }
+
+.sb-user { padding:14px 16px; border-top:1px solid var(--b1); display:flex; align-items:center; gap:10px; }
+.user-av { width:30px; height:30px; border-radius:50%; background:var(--teal); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#000; flex-shrink:0; }
+.user-info { flex:1; min-width:0; }
+.user-name { font-size:12px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.user-role { font-size:10px; color:var(--t3); }
+.logout-btn { background:none; border:none; color:var(--t3); cursor:pointer; font-size:14px; padding:4px; border-radius:4px; }
+.logout-btn:hover { color:var(--red); }
+
+/* ── MAIN ───────────────────────────────── */
+.main { flex:1; overflow-y:auto; display:flex; flex-direction:column; min-height:100vh; }
+
+.topbar { padding:14px 24px; border-bottom:1px solid var(--b1); display:flex; align-items:center; justify-content:space-between; background:var(--s1); position:sticky; top:0; z-index:10; }
+.topbar-left h1 { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; }
+.topbar-left p { font-size:11px; color:var(--t3); margin-top:1px; }
+.topbar-right { display:flex; align-items:center; gap:10px; }
+.topbar-clinic { font-size:12px; color:var(--t2); background:var(--s2); padding:5px 12px; border-radius:20px; border:1px solid var(--b1); }
+.status-dot { width:7px; height:7px; border-radius:50%; background:var(--grn); display:inline-block; margin-right:5px; animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+
+.content { padding:24px; flex:1; }
+
+/* ── PANELS ─────────────────────────────── */
+.panel { display:none; }
+.panel.active { display:block; }
+
+/* ── METRIC CARDS ───────────────────────── */
+.metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px; }
+.metric { background:var(--s1); border:1px solid var(--b1); border-radius:var(--r); padding:16px; position:relative; overflow:hidden; }
+.metric-label { font-size:11px; color:var(--t2); font-weight:500; margin-bottom:10px; display:flex; align-items:center; gap:6px; }
+.metric-val { font-family:'Syne',sans-serif; font-size:28px; font-weight:800; line-height:1; margin-bottom:4px; }
+.metric-sub { font-size:11px; color:var(--t3); }
+.metric-trend { font-size:11px; font-weight:600; margin-top:6px; }
+.up { color:var(--grn); }
+.down { color:var(--red); }
+.metric::after { content:''; position:absolute; top:0; left:0; right:0; height:2px; }
+.m-teal::after { background:var(--teal); }
+.m-grn::after { background:var(--grn); }
+.m-ylw::after { background:var(--ylw); }
+.m-red::after { background:var(--red); }
+
+/* ── GRID LAYOUTS ───────────────────────── */
+.grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; margin-bottom:14px; }
+.grid-2-1 { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:14px; }
+
+/* ── CARDS ──────────────────────────────── */
+.card { background:var(--s1); border:1px solid var(--b1); border-radius:var(--r); overflow:hidden; }
+.card-head { padding:14px 16px; border-bottom:1px solid var(--b1); display:flex; align-items:center; justify-content:space-between; }
+.card-title { font-size:13px; font-weight:600; }
+.card-body { padding:16px; }
+.card-action { font-size:11px; color:var(--teal); cursor:pointer; font-weight:600; }
+.card-action:hover { opacity:.8; }
+
+/* ── TABLE ──────────────────────────────── */
+.tbl { width:100%; border-collapse:collapse; }
+.tbl th { font-size:10px; font-weight:600; color:var(--t3); text-transform:uppercase; letter-spacing:.5px; padding:8px 12px; text-align:left; border-bottom:1px solid var(--b1); }
+.tbl td { padding:10px 12px; border-bottom:1px solid var(--b1); font-size:13px; }
+.tbl tr:last-child td { border-bottom:none; }
+.tbl tr:hover td { background:var(--s2); }
+
+/* ── BADGES ─────────────────────────────── */
+.badge { font-size:10px; font-weight:700; padding:2px 8px; border-radius:20px; }
+.badge-grn { background:rgba(0,194,120,.12); color:var(--grn); }
+.badge-ylw { background:rgba(245,166,35,.12); color:var(--ylw); }
+.badge-red { background:rgba(255,59,85,.12); color:var(--red); }
+.badge-teal { background:var(--td); color:var(--teal); }
+.badge-gray { background:var(--s3); color:var(--t2); }
+
+/* ── AVATAR ─────────────────────────────── */
+.av { width:32px; height:32px; border-radius:50%; background:var(--s3); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0; }
+
+/* ── EMPTY STATE ────────────────────────── */
+.empty { text-align:center; padding:40px 20px; }
+.empty-icon { font-size:36px; margin-bottom:10px; }
+.empty-title { font-size:14px; font-weight:600; color:var(--t2); margin-bottom:4px; }
+.empty-sub { font-size:12px; color:var(--t3); }
+
+/* ── BUTTONS ────────────────────────────── */
+.btn { padding:8px 16px; border-radius:var(--r-sm); font-size:12px; font-weight:600; cursor:pointer; border:none; font-family:'Inter',sans-serif; transition:all .12s; display:inline-flex; align-items:center; gap:6px; }
+.btn-primary { background:var(--teal); color:#000; }
+.btn-primary:hover { background:#00FFCC; }
+.btn-ghost { background:transparent; color:var(--t2); border:1px solid var(--b2); }
+.btn-ghost:hover { color:var(--tx); border-color:var(--b2); }
+.btn-sm { padding:5px 12px; font-size:11px; }
+.btn-danger { background:rgba(255,59,85,.12); color:var(--red); border:1px solid rgba(255,59,85,.2); }
+
+/* ── FORM ───────────────────────────────── */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px; }
+.field label { font-size:10px; font-weight:600; color:var(--t3); display:block; margin-bottom:4px; text-transform:uppercase; letter-spacing:.4px; }
+.field input, .field select, .field textarea {
+  width:100%; background:var(--s2); border:1px solid var(--b1);
+  border-radius:var(--r-sm); padding:8px 11px; color:var(--tx);
+  font-size:13px; font-family:'Inter',sans-serif; outline:none;
+  transition:border-color .15s;
+}
+.field input:focus, .field select:focus, .field textarea:focus { border-color:var(--teal); }
+.field select option { background:var(--s2); }
+
+/* ── TOGGLE ─────────────────────────────── */
+.toggle { width:40px; height:22px; background:var(--b2); border-radius:11px; position:relative; cursor:pointer; transition:background .2s; flex-shrink:0; }
+.toggle.on { background:var(--teal); }
+.toggle::after { content:''; position:absolute; width:18px; height:18px; background:#fff; border-radius:50%; top:2px; left:2px; transition:left .2s; }
+.toggle.on::after { left:20px; }
+
+/* ── LOADING ────────────────────────────── */
+.loading { display:flex; align-items:center; gap:8px; padding:20px; color:var(--t3); font-size:13px; }
+.spin { width:16px; height:16px; border:2px solid var(--b2); border-top-color:var(--teal); border-radius:50%; animation:spin .6s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+/* ── TOAST ──────────────────────────────── */
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%) translateY(8px); background:var(--s1); border:1px solid var(--tm); color:var(--tx); padding:10px 18px; border-radius:var(--r); font-size:13px; font-weight:500; box-shadow:0 8px 32px rgba(0,0,0,.5); opacity:0; transition:all .25s; z-index:999; white-space:nowrap; pointer-events:none; }
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── MODAL ──────────────────────────────── */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); z-index:100; display:none; align-items:center; justify-content:center; padding:20px; }
+.modal-overlay.show { display:flex; }
+.modal { background:var(--s1); border:1px solid var(--b2); border-radius:14px; width:100%; max-width:520px; max-height:90vh; overflow-y:auto; }
+.modal-head { padding:18px 20px; border-bottom:1px solid var(--b1); display:flex; align-items:center; justify-content:space-between; }
+.modal-title { font-family:'Syne',sans-serif; font-size:16px; font-weight:700; }
+.modal-close { background:none; border:none; color:var(--t3); font-size:20px; cursor:pointer; }
+.modal-close:hover { color:var(--tx); }
+.modal-body { padding:20px; }
+.modal-foot { padding:14px 20px; border-top:1px solid var(--b1); display:flex; gap:8px; justify-content:flex-end; }
+
+/* ── OVERVIEW SPECIFIC ──────────────────── */
+.activity-item { display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--b1); }
+.activity-item:last-child { border-bottom:none; }
+.activity-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+.activity-text { flex:1; font-size:12px; line-height:1.5; }
+.activity-text strong { font-weight:600; color:var(--tx); }
+.activity-time { font-size:10px; color:var(--t3); white-space:nowrap; }
+
+/* ── APPOINTMENTS ───────────────────────── */
+.appt-row { display:flex; align-items:center; gap:12px; padding:10px 16px; border-bottom:1px solid var(--b1); transition:background .1s; cursor:pointer; }
+.appt-row:last-child { border-bottom:none; }
+.appt-row:hover { background:var(--s2); }
+.appt-time { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--teal); width:50px; flex-shrink:0; font-weight:500; }
+.appt-info { flex:1; }
+.appt-name { font-size:13px; font-weight:600; }
+.appt-detail { font-size:11px; color:var(--t3); margin-top:1px; }
+.appt-doc { font-size:11px; color:var(--t2); }
+
+/* ── DOCTORS GRID ───────────────────────── */
+.doc-card { background:var(--s2); border:1px solid var(--b1); border-radius:var(--r); padding:14px; display:flex; flex-direction:column; gap:10px; }
+.doc-card-top { display:flex; align-items:center; gap:10px; }
+.doc-av { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; border:2px solid; }
+.doc-name { font-size:13px; font-weight:700; }
+.doc-spec { font-size:11px; color:var(--t3); }
+.doc-schedule { display:flex; gap:3px; }
+.day-pill { font-size:9px; font-weight:600; padding:2px 5px; border-radius:4px; }
+.day-on { background:var(--td); color:var(--teal); }
+.day-off { background:var(--s3); color:var(--t3); }
+
+/* ── SERVICES TABLE ─────────────────────── */
+.svc-row { display:flex; align-items:center; gap:12px; padding:10px 16px; border-bottom:1px solid var(--b1); }
+.svc-row:last-child { border-bottom:none; }
+.svc-name { flex:1; font-size:13px; font-weight:500; }
+.svc-price { font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:var(--teal); width:90px; text-align:right; }
+.svc-dur { font-size:11px; color:var(--t3); width:60px; text-align:center; }
+
+/* ── SETTINGS ───────────────────────────── */
+.settings-section { margin-bottom:20px; }
+.settings-title { font-size:11px; font-weight:600; color:var(--t3); text-transform:uppercase; letter-spacing:.5px; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid var(--b1); }
+.setting-row { display:flex; align-items:center; justify-content:space-between; padding:12px 0; border-bottom:1px solid var(--b1); }
+.setting-row:last-child { border-bottom:none; }
+.setting-info { flex:1; }
+.setting-label { font-size:13px; font-weight:600; margin-bottom:2px; }
+.setting-desc { font-size:11px; color:var(--t3); }
+
+/* ── PATIENTS ───────────────────────────── */
+.patient-row { display:flex; align-items:center; gap:12px; padding:10px 16px; border-bottom:1px solid var(--b1); cursor:pointer; transition:background .1s; }
+.patient-row:last-child { border-bottom:none; }
+.patient-row:hover { background:var(--s2); }
+.patient-name { font-size:13px; font-weight:600; }
+.patient-meta { font-size:11px; color:var(--t3); margin-top:1px; }
+
+/* ── AI PANEL ───────────────────────────── */
+.ai-field { background:var(--s2); border:1px solid var(--b1); border-radius:var(--r); padding:14px; margin-bottom:10px; }
+.ai-field-label { font-size:11px; font-weight:600; color:var(--t3); text-transform:uppercase; letter-spacing:.4px; margin-bottom:8px; }
+.ai-field-val { font-size:13px; color:var(--t2); line-height:1.6; }
+.ai-tag { display:inline-block; font-size:11px; font-weight:600; padding:3px 10px; border-radius:20px; background:var(--td); color:var(--teal); margin:2px; }
+
+/* ── CONVERSATIONS ──────────────────────── */
+.conv-item { display:flex; align-items:flex-start; gap:10px; padding:12px 16px; border-bottom:1px solid var(--b1); cursor:pointer; transition:background .1s; }
+.conv-item:hover { background:var(--s2); }
+.conv-item:last-child { border-bottom:none; }
+.conv-dot { width:7px; height:7px; border-radius:50%; background:var(--teal); flex-shrink:0; margin-top:5px; }
+.conv-dot.read { background:var(--t3); }
+.conv-info { flex:1; min-width:0; }
+.conv-name { font-size:13px; font-weight:600; }
+.conv-last { font-size:12px; color:var(--t2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+.conv-time { font-size:10px; color:var(--t3); flex-shrink:0; }
+
+/* ── ANALYTICS CHARTS ───────────────────── */
+.bar-chart { display:flex; align-items:flex-end; gap:6px; height:100px; }
+.bar-col { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; }
+.bar-fill { width:100%; border-radius:3px 3px 0 0; min-height:2px; transition:height .3s; }
+.bar-lbl { font-size:9px; color:var(--t3); }
+.mini-stat { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--b1); }
+.mini-stat:last-child { border-bottom:none; }
+.mini-stat-name { font-size:12px; }
+.mini-stat-bar { flex:1; height:3px; background:var(--b1); border-radius:2px; margin:0 10px; overflow:hidden; }
+.mini-stat-fill { height:100%; border-radius:2px; background:var(--teal); }
+.mini-stat-val { font-size:12px; font-weight:600; font-family:'JetBrains Mono',monospace; color:var(--teal); width:36px; text-align:right; }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="logo">Recep<em>AI</em></div>
+    <div class="logo-sub">Dashboard Owner</div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="nav-section">Principal</div>
+    <div class="nav-item active" onclick="show('overview',this)">
+      <span class="nav-icon">◻</span> Overview
+    </div>
+    <div class="nav-item" onclick="show('appointments',this)">
+      <span class="nav-icon">📅</span> Programări
+      <span class="nav-badge" id="nb-appt" style="display:none">0</span>
+    </div>
+    <div class="nav-item" onclick="show('conversations',this)">
+      <span class="nav-icon">💬</span> Conversații AI
+      <span class="nav-badge" id="nb-conv" style="display:none">0</span>
+    </div>
+
+    <div class="nav-section">Clinică</div>
+    <div class="nav-item" onclick="show('doctors',this)">
+      <span class="nav-icon">👨‍⚕️</span> Doctori
+    </div>
+    <div class="nav-item" onclick="show('patients',this)">
+      <span class="nav-icon">👥</span> Pacienți
+    </div>
+    <div class="nav-item" onclick="show('services',this)">
+      <span class="nav-icon">🔧</span> Servicii
+    </div>
+
+    <div class="nav-section">Inteligență</div>
+    <div class="nav-item" onclick="show('ai',this)">
+      <span class="nav-icon">🧠</span> AI Brain
+    </div>
+    <div class="nav-item" onclick="show('analytics',this)">
+      <span class="nav-icon">📈</span> Analytics
+    </div>
+
+    <div class="nav-section">Cont</div>
+    <div class="nav-item" onclick="show('settings',this)">
+      <span class="nav-icon">⚙️</span> Setări
+    </div>
+  </nav>
+
+  <div class="sb-user">
+    <div class="user-av" id="sb-av">—</div>
+    <div class="user-info">
+      <div class="user-name" id="sb-email">—</div>
+      <div class="user-role">👑 Proprietar</div>
+    </div>
+    <button class="logout-btn" onclick="logout()" title="Deconectare">↩</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1 id="panel-title">Overview</h1>
+      <p id="panel-sub">Bun venit în RecepAI</p>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-clinic"><span class="status-dot"></span><span id="tb-clinic">—</span></span>
+      <button class="btn btn-primary btn-sm" onclick="show('appointments')">+ Programare</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══ OVERVIEW ══ -->
+    <div class="panel active" id="panel-overview">
+      <div class="metrics" id="overview-metrics">
+        <div class="loading"><div class="spin"></div> Se încarcă...</div>
+      </div>
+      <div class="grid-2-1">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">📅 Programări azi</span>
+            <span class="card-action" onclick="show('appointments')">Vezi toate →</span>
+          </div>
+          <div id="overview-appts">
+            <div class="loading"><div class="spin"></div> Se încarcă...</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">⚡ Activitate recentă</span></div>
+          <div id="overview-activity" class="card-body">
+            <div class="loading"><div class="spin"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">💬 Conversații AI recente</span>
+            <span class="card-action" onclick="show('conversations')">Toate →</span>
+          </div>
+          <div id="overview-convs">
+            <div class="loading"><div class="spin"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">🧠 AI Brain — Status</span></div>
+          <div class="card-body" id="overview-brain">
+            <div class="loading"><div class="spin"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ APPOINTMENTS ══ -->
+    <div class="panel" id="panel-appointments">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" onclick="filterAppts('today',this)" style="border-color:var(--teal);color:var(--teal)">Azi</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAppts('week',this)">Săptămâna</button>
+          <button class="btn btn-ghost btn-sm" onclick="filterAppts('all',this)">Toate</button>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="openNewAppt()">+ Programare nouă</button>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">📅 Programări</span>
+          <span id="appts-count" class="badge badge-teal">0</span>
+        </div>
+        <div id="appts-list">
+          <div class="loading"><div class="spin"></div> Se încarcă...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONVERSATIONS ══ -->
+    <div class="panel" id="panel-conversations">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">💬 Conversații AI</span>
+          <span id="convs-count" class="badge badge-teal">0</span>
+        </div>
+        <div id="convs-list">
+          <div class="loading"><div class="spin"></div> Se încarcă...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ DOCTORS ══ -->
+    <div class="panel" id="panel-doctors">
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+        <div></div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-doctor')">+ Doctor nou</button>
+      </div>
+      <div id="doctors-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px">
+        <div class="loading"><div class="spin"></div> Se încarcă...</div>
+      </div>
+    </div>
+
+    <!-- ══ PATIENTS ══ -->
+    <div class="panel" id="panel-patients">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px">
+        <input id="patient-search" placeholder="🔍 Caută pacient..." oninput="searchPatients(this.value)"
+          style="flex:1;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-sm);padding:8px 12px;color:var(--tx);font-size:13px;outline:none">
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-patient')">+ Pacient nou</button>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">👥 Pacienți</span>
+          <span id="patients-count" class="badge badge-teal">0</span>
+        </div>
+        <div id="patients-list">
+          <div class="loading"><div class="spin"></div> Se încarcă...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SERVICES ══ -->
+    <div class="panel" id="panel-services">
+      <div style="display:flex;justify-content:space-between;margin-bottom:16px">
+        <div style="display:flex;gap:8px" id="svc-cats"></div>
+        <button class="btn btn-primary btn-sm" onclick="openModal('modal-service')">+ Serviciu nou</button>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">🔧 Servicii & Prețuri</span>
+          <span id="services-count" class="badge badge-teal">0</span>
+        </div>
+        <div id="services-list">
+          <div class="loading"><div class="spin"></div> Se încarcă...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ AI BRAIN ══ -->
+    <div class="panel" id="panel-ai">
+      <div class="grid-2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="card-head">
+            <span class="card-title">🧠 Business Brain</span>
+            <button class="btn btn-ghost btn-sm" onclick="rescanBrain()">🔄 Rescană</button>
+          </div>
+          <div class="card-body" id="brain-info">
+            <div class="loading"><div class="spin"></div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">⚙️ Reguli AI</span></div>
+          <div class="card-body" id="ai-rules">
+            <div class="loading"><div class="spin"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-head">
+          <span class="card-title">💡 Întrebări fără răspuns</span>
+          <span class="badge badge-ylw" id="gaps-count">0</span>
+        </div>
+        <div id="ai-gaps">
+          <div class="loading"><div class="spin"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ ANALYTICS ══ -->
+    <div class="panel" id="panel-analytics">
+      <div class="metrics" id="analytics-metrics">
+        <div class="loading"><div class="spin"></div></div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><span class="card-title">📊 Programări — ultimele 14 zile</span></div>
+          <div class="card-body">
+            <div class="bar-chart" id="analytics-chart"></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><span class="card-title">🔧 Top servicii</span></div>
+          <div class="card-body" id="analytics-services"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SETTINGS ══ -->
+    <div class="panel" id="panel-settings">
+      <div class="grid-2">
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head"><span class="card-title">🏥 Clinica</span></div>
+            <div class="card-body">
+              <div class="form-grid">
+                <div class="field"><label>Nume clinică</label><input id="s-name" placeholder="ex: DentaVita"></div>
+                <div class="field"><label>Tip</label>
+                  <select id="s-type">
+                    <option value="dental">Stomatologie</option>
+                    <option value="vet">Veterinar</option>
+                    <option value="beauty">Salon frumusețe</option>
+                    <option value="physio">Fizioterapie</option>
+                    <option value="other">Altele</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="field"><label>Telefon</label><input id="s-phone" placeholder="+40 7xx xxx xxx"></div>
+                <div class="field"><label>Email</label><input id="s-email" type="email" placeholder="contact@clinica.ro"></div>
+              </div>
+              <div class="field" style="margin-bottom:12px"><label>Adresă</label><input id="s-address" placeholder="Str. Exemplu nr. 1, București"></div>
+              <div class="form-grid">
+                <div class="field"><label>Facebook</label><input id="s-fb" placeholder="https://facebook.com/..."></div>
+                <div class="field"><label>Instagram</label><input id="s-ig" placeholder="https://instagram.com/..."></div>
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="saveSettings()">💾 Salvează</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><span class="card-title">🕐 Program clinică</span></div>
+            <div class="card-body" id="hours-editor"></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head"><span class="card-title">👥 Echipă</span></div>
+            <div id="team-list-s" style="max-height:200px;overflow-y:auto"></div>
+            <div class="card-body" style="border-top:1px solid var(--b1)">
+              <div class="form-grid">
+                <div class="field"><label>Email</label><input id="inv-email" type="email" placeholder="doctor@clinica.ro"></div>
+                <div class="field"><label>Rol</label>
+                  <select id="inv-role">
+                    <option value="doctor">👨‍⚕️ Doctor</option>
+                    <option value="reception">📋 Recepție</option>
+                  </select>
+                </div>
+              </div>
+              <div class="field" style="margin-bottom:10px"><label>Parolă temporară</label><input id="inv-pass" placeholder="parola123"></div>
+              <button class="btn btn-ghost btn-sm" onclick="inviteUser()">+ Adaugă în echipă</button>
+            </div>
+          </div>
+
+          <div class="card" style="margin-bottom:14px">
+            <div class="card-head"><span class="card-title">🔌 Integrări</span></div>
+            <div class="card-body" id="integrations-status"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-head"><span class="card-title">❤️ Health Monitor</span></div>
+            <div class="card-body" id="health-status">
+              <button class="btn btn-ghost btn-sm" onclick="loadHealth()">Verifică acum</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- content -->
+</main>
+
+<!-- MODALS -->
+<div class="modal-overlay" id="modal-doctor">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">Doctor nou</span><button class="modal-close" onclick="closeModal('modal-doctor')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Nume complet</label><input id="d-name" placeholder="Dr. Andrei Popescu"></div>
+        <div class="field"><label>Specializare</label><input id="d-spec" placeholder="Implantologie"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Email</label><input id="d-email" type="email"></div>
+        <div class="field"><label>Telefon</label><input id="d-phone"></div>
+      </div>
+      <div class="field"><label>Durată consultație (min)</label><input id="d-dur" type="number" value="30" min="5" step="5"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-doctor')">Anulează</button>
+      <button class="btn btn-primary btn-sm" onclick="saveDoctor()">💾 Salvează</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-patient">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">Pacient nou</span><button class="modal-close" onclick="closeModal('modal-patient')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Nume complet *</label><input id="p-name" placeholder="Maria Ionescu"></div>
+        <div class="field"><label>Telefon *</label><input id="p-phone" placeholder="0721 234 567"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Email</label><input id="p-email" type="email"></div>
+        <div class="field"><label>Data nașterii</label><input id="p-dob" type="date"></div>
+      </div>
+      <div class="field"><label>Alergii cunoscute</label><input id="p-allergy" placeholder="ex: Penicilină"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-patient')">Anulează</button>
+      <button class="btn btn-primary btn-sm" onclick="savePatient()">💾 Salvează</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modal-service">
+  <div class="modal">
+    <div class="modal-head"><span class="modal-title">Serviciu nou</span><button class="modal-close" onclick="closeModal('modal-service')">×</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="field"><label>Nume serviciu *</label><input id="sv-name" placeholder="ex: Implant Straumann"></div>
+        <div class="field"><label>Categorie</label>
+          <select id="sv-cat">
+            <option value="stomatologie">🦷 Stomatologie</option>
+            <option value="implant">🔩 Implantologie</option>
+            <option value="ortodontie">😬 Ortodonție</option>
+            <option value="estetica">✨ Estetică</option>
+            <option value="urgente">🚨 Urgențe</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Preț (RON)</label><input id="sv-price" type="number" placeholder="ex: 3500"></div>
+        <div class="field"><label>Durată procedură (min)</label><input id="sv-dur" type="number" value="30" min="5" step="5"></div>
+      </div>
+      <div class="form-grid">
+        <div class="field"><label>Buffer după (min)</label><input id="sv-buf" type="number" value="10" min="0" step="5"></div>
+        <div class="field"><label>Programabil online</label>
+          <select id="sv-online"><option value="yes">✅ Da</option><option value="phone">📞 Doar telefon</option><option value="no">❌ Nu</option></select>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal('modal-service')">Anulează</button>
+      <button class="btn btn-primary btn-sm" onclick="saveService()">💾 Salvează</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8080'
+  : 'https://ai-reception-platform-production.up.railway.app';
+
+const TOKEN    = localStorage.getItem('recepai_token');
+const EMAIL    = localStorage.getItem('recepai_email');
+const ROLE     = localStorage.getItem('recepai_role');
+const CLIENT_ID = localStorage.getItem('recepai_client_id');
+
+// Auth guard
+if (!TOKEN || ROLE !== 'owner') window.location.href = 'login.html';
+
+// ── STATE ────────────────────────────────────────────
+let PROFILE = null;
+let APPOINTMENTS = [];
+let PATIENTS = JSON.parse(localStorage.getItem('recepai_patients_' + CLIENT_ID) || '[]');
+let SERVICES = JSON.parse(localStorage.getItem('recepai_services_' + CLIENT_ID) || '[]');
+let DOCTORS  = JSON.parse(localStorage.getItem('recepai_doctors_' + CLIENT_ID) || '[]');
+let CONVERSATIONS = [];
+
+const DAYS = ['luni','marti','miercuri','joi','vineri','sambata','duminica'];
+const DAY_LABELS = ['Lun','Mar','Mie','Joi','Vin','Sâm','Dum'];
+
+// ── INIT ─────────────────────────────────────────────
+async function init() {
+  // Set user info
+  const initials = (EMAIL || '').split('@')[0].substring(0,2).toUpperCase() || 'U';
+  document.getElementById('sb-av').textContent = initials;
+  document.getElementById('sb-email').textContent = EMAIL || '—';
+
+  // Load profile
+  try {
+    const r = await fetch(`${API}/api/profile/${CLIENT_ID}`);
+    const d = await r.json();
+    PROFILE = d.profile || {};
+    document.getElementById('tb-clinic').textContent = PROFILE.name || CLIENT_ID;
+  } catch(e) {}
+
+  // Load appointments
+  try {
+    const r = await fetch(`${API}/api/appointments?clientId=${CLIENT_ID}`);
+    const d = await r.json();
+    APPOINTMENTS = d.appointments || [];
+    const pending = APPOINTMENTS.filter(a => a.status === 'pending').length;
+    if (pending > 0) {
+      const nb = document.getElementById('nb-appt');
+      nb.textContent = pending;
+      nb.style.display = '';
+    }
+  } catch(e) {}
+
+  // Load conversations
+  try {
+    const r = await fetch(`${API}/api/conversations?clientId=${CLIENT_ID}`);
+    const d = await r.json();
+    CONVERSATIONS = d.conversations || [];
+  } catch(e) {}
+
+  renderOverview();
+  renderHoursEditor();
+  loadIntegrations();
+  loadTeam();
+}
+
+// ── NAVIGATION ───────────────────────────────────────
+const TITLES = {
+  overview: ['Overview', 'Bun venit în RecepAI'],
+  appointments: ['Programări', 'Gestionează programările clinicii'],
+  conversations: ['Conversații AI', 'Toate conversațiile de pe widget'],
+  doctors: ['Doctori', 'Echipa medicală și programele lor'],
+  patients: ['Pacienți', 'Baza de date a pacienților'],
+  services: ['Servicii', 'Servicii, prețuri și durate'],
+  ai: ['AI Brain', 'Ce știe AI-ul despre clinica ta'],
+  analytics: ['Analytics', 'Performanța clinicii'],
+  settings: ['Setări', 'Configurarea clinicii și contului'],
+};
+
+function show(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + name)?.classList.add('active');
+  if (el) el.classList.add('active');
+  else document.querySelector(`.nav-item[onclick*="'${name}'"]`)?.classList.add('active');
+  const [t, s] = TITLES[name] || [name, ''];
+  document.getElementById('panel-title').textContent = t;
+  document.getElementById('panel-sub').textContent = s;
+
+  // Lazy load
+  if (name === 'doctors') renderDoctors();
+  if (name === 'patients') renderPatients();
+  if (name === 'services') renderServices();
+  if (name === 'ai') renderAI();
+  if (name === 'analytics') renderAnalytics();
+  if (name === 'appointments') renderAppointments();
+  if (name === 'conversations') renderConversations();
+  if (name === 'settings') renderSettings();
+}
+
+// ── OVERVIEW ─────────────────────────────────────────
+function renderOverview() {
+  // Metrics
+  const todayAppts = APPOINTMENTS.filter(a => {
+    const d = new Date(a.date);
+    const t = new Date();
+    return d.toDateString() === t.toDateString();
+  });
+  const totalRevenue = APPOINTMENTS.reduce((s, a) => s + (parseInt(a.service?.price || '0') || 0), 0);
+
+  document.getElementById('overview-metrics').innerHTML = `
+    <div class="metric m-teal">
+      <div class="metric-label">📅 Programări azi</div>
+      <div class="metric-val" style="color:var(--teal)">${todayAppts.length}</div>
+      <div class="metric-sub">din ${APPOINTMENTS.length} total</div>
+    </div>
+    <div class="metric m-grn">
+      <div class="metric-label">💰 Venit înregistrat</div>
+      <div class="metric-val" style="color:var(--grn)">${totalRevenue ? totalRevenue.toLocaleString('ro') : '0'}</div>
+      <div class="metric-sub">RON total programări</div>
+    </div>
+    <div class="metric m-ylw">
+      <div class="metric-label">💬 Conversații AI</div>
+      <div class="metric-val" style="color:var(--ylw)">${CONVERSATIONS.length}</div>
+      <div class="metric-sub">total înregistrate</div>
+    </div>
+    <div class="metric m-red">
+      <div class="metric-label">👥 Pacienți</div>
+      <div class="metric-val" style="color:var(--red)">${PATIENTS.length}</div>
+      <div class="metric-sub">în baza de date</div>
+    </div>`;
+
+  // Today's appointments
+  if (todayAppts.length === 0) {
+    document.getElementById('overview-appts').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📅</div>
+        <div class="empty-title">Nicio programare azi</div>
+        <div class="empty-sub"><span class="card-action" onclick="openNewAppt()">+ Creează prima programare</span></div>
+      </div>`;
+  } else {
+    document.getElementById('overview-appts').innerHTML = todayAppts.slice(0, 5).map(a => `
+      <div class="appt-row">
+        <span class="appt-time">${a.slot || '—'}</span>
+        <div class="appt-info">
+          <div class="appt-name">${a.patient?.name || '—'}</div>
+          <div class="appt-detail">${a.service?.name || '—'}</div>
+        </div>
+        <span class="appt-doc">${a.doctor?.name || '—'}</span>
+        <span class="badge ${a.status === 'confirmed' ? 'badge-grn' : a.status === 'cancelled' ? 'badge-red' : 'badge-ylw'}">${a.status === 'confirmed' ? 'Confirmată' : a.status === 'cancelled' ? 'Anulată' : 'În așteptare'}</span>
+      </div>`).join('');
+  }
+
+  // Conversations
+  if (CONVERSATIONS.length === 0) {
+    document.getElementById('overview-convs').innerHTML = `<div class="empty"><div class="empty-icon">💬</div><div class="empty-title">Nicio conversație încă</div><div class="empty-sub">Instalează widget-ul pe site</div></div>`;
+  } else {
+    document.getElementById('overview-convs').innerHTML = CONVERSATIONS.slice(0, 5).map(c => `
+      <div class="conv-item">
+        <div class="conv-dot"></div>
+        <div class="conv-info">
+          <div class="conv-name">${c.userName || 'Vizitator'}</div>
+          <div class="conv-last">${c.lastMessage || '—'}</div>
+        </div>
+        <span class="conv-time">${c.savedAt ? new Date(c.savedAt).toLocaleTimeString('ro-RO', {hour:'2-digit',minute:'2-digit'}) : '—'}</span>
+      </div>`).join('');
+  }
+
+  // AI Brain status
+  if (PROFILE) {
+    const svcCount = PROFILE.services?.length || 0;
+    const faqCount = PROFILE.faq?.length || 0;
+    document.getElementById('overview-brain').innerHTML = `
+      <div class="ai-field">
+        <div class="ai-field-label">Clinică</div>
+        <div class="ai-field-val">${PROFILE.name || '—'}</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="ai-field"><div class="ai-field-label">Servicii</div><div class="ai-field-val" style="font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:18px;font-weight:700">${svcCount}</div></div>
+        <div class="ai-field"><div class="ai-field-label">FAQ</div><div class="ai-field-val" style="font-family:'JetBrains Mono',monospace;color:var(--teal);font-size:18px;font-weight:700">${faqCount}</div></div>
+      </div>
+      <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%" onclick="show('ai')">Configurează AI →</button>`;
+  } else {
+    document.getElementById('overview-brain').innerHTML = `<div class="empty"><div class="empty-icon">🧠</div><div class="empty-title">AI Brain neconfigurate</div><div class="empty-sub"><span class="card-action" onclick="show('ai')">Configurează acum →</span></div></div>`;
+  }
+
+  // Activity
+  document.getElementById('overview-activity').innerHTML = [
+    { icon:'📅', text:`<strong>${APPOINTMENTS.length}</strong> programări în total`, time:'azi', color:'var(--teal)' },
+    { icon:'💬', text:`<strong>${CONVERSATIONS.length}</strong> conversații AI`, time:'total', color:'var(--ylw)' },
+    { icon:'👥', text:`<strong>${PATIENTS.length}</strong> pacienți înregistrați`, time:'total', color:'var(--grn)' },
+    { icon:'🔧', text:`<strong>${SERVICES.length}</strong> servicii configurate`, time:'total', color:'var(--blu)' },
+  ].map(a => `
+    <div class="activity-item">
+      <div class="activity-dot" style="background:${a.color}"></div>
+      <div class="activity-text">${a.text}</div>
+      <span class="activity-time">${a.time}</span>
+    </div>`).join('');
+}
+
+// ── APPOINTMENTS ─────────────────────────────────────
+function renderAppointments(filter = 'today') {
+  let list = APPOINTMENTS;
+  const today = new Date().toDateString();
+
+  if (filter === 'today') list = list.filter(a => new Date(a.date).toDateString() === today);
+  else if (filter === 'week') {
+    const week = new Date(); week.setDate(week.getDate() + 7);
+    list = list.filter(a => new Date(a.date) <= week);
+  }
+
+  document.getElementById('appts-count').textContent = list.length;
+
+  if (!list.length) {
+    document.getElementById('appts-list').innerHTML = `<div class="empty"><div class="empty-icon">📅</div><div class="empty-title">Nicio programare</div><div class="empty-sub"><span class="card-action" onclick="openNewAppt()">+ Creează programare</span></div></div>`;
+    return;
+  }
+
+  document.getElementById('appts-list').innerHTML = `
+    <table class="tbl">
+      <thead><tr>
+        <th>Oră</th><th>Pacient</th><th>Serviciu</th><th>Doctor</th><th>Status</th><th></th>
+      </tr></thead>
+      <tbody>${list.map(a => `
+        <tr>
+          <td><span style="font-family:'JetBrains Mono',monospace;color:var(--teal)">${a.slot || '—'}</span></td>
+          <td><div style="font-weight:600">${a.patient?.name || '—'}</div><div style="font-size:11px;color:var(--t3)">${a.patient?.phone || ''}</div></td>
+          <td>${a.service?.name || '—'}</td>
+          <td>${a.doctor?.name || '—'}</td>
+          <td><span class="badge ${a.status === 'confirmed' ? 'badge-grn' : a.status === 'cancelled' ? 'badge-red' : 'badge-ylw'}">${a.status === 'confirmed' ? 'Confirmată' : a.status === 'cancelled' ? 'Anulată' : 'În așteptare'}</span></td>
+          <td><button class="btn btn-ghost btn-sm" onclick="updateApptStatus('${a.id}','confirmed')">✓</button></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function filterAppts(f, el) {
+  document.querySelectorAll('#panel-appointments .btn').forEach(b => { b.style.borderColor=''; b.style.color=''; });
+  if (el) { el.style.borderColor='var(--teal)'; el.style.color='var(--teal)'; }
+  renderAppointments(f);
+}
+
+async function updateApptStatus(id, status) {
+  try {
+    await fetch(`${API}/api/appointments/status`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ clientId:CLIENT_ID, id, status })
+    });
+    const idx = APPOINTMENTS.findIndex(a => a.id === id);
+    if (idx >= 0) APPOINTMENTS[idx].status = status;
+    renderAppointments();
+    toast('✅ Status actualizat');
+  } catch(e) { toast('❌ Eroare'); }
+}
+
+function openNewAppt() {
+  window.open('panel-programare-noua.html', '_blank');
+}
+
+// ── CONVERSATIONS ────────────────────────────────────
+function renderConversations() {
+  document.getElementById('convs-count').textContent = CONVERSATIONS.length;
+  if (!CONVERSATIONS.length) {
+    document.getElementById('convs-list').innerHTML = `<div class="empty"><div class="empty-icon">💬</div><div class="empty-title">Nicio conversație</div><div class="empty-sub">Conversațiile de pe widget vor apărea aici</div></div>`;
+    return;
+  }
+  document.getElementById('convs-list').innerHTML = CONVERSATIONS.map(c => `
+    <div class="conv-item">
+      <div class="conv-dot"></div>
+      <div class="conv-info">
+        <div class="conv-name">${c.userName || 'Vizitator'}</div>
+        <div class="conv-last">${c.lastMessage || (c.messages?.slice(-1)[0]?.content?.substring(0,60) || '—')}</div>
+      </div>
+      <span class="conv-time">${c.savedAt ? new Date(c.savedAt).toLocaleDateString('ro-RO') : '—'}</span>
+    </div>`).join('');
+}
+
+// ── DOCTORS ──────────────────────────────────────────
+function renderDoctors() {
+  const grid = document.getElementById('doctors-grid');
+  if (!DOCTORS.length) {
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1"><div class="empty-icon">👨‍⚕️</div><div class="empty-title">Niciun doctor adăugat</div><div class="empty-sub"><span class="card-action" onclick="openModal('modal-doctor')">+ Adaugă primul doctor</span></div></div>`;
+    return;
+  }
+  const colors = ['#00D4AA','#3B82F6','#F5A623','#00C278','#FF3B55','#9B59B6'];
+  grid.innerHTML = DOCTORS.map((d, i) => {
+    const initials = d.name?.split(' ').map(n=>n[0]).join('').substring(0,2) || 'Dr';
+    const color = d.color || colors[i % colors.length];
+    return `<div class="doc-card">
+      <div class="doc-card-top">
+        <div class="doc-av" style="border-color:${color};background:${color}22;color:${color}">${initials}</div>
+        <div>
+          <div class="doc-name">${d.name || '—'}</div>
+          <div class="doc-spec">${d.spec || d.specs?.[0] || '—'}</div>
+        </div>
+        <span class="badge ${d.status === 'active' ? 'badge-grn' : 'badge-gray'}" style="margin-left:auto">${d.status === 'active' ? 'Activ' : 'Inactiv'}</span>
+      </div>
+      <div class="doc-schedule">${DAY_LABELS.map((l,j) => {
+        const key = DAYS[j];
+        const on = d.schedule?.[key]?.active;
+        return `<span class="day-pill ${on ? 'day-on' : 'day-off'}">${l}</span>`;
+      }).join('')}</div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-ghost btn-sm" onclick="editDoctor(${i})" style="flex:1">✏️ Editează</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteDoctor(${i})">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function saveDoctor() {
+  const d = {
+    id: 'd' + Date.now(),
+    name: document.getElementById('d-name').value.trim(),
+    spec: document.getElementById('d-spec').value.trim(),
+    email: document.getElementById('d-email').value.trim(),
+    phone: document.getElementById('d-phone').value.trim(),
+    consultDur: parseInt(document.getElementById('d-dur').value) || 30,
+    status: 'active',
+    schedule: {
+      luni:{active:true,start:'09:00',end:'18:00'},
+      marti:{active:true,start:'09:00',end:'18:00'},
+      miercuri:{active:true,start:'09:00',end:'18:00'},
+      joi:{active:true,start:'09:00',end:'18:00'},
+      vineri:{active:true,start:'09:00',end:'14:00'},
+      sambata:{active:false,start:'',end:''},
+      duminica:{active:false,start:'',end:''},
+    },
+    blocks: [],
+  };
+  if (!d.name) { toast('⚠ Completează numele'); return; }
+  DOCTORS.push(d);
+  localStorage.setItem('recepai_doctors_' + CLIENT_ID, JSON.stringify(DOCTORS));
+  renderDoctors();
+  closeModal('modal-doctor');
+  toast('✅ Doctor adăugat');
+}
+
+function deleteDoctor(i) {
+  if (!confirm('Șterge ' + DOCTORS[i].name + '?')) return;
+  DOCTORS.splice(i, 1);
+  localStorage.setItem('recepai_doctors_' + CLIENT_ID, JSON.stringify(DOCTORS));
+  renderDoctors();
+  toast('🗑 Doctor șters');
+}
+
+function editDoctor(i) { toast('✏️ Editor complet disponibil în curând'); }
+
+// ── PATIENTS ─────────────────────────────────────────
+function renderPatients(q = '') {
+  const list = q ? PATIENTS.filter(p =>
+    p.name?.toLowerCase().includes(q.toLowerCase()) ||
+    p.phone?.includes(q)
+  ) : PATIENTS;
+
+  document.getElementById('patients-count').textContent = list.length;
+
+  if (!list.length) {
+    document.getElementById('patients-list').innerHTML = `<div class="empty"><div class="empty-icon">👥</div><div class="empty-title">Niciun pacient${q ? ' găsit' : ''}</div><div class="empty-sub">${q ? 'Încearcă altă căutare' : '<span class="card-action" onclick="openModal(\'modal-patient\')">+ Adaugă primul pacient</span>'}</div></div>`;
+    return;
+  }
+
+  document.getElementById('patients-list').innerHTML = `
+    <table class="tbl">
+      <thead><tr><th>Pacient</th><th>Telefon</th><th>Email</th><th>Alergii</th><th>Vizite</th></tr></thead>
+      <tbody>${list.map(p => `
+        <tr>
+          <td><div style="font-weight:600">${p.name}</div></td>
+          <td>${p.phone || '—'}</td>
+          <td>${p.email || '—'}</td>
+          <td>${p.allergies ? `<span class="badge badge-red">${p.allergies}</span>` : '—'}</td>
+          <td><span class="badge badge-teal">${p.visits || 0}</span></td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+function searchPatients(q) { renderPatients(q); }
+
+function savePatient() {
+  const p = {
+    id: 'p' + Date.now(),
+    name: document.getElementById('p-name').value.trim(),
+    phone: document.getElementById('p-phone').value.trim(),
+    email: document.getElementById('p-email').value.trim(),
+    dob: document.getElementById('p-dob').value,
+    allergies: document.getElementById('p-allergy').value.trim(),
+    visits: 0, history: [], notes: [],
+    createdAt: new Date().toISOString().split('T')[0],
+  };
+  if (!p.name || !p.phone) { toast('⚠ Completează numele și telefonul'); return; }
+  PATIENTS.unshift(p);
+  localStorage.setItem('recepai_patients_' + CLIENT_ID, JSON.stringify(PATIENTS));
+  renderPatients();
+  closeModal('modal-patient');
+  toast('✅ Pacient adăugat');
+}
+
+// ── SERVICES ─────────────────────────────────────────
+const CAT_ICONS = {stomatologie:'🦷',implant:'🔩',ortodontie:'😬',estetica:'✨',urgente:'🚨',pediatrie:'👶',chirurgie:'⚕️'};
+const CAT_COLORS = {stomatologie:'#00D4AA',implant:'#3B82F6',ortodontie:'#F5A623',estetica:'#FF69B4',urgente:'#FF3B55',pediatrie:'#00C278',chirurgie:'#E67E22'};
+
+function renderServices(cat = 'all') {
+  const list = cat === 'all' ? SERVICES : SERVICES.filter(s => s.cat === cat);
+  document.getElementById('services-count').textContent = list.length;
+
+  // Category filters
+  const cats = [...new Set(SERVICES.map(s => s.cat).filter(Boolean))];
+  document.getElementById('svc-cats').innerHTML = [
+    `<button class="btn btn-ghost btn-sm ${cat==='all'?'':''}\" onclick="renderServices('all')" style="${cat==='all'?'border-color:var(--teal);color:var(--teal)':''}">Toate</button>`,
+    ...cats.map(c => `<button class="btn btn-ghost btn-sm" onclick="renderServices('${c}')" style="${cat===c?'border-color:var(--teal);color:var(--teal)':''}">${CAT_ICONS[c]||'•'} ${c}</button>`)
+  ].join('');
+
+  if (!list.length) {
+    document.getElementById('services-list').innerHTML = `<div class="empty"><div class="empty-icon">🔧</div><div class="empty-title">Niciun serviciu</div><div class="empty-sub"><span class="card-action" onclick="openModal('modal-service')">+ Adaugă serviciu</span></div></div>`;
+    return;
+  }
+
+  document.getElementById('services-list').innerHTML = list.map(s => {
+    const total = (s.durProc||0) + (s.durClean||10) + (s.durBuffer||0);
+    const price = s.price ? Number(s.price).toLocaleString('ro') + ' RON' : '—';
+    return `<div class="svc-row">
+      <span style="font-size:16px;width:24px;text-align:center">${CAT_ICONS[s.cat]||'•'}</span>
+      <span class="svc-name">${s.name}</span>
+      <span class="svc-dur">${s.durProc||'—'} min</span>
+      <span class="svc-price">${price}</span>
+      <span class="badge ${s.online==='phone'?'badge-ylw':s.online==='no'?'badge-gray':'badge-grn'}">${s.online==='phone'?'📞':s.online==='no'?'Intern':'Online'}</span>
+    </div>`;
+  }).join('');
+}
+
+function saveService() {
+  const s = {
+    id: 'svc_' + Date.now(),
+    name: document.getElementById('sv-name').value.trim(),
+    cat: document.getElementById('sv-cat').value,
+    price: document.getElementById('sv-price').value,
+    durProc: parseInt(document.getElementById('sv-dur').value) || 30,
+    durClean: 10,
+    durBuffer: parseInt(document.getElementById('sv-buf').value) || 0,
+    online: document.getElementById('sv-online').value,
+    active: true,
+  };
+  if (!s.name) { toast('⚠ Completează numele serviciului'); return; }
+  SERVICES.push(s);
+  localStorage.setItem('recepai_services_' + CLIENT_ID, JSON.stringify(SERVICES));
+  // Sync to profile
+  syncServicesToProfile();
+  renderServices();
+  closeModal('modal-service');
+  toast('✅ Serviciu adăugat');
+}
+
+async function syncServicesToProfile() {
+  if (!PROFILE) return;
+  try {
+    await fetch(`${API}/api/profile/save`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ ...PROFILE, clientId: CLIENT_ID, services: SERVICES })
+    });
+  } catch(e) {}
+}
+
+// ── AI BRAIN ─────────────────────────────────────────
+function renderAI() {
+  if (!PROFILE) {
+    document.getElementById('brain-info').innerHTML = `<div class="empty"><div class="empty-icon">🧠</div><div class="empty-title">AI Brain gol</div><div class="empty-sub">Scanează site-ul clinicii pentru a popula AI-ul</div></div>`;
+    document.getElementById('ai-rules').innerHTML = '';
+    document.getElementById('ai-gaps').innerHTML = '<div class="empty"><div class="empty-sub">—</div></div>';
+    return;
+  }
+
+  const p = PROFILE;
+  document.getElementById('brain-info').innerHTML = `
+    ${p.name ? `<div class="ai-field"><div class="ai-field-label">Clinică</div><div class="ai-field-val">${p.name}</div></div>` : ''}
+    ${p.phone ? `<div class="ai-field"><div class="ai-field-label">Telefon</div><div class="ai-field-val">${p.phone}${p.phone_urgente ? ' · Urgențe: ' + p.phone_urgente : ''}</div></div>` : ''}
+    ${p.hours ? `<div class="ai-field"><div class="ai-field-label">Program</div><div class="ai-field-val">${p.hours}</div></div>` : ''}
+    ${p.parking ? `<div class="ai-field"><div class="ai-field-label">Parcare</div><div class="ai-field-val">${p.parking}</div></div>` : ''}
+    ${p.insurance?.length ? `<div class="ai-field"><div class="ai-field-label">Asigurări</div><div class="ai-field-val">${p.insurance.map(i => `<span class="ai-tag">${i}</span>`).join('')}</div></div>` : ''}
+    ${p.services?.length ? `<div class="ai-field"><div class="ai-field-label">Servicii (${p.services.length})</div><div class="ai-field-val">${p.services.slice(0,5).map(s => `<span class="ai-tag">${s.name}</span>`).join('')}${p.services.length > 5 ? ` +${p.services.length-5}` : ''}</div></div>` : ''}
+    ${p.faq?.length ? `<div class="ai-field"><div class="ai-field-label">FAQ (${p.faq.length} întrebări)</div><div class="ai-field-val" style="color:var(--grn)">✅ Configurate</div></div>` : ''}`;
+
+  // Load gaps
+  loadGaps();
+}
+
+async function loadGaps() {
+  try {
+    const r = await fetch(`${API}/api/learning/gaps?clientId=${CLIENT_ID}`);
+    const d = await r.json();
+    const gaps = d.gaps || [];
+    document.getElementById('gaps-count').textContent = gaps.length;
+    if (!gaps.length) {
+      document.getElementById('ai-gaps').innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div class="empty-title">AI răspunde la toate întrebările</div></div>`;
+      return;
+    }
+    document.getElementById('ai-gaps').innerHTML = gaps.slice(0,10).map(g => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--b1)">
+        <span style="font-size:16px">❓</span>
+        <div style="flex:1;font-size:13px">${g.question || g}</div>
+        <span style="font-size:11px;color:var(--t3)">${g.count || 1}x</span>
+        <button class="btn btn-ghost btn-sm" onclick="answerGap('${g.question || g}')">Răspunde</button>
+      </div>`).join('');
+  } catch(e) {
+    document.getElementById('ai-gaps').innerHTML = `<div class="empty"><div class="empty-sub">Nu s-au putut încărca datele</div></div>`;
+  }
+}
+
+async function rescanBrain() {
+  toast('⏳ Scanare în curs... (30-60 secunde)');
+  const site = PROFILE?.website || prompt('URL site clinică:');
+  if (!site) return;
+  try {
+    const r = await fetch(`${API}/api/brain/scan`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ url: site, clientId: CLIENT_ID })
+    });
+    const d = await r.json();
+    if (d.success) {
+      PROFILE = d.brain;
+      PROFILE.clientId = CLIENT_ID;
+      toast(`✅ Scanat! ${d.brain.services?.length || 0} servicii, ${d.brain.faq?.length || 0} FAQ`);
+      renderAI();
+    }
+  } catch(e) { toast('❌ Eroare scanare'); }
+}
+
+function answerGap(q) {
+  const ans = prompt(`Răspuns pentru: "${q}"`);
+  if (!ans) return;
+  // Add to profile FAQ
+  if (!PROFILE.faq) PROFILE.faq = [];
+  PROFILE.faq.push({ question: q, answer: ans });
+  fetch(`${API}/api/profile/save`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ ...PROFILE, clientId: CLIENT_ID })
+  }).then(() => { toast('✅ Răspuns adăugat în AI Brain'); loadGaps(); });
+}
+
+// ── ANALYTICS ────────────────────────────────────────
+function renderAnalytics() {
+  // Real data from appointments
+  const total = APPOINTMENTS.length;
+  const revenue = APPOINTMENTS.reduce((s, a) => s + (parseInt(a.service?.price||'0')||0), 0);
+  const confirmed = APPOINTMENTS.filter(a => a.status === 'confirmed').length;
+
+  document.getElementById('analytics-metrics').innerHTML = `
+    <div class="metric m-teal"><div class="metric-label">Total programări</div><div class="metric-val" style="color:var(--teal)">${total}</div><div class="metric-sub">înregistrate</div></div>
+    <div class="metric m-grn"><div class="metric-label">Venit înregistrat</div><div class="metric-val" style="color:var(--grn)">${revenue.toLocaleString('ro')} RON</div><div class="metric-sub">din programări</div></div>
+    <div class="metric m-ylw"><div class="metric-label">Conversații AI</div><div class="metric-val" style="color:var(--ylw)">${CONVERSATIONS.length}</div><div class="metric-sub">total</div></div>
+    <div class="metric m-red"><div class="metric-label">Confirmate</div><div class="metric-val" style="color:var(--grn)">${confirmed}</div><div class="metric-sub">din ${total} total</div></div>`;
+
+  // Bar chart — appointments by day
+  const dailyCounts = {};
+  APPOINTMENTS.forEach(a => {
+    const d = a.date?.split('T')[0];
+    if (d) dailyCounts[d] = (dailyCounts[d] || 0) + 1;
+  });
+  const last14 = Array.from({length:14}, (_,i) => {
+    const d = new Date(); d.setDate(d.getDate() - (13-i));
+    return { date: d.toISOString().split('T')[0], label: DAY_LABELS[d.getDay()], count: dailyCounts[d.toISOString().split('T')[0]] || 0 };
+  });
+  const maxC = Math.max(...last14.map(d=>d.count), 1);
+  document.getElementById('analytics-chart').innerHTML = last14.map(d => `
+    <div class="bar-col">
+      <div class="bar-fill" style="height:${Math.max(Math.round(d.count/maxC*90),2)}px;background:${d.count>0?'var(--teal)':'var(--b2)'}"></div>
+      <span class="bar-lbl">${d.label}</span>
+    </div>`).join('');
+
+  // Services breakdown
+  const svcCounts = {};
+  APPOINTMENTS.forEach(a => {
+    const n = a.service?.name || 'Altele';
+    svcCounts[n] = (svcCounts[n] || 0) + 1;
+  });
+  const topSvcs = Object.entries(svcCounts).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxS = Math.max(...topSvcs.map(s=>s[1]), 1);
+  document.getElementById('analytics-services').innerHTML = topSvcs.length ? topSvcs.map(([name, count]) => `
+    <div class="mini-stat">
+      <span class="mini-stat-name">${name.length > 22 ? name.substring(0,22)+'…' : name}</span>
+      <div class="mini-stat-bar"><div class="mini-stat-fill" style="width:${Math.round(count/maxS*100)}%"></div></div>
+      <span class="mini-stat-val">${count}</span>
+    </div>`).join('') : '<div class="empty"><div class="empty-sub">Niciun serviciu înregistrat</div></div>';
+}
+
+// ── SETTINGS ─────────────────────────────────────────
+function renderSettings() {
+  if (PROFILE) {
+    document.getElementById('s-name').value = PROFILE.name || '';
+    document.getElementById('s-phone').value = PROFILE.phone || '';
+    document.getElementById('s-email').value = PROFILE.email || '';
+    document.getElementById('s-address').value = PROFILE.address || '';
+    document.getElementById('s-fb').value = PROFILE.facebook || '';
+    document.getElementById('s-ig').value = PROFILE.instagram || '';
+    if (PROFILE.type) document.getElementById('s-type').value = PROFILE.type;
+  }
+  loadHealth();
+}
+
+async function saveSettings() {
+  const updated = {
+    ...PROFILE,
+    clientId: CLIENT_ID,
+    name: document.getElementById('s-name').value.trim(),
+    phone: document.getElementById('s-phone').value.trim(),
+    email: document.getElementById('s-email').value.trim(),
+    address: document.getElementById('s-address').value.trim(),
+    facebook: document.getElementById('s-fb').value.trim(),
+    instagram: document.getElementById('s-ig').value.trim(),
+    type: document.getElementById('s-type').value,
+  };
+  try {
+    const r = await fetch(`${API}/api/profile/save`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(updated)
+    });
+    const d = await r.json();
+    if (d.success) { PROFILE = updated; document.getElementById('tb-clinic').textContent = updated.name || CLIENT_ID; toast('✅ Setări salvate'); }
+  } catch(e) { toast('❌ Eroare salvare'); }
+}
+
+// ── HOURS EDITOR ─────────────────────────────────────
+function renderHoursEditor() {
+  const config = PROFILE?.clinicHours || {};
+  document.getElementById('hours-editor').innerHTML = DAYS.map(day => {
+    const h = config[day] || { active: !['sambata','duminica'].includes(day), open:'09:00', close:'18:00' };
+    return `<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1)">
+      <span style="font-size:12px;font-weight:600;width:60px;color:var(--t2)">${DAY_LABELS[DAYS.indexOf(day)]}</span>
+      <div class="toggle ${h.active?'on':''}" onclick="toggleDay('${day}',this)" id="hd-${day}"></div>
+      <div id="ht-${day}" style="${h.active?'':'opacity:.3;pointer-events:none'}">
+        <input type="time" value="${h.open||'09:00'}" id="ho-${day}"
+          style="background:var(--s2);border:1px solid var(--b1);border-radius:4px;padding:4px 8px;color:var(--tx);font-size:12px;outline:none">
+        <span style="color:var(--t3);margin:0 4px">—</span>
+        <input type="time" value="${h.close||'18:00'}" id="hc-${day}"
+          style="background:var(--s2);border:1px solid var(--b1);border-radius:4px;padding:4px 8px;color:var(--tx);font-size:12px;outline:none">
+      </div>
+    </div>`;
+  }).join('') + `<button class="btn btn-ghost btn-sm" style="margin-top:10px" onclick="saveHours()">💾 Salvează program</button>`;
+}
+
+function toggleDay(day, el) {
+  el.classList.toggle('on');
+  const times = document.getElementById('ht-' + day);
+  times.style.cssText = el.classList.contains('on') ? '' : 'opacity:.3;pointer-events:none';
+}
+
+async function saveHours() {
+  const hours = {};
+  DAYS.forEach(day => {
+    const tog = document.getElementById('hd-' + day);
+    hours[day] = {
+      active: tog?.classList.contains('on') || false,
+      open: document.getElementById('ho-' + day)?.value || '09:00',
+      close: document.getElementById('hc-' + day)?.value || '18:00',
+    };
+  });
+  try {
+    await fetch(`${API}/api/clinic/config/section`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ clientId:CLIENT_ID, section:'hours', data:hours })
+    });
+    toast('✅ Program salvat');
+  } catch(e) { toast('❌ Eroare'); }
+}
+
+// ── TEAM ─────────────────────────────────────────────
+async function loadTeam() {
+  try {
+    const r = await fetch(`${API}/api/team/list?clientId=${CLIENT_ID}`);
+    const d = await r.json();
+    const users = d.users || [];
+    const el = document.getElementById('team-list-s');
+    if (!el) return;
+    if (!users.length) { el.innerHTML = '<div style="padding:14px 16px;font-size:12px;color:var(--t3)">Niciun utilizator</div>'; return; }
+    const icons = {owner:'👑',doctor:'👨‍⚕️',reception:'📋'};
+    el.innerHTML = users.map(u => `
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--b1)">
+        <span>${icons[u.role]||'👤'}</span>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600">${u.email}</div><div style="font-size:10px;color:var(--t3)">${u.role}</div></div>
+        ${u.role!=='owner'?`<button class="btn btn-danger btn-sm" onclick="deleteUser('${u.email}')">✕</button>`:''}
+      </div>`).join('');
+  } catch(e) {}
+}
+
+async function inviteUser() {
+  const email = document.getElementById('inv-email').value.trim();
+  const pass = document.getElementById('inv-pass').value.trim();
+  const role = document.getElementById('inv-role').value;
+  if (!email || !pass) { toast('⚠ Completează email și parola'); return; }
+  try {
+    const r = await fetch(`${API}/api/team/invite`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, password:pass, role, clientId:CLIENT_ID, businessName:PROFILE?.name||'' })
+    });
+    const d = await r.json();
+    if (d.success) { toast('✅ Utilizator adăugat'); loadTeam(); document.getElementById('inv-email').value=''; document.getElementById('inv-pass').value=''; }
+    else toast('❌ ' + (d.error || 'Eroare'));
+  } catch(e) { toast('❌ Eroare conexiune'); }
+}
+
+async function deleteUser(email) {
+  if (!confirm('Șterge ' + email + '?')) return;
+  try {
+    await fetch(`${API}/api/team/delete`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ email, clientId:CLIENT_ID })
+    });
+    toast('✅ Utilizator șters'); loadTeam();
+  } catch(e) { toast('❌ Eroare'); }
+}
+
+// ── INTEGRATIONS ─────────────────────────────────────
+async function loadIntegrations() {
+  const el = document.getElementById('integrations-status');
+  if (!el) return;
+  try {
+    const r = await fetch(`${API}/api/integrations/status?clientId=${CLIENT_ID}`);
+    const d = await r.json();
+    const intg = d.integrations || {};
+    el.innerHTML = [
+      { key:'gmail', icon:'📧', label:'Gmail', info: intg.gmail?.email },
+      { key:'calendar', icon:'📅', label:'Google Calendar', info: intg.calendar?.email },
+      { key:'whatsapp', icon:'💬', label:'WhatsApp', info: null },
+    ].map(i => `
+      <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--b1)">
+        <span>${i.icon}</span>
+        <div style="flex:1"><div style="font-size:12px;font-weight:600">${i.label}</div>${i.info ? `<div style="font-size:10px;color:var(--grn)">✅ ${i.info}</div>` : `<div style="font-size:10px;color:var(--t3)">Neconectat</div>`}</div>
+        ${!i.info ? `<button class="btn btn-ghost btn-sm" onclick="connectGoogle('${i.key}')">Conectează</button>` : `<button class="btn btn-danger btn-sm" onclick="disconnectIntegration('${i.key}')">✕</button>`}
+      </div>`).join('');
+  } catch(e) { if (el) el.innerHTML = '<div style="padding:10px;font-size:12px;color:var(--t3)">Nu s-a putut verifica</div>'; }
+}
+
+function connectGoogle(scope) {
+  window.location.href = `${API}/auth/google?clientId=${CLIENT_ID}&scope=${scope}`;
+}
+
+async function disconnectIntegration(scope) {
+  if (!confirm('Deconectezi ' + scope + '?')) return;
+  await fetch(`${API}/api/integrations/disconnect`, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ clientId:CLIENT_ID, scope })
+  });
+  toast('✅ Deconectat'); loadIntegrations();
+}
+
+// ── HEALTH ───────────────────────────────────────────
+async function loadHealth() {
+  const el = document.getElementById('health-status');
+  if (!el) return;
+  el.innerHTML = '<div class="loading"><div class="spin"></div> Se verifică...</div>';
+  try {
+    const r = await fetch(`${API}/api/health/full?clientId=${CLIENT_ID}`);
+    const d = await r.json();
+    const icons = {ok:'✅', warning:'⚠️', error:'❌', disconnected:'⚪'};
+    el.innerHTML = Object.entries(d.checks||{}).map(([k,v]) => `
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid var(--b1);font-size:12px">
+        <span>${icons[v.status]||'⚪'}</span>
+        <span style="flex:1">${k}</span>
+        <span style="color:var(--t3)">${v.message||''}</span>
+      </div>`).join('') + `<div style="font-size:10px;color:var(--t3);margin-top:8px;text-align:right">Verificat: ${new Date().toLocaleTimeString('ro-RO')}</div>`;
+  } catch(e) { el.innerHTML = '<div style="font-size:12px;color:var(--red)">❌ Nu s-a putut conecta la server</div>'; }
+}
+
+// ── MODAL ────────────────────────────────────────────
+function openModal(id) { document.getElementById(id).classList.add('show'); }
+function closeModal(id) { document.getElementById(id).classList.remove('show'); }
+
+// ── TOAST ────────────────────────────────────────────
+function toast(msg, dur=3000) {
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ── LOGOUT ───────────────────────────────────────────
+function logout() {
+  localStorage.removeItem('recepai_token');
+  localStorage.removeItem('recepai_role');
+  window.location.href = 'login.html';
+}
+
+// ── CHECK URL PARAMS ─────────────────────────────────
+const urlParams = new URLSearchParams(window.location.search);
+if (urlParams.get('connected')) {
+  toast('✅ ' + urlParams.get('connected') + ' conectat!');
+  history.replaceState({}, '', window.location.pathname);
+}
+
+// ── START ────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
