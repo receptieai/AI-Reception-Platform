@@ -467,7 +467,11 @@ Apoi adaugă exact: [LEAD_READY]`;
     if (nameMatch && !collectedData.name) collectedData.name = nameMatch[1];
     if (phoneMatch && !collectedData.phone) collectedData.phone = phoneMatch[1].trim();
 
-    return text.includes('[LEAD_READY]') && collectedData.name && collectedData.phone;
+    // Trimite lead daca avem telefon (cu sau fara LEAD_READY)
+    const hasPhone = collectedData.phone !== null;
+    const hasLeadReady = text.includes('[LEAD_READY]');
+    return (hasLeadReady && collectedData.name && hasPhone) || 
+           (hasPhone && collectedData.name);
   }
 
   // ── SEND LEAD ─────────────────────────────────
