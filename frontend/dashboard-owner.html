@@ -1132,6 +1132,23 @@ function renderAI() {
     ${p.services?.length ? `<div class="ai-field"><div class="ai-field-label">Servicii (${p.services.length})</div><div class="ai-field-val">${p.services.slice(0,5).map(s => `<span class="ai-tag">${s.name}</span>`).join('')}${p.services.length > 5 ? ` +${p.services.length-5}` : ''}</div></div>` : ''}
     ${p.faq?.length ? `<div class="ai-field"><div class="ai-field-label">FAQ (${p.faq.length} întrebări)</div><div class="ai-field-val" style="color:var(--grn)">✅ Configurate</div></div>` : ''}`;
 
+  // AI Rules
+  try {
+    const rc = await fetch(`${API}/api/clinic/config?clientId=${CLIENT_ID}`);
+    const dc = await rc.json();
+    const rules = dc.config?.aiRules || {};
+    const rulesEl = document.getElementById('ai-rules');
+    if (rulesEl) rulesEl.innerHTML = `
+      <div class="ai-field"><div class="ai-field-label">Ton</div><div class="ai-field-val">${rules.tone||'prietenos'}</div></div>
+      <div class="ai-field"><div class="ai-field-label">Colectează nume</div><div class="ai-field-val">${rules.collectName?'✅ Da':'❌ Nu'}</div></div>
+      <div class="ai-field"><div class="ai-field-label">Colectează telefon</div><div class="ai-field-val">${rules.collectPhone?'✅ Da':'❌ Nu'}</div></div>
+      <div class="ai-field"><div class="ai-field-label">Nu inventa prețuri</div><div class="ai-field-val">${rules.noInventPrices?'✅ Activ':'❌ Inactiv'}</div></div>
+      ${(rules.customRules||[]).length?`<div class="ai-field"><div class="ai-field-label">Reguli custom (${rules.customRules.length})</div><div class="ai-field-val">${rules.customRules.map(r=>`<span class="ai-tag">${r}</span>`).join('')}</div></div>`:''}`;
+  } catch(e) {
+    const rulesEl = document.getElementById('ai-rules');
+    if (rulesEl) rulesEl.innerHTML = '<div style="font-size:12px;color:var(--t3)">Nu s-au putut încărca regulile</div>';
+  }
+
   // Load gaps
   loadGaps();
 }
