@@ -86,7 +86,7 @@ if (token) {
   const r = localStorage.getItem('recepai_role') || 'owner';
   if (r === 'doctor') window.location.href = 'dashboard-doctor.html';
   else if (r === 'reception') window.location.href = 'dashboard-receptie.html';
-  else window.location.href = 'client-dashboard.html';
+  else window.location.href = 'dashboard-owner.html';
 }
 
 function showRegister() {
@@ -173,7 +173,7 @@ async function doRegister() {
     localStorage.setItem('recepai_email', data.email);
     localStorage.setItem('recepai_client_id', clientId);
     localStorage.setItem('recepai_role', data.role || 'owner');
-    window.location.href = 'client-dashboard.html';
+    window.location.href = 'dashboard-owner.html';
   } catch(e) {
     showError('register-error', 'Eroare conexiune.');
     btn.textContent = 'Creează cont'; btn.disabled = false;
