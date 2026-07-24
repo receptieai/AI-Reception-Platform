@@ -1024,6 +1024,22 @@ Returnează DOAR JSON valid fără text suplimentar:
     return;
   }
 
+  // ── CONVERSATIONS ────────────────────────────────
+  if (pathname === '/api/conversations' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    if (!clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    sendJson(res, { success: true, conversations: storage.getConversations(clientId) });
+    return;
+  }
+
+  if (pathname === '/api/conversations/save' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    storage.saveConversation(body);
+    sendJson(res, { success: true });
+    return;
+  }
+
   // ── AUDIT LOG ──────────────────────────────────
   if (pathname === '/api/audit' && req.method === 'GET') {
     const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
