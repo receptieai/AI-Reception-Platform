@@ -1,0 +1,15 @@
+{
+  "name": "RecepAI",
+  "short_name": "RecepAI",
+  "description": "Radarul care nu lasă niciun client să se piardă",
+  "start_url": "/dashboard.html",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#6366F1",
+  "icons": [
+    { "src": "/pwa/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/pwa/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "ro"
+}

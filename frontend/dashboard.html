@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#6366F1">
+<title>RecepAI — Dashboard</title>
+<link rel="manifest" href="pwa/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --indigo:#6366F1;--indigo-d:#4F46E5;--indigo-l:#EEF2FF;--indigo-xl:#E0E7FF;
+  --green:#10B981;--green-l:#ECFDF5;
+  --red:#EF4444;--red-l:#FEF2F2;
+  --amber:#F59E0B;--amber-l:#FFFBEB;
+  --black:#0A0A0A;--g9:#111827;--g7:#374151;--g6:#4B5563;--g5:#6B7280;
+  --g4:#9CA3AF;--g3:#D1D5DB;--g2:#E5E7EB;--g1:#F9FAFB;--g0:#FFFFFF;
+  --sidebar:220px;
+}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--g1);color:var(--black);display:flex;font-size:14px;}
+
+/* ── SIDEBAR ── */
+.sb{
+  width:var(--sidebar);flex-shrink:0;
+  background:var(--g0);
+  border-right:1px solid var(--g2);
+  display:flex;flex-direction:column;
+  height:100vh;overflow:hidden;
+}
+.sb-head{padding:22px 18px 16px;border-bottom:1px solid var(--g2);}
+.sb-logo{display:flex;align-items:center;gap:9px;}
+.sb-mark{width:32px;height:32px;background:var(--indigo);border-radius:9px;display:grid;place-items:center;flex-shrink:0;}
+.sb-mark svg{width:18px;height:18px;}
+.sb-name{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--black);letter-spacing:-.5px;}
+
+.sb-nav{flex:1;padding:12px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+
+.ni{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 12px;border-radius:10px;
+  font-size:13px;font-weight:500;color:var(--g5);
+  cursor:pointer;transition:all .12s;
+  position:relative;user-select:none;
+}
+.ni:hover{background:var(--g1);color:var(--g9);}
+.ni.active{background:var(--indigo-l);color:var(--indigo);font-weight:600;}
+.ni-icon{font-size:16px;width:20px;text-align:center;flex-shrink:0;}
+.ni-badge{
+  margin-left:auto;min-width:18px;height:18px;
+  background:var(--red);color:white;
+  font-size:10px;font-weight:700;
+  padding:0 5px;border-radius:9px;
+  display:none;align-items:center;justify-content:center;
+}
+.ni-badge.show{display:flex;}
+
+.sb-foot{padding:14px 10px;border-top:1px solid var(--g2);}
+.sb-user{display:flex;align-items:center;gap:9px;padding:8px;border-radius:10px;cursor:pointer;transition:background .12s;}
+.sb-user:hover{background:var(--g1);}
+.u-av{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--indigo-l);color:var(--indigo);
+  font-size:11px;font-weight:700;
+  display:grid;place-items:center;flex-shrink:0;
+}
+.u-info{flex:1;min-width:0;}
+.u-name{font-size:12px;font-weight:600;color:var(--g9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.u-role{font-size:10px;color:var(--g4);}
+.u-out{
+  width:28px;height:28px;border-radius:8px;
+  background:none;border:none;
+  color:var(--g4);cursor:pointer;font-size:14px;
+  display:grid;place-items:center;
+  transition:color .12s,background .12s;
+}
+.u-out:hover{color:var(--red);background:var(--red-l);}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+
+/* TOPBAR */
+.topbar{
+  height:60px;flex-shrink:0;
+  background:var(--g0);
+  border-bottom:1px solid var(--g2);
+  display:flex;align-items:center;
+  padding:0 24px;gap:16px;
+}
+.tb-title{flex:1;}
+.tb-title h1{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--black);letter-spacing:-.3px;}
+.tb-title p{font-size:11px;color:var(--g4);margin-top:1px;}
+.tb-right{display:flex;align-items:center;gap:10px;}
+
+.ai-status{
+  display:flex;align-items:center;gap:7px;
+  background:var(--green-l);
+  border:1px solid rgba(16,185,129,.2);
+  color:#065F46;
+  font-size:12px;font-weight:600;
+  padding:5px 12px;border-radius:20px;
+}
+.ai-dot{width:7px;height:7px;background:var(--green);border-radius:50%;animation:pulse-g 2.5s infinite;}
+@keyframes pulse-g{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,.4);}50%{box-shadow:0 0 0 5px rgba(16,185,129,0);}}
+
+/* CONTENT */
+.content{flex:1;overflow-y:auto;padding:24px;}
+.panel{display:none;animation:fadeIn .15s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* ── METRICS ── */
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:20px;}
+.mc{
+  background:var(--g0);border:1px solid var(--g2);
+  border-radius:14px;padding:20px;
+  position:relative;overflow:hidden;
+}
+.mc-icon{font-size:20px;margin-bottom:12px;}
+.mc-val{
+  font-family:'Syne',sans-serif;font-size:32px;font-weight:800;
+  color:var(--black);line-height:1;margin-bottom:4px;
+}
+.mc-lbl{font-size:12px;color:var(--g4);font-weight:500;}
+.mc-badge{
+  position:absolute;top:16px;right:16px;
+  font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;
+}
+.mc.red .mc-val{color:var(--red);}
+.mc.red .mc-badge{background:var(--red-l);color:var(--red);}
+.mc.indigo .mc-val{color:var(--indigo);}
+.mc.green .mc-val{color:var(--green);}
+
+/* ── LEADS ── */
+.leads-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.section-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--black);letter-spacing:-.3px;}
+.filter-row{display:flex;gap:6px;}
+.filter-btn{
+  padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;
+  cursor:pointer;border:1.5px solid var(--g2);background:var(--g0);color:var(--g5);
+  transition:all .12s;
+}
+.filter-btn:hover{border-color:var(--indigo);color:var(--indigo);}
+.filter-btn.on{background:var(--indigo-l);border-color:var(--indigo);color:var(--indigo);}
+
+.lead-list{display:flex;flex-direction:column;gap:10px;}
+
+.lead-card{
+  background:var(--g0);border:1px solid var(--g2);
+  border-radius:14px;padding:16px 18px;
+  display:flex;align-items:center;gap:14px;
+  transition:box-shadow .15s,border-color .15s;
+  cursor:pointer;
+}
+.lead-card:hover{box-shadow:0 4px 20px rgba(0,0,0,.06);border-color:var(--g3);}
+.lead-card.new{border-left:3px solid var(--red);}
+.lead-card.contacted{border-left:3px solid var(--amber);}
+.lead-card.scheduled{border-left:3px solid var(--green);}
+.lead-card.lost{opacity:.55;}
+
+.lead-av{
+  width:38px;height:38px;border-radius:50%;
+  display:grid;place-items:center;
+  font-size:14px;font-weight:700;flex-shrink:0;
+}
+.lead-av.new{background:var(--red-l);color:var(--red);}
+.lead-av.contacted{background:var(--amber-l);color:var(--amber);}
+.lead-av.scheduled{background:var(--green-l);color:var(--green);}
+.lead-av.default{background:var(--indigo-l);color:var(--indigo);}
+
+.lead-info{flex:1;min-width:0;}
+.lead-name{font-size:14px;font-weight:700;color:var(--black);margin-bottom:2px;}
+.lead-meta{font-size:12px;color:var(--g4);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.lead-dot{width:3px;height:3px;background:var(--g3);border-radius:50%;}
+.lead-service{font-size:12px;font-weight:600;color:var(--g6);}
+
+.lead-right{display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;}
+.lead-time{font-size:11px;color:var(--g4);}
+.lead-score{
+  font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;
+}
+.score-hot{background:var(--red-l);color:var(--red);}
+.score-warm{background:var(--amber-l);color:var(--amber);}
+.score-cold{background:var(--g1);color:var(--g4);}
+
+.lead-actions{display:flex;gap:6px;margin-left:8px;flex-shrink:0;}
+.la-btn{
+  width:32px;height:32px;border-radius:9px;border:1.5px solid var(--g2);
+  background:var(--g0);cursor:pointer;font-size:14px;
+  display:grid;place-items:center;
+  transition:all .12s;color:var(--g5);
+}
+.la-btn:hover{border-color:var(--indigo);color:var(--indigo);background:var(--indigo-l);}
+.la-btn.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-l);}
+.la-btn.success:hover{border-color:var(--green);color:var(--green);background:var(--green-l);}
+
+/* STATUS BADGE */
+.sbadge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;
+  flex-shrink:0;
+}
+.sbadge.new{background:var(--red-l);color:var(--red);}
+.sbadge.contacted{background:var(--amber-l);color:var(--amber);}
+.sbadge.scheduled{background:var(--green-l);color:var(--green);}
+.sbadge.seen{background:var(--indigo-xl);color:var(--indigo);}
+.sbadge.lost{background:var(--g1);color:var(--g4);}
+
+/* ── CONVERSATIONS ── */
+.conv-list{display:flex;flex-direction:column;gap:2px;}
+.conv-item{
+  display:flex;align-items:center;gap:12px;
+  padding:13px 16px;border-radius:12px;
+  cursor:pointer;transition:background .1s;
+  background:var(--g0);border:1px solid var(--g2);margin-bottom:6px;
+}
+.conv-item:hover{background:var(--g1);}
+.conv-dot{width:8px;height:8px;border-radius:50%;background:var(--indigo);flex-shrink:0;}
+.conv-dot.read{background:var(--g3);}
+.conv-body{flex:1;min-width:0;}
+.conv-name{font-size:13px;font-weight:600;color:var(--black);margin-bottom:2px;}
+.conv-preview{font-size:12px;color:var(--g4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.conv-time{font-size:11px;color:var(--g4);flex-shrink:0;}
+
+/* ── BRAIN ── */
+.brain-status{
+  background:var(--g0);border:1px solid var(--g2);
+  border-radius:16px;padding:24px;margin-bottom:14px;
+  display:flex;align-items:center;gap:20px;
+}
+.brain-icon{font-size:40px;}
+.brain-body{flex:1;}
+.brain-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px;}
+.brain-sub{font-size:13px;color:var(--g5);line-height:1.6;}
+.brain-stats{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;
+}
+.brain-stat{
+  background:var(--g0);border:1px solid var(--g2);
+  border-radius:12px;padding:16px;text-align:center;
+}
+.brain-stat-v{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:var(--indigo);line-height:1;margin-bottom:4px;}
+.brain-stat-l{font-size:11px;color:var(--g4);}
+
+/* ── SETTINGS ── */
+.settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.settings-card{background:var(--g0);border:1px solid var(--g2);border-radius:14px;overflow:hidden;}
+.sc-head{padding:16px 18px;border-bottom:1px solid var(--g2);}
+.sc-title{font-size:13px;font-weight:700;color:var(--black);}
+.sc-body{padding:18px;}
+.sf{margin-bottom:14px;}
+.sf label{display:block;font-size:11px;font-weight:600;color:var(--g5);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+.sf input,.sf select,.sf textarea{
+  width:100%;height:42px;
+  background:var(--g1);border:1.5px solid var(--g2);
+  border-radius:9px;padding:0 12px;
+  font-size:13px;font-family:'Inter',sans-serif;
+  color:var(--black);outline:none;transition:all .15s;
+}
+.sf input:focus,.sf select:focus{border-color:var(--indigo);background:var(--g0);box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+.sf textarea{height:80px;padding:10px 12px;resize:none;line-height:1.5;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--g2);}
+.toggle-row:last-child{border-bottom:none;}
+.tr-info{flex:1;}
+.tr-label{font-size:13px;font-weight:600;color:var(--black);}
+.tr-desc{font-size:11px;color:var(--g4);margin-top:1px;}
+.toggle{width:40px;height:22px;background:var(--g3);border-radius:11px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0;}
+.toggle.on{background:var(--green);}
+.toggle::after{content:'';position:absolute;width:18px;height:18px;background:white;border-radius:50%;top:2px;left:2px;transition:left .2s;box-shadow:0 1px 4px rgba(0,0,0,.15);}
+.toggle.on::after{left:20px;}
+
+/* ── WIDGET CODE ── */
+.code-box{
+  background:var(--g9);border-radius:10px;padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;font-size:12px;color:#A5B4FC;
+  position:relative;margin-top:10px;line-height:1.6;
+}
+.copy-btn{
+  position:absolute;top:10px;right:10px;
+  background:rgba(255,255,255,.1);border:none;color:white;
+  font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;
+  cursor:pointer;font-family:'Inter',sans-serif;
+  transition:background .12s;
+}
+.copy-btn:hover{background:rgba(255,255,255,.2);}
+
+/* ── EMPTY STATES ── */
+.empty{text-align:center;padding:48px 24px;}
+.empty-icon{font-size:40px;margin-bottom:12px;}
+.empty-title{font-size:16px;font-weight:700;color:var(--g6);margin-bottom:6px;}
+.empty-sub{font-size:13px;color:var(--g4);line-height:1.6;}
+
+/* ── BUTTONS ── */
+.btn-primary{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--indigo);color:white;border:none;
+  border-radius:10px;padding:9px 18px;
+  font-size:13px;font-weight:700;font-family:'Syne',sans-serif;
+  cursor:pointer;transition:all .15s;
+}
+.btn-primary:hover{background:var(--indigo-d);box-shadow:0 4px 16px rgba(99,102,241,.3);transform:translateY(-1px);}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:7px;
+  background:var(--g0);color:var(--g7);
+  border:1.5px solid var(--g2);border-radius:10px;padding:9px 18px;
+  font-size:13px;font-weight:600;font-family:'Inter',sans-serif;
+  cursor:pointer;transition:all .12s;
+}
+.btn-secondary:hover{border-color:var(--g3);background:var(--g1);}
+
+/* ── NOTIFICATION BELL ── */
+.notif-btn{
+  width:36px;height:36px;border-radius:10px;
+  border:1.5px solid var(--g2);background:var(--g0);
+  cursor:pointer;display:grid;place-items:center;
+  font-size:16px;transition:all .12s;position:relative;
+}
+.notif-btn:hover{border-color:var(--g3);}
+.notif-dot{
+  position:absolute;top:6px;right:6px;
+  width:8px;height:8px;background:var(--red);
+  border-radius:50%;border:2px solid var(--g0);
+  display:none;
+}
+.notif-dot.show{display:block;}
+
+/* ── TOAST (new lead notification) ── */
+.toast-container{position:fixed;top:20px;right:20px;z-index:9999;display:flex;flex-direction:column;gap:10px;}
+.toast{
+  background:var(--g0);border:1px solid var(--g2);
+  border-left:4px solid var(--red);
+  border-radius:12px;padding:14px 18px;
+  box-shadow:0 8px 32px rgba(0,0,0,.12);
+  display:flex;align-items:flex-start;gap:12px;
+  min-width:300px;max-width:360px;
+  transform:translateX(120%);opacity:0;
+  transition:all .3s cubic-bezier(.34,1.56,.64,1);
+}
+.toast.show{transform:none;opacity:1;}
+.toast-icon{font-size:20px;flex-shrink:0;}
+.toast-body{flex:1;}
+.toast-title{font-size:13px;font-weight:700;color:var(--black);margin-bottom:2px;}
+.toast-msg{font-size:12px;color:var(--g5);}
+.toast-close{background:none;border:none;color:var(--g4);cursor:pointer;font-size:16px;line-height:1;}
+
+/* ── LEAD MODAL ── */
+.modal-bg{
+  position:fixed;inset:0;background:rgba(0,0,0,.4);
+  backdrop-filter:blur(4px);z-index:100;
+  display:none;align-items:center;justify-content:center;padding:20px;
+}
+.modal-bg.show{display:flex;}
+.modal{
+  background:var(--g0);border-radius:18px;
+  width:100%;max-width:500px;max-height:90vh;overflow-y:auto;
+  box-shadow:0 20px 60px rgba(0,0,0,.15);
+}
+.modal-head{
+  padding:20px 24px;border-bottom:1px solid var(--g2);
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;background:var(--g0);z-index:1;
+}
+.modal-title{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:var(--g1);color:var(--g5);font-size:18px;cursor:pointer;display:grid;place-items:center;}
+.modal-body{padding:20px 24px;}
+.modal-foot{padding:16px 24px;border-top:1px solid var(--g2);display:flex;gap:8px;justify-content:flex-end;}
+.mf{margin-bottom:16px;}
+.mf-label{font-size:11px;font-weight:600;color:var(--g4);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.mf-val{font-size:14px;font-weight:600;color:var(--black);}
+.mf-val.phone{font-family:'JetBrains Mono',monospace;color:var(--indigo);}
+.mf-divider{height:1px;background:var(--g2);margin:14px 0;}
+.status-btns{display:flex;gap:8px;flex-wrap:wrap;}
+.sb-btn{
+  padding:7px 14px;border-radius:9px;font-size:12px;font-weight:700;
+  cursor:pointer;border:1.5px solid var(--g2);background:var(--g0);color:var(--g6);
+  transition:all .12s;font-family:'Inter',sans-serif;
+}
+.sb-btn:hover.new-s{background:var(--red-l);border-color:var(--red);color:var(--red);}
+.sb-btn:hover.seen-s{background:var(--indigo-xl);border-color:var(--indigo);color:var(--indigo);}
+.sb-btn:hover.contact-s{background:var(--amber-l);border-color:var(--amber);color:var(--amber);}
+.sb-btn:hover.sched-s{background:var(--green-l);border-color:var(--green);color:var(--green);}
+.sb-btn:hover.lost-s{background:var(--g1);border-color:var(--g3);color:var(--g5);}
+.sb-btn.active{font-weight:700;}
+.sb-btn.active.new-s{background:var(--red-l);border-color:var(--red);color:var(--red);}
+.sb-btn.active.seen-s{background:var(--indigo-xl);border-color:var(--indigo);color:var(--indigo);}
+.sb-btn.active.contact-s{background:var(--amber-l);border-color:var(--amber);color:var(--amber);}
+.sb-btn.active.sched-s{background:var(--green-l);border-color:var(--green);color:var(--green);}
+.sb-btn.active.lost-s{background:var(--g1);border-color:var(--g3);color:var(--g5);}
+
+/* ── RESPONSE TIME ── */
+.rtime{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--g4);}
+.rtime-fast{color:var(--green);}
+.rtime-slow{color:var(--amber);}
+
+/* ── LOADING ── */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;gap:10px;color:var(--g4);font-size:13px;}
+.spin{width:18px;height:18px;border:2px solid var(--g2);border-top-color:var(--indigo);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── MOBILE NAV ── */
+.mobile-nav{display:none;}
+@media(max-width:768px){
+  .sb{display:none;}
+  .mobile-nav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;
+    background:var(--g0);border-top:1px solid var(--g2);
+    z-index:50;height:60px;
+  }
+  .mn-item{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:3px;cursor:pointer;
+    font-size:10px;font-weight:500;color:var(--g4);
+    transition:color .12s;padding:8px 4px;
+  }
+  .mn-item.active{color:var(--indigo);}
+  .mn-icon{font-size:20px;}
+  .content{padding:16px;padding-bottom:72px;}
+  .metrics{grid-template-columns:1fr 1fr;}
+  .settings-grid{grid-template-columns:1fr;}
+  .brain-stats{grid-template-columns:repeat(3,1fr);}
+}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sb">
+  <div class="sb-head">
+    <div class="sb-logo">
+      <div class="sb-mark">
+        <svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/></svg>
+      </div>
+      <span class="sb-name">RecepAI</span>
+    </div>
+  </div>
+
+  <nav class="sb-nav">
+    <div class="ni active" id="ni-home" onclick="nav('home',this)">
+      <span class="ni-icon">🏠</span>
+      <span>Acasă</span>
+    </div>
+    <div class="ni" id="ni-leads" onclick="nav('leads',this)">
+      <span class="ni-icon">📥</span>
+      <span>Lead-uri</span>
+      <span class="ni-badge" id="badge-leads">0</span>
+    </div>
+    <div class="ni" id="ni-convs" onclick="nav('convs',this)">
+      <span class="ni-icon">💬</span>
+      <span>Conversații</span>
+    </div>
+    <div class="ni" id="ni-brain" onclick="nav('brain',this)">
+      <span class="ni-icon">🧠</span>
+      <span>AI Brain</span>
+    </div>
+    <div class="ni" id="ni-settings" onclick="nav('settings',this)">
+      <span class="ni-icon">⚙️</span>
+      <span>Setări</span>
+    </div>
+  </nav>
+
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="u-av" id="u-av">?</div>
+      <div class="u-info">
+        <div class="u-name" id="u-name">—</div>
+        <div class="u-role">👑 Proprietar</div>
+      </div>
+      <button class="u-out" onclick="logout()" title="Ieși din cont">↩</button>
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="tb-title">
+      <h1 id="tb-title">Acasă</h1>
+      <p id="tb-sub">Bun venit în RecepAI</p>
+    </div>
+    <div class="tb-right">
+      <div class="ai-status">
+        <span class="ai-dot"></span>
+        <span>AI activ</span>
+      </div>
+      <button class="notif-btn" id="notif-btn" onclick="nav('leads')">
+        🔔
+        <span class="notif-dot" id="notif-dot"></span>
+      </button>
+      <span id="tb-business" style="font-size:12px;color:var(--g4);font-weight:600;background:var(--g1);padding:6px 12px;border-radius:8px;border:1px solid var(--g2)">—</span>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="content">
+
+    <!-- HOME -->
+    <div class="panel active" id="panel-home">
+      <div class="metrics" id="metrics-home">
+        <div class="loading"><div class="spin"></div></div>
+      </div>
+
+      <div style="margin-bottom:20px">
+        <div class="leads-header" style="margin-bottom:12px">
+          <span class="section-title">📥 Ultimele solicitări</span>
+          <button class="btn-secondary" onclick="nav('leads')" style="font-size:12px;padding:6px 14px">Vezi toate →</button>
+        </div>
+        <div id="home-leads">
+          <div class="loading"><div class="spin"></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- LEADS -->
+    <div class="panel" id="panel-leads">
+      <div class="leads-header" style="margin-bottom:16px">
+        <span class="section-title">📥 Toate lead-urile</span>
+        <div class="filter-row" id="filter-row">
+          <button class="filter-btn on" onclick="filterLeads('all',this)">Toate</button>
+          <button class="filter-btn" onclick="filterLeads('new',this)">🔴 Noi</button>
+          <button class="filter-btn" onclick="filterLeads('contacted',this)">🟡 Contactate</button>
+          <button class="filter-btn" onclick="filterLeads('scheduled',this)">🟢 Programate</button>
+          <button class="filter-btn" onclick="filterLeads('lost',this)">⚪ Pierdute</button>
+        </div>
+      </div>
+      <div class="lead-list" id="leads-list">
+        <div class="loading"><div class="spin"></div></div>
+      </div>
+    </div>
+
+    <!-- CONVERSATIONS -->
+    <div class="panel" id="panel-convs">
+      <div class="leads-header" style="margin-bottom:16px">
+        <span class="section-title">💬 Conversații AI</span>
+        <span id="convs-count" style="font-size:12px;color:var(--g4);">0 conversații</span>
+      </div>
+      <div id="convs-list">
+        <div class="loading"><div class="spin"></div></div>
+      </div>
+    </div>
+
+    <!-- BRAIN -->
+    <div class="panel" id="panel-brain">
+      <div class="brain-status" id="brain-status">
+        <div class="loading"><div class="spin"></div></div>
+      </div>
+      <div class="brain-stats" id="brain-stats"></div>
+      <div style="display:flex;gap:10px">
+        <button class="btn-primary" onclick="rescan()">🔄 Rescană website</button>
+        <button class="btn-secondary" onclick="nav('settings')">⚙️ Setări AI</button>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="settings-grid">
+        <div class="settings-card">
+          <div class="sc-head"><div class="sc-title">🏢 Date firmă</div></div>
+          <div class="sc-body">
+            <div class="sf"><label>Numele afacerii</label><input id="s-name" placeholder="ex: DentaVita Clinic"></div>
+            <div class="sf"><label>Telefon</label><input id="s-phone" placeholder="0721 234 567"></div>
+            <div class="sf"><label>Email contact</label><input id="s-email" type="email" placeholder="contact@clinica.ro"></div>
+            <div class="sf"><label>Website</label><input id="s-website" placeholder="https://clinica.ro"></div>
+            <button class="btn-primary" onclick="saveSettings()">💾 Salvează</button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="sc-head"><div class="sc-title">🎨 Widget AI</div></div>
+          <div class="sc-body">
+            <div class="sf"><label>Mesaj de salut</label><textarea id="w-greeting" placeholder="Bună! Cu ce vă putem ajuta?"></textarea></div>
+            <div class="sf"><label>Culoare widget</label>
+              <div style="display:flex;gap:8px;align-items:center">
+                <input id="w-color" type="color" value="#6366F1" style="width:42px;height:42px;padding:2px;border-radius:8px;cursor:pointer;">
+                <input id="w-color-hex" value="#6366F1" style="flex:1;" placeholder="#6366F1">
+              </div>
+            </div>
+            <div class="mf-divider"></div>
+            <div class="mf-label">Cod de instalare</div>
+            <div class="code-box" id="widget-code">
+              <button class="copy-btn" onclick="copyCode()">Copiază</button>
+              Loading...
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="sc-head"><div class="sc-title">🔔 Notificări</div></div>
+          <div class="sc-body">
+            <div class="toggle-row">
+              <div class="tr-info"><div class="tr-label">Email la lead nou</div><div class="tr-desc">Primești email instant când apare o solicitare</div></div>
+              <div class="toggle on" id="t-email" onclick="toggleSetting('t-email')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="tr-info"><div class="tr-label">Sunet în aplicație</div><div class="tr-desc">Sunet alert când ești în dashboard</div></div>
+              <div class="toggle on" id="t-sound" onclick="toggleSetting('t-sound')"></div>
+            </div>
+            <div class="toggle-row">
+              <div class="tr-info"><div class="tr-label">Push notifications</div><div class="tr-desc">Notificări pe telefon (PWA)</div></div>
+              <div class="toggle" id="t-push" onclick="enablePush()"></div>
+            </div>
+            <div style="margin-top:14px">
+              <div class="sf"><label>Email pentru notificări</label><input id="s-notif-email" placeholder="receptie@clinica.ro"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="sc-head"><div class="sc-title">📞 Contact urgent</div></div>
+          <div class="sc-body">
+            <div class="sf"><label>Telefon de urgență</label><input id="s-urgent" placeholder="0721 234 567"></div>
+            <p style="font-size:12px;color:var(--g4);line-height:1.6;margin-top:4px">AI-ul va afișa acest număr când pacientul are o urgență sau când nu poate programa automat.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- MOBILE BOTTOM NAV -->
+<div class="mobile-nav">
+  <div class="mn-item active" onclick="nav('home',this)"><span class="mn-icon">🏠</span>Acasă</div>
+  <div class="mn-item" onclick="nav('leads',this)"><span class="mn-icon">📥</span>Lead-uri</div>
+  <div class="mn-item" onclick="nav('convs',this)"><span class="mn-icon">💬</span>Conversații</div>
+  <div class="mn-item" onclick="nav('brain',this)"><span class="mn-icon">🧠</span>AI Brain</div>
+  <div class="mn-item" onclick="nav('settings',this)"><span class="mn-icon">⚙️</span>Setări</div>
+</div>
+
+<!-- LEAD MODAL -->
+<div class="modal-bg" id="lead-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <span class="modal-title" id="modal-lead-name">—</span>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="mf"><div class="mf-label">Telefon</div><div class="mf-val phone" id="modal-phone">—</div></div>
+      <div class="mf"><div class="mf-label">Serviciu dorit</div><div class="mf-val" id="modal-service">—</div></div>
+      <div class="mf"><div class="mf-label">Mesaj</div><div class="mf-val" id="modal-message" style="font-weight:400;color:var(--g6);line-height:1.6">—</div></div>
+      <div class="mf"><div class="mf-label">Timp răspuns</div><div class="mf-val rtime" id="modal-rtime">—</div></div>
+      <div class="mf-divider"></div>
+      <div class="mf-label" style="margin-bottom:10px">Status</div>
+      <div class="status-btns">
+        <button class="sb-btn new-s" onclick="setLeadStatus('new')">🔴 Nou</button>
+        <button class="sb-btn seen-s" onclick="setLeadStatus('seen')">👁 Văzut</button>
+        <button class="sb-btn contact-s" onclick="setLeadStatus('contacted')">📞 Contactat</button>
+        <button class="sb-btn sched-s" onclick="setLeadStatus('scheduled')">✅ Programat</button>
+        <button class="sb-btn lost-s" onclick="setLeadStatus('lost')">❌ Pierdut</button>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-secondary" onclick="callLead()">📞 Sună acum</button>
+      <button class="btn-secondary" onclick="whatsappLead()">💬 WhatsApp</button>
+      <button class="btn-primary" onclick="closeModal()">Închide</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────
+const API = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+  ? 'http://localhost:8080'
+  : 'https://ai-reception-platform-production.up.railway.app';
+
+const TOKEN   = localStorage.getItem('recepai_token');
+const EMAIL   = localStorage.getItem('recepai_email');
+const CID     = localStorage.getItem('recepai_client_id');
+const BIZ     = localStorage.getItem('recepai_business');
+
+if (!TOKEN) window.location.href = 'index.html';
+
+// ── STATE ─────────────────────────────────────────────
+let LEADS = [];
+let CONVS = [];
+let PROFILE = null;
+let leadFilter = 'all';
+let activeModal = null;
+let soundEnabled = true;
+let pollInterval = null;
+
+// ── INIT ─────────────────────────────────────────────
+async function init() {
+  // User info
+  const initials = (EMAIL || '').split('@')[0].substring(0, 2).toUpperCase() || '?';
+  document.getElementById('u-av').textContent = initials;
+  document.getElementById('u-name').textContent = EMAIL || '—';
+  document.getElementById('tb-business').textContent = BIZ || CID || '—';
+
+  // Greeting
+  const h = new Date().getHours();
+  const gr = h < 12 ? 'Bună dimineața' : h < 18 ? 'Bună ziua' : 'Bună seara';
+  document.getElementById('tb-sub').textContent = `${gr}, ${BIZ || 'bun venit'}`;
+
+  // Load data
+  await Promise.all([loadLeads(), loadConversations(), loadProfile()]);
+
+  // Start polling for new leads
+  pollInterval = setInterval(pollNewLeads, 15000);
+
+  // Widget code
+  renderWidgetCode();
+
+  // Load settings
+  loadSettings();
+}
+
+// ── NAVIGATION ────────────────────────────────────────
+const TITLES = {
+  home: ['Acasă', null],
+  leads: ['Lead-uri', 'Solicitările primite de AI'],
+  convs: ['Conversații', 'Tot ce a discutat AI-ul cu vizitatorii'],
+  brain: ['AI Brain', 'Ce știe AI-ul despre afacerea ta'],
+  settings: ['Setări', 'Configurează RecepAI'],
+};
+
+function nav(page, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  document.querySelectorAll('.mn-item').forEach(n => n.classList.remove('active'));
+
+  document.getElementById('panel-' + page)?.classList.add('active');
+  document.getElementById('ni-' + page)?.classList.add('active');
+  if (el) el.classList.add('active');
+
+  const [title, sub] = TITLES[page] || [page, null];
+  document.getElementById('tb-title').textContent = title;
+  document.getElementById('tb-sub').textContent = sub || (page === 'home' ? `Bun venit, ${BIZ || EMAIL}` : '');
+
+  if (page === 'leads') renderLeads();
+  if (page === 'convs') renderConvs();
+  if (page === 'brain') renderBrain();
+}
+
+// ── LOAD DATA ─────────────────────────────────────────
+async function loadLeads() {
+  try {
+    const r = await fetch(`${API}/api/leads?clientId=${CID}`, {
+      headers: { 'Authorization': `Bearer ${TOKEN}` }
+    });
+    if (r.ok) {
+      const d = await r.json();
+      LEADS = d.leads || [];
+    }
+  } catch (e) {
+    // Use local storage fallback
+    LEADS = JSON.parse(localStorage.getItem('recepai_leads_' + CID) || '[]');
+  }
+  updateBadges();
+  renderHome();
+}
+
+async function loadConversations() {
+  try {
+    const r = await fetch(`${API}/api/conversations?clientId=${CID}`);
+    const d = await r.json();
+    CONVS = d.conversations || [];
+  } catch (e) {
+    CONVS = [];
+  }
+}
+
+async function loadProfile() {
+  try {
+    const r = await fetch(`${API}/api/profile/${CID}`);
+    const d = await r.json();
+    PROFILE = d.profile || null;
+  } catch (e) {}
+}
+
+// ── POLLING ───────────────────────────────────────────
+let lastLeadCount = 0;
+async function pollNewLeads() {
+  try {
+    const r = await fetch(`${API}/api/leads?clientId=${CID}`);
+    if (!r.ok) return;
+    const d = await r.json();
+    const newLeads = d.leads || [];
+
+    if (newLeads.length > lastLeadCount && lastLeadCount > 0) {
+      const newest = newLeads[0];
+      showLeadToast(newest);
+      if (soundEnabled) playNotifSound();
+    }
+    lastLeadCount = newLeads.length;
+    LEADS = newLeads;
+    updateBadges();
+
+    // Refresh current panel
+    const active = document.querySelector('.panel.active');
+    if (active?.id === 'panel-home') renderHome();
+    if (active?.id === 'panel-leads') renderLeads();
+  } catch (e) {}
+}
+
+// ── RENDER HOME ───────────────────────────────────────
+function renderHome() {
+  const newLeads = LEADS.filter(l => l.status === 'new');
+  const pending = LEADS.filter(l => ['new', 'seen'].includes(l.status));
+  const today = new Date().toDateString();
+  const todayLeads = LEADS.filter(l => new Date(l.createdAt).toDateString() === today);
+
+  document.getElementById('metrics-home').innerHTML = `
+    <div class="mc red">
+      <div class="mc-icon">🔥</div>
+      <div class="mc-val">${newLeads.length}</div>
+      <div class="mc-lbl">Solicitări noi</div>
+      ${newLeads.length > 0 ? '<div class="mc-badge">Necesită răspuns</div>' : ''}
+    </div>
+    <div class="mc indigo">
+      <div class="mc-icon">💬</div>
+      <div class="mc-val">${CONVS.length}</div>
+      <div class="mc-lbl">Conversații AI azi</div>
+    </div>
+    <div class="mc green">
+      <div class="mc-icon">📅</div>
+      <div class="mc-val">${todayLeads.length}</div>
+      <div class="mc-lbl">Lead-uri azi</div>
+    </div>`;
+
+  // Latest leads preview
+  const latest = LEADS.slice(0, 5);
+  if (!latest.length) {
+    document.getElementById('home-leads').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">📥</div>
+        <div class="empty-title">Nicio solicitare încă</div>
+        <div class="empty-sub">Când un vizitator vorbește cu AI-ul și lasă datele,<br>apare aici instant.</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('home-leads').innerHTML = `<div class="lead-list">${latest.map(l => leadCard(l)).join('')}</div>`;
+}
+
+// ── RENDER LEADS ──────────────────────────────────────
+function renderLeads() {
+  const list = leadFilter === 'all' ? LEADS : LEADS.filter(l => l.status === leadFilter);
+
+  if (!list.length) {
+    document.getElementById('leads-list').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">${leadFilter === 'all' ? '📥' : '✅'}</div>
+        <div class="empty-title">${leadFilter === 'all' ? 'Niciun lead încă' : 'Niciun lead ' + leadFilter}</div>
+        <div class="empty-sub">Lead-urile vor apărea aici automat.</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('leads-list').innerHTML = list.map(l => leadCard(l)).join('');
+}
+
+function leadCard(l) {
+  const statusMap = { new:'new', seen:'seen', contacted:'contacted', scheduled:'scheduled', lost:'lost' };
+  const s = statusMap[l.status] || 'new';
+  const scoreClass = l.score === 'hot' ? 'score-hot' : l.score === 'warm' ? 'score-warm' : 'score-cold';
+  const scoreLabel = l.score === 'hot' ? '🔥 Urgent' : l.score === 'warm' ? '🟡 Interesat' : '⚪ Pasiv';
+  const initials = (l.name || '?').split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+  const avClass = s === 'new' ? 'new' : s === 'contacted' ? 'contacted' : s === 'scheduled' ? 'scheduled' : 'default';
+  const time = timeAgo(l.createdAt);
+
+  const statusLabel = {new:'🔴 Nou', seen:'👁 Văzut', contacted:'📞 Contactat', scheduled:'✅ Programat', lost:'❌ Pierdut'};
+
+  return `<div class="lead-card ${s}" onclick="openLead('${l.id}')">
+    <div class="lead-av ${avClass}">${initials}</div>
+    <div class="lead-info">
+      <div class="lead-name">${l.name || 'Vizitator'}</div>
+      <div class="lead-meta">
+        ${l.phone ? `<span>📞 ${l.phone}</span><span class="lead-dot"></span>` : ''}
+        <span class="lead-service">${l.service || 'Serviciu nespecificat'}</span>
+      </div>
+    </div>
+    <div class="lead-right">
+      <span class="lead-time">${time}</span>
+      <span class="lead-score ${scoreClass}">${scoreLabel}</span>
+    </div>
+    <span class="sbadge ${s}">${statusLabel[s] || s}</span>
+    <div class="lead-actions" onclick="event.stopPropagation()">
+      ${l.phone ? `<button class="la-btn success" onclick="callDirect('${l.phone}')" title="Sună acum">📞</button>` : ''}
+      ${l.phone ? `<button class="la-btn" onclick="waLink('${l.name}','${l.phone}','${l.service}')" title="WhatsApp">💬</button>` : ''}
+    </div>
+  </div>`;
+}
+
+function filterLeads(f, el) {
+  leadFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('on'));
+  if (el) el.classList.add('on');
+  renderLeads();
+}
+
+// ── RENDER CONVERSATIONS ──────────────────────────────
+function renderConvs() {
+  document.getElementById('convs-count').textContent = `${CONVS.length} conversații`;
+
+  if (!CONVS.length) {
+    document.getElementById('convs-list').innerHTML = `
+      <div class="empty">
+        <div class="empty-icon">💬</div>
+        <div class="empty-title">Nicio conversație încă</div>
+        <div class="empty-sub">Când un vizitator vorbește cu widget-ul AI, conversația apare aici.</div>
+      </div>`;
+    return;
+  }
+
+  document.getElementById('convs-list').innerHTML = CONVS.map(c => {
+    const last = c.messages?.slice(-1)[0]?.content || c.lastMessage || '—';
+    const isRead = c.read || false;
+    return `<div class="conv-item" onclick="viewConv('${c.id || c.savedAt}')">
+      <div class="conv-dot ${isRead ? 'read' : ''}"></div>
+      <div class="conv-body">
+        <div class="conv-name">${c.userName || 'Vizitator anonim'}</div>
+        <div class="conv-preview">${last.substring(0, 60)}${last.length > 60 ? '...' : ''}</div>
+      </div>
+      <span class="conv-time">${timeAgo(c.savedAt)}</span>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER BRAIN ──────────────────────────────────────
+function renderBrain() {
+  if (!PROFILE) {
+    document.getElementById('brain-status').innerHTML = `
+      <div class="empty" style="padding:24px;text-align:left;flex:1">
+        <div class="empty-icon">🧠</div>
+        <div class="empty-title">AI Brain neconfigurat</div>
+        <div class="empty-sub">Scaneaza website-ul tău pentru a activa AI-ul.</div>
+      </div>
+      <button class="btn-primary" onclick="rescan()">🔄 Scanează acum</button>`;
+    document.getElementById('brain-stats').innerHTML = '';
+    return;
+  }
+
+  const svcCount = PROFILE.services?.length || 0;
+  const faqCount = PROFILE.faq?.length || 0;
+  const confidence = PROFILE.confidence || 96;
+
+  document.getElementById('brain-status').innerHTML = `
+    <div class="brain-icon">🧠</div>
+    <div class="brain-body">
+      <div class="brain-title">${PROFILE.name || 'Afacerea ta'}</div>
+      <div class="brain-sub">AI-ul cunoaște afacerea ta și răspunde în numele tău cu ${confidence}% precizie.</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:11px;color:var(--g4);margin-bottom:4px">Ultima scanare</div>
+      <div style="font-size:13px;font-weight:600">${PROFILE.scannedAt ? new Date(PROFILE.scannedAt).toLocaleDateString('ro-RO') : 'Necunoscut'}</div>
+      <div class="sbadge scheduled" style="margin-top:6px;display:inline-flex">🟢 Activ</div>
+    </div>`;
+
+  document.getElementById('brain-stats').innerHTML = `
+    <div class="brain-stat">
+      <div class="brain-stat-v">${svcCount}</div>
+      <div class="brain-stat-l">Servicii</div>
+    </div>
+    <div class="brain-stat">
+      <div class="brain-stat-v">${faqCount}</div>
+      <div class="brain-stat-l">FAQ</div>
+    </div>
+    <div class="brain-stat">
+      <div class="brain-stat-v">${confidence}%</div>
+      <div class="brain-stat-l">Precizie</div>
+    </div>`;
+}
+
+async function rescan() {
+  const site = PROFILE?.website || prompt('URL website:', 'https://');
+  if (!site) return;
+  showToast('⏳', 'Scanare în curs', 'Procesăm website-ul tău... (30-60 secunde)', 8000);
+  try {
+    const r = await fetch(`${API}/api/brain/scan`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url: site, clientId: CID })
+    });
+    const d = await r.json();
+    if (d.success) {
+      PROFILE = d.brain;
+      renderBrain();
+      showToast('✅', 'Scanare completă', `${d.brain.services?.length || 0} servicii, ${d.brain.faq?.length || 0} FAQ găsite.`);
+    }
+  } catch (e) {
+    showToast('❌', 'Eroare', 'Nu s-a putut scana website-ul.');
+  }
+}
+
+// ── MODAL LEAD ────────────────────────────────────────
+let currentLeadId = null;
+
+function openLead(id) {
+  const lead = LEADS.find(l => l.id === id);
+  if (!lead) return;
+  currentLeadId = id;
+
+  document.getElementById('modal-lead-name').textContent = lead.name || 'Vizitator';
+  document.getElementById('modal-phone').textContent = lead.phone || '—';
+  document.getElementById('modal-service').textContent = lead.service || '—';
+  document.getElementById('modal-message').textContent = lead.message || lead.lastMessage || '—';
+
+  // Response time
+  const rt = document.getElementById('modal-rtime');
+  if (lead.contactedAt && lead.createdAt) {
+    const mins = Math.round((new Date(lead.contactedAt) - new Date(lead.createdAt)) / 60000);
+    rt.textContent = `${mins} minute`;
+    rt.className = 'mf-val rtime ' + (mins < 10 ? 'rtime-fast' : 'rtime-slow');
+  } else {
+    rt.textContent = 'Necontactat încă';
+    rt.className = 'mf-val rtime';
+  }
+
+  // Active status button
+  document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.sb-btn.${lead.status || 'new'}-s`)?.classList.add('active');
+
+  // Auto-mark as seen
+  if (lead.status === 'new') setLeadStatus('seen');
+
+  document.getElementById('lead-modal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('lead-modal').classList.remove('show');
+  currentLeadId = null;
+}
+
+async function setLeadStatus(status) {
+  if (!currentLeadId) return;
+  const lead = LEADS.find(l => l.id === currentLeadId);
+  if (!lead) return;
+
+  lead.status = status;
+  if (status === 'contacted' && !lead.contactedAt) {
+    lead.contactedAt = new Date().toISOString();
+  }
+
+  // Update active button
+  document.querySelectorAll('.sb-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.sb-btn.${status}-s`)?.classList.add('active');
+
+  // Save
+  try {
+    await fetch(`${API}/api/leads/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId: CID, id: currentLeadId, status })
+    });
+  } catch (e) {}
+
+  // Update locally
+  saveleadsLocal();
+  updateBadges();
+  renderHome();
+  renderLeads();
+}
+
+function callLead() {
+  const lead = LEADS.find(l => l.id === currentLeadId);
+  if (lead?.phone) callDirect(lead.phone);
+}
+
+function whatsappLead() {
+  const lead = LEADS.find(l => l.id === currentLeadId);
+  if (lead) waLink(lead.name, lead.phone, lead.service);
+}
+
+function callDirect(phone) {
+  window.location.href = 'tel:' + phone.replace(/\s/g, '');
+}
+
+function waLink(name, phone, service) {
+  const msg = `Bună ziua ${name || ''}! Suntem de la ${BIZ || 'clinica noastră'}. Ați contactat AI-ul nostru în legătură cu ${service || 'un serviciu'}. Vă putem ajuta?`;
+  window.open('https://wa.me/' + (phone || '').replace(/[^0-9+]/g, '') + '?text=' + encodeURIComponent(msg), '_blank');
+}
+
+// ── SETTINGS ──────────────────────────────────────────
+function loadSettings() {
+  const s = JSON.parse(localStorage.getItem('recepai_settings_' + CID) || '{}');
+  if (PROFILE) {
+    document.getElementById('s-name').value = PROFILE.name || '';
+    document.getElementById('s-phone').value = PROFILE.phone || '';
+    document.getElementById('s-email').value = PROFILE.email || '';
+    document.getElementById('s-website').value = PROFILE.website || '';
+  }
+  document.getElementById('s-notif-email').value = s.notifEmail || EMAIL || '';
+  document.getElementById('s-urgent').value = s.urgentPhone || '';
+  document.getElementById('w-greeting').value = s.greeting || 'Bună! Cu ce vă putem ajuta?';
+}
+
+async function saveSettings() {
+  const s = {
+    name: document.getElementById('s-name').value,
+    phone: document.getElementById('s-phone').value,
+    email: document.getElementById('s-email').value,
+    website: document.getElementById('s-website').value,
+    notifEmail: document.getElementById('s-notif-email').value,
+    urgentPhone: document.getElementById('s-urgent').value,
+    greeting: document.getElementById('w-greeting').value,
+  };
+  localStorage.setItem('recepai_settings_' + CID, JSON.stringify(s));
+
+  if (PROFILE) {
+    try {
+      await fetch(`${API}/api/profile/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...PROFILE, ...s, clientId: CID })
+      });
+    } catch (e) {}
+  }
+
+  showToast('✅', 'Salvat', 'Setările au fost actualizate.');
+}
+
+function toggleSetting(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('on');
+  if (id === 't-sound') soundEnabled = el.classList.contains('on');
+}
+
+async function enablePush() {
+  if (!('Notification' in window)) { showToast('❌', 'Indisponibil', 'Browser-ul nu suportă notificări.'); return; }
+  const perm = await Notification.requestPermission();
+  if (perm === 'granted') {
+    document.getElementById('t-push').classList.add('on');
+    showToast('✅', 'Notificări active', 'Vei fi notificat când apare un lead nou.');
+  } else {
+    showToast('⚠️', 'Permisiune refuzată', 'Activează notificările din setările browser-ului.');
+  }
+}
+
+// ── WIDGET CODE ───────────────────────────────────────
+function renderWidgetCode() {
+  const el = document.getElementById('widget-code');
+  const code = `<script src="https://receptieai.ro/widget.js?id=${CID}"><\/script>`;
+  el.innerHTML = `<button class="copy-btn" onclick="copyCode()">Copiează</button>${escHtml(code)}`;
+}
+
+function copyCode() {
+  const code = `<script src="https://receptieai.ro/widget.js?id=${CID}"><\/script>`;
+  navigator.clipboard.writeText(code).then(() => showToast('✅', 'Copiat!', 'Codul a fost copiat în clipboard.'));
+}
+
+// ── TOASTS ────────────────────────────────────────────
+function showLeadToast(lead) {
+  showToast('🔴', `Lead nou — ${lead.name || 'Vizitator'}`,
+    `${lead.service || 'Serviciu nespecificat'} · ${lead.phone || 'Fără telefon'}`, 8000, () => {
+      nav('leads'); openLead(lead.id);
+    });
+  document.getElementById('notif-dot').classList.add('show');
+}
+
+function showToast(icon, title, msg, duration = 4000, onClick = null) {
+  const container = document.getElementById('toast-container');
+  const id = 't' + Date.now();
+  const div = document.createElement('div');
+  div.className = 'toast';
+  div.id = id;
+  div.innerHTML = `
+    <div class="toast-icon">${icon}</div>
+    <div class="toast-body">
+      <div class="toast-title">${title}</div>
+      <div class="toast-msg">${msg}</div>
+    </div>
+    <button class="toast-close" onclick="dismissToast('${id}')">×</button>`;
+
+  if (onClick) div.addEventListener('click', e => { if (!e.target.closest('.toast-close')) onClick(); });
+  container.appendChild(div);
+  requestAnimationFrame(() => { requestAnimationFrame(() => div.classList.add('show')); });
+  setTimeout(() => dismissToast(id), duration);
+}
+
+function dismissToast(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.remove('show');
+  setTimeout(() => el.remove(), 300);
+}
+
+// ── SOUND ─────────────────────────────────────────────
+function playNotifSound() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(880, ctx.currentTime);
+    osc.frequency.setValueAtTime(1100, ctx.currentTime + .1);
+    gain.gain.setValueAtTime(.3, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(.01, ctx.currentTime + .4);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + .4);
+  } catch (e) {}
+}
+
+// ── HELPERS ───────────────────────────────────────────
+function timeAgo(ts) {
+  if (!ts) return '—';
+  const d = new Date(ts);
+  const diff = Math.floor((Date.now() - d) / 1000);
+  if (diff < 60) return 'Acum ' + diff + 's';
+  if (diff < 3600) return 'Acum ' + Math.floor(diff / 60) + 'm';
+  if (diff < 86400) return 'Acum ' + Math.floor(diff / 3600) + 'h';
+  return d.toLocaleDateString('ro-RO', { day: 'numeric', month: 'short' });
+}
+
+function updateBadges() {
+  const newCount = LEADS.filter(l => l.status === 'new').length;
+  const badge = document.getElementById('badge-leads');
+  if (newCount > 0) {
+    badge.textContent = newCount;
+    badge.classList.add('show');
+    document.getElementById('notif-dot').classList.add('show');
+  } else {
+    badge.classList.remove('show');
+    document.getElementById('notif-dot').classList.remove('show');
+  }
+}
+
+function saveleadsLocal() {
+  localStorage.setItem('recepai_leads_' + CID, JSON.stringify(LEADS));
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function viewConv(id) {
+  showToast('💬', 'Conversație', 'Vizualizare completă conversație — în curând.');
+}
+
+function logout() {
+  clearInterval(pollInterval);
+  localStorage.removeItem('recepai_token');
+  localStorage.removeItem('recepai_role');
+  window.location.href = 'index.html';
+}
+
+// Close modal on background click
+document.getElementById('lead-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// ── START ─────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
