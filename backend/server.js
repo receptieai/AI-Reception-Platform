@@ -609,6 +609,56 @@ CÂND CLIENTUL VREA PROGRAMARE:
 
 // ── HELPERS ───────────────────────────────────
 
+
+function extractPhone(text) {
+  const match = text.match(/(?:\+4|07|\+407|004)[0-9][0-9\s\-\.]{7,12}[0-9]/);
+  return match ? match[0].replace(/[\s\-\.]/g, '') : null;
+}
+
+function extractName(text, messages) {
+  // Look for "mă numesc X", "sunt X", "numele meu e X"
+  const patterns = [
+    /m[ăa] numesc ([A-ZĂÎȘȚÂ][a-zăîșțâ]+(\s[A-ZĂÎȘȚÂ][a-zăîșțâ]+)?)/,
+    /sunt ([A-ZĂÎȘȚÂ][a-zăîșțâ]+(\s[A-ZĂÎȘȚÂ][a-zăîșțâ]+)?)/,
+    /numele meu e(?:ste)? ([A-ZĂÎȘȚÂ][a-zăîșțâ]+(\s[A-ZĂÎȘȚÂ][a-zăîșțâ]+)?)/,
+    /name[le]? (?:e|este|meu) ([A-ZĂÎȘȚÂ][a-zăîșțâ]+(\s[A-ZĂÎȘȚÂ][a-zăîșțâ]+)?)/,
+  ];
+  for (const p of patterns) {
+    const m = text.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
+function extractService(text, profile) {
+  if (!profile?.services) return null;
+  const t = text.toLowerCase();
+  for (const svc of profile.services) {
+    if (svc.name && t.includes(svc.name.toLowerCase().substring(0, 6))) {
+      return svc.name;
+    }
+  }
+  // Generic keywords
+  const keywords = {
+    'implant': 'Implant dentar',
+    'albire': 'Albire dentară',
+    'detartraj': 'Detartraj',
+    'consultatie': 'Consultație',
+    'consultație': 'Consultație',
+    'extractie': 'Extracție',
+    'extracție': 'Extracție',
+    'canal': 'Tratament canal',
+    'coroana': 'Coroană',
+    'coroană': 'Coroană',
+    'aparat': 'Aparat dentar',
+    'radiografie': 'Radiografie',
+  };
+  for (const [k, v] of Object.entries(keywords)) {
+    if (t.includes(k)) return v;
+  }
+  return null;
+}
+
 function detectScore(msg) {
   const m = (msg || '').toLowerCase();
   const hot = ['urgent','urgenta','repede','rapid','azi','maine','durere','doare','cat mai repede','imediat'];
@@ -763,6 +813,34 @@ const server = http.createServer(async (req, res) => {
       setImmediate(() => {
         try {
           saveConversation(body.messages, body.businessProfile, result.message || '');
+        } catch(e) {}
+      });
+      // ── LEAD DETECTION ──────────────────────────────
+      setImmediate(async () => {
+        try {
+          const msgs = body.messages || [];
+          const userMsgs = msgs.filter(m => m.role === 'user').map(m => m.content).join(' ');
+          const phone = extractPhone(userMsgs);
+          const name = extractName(userMsgs, msgs);
+          if (phone || name) {
+            const cid = body.clientId ?? body.businessProfile?.clientId;
+            if (cid) {
+              const lead = {
+                id: 'lead_' + Date.now(),
+                clientId: cid,
+                name: name || 'Vizitator',
+                phone: phone || null,
+                service: extractService(userMsgs, body.businessProfile),
+                message: userMsgs.substring(0, 200),
+                score: detectScore(userMsgs),
+                status: 'new',
+                createdAt: new Date().toISOString(),
+                contactedAt: null,
+              };
+              storage.saveLead(lead);
+              sendLeadNotification(lead);
+            }
+          }
         } catch(e) {}
       });
       sendJson(res, result);
