@@ -25,6 +25,10 @@ const path = require('path');
 const url = require('url');
 const { extractAll } = require('./extractors');
 const storage = require('./storage');
+const supa = require('./supabase-storage');
+
+// Init Supabase
+supa.getClient && console.log('[SUPABASE] Module loaded');
 const clinicConfig = require('./clinicConfig');
 const availability = require('./availabilityEngine');
 const { notify, checkAndSendReminders } = require('./notificationEngine');
@@ -1141,7 +1145,7 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/leads' && req.method === 'GET') {
     const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
     if (!clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
-    const leads = storage.getLeads ? storage.getLeads(clientId) : [];
+    const leads = await supa.getLeads(clientId);
     sendJson(res, { success: true, leads });
     return;
   }
@@ -1163,7 +1167,7 @@ Returnează DOAR JSON valid fără text suplimentar:
       createdAt: new Date().toISOString(),
       contactedAt: null,
     };
-    if (storage.saveLead) storage.saveLead(lead);
+    await supa.saveLead(lead);
     // Notify
     sendLeadNotification(lead);
     sendJson(res, { success: true, lead });
@@ -1173,7 +1177,7 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/leads/status' && req.method === 'POST') {
     const body = await parseBody(req);
     if (!body.clientId || !body.id) { sendJson(res, { error: 'Date lipsa' }, 400); return; }
-    if (storage.updateLeadStatus) storage.updateLeadStatus(body.clientId, body.id, body.status);
+    await supa.updateLeadStatus(body.clientId, body.id, body.status);
     sendJson(res, { success: true });
     return;
   }
@@ -1182,7 +1186,7 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/conversations' && req.method === 'GET') {
     const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
     if (!clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
-    sendJson(res, { success: true, conversations: storage.getConversations(clientId) });
+    sendJson(res, { success: true, conversations: await supa.getConversations(clientId) });
     return;
   }
 
@@ -1295,24 +1299,15 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/profile/save' && req.method === 'POST') {
     const body = await parseBody(req);
     if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
-    const profilesFile = path.join(__dirname, '../data/profiles.json');
-    let profiles = {};
-    try { profiles = JSON.parse(fs.readFileSync(profilesFile, 'utf8')); } catch(e) {}
-    profiles[body.clientId] = body;
-    storage.saveProfile({ ...body, clientId: body.clientId });
-    fs.mkdirSync(path.dirname(profilesFile), { recursive: true });
-    fs.writeFileSync(profilesFile, JSON.stringify(profiles, null, 2));
-    console.log('[PROFILE] Saved profile for:', body.clientId, body.name);
+    await supa.saveProfile(body.clientId, body);
+    console.log('[PROFILE] Saved to Supabase:', body.clientId, body.name);
     sendJson(res, { success: true, clientId: body.clientId });
     return;
   }
 
   if (pathname.startsWith('/api/profile/') && req.method === 'GET') {
     const clientId = pathname.replace('/api/profile/', '');
-    const profilesFile = path.join(__dirname, '../data/profiles.json');
-    let profiles = {};
-    try { profiles = JSON.parse(fs.readFileSync(profilesFile, 'utf8')); } catch(e) {}
-    const profile = profiles[clientId];
+    const profile = await supa.getProfile(clientId);
     if (!profile) { sendJson(res, { error: 'Profile negasit' }, 404); return; }
     sendJson(res, { success: true, profile });
     return;
