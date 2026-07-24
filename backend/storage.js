@@ -192,19 +192,19 @@ const storage = {
   // AUDIT
 
   getLeads(clientId) {
-    const all = this._read('leads.json');
+    const all = loadFile('leads.json', {});
     return (all[clientId] || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
   },
 
   saveLead(lead) {
-    const all = this._read('leads.json');
+    const all = loadFile('leads.json', {});
     if (!all[lead.clientId]) all[lead.clientId] = [];
     all[lead.clientId].unshift(lead);
-    this._write('leads.json', all);
+    saveFile('leads.json', all);
   },
 
   updateLeadStatus(clientId, id, status) {
-    const all = this._read('leads.json');
+    const all = loadFile('leads.json', {});
     const leads = all[clientId] || [];
     const idx = leads.findIndex(l => l.id === id);
     if (idx >= 0) {
@@ -213,13 +213,13 @@ const storage = {
         leads[idx].contactedAt = new Date().toISOString();
       }
       all[clientId] = leads;
-      this._write('leads.json', all);
+      saveFile('leads.json', all);
     }
   },
 
   audit(action, data = {}) {
     try {
-      const all = get('audit', []);
+      const all = loadFile('audit.json', []);
       all.unshift({
         ts: new Date().toISOString(),
         action,
