@@ -608,6 +608,43 @@ CÂND CLIENTUL VREA PROGRAMARE:
 }
 
 // ── HELPERS ───────────────────────────────────
+
+function detectScore(msg) {
+  const m = (msg || '').toLowerCase();
+  const hot = ['urgent','urgenta','repede','rapid','azi','maine','durere','doare','cat mai repede','imediat'];
+  const warm = ['vreau','doresc','intentionez','planifiez','interesat','as vrea','m-ar interesa'];
+  for (const w of hot) if (m.includes(w)) return 'hot';
+  for (const w of warm) if (m.includes(w)) return 'warm';
+  return 'cold';
+}
+
+async function sendLeadNotification(lead) {
+  try {
+    const settings = storage.getSettings ? storage.getSettings(lead.clientId) : {};
+    const email = settings.notifEmail || settings.email;
+    if (!email) return;
+    const scoreLabel = lead.score === 'hot' ? '🔥 URGENT' : lead.score === 'warm' ? '🟡 Interesat' : '⚪ Pasiv';
+    await sendEmail(email, 
+      `RecepAI — Lead nou: ${lead.name}`,
+      `<div style="font-family:Inter,sans-serif;max-width:480px;margin:0 auto;padding:24px">
+        <h2 style="color:#6366F1;font-size:20px;margin-bottom:16px">📥 Lead nou primit</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px;width:120px">NUME</td><td style="font-weight:700">${lead.name}</td></tr>
+          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px">TELEFON</td><td style="font-weight:700;color:#6366F1">${lead.phone || '—'}</td></tr>
+          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px">SERVICIU</td><td>${lead.service || '—'}</td></tr>
+          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px">PRIORITATE</td><td>${scoreLabel}</td></tr>
+          <tr><td style="padding:8px 0;color:#9CA3AF;font-size:12px">ORA</td><td>${new Date(lead.createdAt).toLocaleString('ro-RO')}</td></tr>
+        </table>
+        ${lead.message ? `<div style="background:#F9FAFB;border-radius:8px;padding:14px;margin-top:16px;font-size:13px;color:#374151">${lead.message}</div>` : ''}
+        <p style="margin-top:20px;font-size:12px;color:#9CA3AF">RecepAI — radarul care nu lasă niciun client să se piardă</p>
+      </div>`
+    );
+    console.log('[LEAD] Email notificare trimis la', email);
+  } catch(e) {
+    console.error('[LEAD] Eroare notificare:', e.message);
+  }
+}
+
 function parseBody(req) {
   return new Promise((resolve, reject) => {
     let body = '';
@@ -1020,6 +1057,48 @@ Returnează DOAR JSON valid fără text suplimentar:
     const body = await parseBody(req);
     if (!body.clientId || !body.doctors) { sendJson(res, { error: 'Date lipsesc' }, 400); return; }
     availability.saveDoctors(body.clientId, body.doctors);
+    sendJson(res, { success: true });
+    return;
+  }
+
+
+  // ── LEADS ────────────────────────────────────────────
+  if (pathname === '/api/leads' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    if (!clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    const leads = storage.getLeads ? storage.getLeads(clientId) : [];
+    sendJson(res, { success: true, leads });
+    return;
+  }
+
+  if (pathname === '/api/leads/save' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    if (!body.name && !body.phone) { sendJson(res, { error: 'Date insuficiente' }, 400); return; }
+    const lead = {
+      id: 'lead_' + Date.now(),
+      clientId: body.clientId,
+      name: body.name || 'Vizitator',
+      phone: body.phone || null,
+      service: body.service || null,
+      message: body.message || null,
+      score: body.score || detectScore(body.message || ''),
+      status: 'new',
+      conversationId: body.conversationId || null,
+      createdAt: new Date().toISOString(),
+      contactedAt: null,
+    };
+    if (storage.saveLead) storage.saveLead(lead);
+    // Notify
+    sendLeadNotification(lead);
+    sendJson(res, { success: true, lead });
+    return;
+  }
+
+  if (pathname === '/api/leads/status' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.clientId || !body.id) { sendJson(res, { error: 'Date lipsa' }, 400); return; }
+    if (storage.updateLeadStatus) storage.updateLeadStatus(body.clientId, body.id, body.status);
     sendJson(res, { success: true });
     return;
   }
