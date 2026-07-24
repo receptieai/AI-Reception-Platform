@@ -451,27 +451,37 @@ Apoi adaugă exact: [LEAD_READY]`;
 
   // ── DETECT LEAD READY ─────────────────────────
   function detectAndExtractLead(text) {
-    // Extrage date din conversație
-    const nameMatch = conversationHistory
+    const userText = conversationHistory
       .filter(m => m.role === 'user')
       .map(m => m.content)
-      .join(' ')
-      .match(/(?:mă numesc|sunt|numele meu e|eu sunt)\s+([A-ZÀ-Ö][a-zà-ö]+(?:\s+[A-ZÀ-Ö][a-zà-ö]+)?)/i);
-    
-    const phoneMatch = conversationHistory
-      .filter(m => m.role === 'user')
-      .map(m => m.content)
-      .join(' ')
-      .match(/(?:^|\s)(0[237]\d{2}[\s\-]?\d{3}[\s\-]?\d{3}|\+40[\s\-]?\d{3}[\s\-]?\d{3}[\s\-]?\d{3})(?:\s|$)/);
+      .join(' ');
 
-    if (nameMatch && !collectedData.name) collectedData.name = nameMatch[1];
+    // Phone
+    const phoneMatch = userText.match(/(07[0-9]{8}|\+407[0-9]{8}|004[0-9]{10})/);
     if (phoneMatch && !collectedData.phone) collectedData.phone = phoneMatch[1].trim();
 
-    // Trimite lead daca avem telefon (cu sau fara LEAD_READY)
-    const hasPhone = collectedData.phone !== null;
-    const hasLeadReady = text.includes('[LEAD_READY]');
-    return (hasLeadReady && collectedData.name && hasPhone) || 
-           (hasPhone && collectedData.name);
+    // Name — explicit
+    const nameMatch = userText.match(/(?:m[aă] numesc|sunt|numele meu|eu sunt|name is)[\s:]+([A-ZĂÎȘȚÂ][a-zăîșțâ]+(?:\s+[A-ZĂÎȘȚÂ][a-zăîșțâ]+)?)/i);
+    if (nameMatch && !collectedData.name) collectedData.name = nameMatch[1];
+
+    // Name — "Prenume Nume 07xx" pattern
+    if (!collectedData.name) {
+      const pn = userText.match(/([A-ZĂÎȘȚÂ][a-zăîșțâ]+\s+[A-ZĂÎȘȚÂ][a-zăîșțâ]+)\s+(?:07|\+4)/);
+      if (pn) collectedData.name = pn[1];
+    }
+
+    // Name from AI response ("Multumesc, Ion!")
+    if (!collectedData.name) {
+      const aiText = conversationHistory.filter(m => m.role === 'assistant').map(m => m.content).join(' ');
+      const aiName = aiText.match(/(?:Mulțumesc|Multumesc),?\s+([A-ZĂÎȘȚÂ][a-zăîșțâ]+)/i);
+      if (aiName) collectedData.name = aiName[1];
+    }
+
+    // Fallback
+    if (!collectedData.name && collectedData.phone) collectedData.name = 'Vizitator';
+
+    console.log('[RecepAI] detected:', JSON.stringify(collectedData));
+    return collectedData.phone !== null && collectedData.name !== null;
   }
 
   // ── SEND LEAD ─────────────────────────────────
