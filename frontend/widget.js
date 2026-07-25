@@ -617,8 +617,9 @@ Apoi adaugă exact: [LEAD_READY]`;
     showTyping(false);
     addMessage(reply, 'bot');
 
-    // Detectează dacă lead e gata
-    if (detectAndExtractLead(reply)) {
+    // Trimite lead imediat ce avem telefon + nume
+    detectAndExtractLead(reply);
+    if (collectedData.phone && collectedData.name && !leadSent) {
       await sendLead();
     }
 
