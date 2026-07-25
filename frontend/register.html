@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecepAI — Creează cont</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--indigo:#6366F1;--indigo-d:#4F46E5;--indigo-l:#EEF2FF;--green:#10B981;--red:#EF4444;--black:#0A0A0A;--g6:#4B5563;--g4:#9CA3AF;--g2:#E5E7EB;--g1:#F9FAFB;--white:#FFFFFF;--teal:#00D4AA;}
+body{font-family:'Inter',sans-serif;background:var(--g1);color:var(--black);min-height:100vh;display:flex;flex-direction:column;}
+
+nav{height:60px;background:var(--white);border-bottom:1px solid var(--g2);display:flex;align-items:center;padding:0 24px;justify-content:space-between;}
+.nav-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--black);text-decoration:none;letter-spacing:-.5px;}
+.nav-logo em{color:var(--teal);font-style:normal;}
+.nav-login{font-size:13px;color:var(--g4);text-decoration:none;}
+.nav-login span{color:var(--indigo);font-weight:600;}
+
+.main{flex:1;display:flex;align-items:center;justify-content:center;padding:40px 24px;}
+.box{width:100%;max-width:440px;}
+
+.steps-bar{display:flex;align-items:center;gap:0;margin-bottom:36px;}
+.step-item{display:flex;align-items:center;gap:8px;flex:1;}
+.step-circle{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all .2s;}
+.step-circle.done{background:var(--green);color:white;}
+.step-circle.active{background:var(--indigo);color:white;}
+.step-circle.pending{background:var(--g2);color:var(--g4);}
+.step-label{font-size:11px;font-weight:600;color:var(--g4);}
+.step-label.active{color:var(--indigo);}
+.step-line{flex:1;height:1px;background:var(--g2);margin:0 8px;}
+.step-line.done{background:var(--green);}
+
+.form-head{margin-bottom:28px;}
+.form-title{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:var(--black);letter-spacing:-1px;margin-bottom:6px;}
+.form-sub{font-size:14px;color:var(--g4);}
+
+.field{margin-bottom:14px;}
+.field label{display:block;font-size:12px;font-weight:600;color:var(--g6);margin-bottom:5px;letter-spacing:.3px;}
+.field input,.field select{width:100%;height:48px;background:var(--white);border:1.5px solid var(--g2);border-radius:10px;padding:0 14px;font-size:14px;font-family:'Inter',sans-serif;color:var(--black);outline:none;transition:all .15s;}
+.field input:focus,.field select:focus{border-color:var(--indigo);box-shadow:0 0 0 3px rgba(99,102,241,.1);}
+.field input.error{border-color:var(--red);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field-hint{font-size:11px;color:var(--g4);margin-top:4px;}
+.field-error{font-size:11px;color:var(--red);margin-top:4px;display:none;}
+.field-error.show{display:block;}
+
+.business-types{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:14px;}
+.btype{padding:12px;border-radius:10px;border:1.5px solid var(--g2);cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;background:var(--white);}
+.btype:hover{border-color:var(--indigo);}
+.btype.selected{border-color:var(--indigo);background:var(--indigo-l);}
+.btype-icon{font-size:20px;flex-shrink:0;}
+.btype-label{font-size:13px;font-weight:600;color:var(--black);}
+.btype-sub{font-size:10px;color:var(--g4);}
+
+.btn{width:100%;height:50px;background:var(--indigo);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:20px;}
+.btn:hover{background:var(--indigo-d);transform:translateY(-1px);box-shadow:0 8px 24px rgba(99,102,241,.25);}
+.btn:disabled{opacity:.6;pointer-events:none;}
+.spin{width:18px;height:18px;border:2px solid rgba(255,255,255,.3);border-top-color:white;border-radius:50%;animation:spin .6s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--g4);font-size:12px;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--g2);}
+
+.terms{font-size:11px;color:var(--g4);text-align:center;line-height:1.6;margin-top:16px;}
+.terms a{color:var(--indigo);text-decoration:none;}
+
+.err-box{background:#FEF2F2;border:1px solid #FECACA;color:var(--red);font-size:13px;padding:12px 14px;border-radius:9px;margin-bottom:16px;display:none;}
+.err-box.show{display:block;}
+
+.password-strength{height:3px;border-radius:2px;margin-top:6px;transition:all .3s;background:var(--g2);}
+.ps-weak{background:var(--red);width:33%;}
+.ps-medium{background:orange;width:66%;}
+.ps-strong{background:var(--green);width:100%;}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="index.html" class="nav-logo">Recep<em>AI</em></a>
+  <a href="login.html" class="nav-login">Ai deja cont? <span>Intră în cont</span></a>
+</nav>
+
+<div class="main">
+  <div class="box">
+
+    <!-- STEPS -->
+    <div class="steps-bar">
+      <div class="step-item">
+        <div class="step-circle active" id="s1">1</div>
+        <span class="step-label active">Cont</span>
+      </div>
+      <div class="step-line" id="l1"></div>
+      <div class="step-item">
+        <div class="step-circle pending" id="s2">2</div>
+        <span class="step-label" id="sl2">Business</span>
+      </div>
+      <div class="step-line" id="l2"></div>
+      <div class="step-item">
+        <div class="step-circle pending" id="s3">3</div>
+        <span class="step-label" id="sl3">Scanare</span>
+      </div>
+    </div>
+
+    <!-- STEP 1: CONT -->
+    <div id="step1">
+      <div class="form-head">
+        <div class="form-title">Creează cont gratuit</div>
+        <div class="form-sub">7 zile gratuit · Fără card · Anulezi oricând</div>
+      </div>
+      <div class="err-box" id="err1"></div>
+      <div class="field-row">
+        <div class="field"><label>Prenume</label><input id="fname" placeholder="Ion" autocomplete="given-name"></div>
+        <div class="field"><label>Nume</label><input id="lname" placeholder="Popescu" autocomplete="family-name"></div>
+      </div>
+      <div class="field"><label>Email profesional</label><input type="email" id="email" placeholder="ion@clinica.ro" autocomplete="email"></div>
+      <div class="field">
+        <label>Parolă</label>
+        <input type="password" id="password" placeholder="Minim 8 caractere" autocomplete="new-password" oninput="checkPassword(this.value)">
+        <div class="password-strength" id="ps-bar"></div>
+        <div class="field-hint" id="ps-hint">Minim 8 caractere</div>
+      </div>
+      <button class="btn" id="btn1" onclick="nextStep1()">
+        <div class="spin" id="spin1"></div>
+        <span id="bt1">Continuă →</span>
+      </button>
+      <div class="terms">Creând un cont, ești de acord cu <a href="#">Termenii</a> și <a href="#">Politica de confidențialitate</a>.</div>
+    </div>
+
+    <!-- STEP 2: BUSINESS -->
+    <div id="step2" style="display:none">
+      <div class="form-head">
+        <div class="form-title">Spune-ne despre afacerea ta</div>
+        <div class="form-sub">AI-ul va fi configurat special pentru tipul tău de business</div>
+      </div>
+      <div class="err-box" id="err2"></div>
+      <div class="field"><label>Numele afacerii</label><input id="bname" placeholder="ex: DentaVita Clinic"></div>
+      <div class="field"><label>Tipul afacerii</label></div>
+      <div class="business-types">
+        <div class="btype selected" onclick="selectType(this,'dental')">
+          <span class="btype-icon">🦷</span>
+          <div><div class="btype-label">Stomatologie</div><div class="btype-sub">Clinică dentară</div></div>
+        </div>
+        <div class="btype" onclick="selectType(this,'physio')">
+          <span class="btype-icon">🏃</span>
+          <div><div class="btype-label">Fizioterapie</div><div class="btype-sub">Recuperare · Masaj</div></div>
+        </div>
+        <div class="btype" onclick="selectType(this,'vet')">
+          <span class="btype-icon">🐾</span>
+          <div><div class="btype-label">Veterinar</div><div class="btype-sub">Cabinet vet</div></div>
+        </div>
+        <div class="btype" onclick="selectType(this,'beauty')">
+          <span class="btype-icon">✨</span>
+          <div><div class="btype-label">Beauty</div><div class="btype-sub">Salon · Spa</div></div>
+        </div>
+        <div class="btype" onclick="selectType(this,'medical')">
+          <span class="btype-icon">⚕️</span>
+          <div><div class="btype-label">Medical</div><div class="btype-sub">Cabinet general</div></div>
+        </div>
+        <div class="btype" onclick="selectType(this,'other')">
+          <span class="btype-icon">🏢</span>
+          <div><div class="btype-label">Altele</div><div class="btype-sub">Alt tip</div></div>
+        </div>
+      </div>
+      <div class="field"><label>Telefon (opțional)</label><input type="tel" id="bphone" placeholder="0721 234 567"></div>
+      <button class="btn" id="btn2" onclick="nextStep2()">
+        <div class="spin" id="spin2"></div>
+        <span id="bt2">Creează cont și continuă →</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const API = window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'?'http://localhost:8080':'https://ai-reception-platform-production.up.railway.app';
+let selectedType = 'dental';
+let userData = {};
+
+function checkPassword(val) {
+  const bar = document.getElementById('ps-bar');
+  const hint = document.getElementById('ps-hint');
+  bar.className = 'password-strength';
+  if (!val) { hint.textContent = 'Minim 8 caractere'; return; }
+  if (val.length < 6) { bar.classList.add('ps-weak'); hint.textContent = 'Prea scurtă'; return; }
+  if (val.length < 10 || !/[A-Z]/.test(val)) { bar.classList.add('ps-medium'); hint.textContent = 'Parolă medie'; return; }
+  bar.classList.add('ps-strong'); hint.textContent = '✓ Parolă puternică';
+}
+
+function selectType(el, type) {
+  document.querySelectorAll('.btype').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedType = type;
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.classList.add('show');
+}
+
+function nextStep1() {
+  const fname = document.getElementById('fname').value.trim();
+  const lname = document.getElementById('lname').value.trim();
+  const email = document.getElementById('email').value.trim();
+  const pass = document.getElementById('password').value;
+  document.getElementById('err1').classList.remove('show');
+
+  if (!fname || !lname) { showErr('err1','Completează numele și prenumele.'); return; }
+  if (!email || !email.includes('@')) { showErr('err1','Email invalid.'); return; }
+  if (pass.length < 8) { showErr('err1','Parola trebuie să aibă minim 8 caractere.'); return; }
+
+  userData = { fname, lname, email, password: pass };
+
+  // Go to step 2
+  document.getElementById('step1').style.display = 'none';
+  document.getElementById('step2').style.display = 'block';
+  document.getElementById('s1').className = 'step-circle done';
+  document.getElementById('s1').textContent = '✓';
+  document.getElementById('l1').className = 'step-line done';
+  document.getElementById('s2').className = 'step-circle active';
+  document.getElementById('sl2').classList.add('active');
+}
+
+async function nextStep2() {
+  const bname = document.getElementById('bname').value.trim();
+  document.getElementById('err2').classList.remove('show');
+  if (!bname) { showErr('err2','Completează numele afacerii.'); return; }
+
+  const btn = document.getElementById('btn2');
+  document.getElementById('spin2').style.display = 'block';
+  document.getElementById('bt2').textContent = 'Se creează contul...';
+  btn.disabled = true;
+
+  const clientId = 'CLI-' + Math.random().toString(36).substring(2,8).toUpperCase();
+
+  try {
+    const r = await fetch(`${API}/api/auth/register`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        email: userData.email,
+        password: userData.password,
+        clientId,
+        businessName: bname,
+        role: 'owner',
+        businessType: selectedType,
+        firstName: userData.fname,
+        lastName: userData.lname,
+      })
+    });
+    const d = await r.json();
+    if (d.success || d.token) {
+      localStorage.setItem('recepai_token', d.token);
+      localStorage.setItem('recepai_email', userData.email);
+      localStorage.setItem('recepai_role', 'owner');
+      localStorage.setItem('recepai_client_id', d.clientId || clientId);
+      localStorage.setItem('recepai_business', bname);
+      localStorage.setItem('recepai_business_type', selectedType);
+      window.location.href = 'onboarding.html';
+    } else {
+      showErr('err2', d.error || 'Eroare la creare cont.');
+      btn.disabled = false;
+      document.getElementById('spin2').style.display = 'none';
+      document.getElementById('bt2').textContent = 'Creează cont și continuă →';
+    }
+  } catch(e) {
+    showErr('err2','Nu ne putem conecta la server.');
+    btn.disabled = false;
+    document.getElementById('spin2').style.display = 'none';
+    document.getElementById('bt2').textContent = 'Creează cont și continuă →';
+  }
+}
+
+// Redirect if already logged in
+if (localStorage.getItem('recepai_token')) window.location.href = 'dashboard.html';
+</script>
+</body>
+</html>

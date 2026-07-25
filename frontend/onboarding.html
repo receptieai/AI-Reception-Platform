@@ -2,808 +2,323 @@
 <html lang="ro">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Înregistrează-ți afacerea — RecepAI</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RecepAI — Configurare</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#0A0A0A; --s1:#131313; --s2:#1A1A1A; --s3:#222;
-  --b1:#242424; --b2:#303030; --b3:#3A3A3A;
-  --tx:#F0F0F0; --t2:#999; --t3:#555;
-  --teal:#00D4AA; --teal-d:rgba(0,212,170,.1); --teal-m:rgba(0,212,170,.2);
-  --grn:#00CC88; --ylw:#FFB800; --red:#FF4455; --blu:#4488FF;
-  --radius:12px;
-}
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{scroll-behavior:smooth}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--indigo:#6366F1;--indigo-d:#4F46E5;--indigo-l:#EEF2FF;--green:#10B981;--green-l:#ECFDF5;--red:#EF4444;--amber:#F59E0B;--teal:#00D4AA;--teal-l:rgba(0,212,170,.08);--black:#0A0A0A;--g7:#374151;--g6:#4B5563;--g4:#9CA3AF;--g3:#D1D5DB;--g2:#E5E7EB;--g1:#F9FAFB;--white:#FFFFFF;}
+body{font-family:'Inter',sans-serif;background:var(--g1);color:var(--black);min-height:100vh;}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,10,.9);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1);height:60px;display:flex;align-items:center;padding:0 5%;justify-content:space-between}
-.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--tx);text-decoration:none}
-.logo span{color:var(--teal)}
-.nav-back{font-size:13px;color:var(--t2);text-decoration:none;display:flex;align-items:center;gap:6px;transition:color .2s}
-.nav-back:hover{color:var(--teal)}
+nav{height:60px;background:var(--white);border-bottom:1px solid var(--g2);display:flex;align-items:center;padding:0 24px;justify-content:space-between;}
+.nav-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--black);text-decoration:none;letter-spacing:-.5px;}
+.nav-logo em{color:var(--teal);font-style:normal;}
+.nav-step{font-size:12px;color:var(--g4);font-weight:500;}
 
-/* PROGRESS */
-.progress-bar{position:fixed;top:60px;left:0;right:0;z-index:99;background:var(--s1);border-bottom:1px solid var(--b1);padding:12px 5%}
-.progress-steps{display:flex;align-items:center;gap:0;max-width:600px;margin:0 auto}
-.prog-step{display:flex;align-items:center;gap:8px;flex:1}
-.prog-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;font-family:'JetBrains Mono',monospace;flex-shrink:0;transition:all .3s;border:1.5px solid var(--b2);color:var(--t3);background:var(--s2)}
-.prog-dot.active{background:var(--teal);color:#000;border-color:var(--teal)}
-.prog-dot.done{background:var(--grn);color:#000;border-color:var(--grn)}
-.prog-label{font-size:11px;font-weight:600;color:var(--t3);transition:color .3s;white-space:nowrap}
-.prog-step.active .prog-label{color:var(--teal)}
-.prog-step.done .prog-label{color:var(--grn)}
-.prog-line{flex:1;height:1px;background:var(--b2);margin:0 8px;transition:background .3s}
-.prog-line.done{background:var(--grn)}
+.container{max-width:720px;margin:0 auto;padding:48px 24px;}
 
-/* MAIN */
-.main{padding:140px 5% 60px;max-width:680px;margin:0 auto}
+.ob-header{text-align:center;margin-bottom:48px;}
+.ob-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:8px;}
+.ob-sub{font-size:16px;color:var(--g4);}
 
-/* STEP PANELS */
-.step-panel{display:none}
-.step-panel.active{display:block;animation:fadeUp .3s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+/* SCAN CARD */
+.scan-card{background:var(--white);border:1.5px solid var(--g2);border-radius:18px;overflow:hidden;margin-bottom:20px;}
+.scan-head{padding:24px 28px;border-bottom:1px solid var(--g2);}
+.scan-step{font-size:11px;font-weight:700;color:var(--indigo);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
+.scan-title{font-size:18px;font-weight:700;margin-bottom:4px;}
+.scan-desc{font-size:13px;color:var(--g4);line-height:1.6;}
+.scan-body{padding:24px 28px;}
 
-.step-tag{font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:10px}
-.step-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.2;margin-bottom:8px}
-.step-sub{font-size:15px;color:var(--t2);line-height:1.7;margin-bottom:32px;font-weight:300}
+.url-input-wrap{display:flex;gap:10px;margin-bottom:20px;}
+.url-input{flex:1;height:50px;background:var(--g1);border:1.5px solid var(--g2);border-radius:12px;padding:0 16px;font-size:14px;font-family:'Inter',sans-serif;color:var(--black);outline:none;transition:all .15s;}
+.url-input:focus{border-color:var(--indigo);background:var(--white);box-shadow:0 0 0 3px rgba(99,102,241,.08);}
+.scan-btn{height:50px;padding:0 24px;background:var(--indigo);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;}
+.scan-btn:hover{background:var(--indigo-d);transform:translateY(-1px);}
+.scan-btn:disabled{opacity:.6;pointer-events:none;}
 
-/* CARDS */
-.form-card{background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden;margin-bottom:14px}
-.card-section{padding:20px 24px}
-.card-section+.card-section{border-top:1px solid var(--b1)}
-.card-section-title{font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:16px;display:flex;align-items:center;gap:8px}
+/* SCAN PROGRESS */
+.scan-progress{display:none;}
+.scan-progress.show{display:block;}
+.progress-bar-wrap{height:4px;background:var(--g2);border-radius:2px;margin-bottom:16px;overflow:hidden;}
+.progress-bar{height:100%;background:linear-gradient(90deg,var(--indigo),var(--teal));border-radius:2px;width:0%;transition:width .3s;}
+.scan-log{background:var(--g1);border-radius:10px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--g6);max-height:140px;overflow-y:auto;line-height:1.8;}
+.log-line{display:flex;align-items:flex-start;gap:8px;}
+.log-icon{flex-shrink:0;}
+.log-ok{color:var(--green);}
+.log-spin{color:var(--indigo);animation:spin .6s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* FORM ELEMENTS */
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
-.form-row.cols-1{grid-template-columns:1fr}
-.form-group{display:flex;flex-direction:column;gap:6px}
-.form-label{font-size:12px;font-weight:600;color:var(--t2);letter-spacing:.3px}
-.form-input,.form-select,.form-textarea{
-  background:var(--s2);border:1.5px solid var(--b2);border-radius:var(--radius);
-  padding:11px 14px;font-size:14px;color:var(--tx);font-family:'Inter',sans-serif;
-  outline:none;width:100%;transition:all .2s;-webkit-appearance:none
-}
-.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-d)}
-.form-input::placeholder,.form-textarea::placeholder{color:var(--t3)}
-.form-select{cursor:pointer}
-.form-select option{background:var(--s2)}
-.form-textarea{resize:none;min-height:80px;line-height:1.6}
-.form-hint{font-size:11px;color:var(--t3);margin-top:4px;line-height:1.5}
+/* SCAN RESULT */
+.scan-result{display:none;margin-top:20px;}
+.scan-result.show{display:block;}
+.result-card{background:var(--teal-l);border:1px solid rgba(0,212,170,.2);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.result-icon{font-size:32px;flex-shrink:0;}
+.result-info{flex:1;}
+.result-name{font-size:15px;font-weight:700;margin-bottom:2px;}
+.result-sub{font-size:12px;color:var(--g4);}
+.result-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
+.rstat{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(0,212,170,.12);color:var(--teal);}
+.result-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.rf{background:var(--white);border:1px solid var(--g2);border-radius:10px;padding:12px;}
+.rf-label{font-size:10px;font-weight:600;color:var(--g4);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
+.rf-val{font-size:13px;font-weight:600;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.rf-val.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--indigo);}
 
-/* TYPE SELECTOR */
-.type-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:4px}
-.type-btn{background:var(--s2);border:1.5px solid var(--b2);border-radius:var(--radius);padding:12px 8px;text-align:center;cursor:pointer;transition:all .2s}
-.type-btn:hover{border-color:var(--b3)}
-.type-btn.selected{border-color:var(--teal);background:var(--teal-d)}
-.type-btn .type-emoji{font-size:24px;display:block;margin-bottom:6px}
-.type-btn .type-name{font-size:11px;font-weight:600;color:var(--t2);line-height:1.3}
-.type-btn.selected .type-name{color:var(--teal)}
+/* WIDGET PREVIEW */
+.widget-card{background:var(--white);border:1.5px solid var(--g2);border-radius:18px;overflow:hidden;margin-bottom:20px;}
+.widget-preview{padding:24px 28px;background:var(--g1);min-height:200px;display:flex;align-items:flex-end;justify-content:flex-end;position:relative;}
+.site-mock{position:absolute;inset:0;padding:14px;display:flex;flex-direction:column;gap:6px;}
+.site-bar{height:8px;background:var(--g3);border-radius:4px;width:60%;}
+.site-bar.short{width:40%;}
+.site-bar.med{width:80%;}
+.site-content{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:6px;}
+.site-block{background:var(--g2);border-radius:6px;}
+.widget-bubble{position:absolute;bottom:16px;right:16px;width:52px;height:52px;background:var(--indigo);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(99,102,241,.4);animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+.widget-chat-preview{position:absolute;bottom:76px;right:16px;background:var(--white);border-radius:14px 14px 2px 14px;padding:12px 14px;max-width:240px;box-shadow:0 8px 32px rgba(0,0,0,.12);font-size:12px;line-height:1.5;color:var(--g7);}
+.chat-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:5px;animation:pdot 2s infinite;}
+@keyframes pdot{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-/* SERVICE ROWS */
-.service-row{display:grid;grid-template-columns:1fr 90px 36px;gap:8px;margin-bottom:8px;align-items:center}
-.remove-btn{width:36px;height:36px;background:rgba(255,68,68,.1);border:none;border-radius:8px;color:var(--red);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s;flex-shrink:0}
-.remove-btn:hover{background:rgba(255,68,68,.2)}
-.add-more{width:100%;background:transparent;border:1.5px dashed var(--b2);border-radius:var(--radius);padding:10px;color:var(--t3);font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;margin-top:4px}
-.add-more:hover{border-color:var(--teal);color:var(--teal);background:var(--teal-d)}
+.code-section{padding:20px 28px;border-top:1px solid var(--g2);}
+.code-label{font-size:12px;font-weight:600;color:var(--g6);margin-bottom:8px;}
+.code-box{background:var(--black);border-radius:10px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#A5B4FC;position:relative;line-height:1.6;}
+.copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);border:none;color:white;font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s;}
+.copy-btn:hover{background:rgba(255,255,255,.2);}
+.copied{background:rgba(16,185,129,.3)!important;}
 
-/* HOURS */
-.hours-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--b1)}
-.hours-row:last-child{border-bottom:none}
-.hours-day{font-size:13px;font-weight:500;color:var(--t2);width:90px;flex-shrink:0}
-.hours-inputs{display:flex;gap:8px;flex:1;align-items:center}
-.hours-sep{font-size:12px;color:var(--t3)}
-.hours-input{background:var(--s2);border:1.5px solid var(--b2);border-radius:8px;padding:7px 10px;font-size:13px;color:var(--tx);font-family:'JetBrains Mono',monospace;outline:none;width:80px;text-align:center;transition:border-color .2s}
-.hours-input:focus{border-color:var(--teal)}
+/* NEXT BTN */
+.next-btn{width:100%;height:54px;background:var(--indigo);color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;}
+.next-btn:hover{background:var(--indigo-d);box-shadow:0 8px 24px rgba(99,102,241,.3);transform:translateY(-1px);}
+.next-btn:disabled{opacity:.5;pointer-events:none;}
 
-/* TOGGLE */
-.toggle{position:relative;width:44px;height:24px;cursor:pointer;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:var(--b2);border-radius:24px;transition:.2s}
-.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;top:3px;background:var(--t3);border-radius:50%;transition:.2s}
-.toggle input:checked+.toggle-slider{background:var(--teal-m)}
-.toggle input:checked+.toggle-slider::before{transform:translateX(20px);background:var(--teal)}
-
-/* PLAN SELECTOR */
-.plan-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.plan-option{background:var(--s2);border:1.5px solid var(--b2);border-radius:14px;padding:20px 16px;cursor:pointer;transition:all .2s;position:relative;text-align:center}
-.plan-option:hover{border-color:var(--b3)}
-.plan-option.selected{border-color:var(--teal);background:var(--teal-d)}
-.plan-badge-top{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--teal);color:#000;font-size:9px;font-weight:700;padding:2px 10px;border-radius:20px;white-space:nowrap;font-family:'JetBrains Mono',monospace}
-.plan-name-s{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t2);margin-bottom:8px}
-.plan-price-s{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:2px}
-.plan-period-s{font-size:11px;color:var(--t3);margin-bottom:12px}
-.plan-features-s{list-style:none}
-.plan-features-s li{font-size:11px;color:var(--t2);padding:4px 0;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:6px}
-.plan-features-s li:last-child{border-bottom:none}
-.plan-features-s li::before{content:"✓";color:var(--teal);font-weight:700;flex-shrink:0}
-.plan-option.selected .plan-name-s{color:var(--teal)}
-
-/* PREVIEW BOX */
-.preview-box{background:var(--s2);border:1px solid var(--b1);border-radius:14px;padding:16px;margin-top:16px}
-.preview-label{font-size:10px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--teal);margin-bottom:12px}
-.preview-chat-head{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;margin-bottom:8px}
-.preview-av{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.preview-nm{font-size:13px;font-weight:600}
-.preview-sub{font-size:11px;opacity:.6}
-.preview-msg{background:var(--s1);border:1px solid var(--b1);padding:9px 12px;border-radius:4px 12px 12px 12px;font-size:12.5px;color:var(--t2);line-height:1.5;max-width:85%}
-.embed-preview{background:#0A0A0A;border-radius:10px;padding:12px 14px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--teal);line-height:1.8;margin-top:12px;position:relative}
-.embed-copy{position:absolute;top:10px;right:10px;background:var(--s1);border:1px solid var(--b2);color:var(--t2);padding:4px 10px;border-radius:6px;font-size:10px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s}
-.embed-copy:hover{border-color:var(--teal);color:var(--teal)}
-
-/* BUTTONS */
-.btn-row{display:flex;gap:10px;margin-top:24px}
-.btn-next{background:var(--teal);color:#000;border:none;padding:13px 28px;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s;flex:1}
-.btn-next:hover{background:#00FFCC;transform:translateY(-1px)}
-.btn-next:disabled{background:var(--b2);color:var(--t3);cursor:not-allowed;transform:none}
-.btn-back-s{background:transparent;color:var(--t2);border:1.5px solid var(--b2);padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
-.btn-back-s:hover{border-color:var(--b3);color:var(--tx)}
-
-/* SUCCESS */
-.success-screen{text-align:center;padding:40px 0}
-.success-icon{font-size:64px;margin-bottom:20px;animation:pop .4s cubic-bezier(.34,1.56,.64,1)}
-@keyframes pop{from{transform:scale(0)}to{transform:scale(1)}}
-.success-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:10px}
-.success-sub{font-size:15px;color:var(--t2);line-height:1.7;margin-bottom:32px;font-weight:300}
-
-/* INSTALL STEPS */
-.install-steps{background:var(--s1);border:1px solid var(--b1);border-radius:16px;overflow:hidden;margin-bottom:16px;text-align:left}
-.install-step{display:flex;gap:14px;padding:16px 20px;border-bottom:1px solid var(--b1);align-items:flex-start}
-.install-step:last-child{border-bottom:none}
-.install-num{width:26px;height:26px;background:var(--teal-d);border:1px solid var(--teal-m);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(--teal);flex-shrink:0;font-family:'JetBrains Mono',monospace;margin-top:1px}
-.install-text{font-size:13.5px;color:var(--t2);line-height:1.6}
-.install-text strong{color:var(--tx);font-weight:600}
-
-/* INFO BOX */
-.info-box{background:var(--teal-d);border:1px solid var(--teal-m);border-radius:var(--radius);padding:12px 16px;font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:16px}
-.info-box strong{color:var(--teal)}
-
-/* TOAST */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--s1);border:1px solid var(--teal-m);color:var(--tx);padding:12px 20px;border-radius:var(--radius);font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.4);opacity:0;transition:all .3s;z-index:1000;white-space:nowrap;display:flex;align-items:center;gap:8px}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-.toast-icon{color:var(--teal)}
-
-@media(max-width:600px){
-  .form-row{grid-template-columns:1fr}
-  .type-grid{grid-template-columns:repeat(4,1fr)}
-  .plan-grid{grid-template-columns:1fr}
-  .step-title{font-size:26px}
-  .main{padding:130px 20px 60px}
-  .progress-bar{padding:12px 20px}
-  .prog-label{display:none}
-  .hours-inputs{flex-wrap:wrap}
-}
+.skip-link{text-align:center;margin-top:16px;font-size:13px;color:var(--g4);}
+.skip-link a{color:var(--indigo);text-decoration:none;font-weight:600;}
 </style>
 </head>
 <body>
 
-<!-- NAV -->
 <nav>
-  <a href="index.html" class="logo">Recep<span>AI</span></a>
-  <a href="index.html" class="nav-back">← Înapoi la site</a>
+  <a href="index.html" class="nav-logo">Recep<em>AI</em></a>
+  <span class="nav-step">Pas 3 din 3 — Configurare AI</span>
 </nav>
 
-<!-- PROGRESS -->
-<div class="progress-bar">
-  <div class="progress-steps">
-    <div class="prog-step active" id="prog-1">
-      <div class="prog-dot active" id="dot-1">1</div>
-      <div class="prog-label">Afacerea ta</div>
-    </div>
-    <div class="prog-line" id="line-1"></div>
-    <div class="prog-step" id="prog-2">
-      <div class="prog-dot" id="dot-2">2</div>
-      <div class="prog-label">Servicii</div>
-    </div>
-    <div class="prog-line" id="line-2"></div>
-    <div class="prog-step" id="prog-3">
-      <div class="prog-dot" id="dot-3">3</div>
-      <div class="prog-label">Program</div>
-    </div>
-    <div class="prog-line" id="line-3"></div>
-    <div class="prog-step" id="prog-4">
-      <div class="prog-dot" id="dot-4">4</div>
-      <div class="prog-label">Plan</div>
-    </div>
-    <div class="prog-line" id="line-4"></div>
-    <div class="prog-step" id="prog-5">
-      <div class="prog-dot" id="dot-5">5</div>
-      <div class="prog-label">Gata!</div>
-    </div>
+<div class="container">
+  <div class="ob-header">
+    <div class="ob-title">🧠 Configurăm AI-ul tău</div>
+    <div class="ob-sub">Scanăm site-ul tău și AI-ul va ști instant tot despre afacerea ta</div>
   </div>
-</div>
 
-<!-- MAIN -->
-<div class="main">
-
-  <!-- ══ STEP 1 — Info afacere ══ -->
-  <div class="step-panel active" id="step-1">
-    <div class="step-tag">Pasul 1 din 4</div>
-    <div class="step-title">Spune-ne despre afacerea ta</div>
-    <div class="step-sub">Completează datele o singură dată. AI-ul se configurează automat pentru tipul tău de afacere.</div>
-
-    <div class="form-card">
-      <div class="card-section">
-        <div class="card-section-title">🏢 Tipul afacerii</div>
-        <div class="type-grid" id="type-grid">
-          <div class="type-btn selected" onclick="selectType(this,'💇‍♀️','Salon Beauty')">
-            <span class="type-emoji">💇‍♀️</span>
-            <span class="type-name">Salon Beauty</span>
-          </div>
-          <div class="type-btn" onclick="selectType(this,'🦷','Cabinet Dentar')">
-            <span class="type-emoji">🦷</span>
-            <span class="type-name">Cabinet Dentar</span>
-          </div>
-          <div class="type-btn" onclick="selectType(this,'🐶','Veterinar')">
-            <span class="type-emoji">🐶</span>
-            <span class="type-name">Veterinar</span>
-          </div>
-          <div class="type-btn" onclick="selectType(this,'💆','Fizioterapie')">
-            <span class="type-emoji">💆</span>
-            <span class="type-name">Fizioterapie</span>
-          </div>
-          <div class="type-btn" onclick="selectType(this,'🚗','Service Auto')">
-            <span class="type-emoji">🚗</span>
-            <span class="type-name">Service Auto</span>
-          </div>
-          <div class="type-btn" onclick="selectType(this,'💊','Clinică')">
-            <span class="type-emoji">💊</span>
-            <span class="type-name">Clinică</span>
-          </div>
-          <div class="type-btn" onclick="selectType(this,'🏋️','Fitness')">
-            <span class="type-emoji">🏋️</span>
-            <span class="type-name">Fitness</span>
-          </div>
-          <div class="type-btn" onclick="selectType(this,'✨','Altele')">
-            <span class="type-emoji">✨</span>
-            <span class="type-name">Altele</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-section">
-        <div class="card-section-title">📋 Informații de bază</div>
-        <div class="form-row cols-1">
-          <div class="form-group">
-            <label class="form-label">Numele afacerii *</label>
-            <input class="form-input" id="biz-name" placeholder="Ex: Clinica Dental Pro" oninput="updatePreview()">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Oraș *</label>
-            <input class="form-input" id="biz-city" placeholder="București">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Telefon *</label>
-            <input class="form-input" id="biz-phone" placeholder="0721 XXX XXX" type="tel">
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Email proprietar *</label>
-            <input class="form-input" id="biz-email" placeholder="contact@afacere.ro" type="email">
-            <div class="form-hint">Aici primești lead-urile și notificările</div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Site web (opțional)</label>
-            <input class="form-input" id="biz-site" placeholder="https://site-ul-meu.ro">
-            <div class="form-hint">Vom importa serviciile automat</div>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Culoare brand</label>
-            <input type="color" class="form-input" id="biz-color" value="#00D4AA" oninput="updatePreview()" style="height:44px;cursor:pointer;padding:4px">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Număr locații</label>
-            <select class="form-select" id="biz-locations">
-              <option value="1">1 locație — Starter/Pro</option>
-              <option value="2">2-5 locații — Rețea</option>
-              <option value="6">6-20 locații — Lanț</option>
-              <option value="21">21+ locații — Enterprise</option>
-            </select>
-          </div>
-        </div>
-      </div>
+  <!-- SCAN -->
+  <div class="scan-card">
+    <div class="scan-head">
+      <div class="scan-step">Pas 1 — Business Brain</div>
+      <div class="scan-title">Introduceți adresa site-ului vostru</div>
+      <div class="scan-desc">Analizăm automat serviciile, prețurile, programul și informațiile de contact. Durează ~30 secunde.</div>
     </div>
-
-    <!-- Preview live -->
-    <div class="preview-box">
-      <div class="preview-label">▶ Previzualizare widget</div>
-      <div class="preview-chat-head" id="prev-head" style="background:rgba(0,212,170,.1)">
-        <div class="preview-av" id="prev-av" style="background:rgba(0,212,170,.2)">💇‍♀️</div>
-        <div>
-          <div class="preview-nm" id="prev-name">Afacerea ta</div>
-          <div class="preview-sub">Recepționist AI · Răspunde instant</div>
-        </div>
-        <div style="margin-left:auto;font-size:11px;color:#00CC88;font-weight:600;display:flex;align-items:center;gap:4px">
-          <span style="width:6px;height:6px;background:#00CC88;border-radius:50%;display:inline-block"></span>Online
-        </div>
+    <div class="scan-body">
+      <div class="url-input-wrap">
+        <input class="url-input" id="site-url" placeholder="https://clinica-voastra.ro" type="url">
+        <button class="scan-btn" id="scan-btn" onclick="startScan()">
+          <span>🔍</span> Scanează
+        </button>
       </div>
-      <div class="preview-msg" id="prev-msg">Bună ziua! 👋 Sunt asistentul virtual. Cu ce vă pot ajuta?</div>
-    </div>
 
-    <div class="btn-row">
-      <button class="btn-next" onclick="goToStep(2)">Continuă → Servicii</button>
+      <!-- PROGRESS -->
+      <div class="scan-progress" id="scan-progress">
+        <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+        <div class="scan-log" id="scan-log"></div>
+      </div>
+
+      <!-- RESULT -->
+      <div class="scan-result" id="scan-result"></div>
     </div>
   </div>
 
-  <!-- ══ STEP 2 — Servicii ══ -->
-  <div class="step-panel" id="step-2">
-    <div class="step-tag">Pasul 2 din 4</div>
-    <div class="step-title">Ce servicii oferi?</div>
-    <div class="step-sub">AI-ul va ști exact ce prețuri să dea clienților. Nu va inventa niciodată informații.</div>
-
-    <div class="info-box">
-      <strong>💡 Template auto-încărcat</strong> pentru tipul tău de afacere. Modifică, șterge sau adaugă servicii.
+  <!-- WIDGET PREVIEW -->
+  <div class="widget-card" id="widget-section" style="display:none">
+    <div class="scan-head">
+      <div class="scan-step">Pas 2 — Widget instalat</div>
+      <div class="scan-title">Widget-ul tău AI este gata</div>
+      <div class="scan-desc">Copiați codul de mai jos și inserați-l în site-ul vostru, înainte de &lt;/body&gt;. Sau trimiteți-l dezvoltatorului.</div>
     </div>
-
-    <div class="form-card">
-      <div class="card-section">
-        <div class="card-section-title">🔧 Servicii & Prețuri</div>
-        <div style="display:grid;grid-template-columns:1fr 90px 36px;gap:8px;margin-bottom:8px">
-          <div style="font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.5px">SERVICIU</div>
-          <div style="font-size:11px;font-weight:600;color:var(--t3);letter-spacing:.5px">PREȚ (LEI)</div>
-          <div></div>
+    <div class="widget-preview">
+      <div class="site-mock">
+        <div class="site-bar med"></div>
+        <div class="site-bar short"></div>
+        <div class="site-content">
+          <div class="site-block"></div>
+          <div class="site-block"></div>
         </div>
-        <div id="services-list"></div>
-        <button class="add-more" onclick="addService()">+ Adaugă serviciu</button>
+        <div class="site-bar"></div>
       </div>
-
-      <div class="card-section">
-        <div class="card-section-title">❓ Întrebări frecvente (opțional)</div>
-        <div class="form-group">
-          <label class="form-label">Informații suplimentare pentru AI</label>
-          <textarea class="form-textarea" id="biz-faq" placeholder="Ex: Acceptăm plata cu cardul. Parcare gratuită în față. Nu lucrăm fără programare. Oferim reducere 10% pentru studenți..."></textarea>
-          <div class="form-hint">AI-ul va folosi aceste informații când clienții întreabă detalii specifice</div>
-        </div>
+      <div class="widget-chat-preview">
+        <span class="chat-dot"></span>AI-ul tău este activ și răspunde vizitatorilor
       </div>
+      <div class="widget-bubble">💬</div>
     </div>
-
-    <div class="btn-row">
-      <button class="btn-back-s" onclick="goToStep(1)">← Înapoi</button>
-      <button class="btn-next" onclick="goToStep(3)">Continuă → Program</button>
-    </div>
-  </div>
-
-  <!-- ══ STEP 3 — Program ══ -->
-  <div class="step-panel" id="step-3">
-    <div class="step-tag">Pasul 3 din 4</div>
-    <div class="step-title">Care e programul de lucru?</div>
-    <div class="step-sub">AI-ul va ști când ești deschis și va informa clienții corect.</div>
-
-    <div class="form-card">
-      <div class="card-section">
-        <div class="card-section-title">🕐 Ore de funcționare</div>
-        <div id="hours-container">
-          <div class="hours-row">
-            <div class="hours-day">Luni</div>
-            <div class="hours-inputs">
-              <input class="hours-input" value="09:00" type="time">
-              <span class="hours-sep">–</span>
-              <input class="hours-input" value="19:00" type="time">
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div class="hours-row">
-            <div class="hours-day">Marți</div>
-            <div class="hours-inputs">
-              <input class="hours-input" value="09:00" type="time">
-              <span class="hours-sep">–</span>
-              <input class="hours-input" value="19:00" type="time">
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div class="hours-row">
-            <div class="hours-day">Miercuri</div>
-            <div class="hours-inputs">
-              <input class="hours-input" value="09:00" type="time">
-              <span class="hours-sep">–</span>
-              <input class="hours-input" value="19:00" type="time">
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div class="hours-row">
-            <div class="hours-day">Joi</div>
-            <div class="hours-inputs">
-              <input class="hours-input" value="09:00" type="time">
-              <span class="hours-sep">–</span>
-              <input class="hours-input" value="19:00" type="time">
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div class="hours-row">
-            <div class="hours-day">Vineri</div>
-            <div class="hours-inputs">
-              <input class="hours-input" value="09:00" type="time">
-              <span class="hours-sep">–</span>
-              <input class="hours-input" value="18:00" type="time">
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div class="hours-row">
-            <div class="hours-day">Sâmbătă</div>
-            <div class="hours-inputs">
-              <input class="hours-input" value="09:00" type="time">
-              <span class="hours-sep">–</span>
-              <input class="hours-input" value="14:00" type="time">
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div class="hours-row">
-            <div class="hours-day">Duminică</div>
-            <div class="hours-inputs" style="opacity:.4">
-              <input class="hours-input" value="—" disabled>
-              <span class="hours-sep">–</span>
-              <input class="hours-input" value="—" disabled>
-            </div>
-            <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-section">
-        <div class="card-section-title">📧 Notificări automate</div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1)">
-            <div>
-              <div style="font-size:13px;font-weight:600">Email confirmare instant</div>
-              <div style="font-size:12px;color:var(--t2);margin-top:2px">Clientul primește confirmare în 60 secunde</div>
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1)">
-            <div>
-              <div style="font-size:13px;font-weight:600">Reminder 24h înainte</div>
-              <div style="font-size:12px;color:var(--t2);margin-top:2px">Reduce no-show-urile cu 40%</div>
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1)">
-            <div>
-              <div style="font-size:13px;font-weight:600">Recuperare no-show</div>
-              <div style="font-size:12px;color:var(--t2);margin-top:2px">Email automat de reprogramare</div>
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
-            <div>
-              <div style="font-size:13px;font-weight:600">Cerere recenzie Google</div>
-              <div style="font-size:12px;color:var(--t2);margin-top:2px">La 2h după programare</div>
-            </div>
-            <label class="toggle"><input type="checkbox" checked><span class="toggle-slider"></span></label>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn-back-s" onclick="goToStep(2)">← Înapoi</button>
-      <button class="btn-next" onclick="goToStep(4)">Continuă → Plan</button>
-    </div>
-  </div>
-
-  <!-- ══ STEP 4 — Plan ══ -->
-  <div class="step-panel" id="step-4">
-    <div class="step-tag">Pasul 4 din 4</div>
-    <div class="step-title">Alege planul potrivit</div>
-    <div class="step-sub">30 de zile gratuit. Fără card. Anulezi oricând.</div>
-
-    <div class="form-card">
-      <div class="card-section">
-        <div class="card-section-title">💳 Plan</div>
-        <div class="plan-grid">
-          <div class="plan-option" onclick="selectPlan(this,'starter','€49')">
-            <div class="plan-name-s">Starter</div>
-            <div class="plan-price-s">€49</div>
-            <div class="plan-period-s">per lună</div>
-            <ul class="plan-features-s">
-              <li>Chat AI pe site</li>
-              <li>200 conv/lună</li>
-              <li>Email confirmare</li>
-              <li>Dashboard bază</li>
-            </ul>
-          </div>
-          <div class="plan-option selected" onclick="selectPlan(this,'pro','€99')">
-            <div class="plan-badge-top">POPULAR</div>
-            <div class="plan-name-s">Pro</div>
-            <div class="plan-price-s">€99</div>
-            <div class="plan-period-s">per lună</div>
-            <ul class="plan-features-s">
-              <li>Conv. nelimitate</li>
-              <li>Reminder 24h</li>
-              <li>No-show recovery</li>
-              <li>Analize complete</li>
-              <li>Recenzii Google</li>
-            </ul>
-          </div>
-          <div class="plan-option" onclick="selectPlan(this,'retea','€199')">
-            <div class="plan-name-s">Rețea</div>
-            <div class="plan-price-s">€199</div>
-            <div class="plan-period-s">5 locații</div>
-            <ul class="plan-features-s">
-              <li>Multi-locație</li>
-              <li>AI personalizat</li>
-              <li>White-label</li>
-              <li>Onboarding dedicat</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div class="card-section">
-        <div class="card-section-title">👤 Cont acces dashboard</div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Parolă *</label>
-            <input class="form-input" type="password" id="biz-pass" placeholder="Minim 8 caractere">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Confirmă parola *</label>
-            <input class="form-input" type="password" id="biz-pass2" placeholder="Repetă parola">
-          </div>
-        </div>
-        <div class="form-group" style="margin-top:4px">
-          <label style="display:flex;align-items:flex-start;gap:10px;cursor:pointer">
-            <input type="checkbox" id="terms-check" style="margin-top:3px;flex-shrink:0;accent-color:var(--teal)">
-            <span style="font-size:13px;color:var(--t2);line-height:1.5">
-              Sunt de acord cu <a href="#" style="color:var(--teal);text-decoration:none">Termenii și Condițiile</a> și <a href="#" style="color:var(--teal);text-decoration:none">Politica GDPR</a>. Înțeleg că datele personale ale clienților nu vor fi stocate pe serverele RecepAI.
-            </span>
-          </label>
-        </div>
-      </div>
-    </div>
-
-    <div class="btn-row">
-      <button class="btn-back-s" onclick="goToStep(3)">← Înapoi</button>
-      <button class="btn-next" onclick="finishOnboarding()">🚀 Activează RecepAI Gratuit</button>
-    </div>
-  </div>
-
-  <!-- ══ STEP 5 — SUCCESS ══ -->
-  <div class="step-panel" id="step-5">
-    <div class="success-screen">
-      <div class="success-icon">🎉</div>
-      <div class="success-title">Ești live, <span id="success-name">prietene</span>!</div>
-      <div class="success-sub">RecepAI este configurat și gata să răspundă clienților tăi. Instalează widget-ul pe site în 2 minute.</div>
-
-      <div class="install-steps">
-        <div class="install-step">
-          <div class="install-num">1</div>
-          <div class="install-text">
-            <strong>Copiază codul de mai jos</strong> — un singur script tag, o singură linie.
-          </div>
-        </div>
-        <div class="install-step">
-          <div class="install-num">2</div>
-          <div class="install-text">
-            <strong>Trimite-l webmaster-ului</strong> sau lipește-l tu în site, înainte de <code style="background:var(--s2);padding:2px 6px;border-radius:4px;font-family:'JetBrains Mono',monospace;font-size:12px">&lt;/body&gt;</code>
-          </div>
-        </div>
-        <div class="install-step">
-          <div class="install-num">3</div>
-          <div class="install-text">
-            <strong>Gata!</strong> Widget-ul apare instant pe site-ul tău. Clienții pot programa 24/7.
-          </div>
-        </div>
-      </div>
-
-      <div class="embed-preview" id="embed-code-final">
-&lt;!-- RecepAI — Recepționist AI --&gt;
-&lt;script
-  src="https://receptieai.ro/widget.js"
-  data-id="<span id="client-id-display" style="color:#FFB800">CLI-XXXXXX</span>"
-  data-culoare="<span id="color-display" style="color:#FFB800">#00D4AA</span>"
-  data-nume="<span id="name-display" style="color:#FFB800">Afacerea Ta</span>"
-&gt;&lt;/script&gt;
-        <button class="embed-copy" onclick="copyEmbedCode()">Copiază</button>
-      </div>
-
-      <div style="display:flex;gap:10px;justify-content:center;margin-top:24px;flex-wrap:wrap">
-        <a href="dashboard.html" style="background:var(--teal);color:#000;border:none;padding:13px 24px;border-radius:var(--radius);font-size:14px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
-          📊 Deschide Dashboard
-        </a>
-        <a href="widget-demo.html" style="background:transparent;color:var(--t2);border:1.5px solid var(--b2);padding:12px 20px;border-radius:var(--radius);font-size:14px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-flex;align-items:center;gap:6px" target="_blank">
-          👁️ Demo widget
-        </a>
-      </div>
-
-      <div style="margin-top:28px;background:var(--s1);border:1px solid var(--b1);border-radius:14px;padding:20px;text-align:left">
-        <div style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t3);margin-bottom:12px">📬 Ce urmează</div>
-        <div style="display:flex;flex-direction:column;gap:10px">
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="color:var(--grn);flex-shrink:0">✓</span>
-            <span style="font-size:13px;color:var(--t2)">Vei primi un email de confirmare la <strong id="email-confirm" style="color:var(--tx)">adresa ta</strong></span>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="color:var(--grn);flex-shrink:0">✓</span>
-            <span style="font-size:13px;color:var(--t2)">Primul lead captat apare în dashboard în timp real</span>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="color:var(--grn);flex-shrink:0">✓</span>
-            <span style="font-size:13px;color:var(--t2)">Trial 30 zile gratuit — nu e nevoie de card</span>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start">
-            <span style="color:var(--ylw);flex-shrink:0">→</span>
-            <span style="font-size:13px;color:var(--t2)">Ne poți contacta oricând la <strong style="color:var(--teal)">contact@receptieai.ro</strong></span>
-          </div>
-        </div>
+    <div class="code-section">
+      <div class="code-label">Cod de instalare widget</div>
+      <div class="code-box" id="widget-code">
+        <button class="copy-btn" onclick="copyCode()" id="copy-btn">Copiază</button>
+        Se generează...
       </div>
     </div>
   </div>
 
-</div>
+  <!-- NEXT -->
+  <button class="next-btn" id="next-btn" disabled onclick="goToDashboard()">
+    Mergi la dashboard →
+  </button>
+  <div class="skip-link"><a href="dashboard.html">Sari peste și configurează mai târziu</a></div>
 
-<!-- TOAST -->
-<div class="toast" id="toast">
-  <span class="toast-icon">✓</span>
-  <span id="toast-text">Copiat!</span>
 </div>
 
 <script>
-// ── STATE ─────────────────────────────────────
-let state = {
-  type: '💇‍♀️',
-  typeName: 'Salon Beauty',
-  name: '',
-  email: '',
-  color: '#00D4AA',
-  plan: 'pro',
-  clientId: 'CLI-' + Math.random().toString(36).substr(2,6).toUpperCase(),
-};
+const API = window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'?'http://localhost:8080':'https://ai-reception-platform-production.up.railway.app';
+const CID = localStorage.getItem('recepai_client_id');
+const BIZ = localStorage.getItem('recepai_business');
 
-// ── TEMPLATES SERVICII ────────────────────────
-const TEMPLATES = {
-  '💇‍♀️': [['Tuns + coafat','80'],['Vopsit complet','150'],['Balayage','280'],['Manichiură gel','120'],['Pedichiură gel','140'],['Tratament keratină','200']],
-  '🦷': [['Consultație','80'],['Detartraj','180'],['Albire profesională','600'],['Plombă','280'],['Extracție','160'],['Coroană ceramică','900']],
-  '🐶': [['Consultație câine/pisică','150'],['Vaccinare polivalentă','150'],['Vaccinare antirabică','70'],['Castrare pisică','300'],['Ecografie abdominală','250'],['Microcip','100']],
-  '💆': [['Evaluare inițială','100'],['Ședință fizioterapie','120'],['Masaj terapeutic','150'],['Pachet 10 ședințe','1000'],['Electroterapie','80'],['Kinetoterapie','100']],
-  '🚗': [['Revizie completă','350'],['Schimb ulei + filtru','150'],['Geometrie roți','100'],['Diagnoză auto','80'],['Vulcanizare','30'],['ITP','150']],
-  '💊': [['Consultație generală','100'],['Consultație specialitate','150'],['Control periodic','80'],['Recoltare analize','50'],['EKG','150'],['Ecografie','200']],
-  '🏋️': [['Abonament lunar','200'],['Ședință PT','100'],['Evaluare fitness','80'],['Nutriție consultație','120'],['Recuperare sportivă','150'],['Yoga 1h','60']],
-  '✨': [['Serviciu 1','100'],['Serviciu 2','150'],['Serviciu 3','200']],
-};
+if (!localStorage.getItem('recepai_token')) window.location.href = 'login.html';
 
-// ── TYPE SELECT ───────────────────────────────
-function selectType(el, emoji, name) {
-  document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('selected'));
-  el.classList.add('selected');
-  state.type = emoji;
-  state.typeName = name;
-  document.getElementById('prev-av').textContent = emoji;
-  loadServices(emoji);
-  updatePreview();
-}
+let scannedProfile = null;
 
-// ── SERVICES ──────────────────────────────────
-function loadServices(type) {
-  const list = document.getElementById('services-list');
-  list.innerHTML = '';
-  const template = TEMPLATES[type] || TEMPLATES['✨'];
-  template.forEach(([name, price]) => addServiceRow(name, price));
-}
+const LOGS = [
+  {icon:'🔍', text:'Se conectează la site...'},
+  {icon:'📄', text:'Se citesc paginile principale...'},
+  {icon:'💰', text:'Se extrag serviciile și prețurile...'},
+  {icon:'📞', text:'Se detectează contact și program...'},
+  {icon:'🧠', text:'Se construiește Business Brain...'},
+  {icon:'✅', text:'Gata!'},
+];
 
-function addServiceRow(name='', price='') {
-  const list = document.getElementById('services-list');
-  const row = document.createElement('div');
-  row.className = 'service-row';
-  row.innerHTML = `
-    <input class="form-input" placeholder="Nume serviciu" value="${name}" style="font-size:13px;padding:9px 12px">
-    <input class="form-input" placeholder="Lei" value="${price}" style="font-size:13px;padding:9px 12px;text-align:center;font-family:'JetBrains Mono',monospace">
-    <button class="remove-btn" onclick="this.closest('.service-row').remove()">×</button>
-  `;
-  list.appendChild(row);
-}
+async function startScan() {
+  const url = document.getElementById('site-url').value.trim();
+  if (!url || !url.startsWith('http')) {
+    document.getElementById('site-url').style.borderColor = 'var(--red)';
+    setTimeout(() => document.getElementById('site-url').style.borderColor = '', 2000);
+    return;
+  }
 
-function addService() { addServiceRow(); document.querySelector('#services-list .service-row:last-child input').focus(); }
+  const btn = document.getElementById('scan-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="animation:spin .6s linear infinite;display:inline-block">⟳</span> Se scanează...';
 
-// ── PREVIEW ───────────────────────────────────
-function updatePreview() {
-  const name = document.getElementById('biz-name')?.value || 'Afacerea ta';
-  const color = document.getElementById('biz-color')?.value || '#00D4AA';
-  state.name = name;
-  state.color = color;
-  document.getElementById('prev-name').textContent = name;
-  document.getElementById('prev-head').style.background = color + '22';
-  document.getElementById('prev-av').style.background = color + '33';
-  document.getElementById('prev-msg').textContent = `Bună ziua! 👋 Sunt asistentul ${name}. Cu ce vă pot ajuta?`;
-  updateEmbedPreview();
-}
+  document.getElementById('scan-progress').classList.add('show');
+  document.getElementById('scan-result').classList.remove('show');
 
-function updateEmbedPreview() {
-  const colorEl = document.getElementById('color-display');
-  const nameEl = document.getElementById('name-display');
-  const idEl = document.getElementById('client-id-display');
-  if(colorEl) colorEl.textContent = state.color;
-  if(nameEl) nameEl.textContent = state.name || 'Afacerea Ta';
-  if(idEl) idEl.textContent = state.clientId;
-}
+  const log = document.getElementById('scan-log');
+  const bar = document.getElementById('progress-bar');
+  log.innerHTML = '';
 
-// ── PLAN SELECT ───────────────────────────────
-function selectPlan(el, plan, price) {
-  document.querySelectorAll('.plan-option').forEach(p => p.classList.remove('selected'));
-  el.classList.add('selected');
-  state.plan = plan;
-}
+  // Animate logs
+  for (let i = 0; i < LOGS.length - 1; i++) {
+    await new Promise(r => setTimeout(r, 800));
+    bar.style.width = ((i+1) / LOGS.length * 80) + '%';
+    const line = document.createElement('div');
+    line.className = 'log-line';
+    line.innerHTML = `<span class="log-icon">${LOGS[i].icon}</span><span>${LOGS[i].text}</span>`;
+    log.appendChild(line);
+    log.scrollTop = log.scrollHeight;
+  }
 
-// ── NAVIGATION ────────────────────────────────
-function goToStep(num) {
-  // Validare step 1
-  if(num === 2) {
-    const name = document.getElementById('biz-name').value.trim();
-    const email = document.getElementById('biz-email').value.trim();
-    const phone = document.getElementById('biz-phone').value.trim();
-    if(!name || !email || !phone) {
-      showToast('⚠ Completați numele, emailul și telefonul');
-      return;
+  // Real API call
+  try {
+    const r = await fetch(`${API}/api/brain/scan`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({url, clientId: CID})
+    });
+    const d = await r.json();
+
+    bar.style.width = '100%';
+    const doneLine = document.createElement('div');
+    doneLine.className = 'log-line log-ok';
+    doneLine.innerHTML = `<span class="log-icon">✅</span><span>Scanare completă!</span>`;
+    log.appendChild(doneLine);
+
+    if (d.success && d.brain) {
+      scannedProfile = d.brain;
+      showResult(d.brain);
+    } else {
+      showManualResult(url);
     }
-    state.name = name;
-    state.email = email;
+  } catch(e) {
+    bar.style.width = '100%';
+    showManualResult(url);
   }
 
-  // Ascunde toate
-  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('step-' + num).classList.add('active');
-
-  // Update progress
-  for(let i=1; i<=5; i++) {
-    const dot = document.getElementById('dot-' + i);
-    const prog = document.getElementById('prog-' + i);
-    const line = document.getElementById('line-' + (i-1));
-    dot.className = 'prog-dot' + (i < num ? ' done' : i === num ? ' active' : '');
-    dot.textContent = i < num ? '✓' : i;
-    prog.className = 'prog-step' + (i < num ? ' done' : i === num ? ' active' : '');
-    if(line) line.className = 'prog-line' + (i <= num ? ' done' : '');
-  }
-
-  window.scrollTo({top:0, behavior:'smooth'});
+  btn.disabled = false;
+  btn.innerHTML = '<span>🔄</span> Rescană';
 }
 
-// ── FINISH ────────────────────────────────────
-function finishOnboarding() {
-  const pass = document.getElementById('biz-pass').value;
-  const pass2 = document.getElementById('biz-pass2').value;
-  const terms = document.getElementById('terms-check').checked;
+function showResult(brain) {
+  const el = document.getElementById('scan-result');
+  const svcCount = brain.services?.length || 0;
+  const faqCount = brain.faq?.length || 0;
+  const conf = brain.confidence || 90;
 
-  if(!pass || pass.length < 8) { showToast('⚠ Parola trebuie să aibă minim 8 caractere'); return; }
-  if(pass !== pass2) { showToast('⚠ Parolele nu coincid'); return; }
-  if(!terms) { showToast('⚠ Acceptați termenii și condițiile'); return; }
+  el.innerHTML = `
+    <div class="result-card">
+      <div class="result-icon">🧠</div>
+      <div class="result-info">
+        <div class="result-name">${brain.name || BIZ} — AI configurat</div>
+        <div class="result-sub">AI-ul cunoaște acum afacerea ta</div>
+        <div class="result-stats">
+          <span class="rstat">✅ ${svcCount} servicii</span>
+          <span class="rstat">💡 ${faqCount} FAQ</span>
+          <span class="rstat">🎯 ${conf}% precizie</span>
+        </div>
+      </div>
+    </div>
+    <div class="result-fields">
+      ${brain.phone ? `<div class="rf"><div class="rf-label">Telefon</div><div class="rf-val mono">${brain.phone}</div></div>` : ''}
+      ${brain.hours ? `<div class="rf"><div class="rf-label">Program</div><div class="rf-val">${brain.hours}</div></div>` : ''}
+      ${brain.address ? `<div class="rf" style="grid-column:1/-1"><div class="rf-label">Adresă</div><div class="rf-val">${brain.address}</div></div>` : ''}
+    </div>`;
 
-  // Update success screen
-  document.getElementById('success-name').textContent = state.name.split(' ')[0] || 'prietene';
-  document.getElementById('email-confirm').textContent = state.email || 'adresa ta';
-  updateEmbedPreview();
-
-  goToStep(5);
+  el.classList.add('show');
+  showWidget();
 }
 
-// ── COPY EMBED ────────────────────────────────
-function copyEmbedCode() {
-  const code = `<!-- RecepAI — Recepționist AI -->
-<script
-  src="https://receptieai.ro/widget.js"
-  data-id="${state.clientId}"
-  data-culoare="${state.color}"
-  data-nume="${state.name}"
-><\/script>`;
-  navigator.clipboard.writeText(code).then(() => showToast('✓ Cod copiat! Lipește-l înainte de </body>'));
+function showManualResult(url) {
+  const el = document.getElementById('scan-result');
+  el.innerHTML = `
+    <div class="result-card" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2)">
+      <div class="result-icon">⚠️</div>
+      <div class="result-info">
+        <div class="result-name">Scanare parțială</div>
+        <div class="result-sub">Nu am putut accesa complet site-ul. AI-ul este activ dar cu informații limitate. Poți adăuga manual din dashboard.</div>
+      </div>
+    </div>`;
+  el.classList.add('show');
+  showWidget();
 }
 
-// ── TOAST ─────────────────────────────────────
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  document.getElementById('toast-text').textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
+function showWidget() {
+  document.getElementById('widget-section').style.display = 'block';
+  const code = `<script src="https://receptieai.ro/widget.js?id=${CID}"><\/script>`;
+  document.getElementById('widget-code').innerHTML = `<button class="copy-btn" onclick="copyCode()" id="copy-btn">Copiază</button>${escHtml(code)}`;
+  document.getElementById('next-btn').disabled = false;
+  document.getElementById('widget-section').scrollIntoView({behavior:'smooth'});
 }
 
-// ── INIT ──────────────────────────────────────
-loadServices('💇‍♀️');
-updatePreview();
+function copyCode() {
+  const code = `<script src="https://receptieai.ro/widget.js?id=${CID}"><\/script>`;
+  navigator.clipboard.writeText(code).then(() => {
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '✓ Copiat!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiază'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function goToDashboard() {
+  window.location.href = 'dashboard.html';
+}
 </script>
 </body>
 </html>
