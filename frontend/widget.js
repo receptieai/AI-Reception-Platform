@@ -600,8 +600,8 @@ Apoi adaugă exact: [LEAD_READY]`;
 
     let reply = await callAPI(text, businessProfile);
     
-    // Fix: daca AI cere doar numele, adaugam si telefonul
-    if ((reply.includes('numiți') || reply.includes('numele') || reply.includes('serviciu') || reply.includes('ce serviciu')) && !reply.includes('telefon') && !reply.includes('number')) {
+    // Fix: daca AI cere doar numele si nu avem inca telefon
+    if ((reply.includes('numiți') || reply.includes('numele')) && !reply.includes('telefon') && !collectedData.phone) {
       reply = 'Pentru a înregistra solicitarea, scrieți-mi numele și numărul de telefon 😊';
     }
     // Fix: daca AI intreaba din nou serviciul dupa ce avem date
