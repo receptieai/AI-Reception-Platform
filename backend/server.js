@@ -591,13 +591,14 @@ Ton: ${tones[personality || 'prietenos'] || tones.prietenos}
 ${aiContext}
 
 CÂND CLIENTUL VREA PROGRAMARE:
-1. Cere numele
-2. Cere telefonul
-3. Cere serviciul dorit
-4. Cere ziua preferată
-5. ${isOpen
-    ? 'Confirmă: "Veți fi contactat în maximum 2 ore!"'
-    : 'Confirmă: "Solicitarea a fost înregistrată! Vă vom contacta în ziua lucrătoare următoare."'}`;
+- Dacă clientul a menționat deja serviciul/ziua/ora — NU le mai cere din nou
+- Cere DOAR ce lipsește: numele și telefonul — ÎMPREUNĂ într-o singură întrebare
+- Ex: "Pentru a înregistra solicitarea, scrieți-mi numele și numărul de telefon 😊"
+- După ce primești numele și telefonul, confirmă IMEDIAT:
+${isOpen
+    ? '"✅ Mulțumesc! Solicitarea a fost înregistrată. Vă vom contacta în maximum 2 ore pentru a stabili ora exactă."'
+    : '"✅ Mulțumesc! Solicitarea a fost înregistrată. Suntem închiși acum — vă vom contacta mâine dimineață la deschiderea programului."'}
+- NU mai pune întrebări după confirmare`;
 
   const userMsg = messages
     .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
