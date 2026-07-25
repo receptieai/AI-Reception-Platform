@@ -458,6 +458,12 @@ Apoi adaugă exact: [LEAD_READY]`;
         if (t.includes(name.substring(0, 5))) return svc.name;
       }
     }
+    // Extract from conversation text directly
+    const words = t.match(/\b(\w{4,})\b/g) || [];
+    const stopWords = ['vreau','sunt','pentru','dorit','putet','puteti','ajuta','buna','ziua','programare','telefon','numele','numar'];
+    for (const w of words) {
+      if (!stopWords.includes(w) && w.length > 3) return w.charAt(0).toUpperCase() + w.slice(1);
+    }
     return null;
   }
 
