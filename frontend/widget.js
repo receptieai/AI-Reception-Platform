@@ -582,7 +582,12 @@ Apoi adaugă exact: [LEAD_READY]`;
     const delay = 600 + Math.random() * 800;
     await new Promise(r => setTimeout(r, delay));
 
-    const reply = await callAPI(text, businessProfile);
+    let reply = await callAPI(text, businessProfile);
+    
+    // Fix: daca AI cere doar numele, adaugam si telefonul
+    if ((reply.includes('numiți') || reply.includes('numele')) && !reply.includes('telefon') && !reply.includes('number')) {
+      reply = 'Pentru a înregistra solicitarea, scrieți-mi numele și numărul de telefon — de ex: Ion Popescu 0721234567 😊';
+    }
     
     showTyping(false);
     addMessage(reply, 'bot');
