@@ -88,10 +88,10 @@ nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 24px;height:64px;d
 
 /* PROBLEM/SOLUTION */
 .problem{padding:100px 24px;max-width:1100px;margin:0 auto;}
-.ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
+.ps-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;}
 .ps-title{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;letter-spacing:-1.5px;margin-bottom:20px;}
-.ps-list{display:flex;flex-direction:column;gap:14px;}
-.ps-item{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);}
+.ps-list{display:flex;flex-direction:column;gap:14px;flex:1;}
+.ps-item{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);flex:1;}
 .ps-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
 .ps-text{font-size:14px;color:var(--t2);line-height:1.6;}
 .ps-text strong{color:var(--tx);font-weight:600;}
