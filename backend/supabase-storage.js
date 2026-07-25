@@ -80,6 +80,20 @@ const db = {
     const sb = getClient(); if (!sb) return;
     await sb.from('settings').upsert({ client_id: clientId, data: settings, updated_at: new Date().toISOString() });
   },
+  async getAllPendingLeads() {
+    const sb = getClient(); if (!sb) return [];
+    const { data } = await sb.from('leads').select('*')
+      .not('data->>status', 'in', '("contacted","scheduled","lost")');
+    return (data || []).map(r => r.data);
+  },
+  async updateLeadFollowup(clientId, id, type) {
+    const sb = getClient(); if (!sb) return;
+    const { data } = await sb.from('leads').select('data').eq('id', id).single();
+    if (data) {
+      const updated = { ...data.data, ['followup' + type]: true };
+      await sb.from('leads').update({ data: updated }).eq('id', id);
+    }
+  },
   isConnected() { return !!(SUPABASE_URL && SUPABASE_KEY && supabase); }
 };
 module.exports = db;

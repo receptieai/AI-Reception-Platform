@@ -1378,6 +1378,69 @@ Returnează DOAR JSON valid fără text suplimentar:
   });
 });
 
+
+// ── FOLLOW-UP ENGINE ─────────────────────────────────
+async function checkFollowUps() {
+  try {
+    const now = Date.now();
+    const h24 = 24 * 60 * 60 * 1000;
+    const h48 = 48 * 60 * 60 * 1000;
+
+    // Get all clients from Supabase
+    const { data: allLeads } = await supa.getAllPendingLeads ? 
+      { data: await supa.getAllPendingLeads() } : { data: [] };
+    
+    if (!allLeads || !allLeads.length) return;
+
+    for (const lead of allLeads) {
+      if (!lead.createdAt || lead.status === 'contacted' || lead.status === 'scheduled' || lead.status === 'lost') continue;
+      
+      const age = now - new Date(lead.createdAt).getTime();
+      const settings = await supa.getSettings(lead.clientId);
+      const email = settings.notifEmail || settings.email;
+      if (!email) continue;
+
+      if (age >= h48 && !lead.followup48) {
+        // 48h reminder
+        await sendEmail({
+          to: email, toName: 'Recepție',
+          subject: `⚠️ RecepAI — Lead neprocesat 48h: ${lead.name}`,
+          html: `<div style="font-family:Inter,sans-serif;padding:24px">
+            <h2 style="color:#EF4444">⚠️ Lead neprocesat de 48 ore</h2>
+            <p><b>${lead.name}</b> — ${lead.phone} — ${lead.service || '—'}</p>
+            <p>Acest client nu a fost contactat în ultimele 48 ore.</p>
+            <p style="color:#9CA3AF;font-size:12px">RecepAI Follow-up Engine</p>
+          </div>`
+        });
+        await supa.updateLeadFollowup(lead.clientId, lead.id, '48');
+        console.log('[FOLLOWUP] 48h sent for', lead.name);
+      } else if (age >= h24 && !lead.followup24) {
+        // 24h reminder
+        await sendEmail({
+          to: email, toName: 'Recepție',
+          subject: `🔔 RecepAI — Reminder lead: ${lead.name}`,
+          html: `<div style="font-family:Inter,sans-serif;padding:24px">
+            <h2 style="color:#F59E0B">🔔 Reminder — Lead necontactat</h2>
+            <p><b>${lead.name}</b> — ${lead.phone} — ${lead.service || '—'}</p>
+            <p>A trecut o zi de când acest client a lăsat datele. Nu uita să îl contactezi!</p>
+            <p style="color:#9CA3AF;font-size:12px">RecepAI Follow-up Engine</p>
+          </div>`
+        });
+        await supa.updateLeadFollowup(lead.clientId, lead.id, '24');
+        console.log('[FOLLOWUP] 24h sent for', lead.name);
+      }
+    }
+  } catch(e) {
+    console.error('[FOLLOWUP] Error:', e.message);
+  }
+}
+
+// Run every hour
+setInterval(checkFollowUps, 60 * 60 * 1000);
+// Run once at startup after 1 minute
+setTimeout(checkFollowUps, 60 * 1000);
+console.log('[FOLLOWUP] Engine started');
+
 server.listen(PORT, () => {
   console.log('');
   console.log('╔══════════════════════════════════════╗');
