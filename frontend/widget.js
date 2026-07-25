@@ -592,7 +592,7 @@ Apoi adaugă exact: [LEAD_READY]`;
     
     // Fix: daca AI cere doar numele, adaugam si telefonul
     if ((reply.includes('numiți') || reply.includes('numele')) && !reply.includes('telefon') && !reply.includes('number')) {
-      reply = 'Pentru a înregistra solicitarea, scrieți-mi numele și numărul de telefon — de ex: Ion Popescu 0721234567 😊';
+      reply = 'Pentru a înregistra solicitarea, scrieți-mi numele și numărul de telefon 😊';
     }
     
     showTyping(false);
