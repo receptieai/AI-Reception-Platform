@@ -603,6 +603,10 @@ Apoi adaugă exact: [LEAD_READY]`;
     if ((reply.includes('numiți') || reply.includes('numele')) && !reply.includes('telefon') && !collectedData.phone) {
       reply = 'Pentru a înregistra solicitarea, scrieți-mi numele și numărul de telefon 😊';
     }
+    // Fix: daca AI intreaba serviciul dupa ce avem deja telefon
+    if (collectedData.phone && collectedData.name && (reply.includes('ce serviciu') || reply.includes('serviciu doriți') || reply.includes('serviciu exact') || reply.includes('ce doriți exact'))) {
+      reply = `✅ Mulțumesc, ${collectedData.name}! Solicitarea a fost înregistrată. Vă vom contacta în curând pentru a confirma ora. O zi frumoasă! 😊`;
+    }
     // Fix: daca AI intreaba din nou serviciul dupa ce avem date
     if ((reply.includes('ce serviciu') || reply.includes('serviciu doriți') || reply.includes('ce doriți')) && collectedData.phone) {
       // Skip — lead already detected, don't ask again
