@@ -437,7 +437,7 @@ Apoi adaugă exact: [LEAD_READY]`;
   function getFallbackReply(message) {
     const m = message.toLowerCase();
     if (m.includes('program') || m.includes('rezerv') || m.includes('programar')) {
-      return `Vă pot ajuta cu o programare! 😊\nCum vă numiți?`;
+      return `Vă pot ajuta cu o programare! 😊\nScrieți-mi numele și telefonul împreună: ex: Ion Popescu 0721234567`;
     }
     if (m.includes('pret') || m.includes('cost') || m.includes('cat')) {
       return `Pentru informații despre prețuri, vă rog sunați la ${C.phone || 'recepție'} sau scrieți-ne și vă răspundem imediat! 📞`;
