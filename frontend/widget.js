@@ -451,18 +451,28 @@ Apoi adaugă exact: [LEAD_READY]`;
   // ── DETECT LEAD READY ─────────────────────────
   function extractServiceFromText(text, profile) {
     const t = text.toLowerCase();
+    // Check profile services first
     if (profile && profile.services) {
       for (const svc of profile.services) {
         if (!svc.name) continue;
         const name = svc.name.toLowerCase();
-        if (t.includes(name.substring(0, 5))) return svc.name;
+        const words = name.split(/[\s\-]+/).filter(w => w.length > 3);
+        for (const w of words) {
+          if (t.includes(w)) return svc.name;
+        }
       }
     }
-    // Extract from conversation text directly
-    const words = t.match(/\b(\w{4,})\b/g) || [];
-    const stopWords = ['vreau','sunt','pentru','dorit','putet','puteti','ajuta','buna','ziua','programare','telefon','numele','numar'];
-    for (const w of words) {
-      if (!stopWords.includes(w) && w.length > 3) return w.charAt(0).toUpperCase() + w.slice(1);
+    // Common service keywords
+    const keywords = {
+      'tuns': 'Tuns', 'tunsoare': 'Tuns', 'coafat': 'Coafat',
+      'vopsit': 'Vopsit', 'manichiur': 'Manichiura', 'pedichiur': 'Pedichiura',
+      'masaj': 'Masaj', 'facial': 'Facial', 'epilar': 'Epilare',
+      'implant': 'Implant', 'albire': 'Albire', 'detartraj': 'Detartraj',
+      'consultat': 'Consultatie', 'extracti': 'Extractie', 'coroana': 'Coroana',
+      'canal': 'Tratament canal', 'aparat': 'Aparat dentar',
+    };
+    for (const [k, v] of Object.entries(keywords)) {
+      if (t.includes(k)) return v;
     }
     return null;
   }
@@ -591,8 +601,17 @@ Apoi adaugă exact: [LEAD_READY]`;
     let reply = await callAPI(text, businessProfile);
     
     // Fix: daca AI cere doar numele, adaugam si telefonul
-    if ((reply.includes('numiți') || reply.includes('numele')) && !reply.includes('telefon') && !reply.includes('number')) {
+    if ((reply.includes('numiți') || reply.includes('numele') || reply.includes('serviciu') || reply.includes('ce serviciu')) && !reply.includes('telefon') && !reply.includes('number')) {
       reply = 'Pentru a înregistra solicitarea, scrieți-mi numele și numărul de telefon 😊';
+    }
+    // Fix: daca AI intreaba din nou serviciul dupa ce avem date
+    if ((reply.includes('ce serviciu') || reply.includes('serviciu doriți') || reply.includes('ce doriți')) && collectedData.phone) {
+      // Skip — lead already detected, don't ask again
+      if (detectAndExtractLead(reply)) {
+        // already handled
+      } else {
+        reply = reply; // keep as is but trigger lead save
+      }
     }
     
     showTyping(false);
