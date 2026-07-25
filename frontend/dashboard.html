@@ -672,7 +672,7 @@ const EMAIL   = localStorage.getItem('recepai_email');
 const CID     = localStorage.getItem('recepai_client_id');
 const BIZ     = localStorage.getItem('recepai_business');
 
-if (!TOKEN) window.location.href = 'index.html';
+if (!TOKEN) window.location.href = 'login.html';
 
 // ── STATE ─────────────────────────────────────────────
 let LEADS = [];
@@ -1236,7 +1236,7 @@ function logout() {
   clearInterval(pollInterval);
   localStorage.removeItem('recepai_token');
   localStorage.removeItem('recepai_role');
-  window.location.href = 'index.html';
+  window.location.href = 'login.html';
 }
 
 // Close modal on background click
