@@ -381,15 +381,14 @@ REGULI STRICTE — RESPECTĂ-LE ÎNTOTDEAUNA:
 4. Dacă nu știi ceva → "Vă rog sunați la ${profile?.phone || C.phone || 'recepție'} pentru detalii"
 5. NICIODATĂ nu bloca conversația — dacă clientul vrea să vorbească, răspunde
 
-COLECTAREA DATELOR — NATURAL, nu forțat:
-- Colectezi NUME, TELEFON, SERVICIU DORIT, ZI PREFERATĂ
-- NU le ceri pe toate odată
-- Le ceri NATURAL în conversație DUPĂ ce ai răspuns la întrebările clientului
+COLECTAREA DATELOR — NATURAL, într-o singură întrebare:
+- Colectezi NUME + TELEFON + SERVICIU DORIT
+- Când clientul vrea programare, cere TOATE datele odată într-o singură propoziție
 - Exemplu corect:
   Client: "Cât costă detartrajul?"
   Tu: "Detartrajul costă 180 LEI și durează ~45 minute. Doriți să faceți o programare? 😊"
   Client: "Da"
-  Tu: "Super! Cum vă numiți?"
+  Tu: "Super! Îmi puteți da numele și numărul de telefon pentru a vă înregistra solicitarea?"
 
 CONTEXTUL TEMPORAL:
 - Acum este ${dayName}, ora ${hour}:${String(now.getMinutes()).padStart(2,'0')}
@@ -450,6 +449,18 @@ Apoi adaugă exact: [LEAD_READY]`;
   }
 
   // ── DETECT LEAD READY ─────────────────────────
+  function extractServiceFromText(text, profile) {
+    const t = text.toLowerCase();
+    if (profile && profile.services) {
+      for (const svc of profile.services) {
+        if (!svc.name) continue;
+        const name = svc.name.toLowerCase();
+        if (t.includes(name.substring(0, 5))) return svc.name;
+      }
+    }
+    return null;
+  }
+
   function detectAndExtractLead(text) {
     const userText = conversationHistory
       .filter(m => m.role === 'user')
@@ -475,6 +486,12 @@ Apoi adaugă exact: [LEAD_READY]`;
       const aiText = conversationHistory.filter(m => m.role === 'assistant').map(m => m.content).join(' ');
       const aiName = aiText.match(/(?:Mulțumesc|Multumesc),?\s+([A-ZĂÎȘȚÂ][a-zăîșțâ]+)/i);
       if (aiName) collectedData.name = aiName[1];
+    }
+
+    // Service
+    if (!collectedData.service) {
+      const allText = conversationHistory.map(m => m.content).join(' ');
+      collectedData.service = extractServiceFromText(allText, window._rcpai_profile);
     }
 
     // Fallback
@@ -582,6 +599,11 @@ Apoi adaugă exact: [LEAD_READY]`;
 
   // ── INIT CHAT ─────────────────────────────────
   async function initChat() {
+    try {
+      const r = await fetch(`${C.apiUrl}/api/profile/${C.clientId}`);
+      const d = await r.json();
+      if (d.profile) { businessProfile = d.profile; window._rcpai_profile = d.profile; }
+    } catch(e) {}
     showTyping(true);
     await new Promise(r => setTimeout(r, 800));
     showTyping(false);
