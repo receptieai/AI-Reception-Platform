@@ -388,7 +388,7 @@ COLECTAREA DATELOR — NATURAL, într-o singură întrebare:
   Client: "Cât costă detartrajul?"
   Tu: "Detartrajul costă 180 LEI și durează ~45 minute. Doriți să faceți o programare? 😊"
   Client: "Da"
-  Tu: "Super! Îmi puteți da numele și numărul de telefon pentru a vă înregistra solicitarea?"
+  Tu: "Super! Pentru a înregistra solicitarea, am nevoie de numele și numărul dvs. de telefon — le puteți scrie împreună: ex: Ion Popescu 0721234567"
 
 CONTEXTUL TEMPORAL:
 - Acum este ${dayName}, ora ${hour}:${String(now.getMinutes()).padStart(2,'0')}
