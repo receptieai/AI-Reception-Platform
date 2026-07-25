@@ -1263,35 +1263,33 @@ Returnează DOAR JSON valid fără text suplimentar:
     const body = await parseBody(req);
     const { email, password, clientId, businessName } = body;
     if (!email || !password) { sendJson(res, { error: 'Email și parolă obligatorii' }, 400); return; }
-    
-    if (storage.getUsers()[email]) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
+    const existing = await supa.getUser(email);
+    if (existing) { sendJson(res, { error: 'Email deja înregistrat' }, 400); return; }
     const token = 'tok_' + Math.random().toString(36).substring(2) + Date.now();
-    // First user for this clientId = owner, rest = specified role
-    const existingForClient = storage.getUsersByClientId(clientId);
+    const existingForClient = await supa.getUsersByClientId(clientId);
     const role = existingForClient.length === 0 ? 'owner' : (body.role || 'reception');
-    storage.saveUser({ email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() });
+    await supa.saveUser({ email, password, clientId, businessName, token, role, createdAt: new Date().toISOString() });
     console.log('[AUTH] Registered:', email, 'clientId:', clientId);
-    sendJson(res, { success: true, token, email, clientId, businessName, role: body.role || 'owner' });
+    sendJson(res, { success: true, token, email, clientId, businessName, role });
     return;
   }
 
   if (pathname === '/api/auth/login' && req.method === 'POST') {
     const body = await parseBody(req);
     const { email, password } = body;
-    
-    const user = storage.getUser(email);
+    const user = await supa.getUser(email);
     if (!user || user.password !== password) { sendJson(res, { error: 'Email sau parolă incorecte' }, 401); return; }
     console.log('[AUTH] Login:', email);
-    sendJson(res, { success: true, token: user.token, email: user.email, clientId: user.clientId, businessName: user.businessName, role: user.role || 'owner' });
+    sendJson(res, { success: true, token: user.token, email: user.email, clientId: user.client_id || user.clientId, businessName: user.business_name || user.businessName, role: user.role || 'owner' });
     return;
   }
 
   if (pathname === '/api/auth/me' && req.method === 'GET') {
     const token = req.headers['authorization']?.replace('Bearer ', '');
     if (!token) { sendJson(res, { error: 'Neautentificat' }, 401); return; }
-    const user = Object.values(storage.getUsers()).find(u => u.token === token);
+    const user = await supa.getUserByToken(token);
     if (!user) { sendJson(res, { error: 'Token invalid' }, 401); return; }
-    sendJson(res, { success: true, email: user.email, clientId: user.clientId, businessName: user.businessName });
+    sendJson(res, { success: true, email: user.email, clientId: user.client_id || user.clientId, businessName: user.business_name || user.businessName });
     return;
   }
 

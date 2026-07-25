@@ -19,12 +19,17 @@ const db = {
   },
   async saveUser(user) {
     const sb = getClient(); if (!sb) return;
-    await sb.from('users').upsert({ email: user.email, password: user.password, role: user.role, client_id: user.clientId, business_name: user.businessName });
+    await sb.from('users').upsert({ email: user.email, password: user.password, role: user.role, client_id: user.clientId, business_name: user.businessName, token: user.token, created_at: user.createdAt });
   },
   async getUsersByClientId(clientId) {
     const sb = getClient(); if (!sb) return [];
     const { data } = await sb.from('users').select('*').eq('client_id', clientId);
     return data || [];
+  },
+  async getUserByToken(token) {
+    const sb = getClient(); if (!sb) return null;
+    const { data } = await sb.from('users').select('*').eq('token', token).single();
+    return data;
   },
   async deleteUser(email) {
     const sb = getClient(); if (!sb) return;
