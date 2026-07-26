@@ -94,6 +94,21 @@ const db = {
       await sb.from('leads').update({ data: updated }).eq('id', id);
     }
   },
+  async getAllClients() {
+    const sb = getClient(); if (!sb) return [];
+    const { data } = await sb.from('users').select('*').order('created_at', { ascending: false });
+    return data || [];
+  },
+  async getAllLeadsAdmin() {
+    const sb = getClient(); if (!sb) return [];
+    const { data } = await sb.from('leads').select('*').order('created_at', { ascending: false });
+    return (data || []).map(r => r.data);
+  },
+  async getAllConversationsAdmin() {
+    const sb = getClient(); if (!sb) return [];
+    const { data } = await sb.from('conversations').select('*').order('created_at', { ascending: false });
+    return (data || []).map(r => r.data);
+  },
   isConnected() { return !!(SUPABASE_URL && SUPABASE_KEY && supabase); }
 };
 module.exports = db;

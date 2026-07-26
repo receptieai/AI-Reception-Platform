@@ -1142,6 +1142,23 @@ Returnează DOAR JSON valid fără text suplimentar:
   }
 
 
+  // ── ADMIN ENDPOINTS ─────────────────────────────────────
+  if (pathname === '/api/admin/clients' && req.method === 'GET') {
+    const clients = await supa.getAllClients();
+    sendJson(res, { success: true, clients });
+    return;
+  }
+  if (pathname === '/api/admin/leads' && req.method === 'GET') {
+    const leads = await supa.getAllLeadsAdmin();
+    sendJson(res, { success: true, leads });
+    return;
+  }
+  if (pathname === '/api/admin/conversations' && req.method === 'GET') {
+    const conversations = await supa.getAllConversationsAdmin();
+    sendJson(res, { success: true, conversations });
+    return;
+  }
+
   // ── LEADS ────────────────────────────────────────────
   if (pathname === '/api/leads' && req.method === 'GET') {
     const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
