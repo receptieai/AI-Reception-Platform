@@ -6,41 +6,29 @@
 <title>RecepAI — Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#09090B;--s1:#111214;--s2:#18191C;--s3:#1F2024;
-  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);
-  --tx:#F1F1F3;--t2:#A0A0A8;--t3:#505058;
-  --teal:#00D4AA;--td:rgba(0,212,170,.1);--tm:rgba(0,212,170,.2);
-  --green:#22C55E;--red:#EF4444;--amber:#F59E0B;--blue:#3B82F6;--purple:#8B5CF6;
-  --r:10px;--r-lg:16px;
-}
+:root{--bg:#09090B;--s1:#111214;--s2:#18191C;--s3:#1F2024;--b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--tx:#F1F1F3;--t2:#A0A0A8;--t3:#505058;--teal:#00D4AA;--td:rgba(0,212,170,.1);--tm:rgba(0,212,170,.2);--green:#22C55E;--red:#EF4444;--amber:#F59E0B;--blue:#3B82F6;--purple:#8B5CF6;--r:10px;--r-lg:16px;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;display:flex;font-size:14px;}
-
-/* SIDEBAR */
 .sb{width:220px;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;position:sticky;top:0;flex-shrink:0;}
 .sb-logo{padding:20px 18px;border-bottom:1px solid var(--b1);}
 .logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--tx);letter-spacing:-.3px;}
 .logo em{color:var(--teal);font-style:normal;}
-.logo-badge{display:inline-block;font-size:9px;font-weight:700;background:var(--td);color:var(--teal);padding:1px 7px;border-radius:4px;margin-left:6px;letter-spacing:.3px;vertical-align:middle;}
-.sb-nav{flex:1;padding:10px 10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+.logo-badge{display:inline-block;font-size:9px;font-weight:700;background:var(--td);color:var(--teal);padding:1px 7px;border-radius:4px;margin-left:6px;vertical-align:middle;}
+.sb-nav{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
 .ni{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .12s;position:relative;}
 .ni:hover{background:var(--s2);color:var(--tx);}
 .ni.active{background:var(--td);color:var(--teal);}
 .ni.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2px;background:var(--teal);border-radius:2px;}
 .ni-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;}
-.ni-badge{margin-left:auto;font-size:10px;font-weight:700;background:var(--red);color:#fff;padding:1px 6px;border-radius:8px;}
 .sb-section{font-size:9px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:1px;padding:12px 10px 4px;}
 .sb-foot{padding:12px 10px;border-top:1px solid var(--b1);}
 .admin-user{display:flex;align-items:center;gap:8px;padding:8px;border-radius:8px;}
 .admin-av{width:28px;height:28px;border-radius:50%;background:var(--teal);display:grid;place-items:center;font-size:11px;font-weight:700;color:#000;flex-shrink:0;}
-.admin-info{flex:1;min-width:0;}
-.admin-name{font-size:12px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-name{font-size:12px;font-weight:600;}
 .admin-role{font-size:10px;color:var(--t3);}
-.logout{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;}
+.logout{background:none;border:none;color:var(--t3);cursor:pointer;font-size:13px;margin-left:auto;}
 .logout:hover{color:var(--red);}
 
-/* MAIN */
 .main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
 .topbar{height:58px;flex-shrink:0;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 22px;gap:14px;position:sticky;top:0;z-index:10;}
 .tb-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;flex:1;}
@@ -48,11 +36,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 .tb-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
 @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 .tb-date{font-size:11px;color:var(--t3);}
+
 .content{padding:22px;flex:1;}
 .panel{display:none;}.panel.active{display:block;animation:fi .15s ease;}
 @keyframes fi{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
 
-/* METRICS */
 .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
 .mc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-lg);padding:18px;position:relative;overflow:hidden;}
 .mc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
@@ -64,100 +52,67 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 .mc-val{font-family:'Space Grotesk',sans-serif;font-size:30px;font-weight:700;line-height:1;margin-bottom:3px;}
 .mc-lbl{font-size:11px;color:var(--t2);}
 .mc-sub{font-size:10px;color:var(--t3);margin-top:4px;}
-.mc-trend{font-size:11px;font-weight:600;margin-top:4px;}
-.up{color:var(--green);}
 
-/* GRID */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px;}
 
-/* CARD */
 .card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-lg);overflow:hidden;margin-bottom:14px;}
 .ch{padding:13px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;}
 .ct{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;}
-.ca{font-size:11px;color:var(--teal);cursor:pointer;font-weight:600;}
-.ca:hover{opacity:.8;}
 
-/* TABLE */
-.tbl{width:100%;border-collapse:collapse;}
-.tbl th{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;padding:9px 14px;text-align:left;border-bottom:1px solid var(--b1);}
-.tbl td{padding:11px 14px;border-bottom:1px solid var(--b1);font-size:13px;}
-.tbl tr:last-child td{border-bottom:none;}
-.tbl tr:hover td{background:var(--s2);}
-
-/* BADGES */
-.badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;}
-.b-teal{background:var(--td);color:var(--teal);}
+.client-row{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--b1);transition:background .1s;cursor:pointer;}
+.client-row:hover{background:var(--s2);}
+.client-row:last-child{border-bottom:none;}
+.cl-av{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;font-size:13px;font-weight:700;flex-shrink:0;}
+.cl-info{flex:1;min-width:0;}
+.cl-name{font-size:13px;font-weight:600;}
+.cl-meta{font-size:11px;color:var(--t3);margin-top:1px;}
+.cl-stats{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.cl-stat{text-align:center;}
+.cl-stat-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:var(--teal);}
+.cl-stat-lbl{font-size:9px;color:var(--t3);}
+.cl-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;flex-shrink:0;}
 .b-grn{background:rgba(34,197,94,.12);color:var(--green);}
 .b-ylw{background:rgba(245,158,11,.12);color:var(--amber);}
 .b-red{background:rgba(239,68,68,.12);color:var(--red);}
-.b-pur{background:rgba(139,92,246,.12);color:var(--purple);}
+.b-teal{background:var(--td);color:var(--teal);}
 .b-gray{background:var(--s3);color:var(--t2);}
 
-/* CLIENT ROW */
-.crow{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .1s;}
-.crow:hover{background:var(--s2);}
-.crow:last-child{border-bottom:none;}
-.cav{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;font-size:13px;font-weight:700;flex-shrink:0;}
-.cinfo{flex:1;min-width:0;}
-.cname{font-size:13px;font-weight:600;}
-.cmeta{font-size:11px;color:var(--t3);margin-top:1px;}
-.cright{display:flex;flex-direction:column;align-items:flex-end;gap:3px;}
-.ctime{font-size:10px;color:var(--t3);}
-
-/* ACTIVITY */
-.act-item{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:1px solid var(--b1);}
-.act-item:last-child{border-bottom:none;}
-.act-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:4px;}
-.act-text{flex:1;font-size:12px;color:var(--t2);line-height:1.5;}
-.act-text strong{color:var(--tx);font-weight:600;}
-.act-time{font-size:10px;color:var(--t3);flex-shrink:0;}
-
-/* STAT ROW */
-.stat-row{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--b1);}
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--b1);}
 .stat-row:last-child{border-bottom:none;}
-.stat-label{font-size:12px;color:var(--t2);}
+.stat-label{font-size:12px;color:var(--t2);display:flex;align-items:center;gap:6px;}
 .stat-bar{flex:1;height:3px;background:var(--b1);border-radius:2px;margin:0 12px;overflow:hidden;}
 .stat-fill{height:100%;border-radius:2px;background:var(--teal);}
-.stat-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--teal);width:32px;text-align:right;}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--teal);min-width:28px;text-align:right;}
 
-/* MINI CHART */
-.mini-bars{display:flex;align-items:flex-end;gap:3px;height:48px;}
-.mbar{flex:1;border-radius:2px 2px 0 0;min-height:2px;transition:height .3s;}
+.mini-bars{display:flex;align-items:flex-end;gap:3px;height:60px;}
+.mbar{flex:1;border-radius:3px 3px 0 0;min-height:2px;transition:height .3s;}
 
-/* BUTTONS */
 .btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:'Inter',sans-serif;transition:all .12s;display:inline-flex;align-items:center;gap:5px;}
 .btn-p{background:var(--teal);color:#000;}.btn-p:hover{background:#00FFCC;}
 .btn-g{background:transparent;color:var(--t2);border:1px solid var(--b2);}.btn-g:hover{color:var(--tx);}
+.btn-sm{padding:5px 10px;font-size:11px;}
 .btn-d{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2);}
-.btn-sm{padding:4px 10px;font-size:11px;}
 
-/* EMPTY */
 .empty{text-align:center;padding:40px 20px;}
 .empty-icon{font-size:32px;margin-bottom:8px;}
-.empty-t{font-size:14px;font-weight:600;color:var(--t2);margin-bottom:4px;}
-.empty-s{font-size:12px;color:var(--t3);}
+.empty-t{font-size:14px;font-weight:600;color:var(--t2);}
+.empty-s{font-size:12px;color:var(--t3);margin-top:4px;}
 
-/* LOADING */
 .loading{display:flex;align-items:center;gap:8px;padding:20px;color:var(--t3);font-size:12px;}
 .spin{width:14px;height:14px;border:2px solid var(--b1);border-top-color:var(--teal);border-radius:50%;animation:spin .6s linear infinite;flex-shrink:0;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* TOAST */
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--s1);border:1px solid var(--tm);color:var(--tx);padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.5);opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 
-/* SEARCH */
-.search{background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:7px 12px;display:flex;align-items:center;gap:7px;}
-.search input{background:none;border:none;color:var(--tx);font-size:13px;outline:none;width:200px;}
-.search input::placeholder{color:var(--t3);}
+.search-wrap{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:7px 12px;margin-bottom:14px;}
+.search-wrap input{background:none;border:none;color:var(--tx);font-size:13px;outline:none;flex:1;}
+.search-wrap input::placeholder{color:var(--t3);}
 
-/* CLIENT DETAIL */
-.detail-grid{display:grid;grid-template-columns:1fr 2fr;gap:14px;}
-.detail-info{background:var(--s2);border:1px solid var(--b1);border-radius:10px;padding:16px;}
-.di-label{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;}
-.di-val{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:10px;}
-.di-val.mono{font-family:'JetBrains Mono',monospace;color:var(--teal);}
+.revenue-box{background:var(--td);border:1px solid var(--tm);border-radius:12px;padding:16px;margin-bottom:14px;display:flex;align-items:center;gap:16px;}
+.rev-val{font-family:'Space Grotesk',sans-serif;font-size:32px;font-weight:700;color:var(--teal);}
+.rev-lbl{font-size:12px;color:var(--t2);}
+.rev-sub{font-size:11px;color:var(--t3);margin-top:2px;}
 </style>
 </head>
 <body>
@@ -169,20 +124,17 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
   <nav class="sb-nav">
     <div class="sb-section">Principal</div>
     <div class="ni active" onclick="nav('overview',this)"><span class="ni-icon">📊</span>Overview</div>
-    <div class="ni" onclick="nav('clients',this)"><span class="ni-icon">🏥</span>Clienți<span class="ni-badge" id="nb-new" style="display:none">0</span></div>
-    <div class="ni" onclick="nav('leads',this)"><span class="ni-icon">📥</span>Toate lead-urile</div>
-    <div class="ni" onclick="nav('conversations',this)"><span class="ni-icon">💬</span>Conversații</div>
+    <div class="ni" onclick="nav('clients',this)"><span class="ni-icon">🏥</span>Clienți</div>
+    <div class="ni" onclick="nav('revenue',this)"><span class="ni-icon">💰</span>Revenue</div>
     <div class="sb-section">Sistem</div>
-    <div class="ni" onclick="nav('analytics',this)"><span class="ni-icon">📈</span>Analytics</div>
     <div class="ni" onclick="nav('health',this)"><span class="ni-icon">❤️</span>Health</div>
-    <div class="ni" onclick="nav('settings',this)"><span class="ni-icon">⚙️</span>Setări</div>
   </nav>
   <div class="sb-foot">
     <div class="admin-user">
       <div class="admin-av">RA</div>
-      <div class="admin-info">
+      <div>
         <div class="admin-name">RecepAI Admin</div>
-        <div class="admin-role">👑 Super Admin</div>
+        <div class="admin-role">👑 Fondator</div>
       </div>
       <button class="logout" onclick="logout()">↩</button>
     </div>
@@ -205,88 +157,71 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
       </div>
       <div class="g2">
         <div class="card">
-          <div class="ch"><span class="ct">🏥 Clienți noi recent</span><span class="ca" onclick="nav('clients')">Toți →</span></div>
+          <div class="ch"><span class="ct">🏥 Clienți înregistrați</span><span style="font-size:11px;color:var(--teal);cursor:pointer" onclick="nav('clients')">Toți →</span></div>
           <div id="ov-clients"><div class="loading"><div class="spin"></div></div></div>
         </div>
         <div class="card">
-          <div class="ch"><span class="ct">📥 Lead-uri recente</span><span class="ca" onclick="nav('leads')">Toate →</span></div>
-          <div id="ov-leads"><div class="loading"><div class="spin"></div></div></div>
+          <div class="ch"><span class="ct">🌍 Industrii</span></div>
+          <div style="padding:14px" id="ov-industries"></div>
         </div>
       </div>
       <div class="g2">
         <div class="card">
-          <div class="ch"><span class="ct">📈 Conversații / zi</span></div>
-          <div style="padding:16px">
+          <div class="ch"><span class="ct">📈 Activitate ultimele 7 zile</span></div>
+          <div style="padding:16px 16px 8px">
             <div class="mini-bars" id="ov-chart"></div>
+            <div style="display:flex;justify-content:space-between;margin-top:6px" id="ov-chart-labels"></div>
           </div>
         </div>
         <div class="card">
-          <div class="ch"><span class="ct">🌍 Industrii active</span></div>
-          <div style="padding:14px" id="ov-industries"></div>
+          <div class="ch"><span class="ct">⚡ Status rapid</span></div>
+          <div style="padding:14px" id="ov-status"></div>
         </div>
       </div>
     </div>
 
     <!-- CLIENTS -->
     <div class="panel" id="panel-clients">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div class="search"><span style="color:var(--t3)">🔍</span><input placeholder="Caută clinică, email..." id="client-search" oninput="filterClients(this.value)"></div>
-        <div style="display:flex;gap:8px">
-          <button class="btn btn-g btn-sm" onclick="filterStatus('all',this)" style="border-color:var(--teal);color:var(--teal)">Toți</button>
-          <button class="btn btn-g btn-sm" onclick="filterStatus('trial',this)">Trial</button>
-          <button class="btn btn-g btn-sm" onclick="filterStatus('active',this)">Activi</button>
-          <button class="btn btn-g btn-sm" onclick="filterStatus('suspended',this)">Suspendați</button>
+      <div class="search-wrap">
+        <span style="color:var(--t3)">🔍</span>
+        <input placeholder="Caută după nume sau email..." id="client-q" oninput="renderClients(this.value)">
+      </div>
+      <div style="display:flex;gap:8px;margin-bottom:14px">
+        <button class="btn btn-g btn-sm cf" onclick="setFilter('all',this)" style="border-color:var(--teal);color:var(--teal)">Toți</button>
+        <button class="btn btn-g btn-sm cf" onclick="setFilter('trial',this)">Trial</button>
+        <button class="btn btn-g btn-sm cf" onclick="setFilter('active',this)">Activi</button>
+        <button class="btn btn-g btn-sm cf" onclick="setFilter('suspended',this)">Suspendați</button>
+      </div>
+      <div class="card">
+        <div class="ch">
+          <span class="ct">🏥 Clienți</span>
+          <span id="clients-count" style="font-size:11px;color:var(--t2)">0 clienți</span>
         </div>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ct">🏥 Toți clienții</span><span class="badge b-teal" id="clients-count">0</span></div>
-        <table class="tbl">
-          <thead><tr>
-            <th>Clinică</th><th>Email</th><th>Tip</th><th>Status</th><th>Lead-uri</th><th>Înregistrat</th><th></th>
-          </tr></thead>
-          <tbody id="clients-table"><tr><td colspan="7"><div class="loading"><div class="spin"></div></div></td></tr></tbody>
-        </table>
+        <div id="clients-list"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 
-    <!-- LEADS -->
-    <div class="panel" id="panel-leads">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-        <div class="search"><span style="color:var(--t3)">🔍</span><input placeholder="Caută lead..." id="lead-search" oninput="filterLeads(this.value)"></div>
-        <span class="badge b-teal" id="leads-total">0 lead-uri</span>
-      </div>
-      <div class="card">
-        <div class="ch"><span class="ct">📥 Toate lead-urile din sistem</span></div>
-        <table class="tbl">
-          <thead><tr>
-            <th>Nume</th><th>Telefon</th><th>Serviciu</th><th>Clinică</th><th>Score</th><th>Status</th><th>Ora</th>
-          </tr></thead>
-          <tbody id="leads-table"><tr><td colspan="7"><div class="loading"><div class="spin"></div></div></td></tr></tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- CONVERSATIONS -->
-    <div class="panel" id="panel-conversations">
-      <div class="card">
-        <div class="ch"><span class="ct">💬 Conversații AI din sistem</span><span class="badge b-teal" id="convs-total">0</span></div>
-        <div id="convs-list"><div class="loading"><div class="spin"></div></div></div>
-      </div>
-    </div>
-
-    <!-- ANALYTICS -->
-    <div class="panel" id="panel-analytics">
-      <div class="metrics" id="an-metrics">
-        <div class="loading"><div class="spin"></div></div>
+    <!-- REVENUE -->
+    <div class="panel" id="panel-revenue">
+      <div class="revenue-box">
+        <div>
+          <div style="font-size:12px;color:var(--t2);margin-bottom:4px">Revenue lunar estimat</div>
+          <div class="rev-val" id="rev-total">0 RON</div>
+          <div class="rev-sub">bazat pe planurile active</div>
+        </div>
+        <div style="margin-left:auto;text-align:right">
+          <div style="font-size:11px;color:var(--t3);margin-bottom:4px">Clienți plătitori</div>
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;color:var(--tx)" id="rev-paying">0</div>
+        </div>
       </div>
       <div class="g2">
         <div class="card">
-          <div class="ch"><span class="ct">🔧 Top servicii căutate</span></div>
-          <div style="padding:14px" id="an-services"></div>
+          <div class="ch"><span class="ct">📊 Distribuție planuri</span></div>
+          <div style="padding:14px" id="rev-plans"></div>
         </div>
         <div class="card">
-          <div class="ch"><span class="ct">🏥 Clienți per industrie</span></div>
-          <div style="padding:14px" id="an-industries"></div>
+          <div class="ch"><span class="ct">📈 Potențial revenue</span></div>
+          <div style="padding:14px" id="rev-potential"></div>
         </div>
       </div>
     </div>
@@ -294,41 +229,11 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <!-- HEALTH -->
     <div class="panel" id="panel-health">
       <div class="card">
-        <div class="ch"><span class="ct">❤️ Health Monitor</span><button class="btn btn-g btn-sm" onclick="loadHealth()">🔄 Refresh</button></div>
+        <div class="ch">
+          <span class="ct">❤️ Health Monitor</span>
+          <button class="btn btn-g btn-sm" onclick="loadHealth()">🔄 Refresh</button>
+        </div>
         <div id="health-content" style="padding:16px"><div class="loading"><div class="spin"></div></div></div>
-      </div>
-    </div>
-
-    <!-- SETTINGS -->
-    <div class="panel" id="panel-settings">
-      <div class="g2">
-        <div class="card">
-          <div class="ch"><span class="ct">⚙️ Configurare sistem</span></div>
-          <div style="padding:16px">
-            <div style="margin-bottom:12px">
-              <div style="font-size:11px;font-weight:600;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Trial duration (zile)</div>
-              <input type="number" value="7" style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:13px;outline:none;width:120px;">
-            </div>
-            <div style="margin-bottom:12px">
-              <div style="font-size:11px;font-weight:600;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Max conversații Free</div>
-              <input type="number" value="50" style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:13px;outline:none;width:120px;">
-            </div>
-            <div style="margin-bottom:16px">
-              <div style="font-size:11px;font-weight:600;color:var(--t3);margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px">Max lead-uri Free</div>
-              <input type="number" value="20" style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:8px 12px;color:var(--tx);font-size:13px;outline:none;width:120px;">
-            </div>
-            <button class="btn btn-p btn-sm">💾 Salvează</button>
-          </div>
-        </div>
-        <div class="card">
-          <div class="ch"><span class="ct">📧 Email sistem</span></div>
-          <div style="padding:16px;font-size:13px;color:var(--t2)">
-            <div style="margin-bottom:8px">📧 <strong style="color:var(--tx)">Brevo API</strong> — configurat</div>
-            <div style="margin-bottom:8px">🔑 <strong style="color:var(--tx)">Claude API</strong> — configurat</div>
-            <div style="margin-bottom:8px">🗄️ <strong style="color:var(--tx)">Supabase</strong> — conectat</div>
-            <div>🚂 <strong style="color:var(--tx)">Railway</strong> — activ</div>
-          </div>
-        </div>
       </div>
     </div>
 
@@ -340,262 +245,160 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
 <script>
 const API = window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'?'http://localhost:8080':'https://ai-reception-platform-production.up.railway.app';
 const ADMIN_KEY = 'recepai_admin_2024';
-
-// Simple admin auth check
 const adminPass = localStorage.getItem('recepai_admin');
 if (adminPass !== ADMIN_KEY) {
-  const p = prompt('Parolă admin:');
-  if (p !== 'RecepAI2024!') { window.location.href = 'index.html'; }
+  const p = prompt('Parolă admin RecepAI:');
+  if (!p || p.trim() !== 'RecepAI2024!') { alert('Acces interzis.'); window.location.href = 'index.html'; }
   else localStorage.setItem('recepai_admin', ADMIN_KEY);
 }
 
-// State
-let CLIENTS = [];
-let ALL_LEADS = [];
-let ALL_CONVS = [];
-let clientFilter = 'all';
+let CLIENTS = [], ALL_LEADS = [], cFilter = 'all';
+const PLAN_PRICES = {free:0, trial:0, pro:249, clinic:499};
+const TYPE_ICONS = {dental:'🦷',physio:'🏃',vet:'🐾',beauty:'✨',medical:'⚕️',other:'🏢'};
+const TYPE_NAMES = {dental:'Stomatologie',physio:'Fizioterapie',vet:'Veterinar',beauty:'Beauty',medical:'Medical',other:'Altele'};
+const STATUS_LABELS = {active:'Activ',trial:'Trial',suspended:'Suspendat',pending:'Pending'};
+const STATUS_COLORS = {active:'b-grn',trial:'b-ylw',suspended:'b-red',pending:'b-gray'};
+const COLORS = ['#00D4AA','#3B82F6','#F59E0B','#8B5CF6','#EF4444','#22C55E'];
 
-// Date
 const now = new Date();
-document.getElementById('tb-date').textContent = now.toLocaleDateString('ro-RO',{weekday:'long',day:'numeric',month:'long'});
+document.getElementById('tb-date').textContent = now.toLocaleDateString('ro-RO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-const TITLES = {overview:'Overview',clients:'Clienți',leads:'Lead-uri',conversations:'Conversații AI',analytics:'Analytics',health:'Health Monitor',settings:'Setări'};
-
-function nav(page, el) {
-  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
-  document.getElementById('panel-' + page)?.classList.add('active');
-  if (el) el.classList.add('active');
-  document.getElementById('tb-title').textContent = TITLES[page] || page;
-  if (page === 'health') loadHealth();
-  if (page === 'leads') renderAllLeads();
-  if (page === 'conversations') renderAllConvs();
-  if (page === 'analytics') renderAnalytics();
+const TITLES = {overview:'Overview',clients:'Clienți',revenue:'Revenue',health:'Health Monitor'};
+function nav(p, el) {
+  document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x => x.classList.remove('active'));
+  document.getElementById('panel-'+p)?.classList.add('active');
+  if(el) el.classList.add('active');
+  document.getElementById('tb-title').textContent = TITLES[p]||p;
+  if(p==='health') loadHealth();
+  if(p==='revenue') renderRevenue();
+  if(p==='clients') renderClients();
 }
 
 async function init() {
-  await loadData();
-  renderOverview();
-}
-
-async function loadData() {
-  // Load all users from Supabase via API
   try {
     const r = await fetch(`${API}/api/admin/clients`);
     if (r.ok) { const d = await r.json(); CLIENTS = d.clients || []; }
-  } catch(e) {
-    // Fallback: use known clients
-    CLIENTS = [];
-  }
-
-  // Load all leads
+  } catch(e) {}
   try {
     const r = await fetch(`${API}/api/admin/leads`);
     if (r.ok) { const d = await r.json(); ALL_LEADS = d.leads || []; }
-  } catch(e) { ALL_LEADS = []; }
-
-  // Load all conversations
-  try {
-    const r = await fetch(`${API}/api/admin/conversations`);
-    if (r.ok) { const d = await r.json(); ALL_CONVS = d.conversations || []; }
-  } catch(e) { ALL_CONVS = []; }
-
-  // Badge
-  const newClients = CLIENTS.filter(c => {
-    const d = new Date(c.created_at);
-    return (Date.now() - d) < 86400000;
-  }).length;
-  if (newClients > 0) {
-    const nb = document.getElementById('nb-new');
-    nb.textContent = newClients;
-    nb.style.display = '';
-  }
+  } catch(e) {}
+  renderOverview();
 }
 
 function renderOverview() {
   const today = new Date().toDateString();
-  const todayLeads = ALL_LEADS.filter(l => new Date(l.createdAt).toDateString() === today);
-  const newLeads = ALL_LEADS.filter(l => l.status === 'new');
+  const newToday = CLIENTS.filter(c => c.created_at && new Date(c.created_at).toDateString() === today).length;
+  const active = CLIENTS.filter(c => c.status === 'active').length;
+  const trial = CLIENTS.filter(c => !c.status || c.status === 'trial').length;
+  const totalLeads = ALL_LEADS.length;
+  const todayLeads = ALL_LEADS.filter(l => l.createdAt && new Date(l.createdAt).toDateString() === today).length;
 
   document.getElementById('ov-metrics').innerHTML = `
-    <div class="mc m-teal"><div class="mc-icon">🏥</div><div class="mc-val" style="color:var(--teal)">${CLIENTS.length}</div><div class="mc-lbl">Clienți totali</div><div class="mc-sub">în platformă</div></div>
-    <div class="mc m-grn"><div class="mc-icon">📥</div><div class="mc-val" style="color:var(--green)">${ALL_LEADS.length}</div><div class="mc-lbl">Lead-uri totale</div><div class="mc-sub">${todayLeads.length} azi</div></div>
-    <div class="mc m-ylw"><div class="mc-icon">💬</div><div class="mc-val" style="color:var(--amber)">${ALL_CONVS.length}</div><div class="mc-lbl">Conversații AI</div><div class="mc-sub">total sistem</div></div>
-    <div class="mc m-pur"><div class="mc-icon">🔥</div><div class="mc-val" style="color:var(--purple)">${newLeads.length}</div><div class="mc-lbl">Lead-uri noi</div><div class="mc-sub">necontactate</div></div>`;
+    <div class="mc m-teal"><div class="mc-icon">🏥</div><div class="mc-val" style="color:var(--teal)">${CLIENTS.length}</div><div class="mc-lbl">Total clienți</div><div class="mc-sub">${newToday} înregistrați azi</div></div>
+    <div class="mc m-grn"><div class="mc-icon">✅</div><div class="mc-val" style="color:var(--green)">${active}</div><div class="mc-lbl">Clienți activi</div><div class="mc-sub">${trial} în trial</div></div>
+    <div class="mc m-ylw"><div class="mc-icon">📥</div><div class="mc-val" style="color:var(--amber)">${totalLeads}</div><div class="mc-lbl">Lead-uri generate</div><div class="mc-sub">${todayLeads} azi</div></div>
+    <div class="mc m-pur"><div class="mc-icon">💰</div><div class="mc-val" style="color:var(--purple)">${active * 249} RON</div><div class="mc-lbl">Revenue lunar</div><div class="mc-sub">estimat plan Pro</div></div>`;
 
   // Recent clients
-  const recent = CLIENTS.slice(0, 5);
-  document.getElementById('ov-clients').innerHTML = recent.length ? recent.map(c => clientRow(c)).join('') :
-    `<div class="empty"><div class="empty-icon">🏥</div><div class="empty-t">Niciun client</div></div>`;
-
-  // Recent leads
-  const recentLeads = ALL_LEADS.slice(0, 5);
-  document.getElementById('ov-leads').innerHTML = recentLeads.length ? recentLeads.map(l => leadMiniRow(l)).join('') :
-    `<div class="empty"><div class="empty-icon">📥</div><div class="empty-t">Niciun lead</div></div>`;
-
-  // Mini chart - conversations per day
-  const days = Array.from({length:7}, (_,i) => {
-    const d = new Date(); d.setDate(d.getDate() - (6-i));
-    return { date: d.toDateString(), count: ALL_CONVS.filter(c => new Date(c.savedAt || c.createdAt).toDateString() === d.toDateString()).length };
-  });
-  const maxC = Math.max(...days.map(d=>d.count), 1);
-  document.getElementById('ov-chart').innerHTML = days.map(d =>
-    `<div class="mbar" style="height:${Math.max(Math.round(d.count/maxC*100),4)}%;background:${d.count>0?'var(--teal)':'var(--b1)'}"></div>`
-  ).join('');
-
-  // Industries
-  const industries = {};
-  CLIENTS.forEach(c => { const t = c.business_type || 'other'; industries[t] = (industries[t]||0)+1; });
-  const icons = {dental:'🦷',physio:'🏃',vet:'🐾',beauty:'✨',medical:'⚕️',other:'🏢'};
-  const names = {dental:'Stomatologie',physio:'Fizioterapie',vet:'Veterinar',beauty:'Beauty',medical:'Medical',other:'Altele'};
-  const total = CLIENTS.length || 1;
-  document.getElementById('ov-industries').innerHTML = Object.entries(industries).map(([k,v]) => `
-    <div class="stat-row">
-      <span class="stat-label">${icons[k]||'•'} ${names[k]||k}</span>
-      <div class="stat-bar"><div class="stat-fill" style="width:${Math.round(v/total*100)}%"></div></div>
-      <span class="stat-val">${v}</span>
-    </div>`).join('') || '<div style="padding:16px;font-size:12px;color:var(--t3)">Niciun client</div>';
-
-  // Clients table
-  renderClients();
-}
-
-function clientRow(c) {
-  const statusColors = {active:'b-grn',trial:'b-ylw',suspended:'b-red',pending:'b-gray'};
-  const statusLabels = {active:'Activ',trial:'Trial',suspended:'Suspendat',pending:'Pending'};
-  const status = c.status || 'trial';
-  const initials = (c.business_name||'?').substring(0,2).toUpperCase();
-  const colors = ['#00D4AA','#3B82F6','#F59E0B','#8B5CF6','#EF4444'];
-  const color = colors[Math.abs((c.client_id||'').charCodeAt(4)||0) % colors.length];
-  return `<div class="crow">
-    <div class="cav" style="background:${color}22;color:${color}">${initials}</div>
-    <div class="cinfo">
-      <div class="cname">${c.business_name||'—'}</div>
-      <div class="cmeta">${c.email||'—'}</div>
-    </div>
-    <div class="cright">
-      <span class="badge ${statusColors[status]||'b-gray'}">${statusLabels[status]||status}</span>
-      <span class="ctime">${c.created_at ? new Date(c.created_at).toLocaleDateString('ro-RO') : '—'}</span>
-    </div>
-  </div>`;
-}
-
-function leadMiniRow(l) {
-  const scoreColors = {hot:'b-red',warm:'b-ylw',cold:'b-gray'};
-  const scoreLabels = {hot:'🔥 Urgent',warm:'🟡 Cald',cold:'⚪ Rece'};
-  return `<div class="crow">
-    <div class="cav" style="background:var(--td);color:var(--teal);font-size:11px">${(l.name||'?').substring(0,2).toUpperCase()}</div>
-    <div class="cinfo">
-      <div class="cname">${l.name||'Vizitator'}</div>
-      <div class="cmeta">${l.service||'—'} · ${l.phone||'—'}</div>
-    </div>
-    <div class="cright">
-      <span class="badge ${scoreColors[l.score]||'b-gray'}">${scoreLabels[l.score]||'—'}</span>
-      <span class="ctime">${timeAgo(l.createdAt)}</span>
-    </div>
-  </div>`;
-}
-
-function renderClients(q='', status='all') {
-  let list = CLIENTS;
-  if (q) list = list.filter(c => (c.business_name||'').toLowerCase().includes(q.toLowerCase()) || (c.email||'').toLowerCase().includes(q.toLowerCase()));
-  if (status !== 'all') list = list.filter(c => (c.status||'trial') === status);
-  document.getElementById('clients-count').textContent = list.length;
-  const statusColors = {active:'b-grn',trial:'b-ylw',suspended:'b-red',pending:'b-gray'};
-  const statusLabels = {active:'Activ',trial:'Trial',suspended:'Suspendat',pending:'Pending'};
-  const typeIcons = {dental:'🦷',physio:'🏃',vet:'🐾',beauty:'✨',medical:'⚕️',other:'🏢'};
-  document.getElementById('clients-table').innerHTML = list.length ? list.map(c => {
-    const s = c.status||'trial';
-    const leads = ALL_LEADS.filter(l => l.clientId === c.client_id).length;
-    return `<tr>
-      <td><div style="font-weight:600">${c.business_name||'—'}</div></td>
-      <td style="color:var(--t2)">${c.email||'—'}</td>
-      <td>${typeIcons[c.business_type||'other']||'🏢'}</td>
-      <td><span class="badge ${statusColors[s]}">${statusLabels[s]}</span></td>
-      <td><span style="font-family:'JetBrains Mono',monospace;color:var(--teal)">${leads}</span></td>
-      <td style="color:var(--t3)">${c.created_at ? new Date(c.created_at).toLocaleDateString('ro-RO') : '—'}</td>
-      <td>
-        <button class="btn btn-g btn-sm" onclick="suspendClient('${c.email}')">⏸</button>
-      </td>
-    </tr>`;
-  }).join('') : `<tr><td colspan="7"><div class="empty"><div class="empty-t">Niciun client</div></div></td></tr>`;
-}
-
-function filterClients(q) { renderClients(q, clientFilter); }
-function filterStatus(s, el) {
-  clientFilter = s;
-  document.querySelectorAll('[onclick^="filterStatus"]').forEach(b => { b.style.borderColor=''; b.style.color=''; });
-  if (el) { el.style.borderColor='var(--teal)'; el.style.color='var(--teal)'; }
-  renderClients(document.getElementById('client-search')?.value||'', s);
-}
-
-function renderAllLeads(q='') {
-  let list = ALL_LEADS;
-  if (q) list = list.filter(l => (l.name||'').toLowerCase().includes(q.toLowerCase()) || (l.phone||'').includes(q));
-  document.getElementById('leads-total').textContent = list.length + ' lead-uri';
-  const scoreLabels = {hot:'🔥 Urgent',warm:'🟡 Cald',cold:'⚪ Rece'};
-  const statusColors = {new:'b-red',seen:'b-teal',contacted:'b-ylw',scheduled:'b-grn',lost:'b-gray'};
-  const statusLabels = {new:'Nou',seen:'Văzut',contacted:'Contactat',scheduled:'Programat',lost:'Pierdut'};
-  document.getElementById('leads-table').innerHTML = list.length ? list.slice(0,50).map(l => `<tr>
-    <td><div style="font-weight:600">${l.name||'—'}</div></td>
-    <td><span style="font-family:'JetBrains Mono',monospace;color:var(--teal)">${l.phone||'—'}</span></td>
-    <td style="color:var(--t2)">${l.service||'—'}</td>
-    <td style="color:var(--t3);font-size:11px">${l.clientId||'—'}</td>
-    <td>${scoreLabels[l.score]||'—'}</td>
-    <td><span class="badge ${statusColors[l.status||'new']}">${statusLabels[l.status||'new']}</span></td>
-    <td style="color:var(--t3);font-size:11px">${timeAgo(l.createdAt)}</td>
-  </tr>`).join('') : `<tr><td colspan="7"><div class="empty"><div class="empty-t">Niciun lead</div></div></td></tr>`;
-}
-
-function filterLeads(q) { renderAllLeads(q); }
-
-function renderAllConvs() {
-  document.getElementById('convs-total').textContent = ALL_CONVS.length;
-  document.getElementById('convs-list').innerHTML = ALL_CONVS.length ? ALL_CONVS.slice(0,30).map(c => `
-    <div style="display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid var(--b1)">
-      <div style="width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0"></div>
-      <div style="flex:1">
-        <div style="font-size:13px;font-weight:600">${c.userName||'Vizitator'}</div>
-        <div style="font-size:11px;color:var(--t3)">${c.clientId||'—'} · ${c.messages?.length||0} mesaje</div>
-      </div>
-      <span style="font-size:10px;color:var(--t3)">${timeAgo(c.savedAt)}</span>
-    </div>`).join('') : `<div class="empty"><div class="empty-icon">💬</div><div class="empty-t">Nicio conversație</div></div>`;
-}
-
-function renderAnalytics() {
-  const total = ALL_LEADS.length;
-  const converted = ALL_LEADS.filter(l => l.status === 'scheduled').length;
-  const convRate = total ? Math.round(converted/total*100) : 0;
-  document.getElementById('an-metrics').innerHTML = `
-    <div class="mc m-teal"><div class="mc-icon">📥</div><div class="mc-val" style="color:var(--teal)">${total}</div><div class="mc-lbl">Lead-uri totale</div></div>
-    <div class="mc m-grn"><div class="mc-icon">✅</div><div class="mc-val" style="color:var(--green)">${converted}</div><div class="mc-lbl">Programate</div></div>
-    <div class="mc m-ylw"><div class="mc-icon">📊</div><div class="mc-val" style="color:var(--amber)">${convRate}%</div><div class="mc-lbl">Conversie</div></div>
-    <div class="mc m-pur"><div class="mc-icon">💬</div><div class="mc-val" style="color:var(--purple)">${ALL_CONVS.length}</div><div class="mc-lbl">Conversații</div></div>`;
-
-  // Top services
-  const svcs = {};
-  ALL_LEADS.forEach(l => { if (l.service) svcs[l.service] = (svcs[l.service]||0)+1; });
-  const topSvcs = Object.entries(svcs).sort((a,b)=>b[1]-a[1]).slice(0,5);
-  const maxS = Math.max(...topSvcs.map(s=>s[1]), 1);
-  document.getElementById('an-services').innerHTML = topSvcs.length ? topSvcs.map(([n,v]) => `
-    <div class="stat-row">
-      <span class="stat-label">${n.length>20?n.substring(0,20)+'…':n}</span>
-      <div class="stat-bar"><div class="stat-fill" style="width:${Math.round(v/maxS*100)}%"></div></div>
-      <span class="stat-val">${v}</span>
-    </div>`).join('') : '<div style="font-size:12px;color:var(--t3)">—</div>';
+  document.getElementById('ov-clients').innerHTML = CLIENTS.length ?
+    CLIENTS.slice(0,5).map(c => clientRow(c, true)).join('') :
+    `<div class="empty"><div class="empty-icon">🏥</div><div class="empty-t">Niciun client încă</div><div class="empty-s">Clienții înregistrați vor apărea aici</div></div>`;
 
   // Industries
   const ind = {};
   CLIENTS.forEach(c => { const t = c.business_type||'other'; ind[t]=(ind[t]||0)+1; });
-  const icons = {dental:'🦷',physio:'🏃',vet:'🐾',beauty:'✨',medical:'⚕️',other:'🏢'};
-  const names = {dental:'Stomatologie',physio:'Fizioterapie',vet:'Veterinar',beauty:'Beauty',medical:'Medical',other:'Altele'};
   const maxI = Math.max(...Object.values(ind), 1);
-  document.getElementById('an-industries').innerHTML = Object.entries(ind).map(([k,v]) => `
+  document.getElementById('ov-industries').innerHTML = Object.entries(ind).length ?
+    Object.entries(ind).sort((a,b)=>b[1]-a[1]).map(([k,v]) => `
     <div class="stat-row">
-      <span class="stat-label">${icons[k]||'•'} ${names[k]||k}</span>
+      <span class="stat-label">${TYPE_ICONS[k]||'•'} ${TYPE_NAMES[k]||k}</span>
       <div class="stat-bar"><div class="stat-fill" style="width:${Math.round(v/maxI*100)}%"></div></div>
       <span class="stat-val">${v}</span>
-    </div>`).join('') || '<div style="font-size:12px;color:var(--t3)">—</div>';
+    </div>`).join('') :
+    '<div style="padding:16px;font-size:12px;color:var(--t3)">Nicio industrie înregistrată</div>';
+
+  // 7 day chart
+  const days = Array.from({length:7}, (_,i) => {
+    const d = new Date(); d.setDate(d.getDate()-(6-i));
+    const count = CLIENTS.filter(c => c.created_at && new Date(c.created_at).toDateString()===d.toDateString()).length;
+    return {label:['D','L','M','M','J','V','S'][d.getDay()], count};
+  });
+  const maxC = Math.max(...days.map(d=>d.count), 1);
+  document.getElementById('ov-chart').innerHTML = days.map(d =>
+    `<div class="mbar" title="${d.count} clienți" style="height:${Math.max(Math.round(d.count/maxC*100),4)}%;background:${d.count>0?'var(--teal)':'var(--b1)'}"></div>`).join('');
+  document.getElementById('ov-chart-labels').innerHTML = days.map(d =>
+    `<span style="font-size:9px;color:var(--t3)">${d.label}</span>`).join('');
+
+  // Status rapid
+  document.getElementById('ov-status').innerHTML = `
+    <div class="stat-row"><span class="stat-label">🏥 Total clienți</span><span class="stat-val">${CLIENTS.length}</span></div>
+    <div class="stat-row"><span class="stat-label">✅ Activi</span><span class="stat-val" style="color:var(--green)">${active}</span></div>
+    <div class="stat-row"><span class="stat-label">⏱ Trial</span><span class="stat-val" style="color:var(--amber)">${trial}</span></div>
+    <div class="stat-row"><span class="stat-label">📥 Lead-uri totale</span><span class="stat-val">${totalLeads}</span></div>
+    <div class="stat-row"><span class="stat-label">📅 Lead-uri azi</span><span class="stat-val">${todayLeads}</span></div>`;
+}
+
+function clientRow(c, compact=false) {
+  const s = c.status || 'trial';
+  const initials = (c.business_name||'?').split(' ').map(w=>w[0]).join('').substring(0,2).toUpperCase();
+  const color = COLORS[Math.abs((c.client_id||'X').charCodeAt(4)||0) % COLORS.length];
+  const leads = ALL_LEADS.filter(l => l.clientId === c.client_id).length;
+  return `<div class="client-row">
+    <div class="cl-av" style="background:${color}22;color:${color}">${initials}</div>
+    <div class="cl-info">
+      <div class="cl-name">${c.business_name||'—'}</div>
+      <div class="cl-meta">${c.email||'—'} · ${TYPE_ICONS[c.business_type||'other']||'🏢'} ${TYPE_NAMES[c.business_type||'other']||'Altele'}</div>
+    </div>
+    ${!compact ? `<div class="cl-stat"><div class="cl-stat-val">${leads}</div><div class="cl-stat-lbl">lead-uri</div></div>` : ''}
+    <span class="cl-badge ${STATUS_COLORS[s]||'b-gray'}">${STATUS_LABELS[s]||s}</span>
+    <span style="font-size:10px;color:var(--t3);flex-shrink:0;margin-left:8px">${c.created_at ? new Date(c.created_at).toLocaleDateString('ro-RO',{day:'numeric',month:'short'}) : '—'}</span>
+    ${!compact ? `<div style="display:flex;gap:4px;margin-left:8px">
+      <button class="btn btn-g btn-sm" onclick="activateClient('${c.email}')" title="Activează">✅</button>
+      <button class="btn btn-d btn-sm" onclick="suspendClient('${c.email}')" title="Suspendă">⏸</button>
+    </div>` : ''}
+  </div>`;
+}
+
+function renderClients(q='') {
+  let list = CLIENTS;
+  if(q) list = list.filter(c => (c.business_name||'').toLowerCase().includes(q.toLowerCase()) || (c.email||'').toLowerCase().includes(q.toLowerCase()));
+  if(cFilter !== 'all') list = list.filter(c => (c.status||'trial') === cFilter);
+  document.getElementById('clients-count').textContent = `${list.length} clienți`;
+  document.getElementById('clients-list').innerHTML = list.length ?
+    list.map(c => clientRow(c, false)).join('') :
+    `<div class="empty"><div class="empty-icon">🏥</div><div class="empty-t">Niciun client găsit</div></div>`;
+}
+
+function setFilter(f, el) {
+  cFilter = f;
+  document.querySelectorAll('.cf').forEach(b => {b.style.borderColor='';b.style.color='';});
+  if(el){el.style.borderColor='var(--teal)';el.style.color='var(--teal)';}
+  renderClients(document.getElementById('client-q')?.value||'');
+}
+
+function renderRevenue() {
+  const active = CLIENTS.filter(c => c.status === 'active').length;
+  const trial = CLIENTS.filter(c => !c.status || c.status === 'trial').length;
+  const rev = active * 249;
+  document.getElementById('rev-total').textContent = rev.toLocaleString('ro') + ' RON';
+  document.getElementById('rev-paying').textContent = active;
+
+  const plans = [{name:'Free/Trial',count:trial,price:0,color:'var(--amber)'},{name:'Pro (249 RON)',count:active,price:249,color:'var(--teal)'},{name:'Clinic+ (499 RON)',count:0,price:499,color:'var(--purple)'}];
+  const maxP = Math.max(...plans.map(p=>p.count), 1);
+  document.getElementById('rev-plans').innerHTML = plans.map(p => `
+    <div class="stat-row">
+      <span class="stat-label"><span style="width:8px;height:8px;border-radius:50%;background:${p.color};display:inline-block;margin-right:4px"></span>${p.name}</span>
+      <div class="stat-bar"><div class="stat-fill" style="width:${Math.round(p.count/maxP*100)}%;background:${p.color}"></div></div>
+      <span class="stat-val" style="color:${p.color}">${p.count}</span>
+    </div>`).join('');
+
+  const potentialRev = CLIENTS.length * 249;
+  document.getElementById('rev-potential').innerHTML = `
+    <div class="stat-row"><span class="stat-label">Revenue actual</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--green)">${rev.toLocaleString('ro')} RON</span></div>
+    <div class="stat-row"><span class="stat-label">Potențial (toți Pro)</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--teal)">${potentialRev.toLocaleString('ro')} RON</span></div>
+    <div class="stat-row"><span class="stat-label">Conversie trial→paid</span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--amber)">${CLIENTS.length ? Math.round(active/CLIENTS.length*100) : 0}%</span></div>`;
 }
 
 async function loadHealth() {
@@ -604,30 +407,26 @@ async function loadHealth() {
     const r = await fetch(`${API}/api/health/full?clientId=CLI-8ULSIV`);
     const d = await r.json();
     const icons = {ok:'✅',warning:'⚠️',error:'❌',disconnected:'⚪'};
-    document.getElementById('health-content').innerHTML = Object.entries(d.checks||{}).map(([k,v]) => `
-      <div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--b1);font-size:13px">
-        <span style="font-size:16px">${icons[v.status]||'⚪'}</span>
-        <span style="flex:1;font-weight:500">${k}</span>
-        <span style="color:var(--t3);font-size:12px">${v.message||''}</span>
-        <span class="badge ${v.status==='ok'?'b-grn':v.status==='warning'?'b-ylw':'b-red'}">${v.status}</span>
-      </div>`).join('') + `<div style="font-size:10px;color:var(--t3);margin-top:10px;text-align:right">Verificat: ${new Date().toLocaleTimeString('ro-RO')}</div>`;
+    document.getElementById('health-content').innerHTML =
+      Object.entries(d.checks||{}).map(([k,v]) => `
+        <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--b1);font-size:13px">
+          <span>${icons[v.status]||'⚪'}</span>
+          <span style="flex:1;font-weight:500">${k}</span>
+          <span style="color:var(--t3);font-size:11px">${v.message||''}</span>
+          <span class="cl-badge ${v.status==='ok'?'b-grn':v.status==='warning'?'b-ylw':'b-red'}">${v.status}</span>
+        </div>`).join('') +
+      `<div style="font-size:10px;color:var(--t3);margin-top:10px;text-align:right">Verificat: ${new Date().toLocaleTimeString('ro-RO')}</div>`;
   } catch(e) {
-    document.getElementById('health-content').innerHTML = '<div style="color:var(--red);font-size:13px">❌ Nu se poate conecta la server</div>';
+    document.getElementById('health-content').innerHTML = '<div style="color:var(--red);padding:16px;font-size:13px">❌ Nu se poate conecta la server</div>';
   }
 }
 
+async function activateClient(email) {
+  toast('✅ Funcție în curând — Stripe integration');
+}
 async function suspendClient(email) {
   if (!confirm(`Suspendezi contul ${email}?`)) return;
   toast('⏸ Funcție în curând');
-}
-
-function timeAgo(ts) {
-  if (!ts) return '—';
-  const diff = Math.floor((Date.now() - new Date(ts)) / 1000);
-  if (diff < 60) return 'Acum ' + diff + 's';
-  if (diff < 3600) return 'Acum ' + Math.floor(diff/60) + 'm';
-  if (diff < 86400) return 'Acum ' + Math.floor(diff/3600) + 'h';
-  return new Date(ts).toLocaleDateString('ro-RO',{day:'numeric',month:'short'});
 }
 
 function toast(msg, dur=3000) {
@@ -635,7 +434,6 @@ function toast(msg, dur=3000) {
   el.textContent = msg; el.classList.add('show');
   setTimeout(() => el.classList.remove('show'), dur);
 }
-
 function logout() {
   localStorage.removeItem('recepai_admin');
   window.location.href = 'index.html';
