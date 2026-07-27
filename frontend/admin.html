@@ -479,26 +479,18 @@ async function startAdminScan() {
   };
   addLog('→ Se conectează la server...'); setP(10, 'Se pornește...');
   try {
-    const r = await fetch(`${API}/api/scan/start`, {
+    const fullUrl = url.startsWith('http')?url:'https://'+url;
+    const r = await fetch(`${API}/api/analyze`, {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ url: url.startsWith('http')?url:'https://'+url, clientId: cid })
+      body: JSON.stringify({ url: fullUrl, clientId: cid })
     });
     const d = await r.json();
-    const jobId = d.jobId;
-    if (!jobId) throw new Error('No jobId');
-    addLog(`✓ Job: ${jobId}`, 'var(--green)');
-    let att = 0;
-    const poll = setInterval(async () => {
-      att++;
-      if (att > 40) { clearInterval(poll); addLog('✗ Timeout', 'var(--red)'); btn.disabled=false; btn.textContent='🔍 Scanează'; return; }
-      const sr = await fetch(`${API}/api/scan/status/${jobId}`);
-      const sd = await sr.json();
-      if (sd.log) sd.log.slice(-2).forEach(l => addLog(l.message||l, 'var(--t2)'));
-      setP(Math.min(10+att*2, 95), sd.status||'Se procesează...');
-      if (sd.status==='completed'||sd.result) {
-        clearInterval(poll); setP(100,'✓ Gata!');
-        const res = sd.result||sd;
-        addLog(`✓ ${res.name||url} — ${res.services?.length||0} servicii, ${res.confidence||0}% acuratețe`, 'var(--green)');
+    setP(80, 'Se procesează...');
+    if (d.success && d.data) {
+      setP(100,'✓ Gata!');
+      const res = d.data;
+      addLog(`✓ ${res.name||url} — ${res.services?.length||0} servicii, ${res.confidence||0}% acuratețe`, 'var(--green)');
+      if (true) {
         document.getElementById('adm-scan-result').style.display='block';
         const fc = res.fieldConfidence||{};
         const confBadge = v => v>=80?`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,.12);color:var(--green)">${v}%</span>`:v>=50?`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(245,158,11,.12);color:var(--amber)">${v}%</span>`:`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(239,68,68,.12);color:var(--red)">${v}%</span>`;
@@ -540,11 +532,11 @@ async function startAdminScan() {
             </div>
           </div>`:''}`;
         btn.disabled=false; btn.textContent='🔄 Rescané';
-      } else if (sd.status==='failed') {
-        clearInterval(poll); addLog('✗ Eroare scanare', 'var(--red)');
-        btn.disabled=false; btn.textContent='🔍 Scanează';
       }
-    }, 2000);
+    } else {
+      addLog('✗ Eroare scanare', 'var(--red)');
+      btn.disabled=false; btn.textContent='🔍 Scanează';
+    }
   } catch(e) {
     addLog(`✗ ${e.message}`, 'var(--red)');
     // Try direct
