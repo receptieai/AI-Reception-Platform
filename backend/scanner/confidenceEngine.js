@@ -46,9 +46,10 @@ function calculateConfidence(merged, sources, extractedRaw) {
   scores.services = svcCount > 20 ? 95 : svcCount > 10 ? 88 : svcCount > 5 ? 75 : svcCount > 0 ? 55 : 0;
   scores.prices = priceRatio > 0.8 ? 95 : priceRatio > 0.5 ? 80 : priceRatio > 0.2 ? 60 : withPrice > 0 ? 40 : 0;
 
-  // Social
-  scores.facebook = sources.facebook?.confidence || (merged.facebook ? 90 : 0);
-  scores.instagram = sources.instagram?.confidence || (merged.instagram ? 90 : 0);
+  // Social — nu penalizam daca site-ul pur si simplu nu are social media
+  // Daca brain a scanat si nu a gasit, consideram 50 (neutral) nu 0
+  scores.facebook = merged.facebook ? (sources.facebook?.confidence || 90) : 40;
+  scores.instagram = merged.instagram ? (sources.instagram?.confidence || 90) : 40;
 
   // Doctors
   const docCount = merged.doctors?.length || 0;
