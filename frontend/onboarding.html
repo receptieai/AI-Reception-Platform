@@ -245,76 +245,39 @@ async function startScan() {
   addLog('→ Se conectează la server...', 'info');
 
   try {
-    // Start scan job
-    const startRes = await fetch(`${API}/api/scan/start`, {
+    addLog('→ Se analizează site-ul cu Scanner V3...', 'info');
+    setProgress(15, 'Se descarcă paginile...');
+
+    let pct = 15;
+    const progTimer = setInterval(() => {
+      pct = Math.min(pct + 2, 85);
+      const msgs = ['Se citesc paginile...','Se extrag serviciile...','Se analizează prețurile...','Business Brain activ...','Claude completează datele...'];
+      setProgress(pct, msgs[Math.floor((pct-15)/15)] || 'Se procesează...');
+    }, 2000);
+
+    const r = await fetch(`${API}/api/scan`, {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
       body: JSON.stringify({ url, clientId: CID, industry: BTYPE || 'auto' })
     });
-    const startData = await startRes.json();
 
-    if (!startData.jobId && !startData.success) {
-      // Fallback to direct /api/brain/scan
-      addLog('→ Scanare directă...', 'info');
-      await directScan(url);
-      return;
+    clearInterval(progTimer);
+    const data = await r.json();
+
+    if (data.success) {
+      setProgress(100, '✓ Scanare completă!');
+      addLog(`✓ ${data.name || url} — ${data.services?.length||0} servicii detectate`, 'ok');
+      addLog(`✓ Acuratețe: ${data.confidence||0}% | ${data._meta?.pagesScanned||1} pagini analizate`, 'ok');
+      if (data.brain?.insurances?.length) addLog(`✓ Asigurări: ${data.brain.insurances.join(', ')}`, 'ok');
+      scannedData = data;
+      showResult(data, url);
+      saveProfile(data, url);
+    } else {
+      addLog(`✗ Eroare: ${data.error || 'necunoscută'}`, 'err');
+      showPartialResult(url);
     }
-
-    const jobId = startData.jobId;
-    addLog(`✓ Job pornit: ${jobId}`, 'ok');
-    setProgress(10, 'Se citesc paginile...');
-
-    // Poll status
-    let attempts = 0;
-    const maxAttempts = 40;
-    const poll = setInterval(async () => {
-      attempts++;
-      if (attempts > maxAttempts) {
-        clearInterval(poll);
-        addLog('✗ Timeout — scanare prea lungă', 'err');
-        setProgress(0, 'Timeout');
-        isScanning = false;
-        btn.disabled = false;
-        btn.innerHTML = '🔍 Rescané';
-        return;
-      }
-
-      try {
-        const statusRes = await fetch(`${API}/api/scan/status/${jobId}`);
-        const status = await statusRes.json();
-
-        if (status.log && status.log.length > 0) {
-          // Show new logs
-          const box = document.getElementById('scan-log');
-          const shown = box.querySelectorAll('.ll:not(.init)').length;
-          const newLogs = status.log.slice(shown);
-          newLogs.forEach(l => addLog(l.message || l, l.type || 'info'));
-        }
-
-        const pct = Math.min(10 + Math.round((attempts/maxAttempts)*85), 95);
-        setProgress(pct, status.status || 'Se procesează...');
-
-        if (status.status === 'completed' || status.result) {
-          clearInterval(poll);
-          setProgress(100, '✓ Scanare completă!');
-          addLog(`✓ Scanare finalizată!`, 'ok');
-          const data = status.result || status;
-          scannedData = data;
-          showResult(data, url);
-          saveProfile(data, url);
-        } else if (status.status === 'failed' || status.error) {
-          clearInterval(poll);
-          addLog(`✗ Eroare: ${status.error || 'necunoscută'}`, 'err');
-          showPartialResult(url);
-        }
-      } catch(e) {
-        addLog(`⚠ Verificare status: ${e.message}`, 'warn');
-      }
-    }, 2000);
-
   } catch(e) {
     addLog(`✗ Eroare conexiune: ${e.message}`, 'err');
-    addLog('→ Încerc scanare alternativă...', 'info');
     await directScan(url);
   }
 }

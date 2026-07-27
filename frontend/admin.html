@@ -480,7 +480,7 @@ async function startAdminScan() {
   addLog('→ Se conectează la server...'); setP(10, 'Se pornește...');
   try {
     const fullUrl = url.startsWith('http')?url:'https://'+url;
-    const r = await fetch(`${API}/api/analyze`, {
+    const r = await fetch(`${API}/api/scan`, {
       method:'POST', headers:{'Content-Type':'application/json'},
       body: JSON.stringify({ url: fullUrl, clientId: cid })
     });
