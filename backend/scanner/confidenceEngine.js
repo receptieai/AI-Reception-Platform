@@ -21,13 +21,14 @@ const WEIGHTS = {
 function calculateConfidence(merged, sources, extractedRaw) {
   const scores = {};
 
-  // Contact fields — use actual extractor confidence
-  scores.name = sources.name?.confidence || (merged.name ? 75 : 0);
-  scores.phone = sources.phone?.confidence || (merged.phone ? 75 : 0);
-  scores.email = sources.email?.confidence || (merged.email ? 75 : 0);
-  scores.city = sources.city?.confidence || (merged.city ? 65 : 0);
-  scores.address = sources.address?.confidence || (merged.address ? 65 : 0);
-  scores.hours = merged.hours ? Math.max(sources.hours?.confidence || 78, 78) : 0;
+  // Contact fields — use raw extractor confidence where available
+  const rc = extractedRaw?._rawConfidence || {};
+  scores.name = Math.max(sources.name?.confidence || 0, rc.name || 0) || (merged.name ? 80 : 0);
+  scores.phone = Math.max(sources.phone?.confidence || 0, rc.phone || 0) || (merged.phone ? 80 : 0);
+  scores.email = Math.max(sources.email?.confidence || 0, rc.email || 0) || (merged.email ? 80 : 0);
+  scores.city = Math.max(sources.city?.confidence || 0, rc.city || 0) || (merged.city ? 70 : 0);
+  scores.address = Math.max(sources.address?.confidence || 0, rc.address || 0) || (merged.address ? 70 : 0);
+  scores.hours = merged.hours ? Math.max(sources.hours?.confidence || 0, rc.hours || 0, 78) : 0;
 
   // Services — based on count and price coverage
   const svcCount = merged.services?.length || 0;

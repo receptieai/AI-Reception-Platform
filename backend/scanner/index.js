@@ -58,7 +58,7 @@ async function scan(url, options={}) {
 
   if (!bestExtracted) throw new Error('Extractorii nu au returnat date');
 
-  // Flatten social into extracted
+  // Flatten social into extracted — preserve confidence objects
   const extracted = {
     name: bestExtracted.name,
     phone: bestExtracted.phone,
@@ -66,6 +66,7 @@ async function scan(url, options={}) {
     city: bestExtracted.city,
     address: bestExtracted.address,
     hours: bestExtracted.hours,
+    _rawConfidence: bestExtracted._confidence || {},
     social: {
       facebook: bestExtracted.facebook ? { value: bestExtracted.facebook, confidence: 90 } : null,
       instagram: bestExtracted.instagram ? { value: bestExtracted.instagram, confidence: 90 } : null,
