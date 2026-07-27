@@ -6,7 +6,15 @@ const { extractFacilities } = require('./facilityExtractor');
 const { extractPayments } = require('./paymentExtractor');
 const { extractSocial } = require('./socialExtractor');
 const { extractHours } = require('./hoursExtractor');
-const { isJsSite, renderPage } = require('../playwrightEngine');
+let isJsSite = () => false;
+let renderPage = async () => ({ success: false });
+try {
+  const pw = require('../playwrightEngine');
+  isJsSite = pw.isJsSite;
+  renderPage = pw.renderPage;
+} catch(e) {
+  console.log('[V2] Playwright not available — JS rendering disabled');
+}
 
 async function extractAll(html, url, pageLabel='homepage') {
   const start = Date.now();
