@@ -3,303 +3,510 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RecepAI — Configurare</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<title>RecepAI — Configurare AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{--indigo:#6366F1;--indigo-d:#4F46E5;--indigo-l:#EEF2FF;--green:#10B981;--green-l:#ECFDF5;--red:#EF4444;--amber:#F59E0B;--teal:#00D4AA;--teal-l:rgba(0,212,170,.08);--black:#0A0A0A;--g7:#374151;--g6:#4B5563;--g4:#9CA3AF;--g3:#D1D5DB;--g2:#E5E7EB;--g1:#F9FAFB;--white:#FFFFFF;}
-body{font-family:'Inter',sans-serif;background:var(--g1);color:var(--black);min-height:100vh;}
+:root{--bg:#09090B;--s1:#111214;--s2:#18191C;--s3:#1F2024;--b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);--tx:#F1F1F3;--t2:#A0A0A8;--t3:#505058;--teal:#00D4AA;--td:rgba(0,212,170,.1);--tm:rgba(0,212,170,.2);--green:#22C55E;--red:#EF4444;--amber:#F59E0B;--blue:#3B82F6;--r:10px;--r-lg:16px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;}
+nav{height:60px;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 24px;justify-content:space-between;}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;color:var(--tx);text-decoration:none;letter-spacing:-.3px;}
+.logo em{color:var(--teal);font-style:normal;}
+.nav-step{font-size:12px;color:var(--t3);}
 
-nav{height:60px;background:var(--white);border-bottom:1px solid var(--g2);display:flex;align-items:center;padding:0 24px;justify-content:space-between;}
-.nav-logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:var(--black);text-decoration:none;letter-spacing:-.5px;}
-.nav-logo em{color:var(--teal);font-style:normal;}
-.nav-step{font-size:12px;color:var(--g4);font-weight:500;}
+.container{max-width:760px;margin:0 auto;padding:40px 24px;}
+.ob-head{text-align:center;margin-bottom:40px;}
+.ob-title{font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;letter-spacing:-.5px;margin-bottom:8px;}
+.ob-sub{font-size:15px;color:var(--t2);}
 
-.container{max-width:720px;margin:0 auto;padding:48px 24px;}
+/* SCANNER CARD */
+.scard{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-lg);overflow:hidden;margin-bottom:16px;}
+.sch{padding:18px 22px;border-bottom:1px solid var(--b1);}
+.sc-step{font-size:10px;font-weight:700;color:var(--teal);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;}
+.sc-title{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px;}
+.sc-desc{font-size:13px;color:var(--t2);line-height:1.6;}
+.scb{padding:20px 22px;}
 
-.ob-header{text-align:center;margin-bottom:48px;}
-.ob-title{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:8px;}
-.ob-sub{font-size:16px;color:var(--g4);}
-
-/* SCAN CARD */
-.scan-card{background:var(--white);border:1.5px solid var(--g2);border-radius:18px;overflow:hidden;margin-bottom:20px;}
-.scan-head{padding:24px 28px;border-bottom:1px solid var(--g2);}
-.scan-step{font-size:11px;font-weight:700;color:var(--indigo);letter-spacing:.8px;text-transform:uppercase;margin-bottom:8px;}
-.scan-title{font-size:18px;font-weight:700;margin-bottom:4px;}
-.scan-desc{font-size:13px;color:var(--g4);line-height:1.6;}
-.scan-body{padding:24px 28px;}
-
-.url-input-wrap{display:flex;gap:10px;margin-bottom:20px;}
-.url-input{flex:1;height:50px;background:var(--g1);border:1.5px solid var(--g2);border-radius:12px;padding:0 16px;font-size:14px;font-family:'Inter',sans-serif;color:var(--black);outline:none;transition:all .15s;}
-.url-input:focus{border-color:var(--indigo);background:var(--white);box-shadow:0 0 0 3px rgba(99,102,241,.08);}
-.scan-btn{height:50px;padding:0 24px;background:var(--indigo);color:white;border:none;border-radius:12px;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;}
-.scan-btn:hover{background:var(--indigo-d);transform:translateY(-1px);}
+/* URL INPUT */
+.url-row{display:flex;gap:10px;margin-bottom:16px;}
+.url-in{flex:1;height:48px;background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--r);padding:0 14px;font-size:14px;color:var(--tx);font-family:'Inter',sans-serif;outline:none;transition:all .15s;}
+.url-in:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(0,212,170,.08);}
+.url-in::placeholder{color:var(--t3);}
+.scan-btn{height:48px;padding:0 22px;background:var(--teal);color:#000;border:none;border-radius:var(--r);font-size:14px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:8px;white-space:nowrap;flex-shrink:0;}
+.scan-btn:hover{background:#00FFCC;}
 .scan-btn:disabled{opacity:.6;pointer-events:none;}
 
-/* SCAN PROGRESS */
-.scan-progress{display:none;}
-.scan-progress.show{display:block;}
-.progress-bar-wrap{height:4px;background:var(--g2);border-radius:2px;margin-bottom:16px;overflow:hidden;}
-.progress-bar{height:100%;background:linear-gradient(90deg,var(--indigo),var(--teal));border-radius:2px;width:0%;transition:width .3s;}
-.scan-log{background:var(--g1);border-radius:10px;padding:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--g6);max-height:140px;overflow-y:auto;line-height:1.8;}
-.log-line{display:flex;align-items:flex-start;gap:8px;}
-.log-icon{flex-shrink:0;}
-.log-ok{color:var(--green);}
-.log-spin{color:var(--indigo);animation:spin .6s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
+/* LOG */
+.log-box{background:#080808;border:1px solid var(--b1);border-radius:var(--r);padding:12px;font-family:'JetBrains Mono',monospace;font-size:11px;height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin-bottom:12px;}
+.ll{display:flex;gap:8px;line-height:1.6;}
+.lt{color:var(--t3);flex-shrink:0;}
+.lok{color:var(--green);}
+.lerr{color:var(--red);}
+.linf{color:var(--teal);}
+.lwrn{color:var(--amber);}
 
-/* SCAN RESULT */
-.scan-result{display:none;margin-top:20px;}
-.scan-result.show{display:block;}
-.result-card{background:var(--teal-l);border:1px solid rgba(0,212,170,.2);border-radius:12px;padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:16px;}
-.result-icon{font-size:32px;flex-shrink:0;}
-.result-info{flex:1;}
-.result-name{font-size:15px;font-weight:700;margin-bottom:2px;}
-.result-sub{font-size:12px;color:var(--g4);}
-.result-stats{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
-.rstat{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(0,212,170,.12);color:var(--teal);}
-.result-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.rf{background:var(--white);border:1px solid var(--g2);border-radius:10px;padding:12px;}
-.rf-label{font-size:10px;font-weight:600;color:var(--g4);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;}
-.rf-val{font-size:13px;font-weight:600;color:var(--black);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.rf-val.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--indigo);}
+/* PROGRESS */
+.prog-wrap{margin-bottom:16px;}
+.prog-info{display:flex;justify-content:space-between;font-size:11px;margin-bottom:6px;}
+.prog-lbl{color:var(--t2);font-weight:600;}
+.prog-pct{font-family:'JetBrains Mono',monospace;color:var(--teal);font-weight:700;}
+.prog-track{height:4px;background:var(--b1);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--teal),#00FFCC);border-radius:2px;width:0%;transition:width .4s ease;}
 
-/* WIDGET PREVIEW */
-.widget-card{background:var(--white);border:1.5px solid var(--g2);border-radius:18px;overflow:hidden;margin-bottom:20px;}
-.widget-preview{padding:24px 28px;background:var(--g1);min-height:200px;display:flex;align-items:flex-end;justify-content:flex-end;position:relative;}
-.site-mock{position:absolute;inset:0;padding:14px;display:flex;flex-direction:column;gap:6px;}
-.site-bar{height:8px;background:var(--g3);border-radius:4px;width:60%;}
-.site-bar.short{width:40%;}
-.site-bar.med{width:80%;}
-.site-content{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:6px;}
-.site-block{background:var(--g2);border-radius:6px;}
-.widget-bubble{position:absolute;bottom:16px;right:16px;width:52px;height:52px;background:var(--indigo);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 20px rgba(99,102,241,.4);animation:float 3s ease-in-out infinite;}
-@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
-.widget-chat-preview{position:absolute;bottom:76px;right:16px;background:var(--white);border-radius:14px 14px 2px 14px;padding:12px 14px;max-width:240px;box-shadow:0 8px 32px rgba(0,0,0,.12);font-size:12px;line-height:1.5;color:var(--g7);}
-.chat-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:5px;animation:pdot 2s infinite;}
+/* RESULT */
+.result{display:none;margin-top:4px;}
+.result.show{display:block;}
+
+/* CONFIDENCE BADGE */
+.conf-badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:2px 8px;border-radius:5px;}
+.conf-high{background:rgba(34,197,94,.12);color:var(--green);}
+.conf-med{background:rgba(245,158,11,.12);color:var(--amber);}
+.conf-low{background:rgba(239,68,68,.12);color:var(--red);}
+
+/* RESULT OVERVIEW */
+.res-overview{background:var(--td);border:1px solid var(--tm);border-radius:var(--r-lg);padding:16px 20px;display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.res-icon{font-size:36px;}
+.res-info{flex:1;}
+.res-name{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;margin-bottom:4px;}
+.res-sub{font-size:12px;color:var(--t2);}
+.res-stats{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.rstat{font-size:11px;font-weight:700;padding:3px 10px;border-radius:6px;background:rgba(0,212,170,.15);color:var(--teal);}
+.rstat.warn{background:rgba(245,158,11,.12);color:var(--amber);}
+
+/* FIELDS GRID */
+.fields-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;}
+.field-card{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r);padding:12px;position:relative;}
+.field-card.editable{cursor:pointer;transition:border-color .15s;}
+.field-card.editable:hover{border-color:var(--teal);}
+.fc-label{font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;display:flex;align-items:center;justify-content:space-between;}
+.fc-val{font-size:13px;color:var(--tx);line-height:1.5;}
+.fc-val.empty{color:var(--t3);font-style:italic;}
+.fc-edit{font-size:10px;color:var(--teal);opacity:0;transition:opacity .15s;}
+.field-card:hover .fc-edit{opacity:1;}
+
+/* SERVICES */
+.svcs-list{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;}
+.svc-tag{font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--td);color:var(--teal);border:1px solid var(--tm);}
+.svc-tag.missing{background:var(--s3);color:var(--t3);border-color:var(--b1);}
+
+/* EDIT INLINE */
+.fc-input{width:100%;background:var(--s3);border:1px solid var(--teal);border-radius:7px;padding:6px 10px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;margin-top:4px;}
+
+/* MISSING ALERT */
+.missing-alert{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.2);border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;}
+.ma-icon{font-size:18px;flex-shrink:0;}
+.ma-title{font-size:13px;font-weight:700;color:var(--amber);margin-bottom:3px;}
+.ma-desc{font-size:12px;color:var(--t2);line-height:1.5;}
+
+/* WIDGET SECTION */
+.widget-section{display:none;}
+.widget-section.show{display:block;}
+.site-mock{background:var(--s2);border:1px solid var(--b1);border-radius:var(--r-lg);padding:20px;min-height:160px;position:relative;margin-bottom:16px;}
+.mock-bars{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.mock-bar{height:8px;background:var(--b2);border-radius:4px;}
+.mock-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.mock-block{height:60px;background:var(--b1);border-radius:8px;}
+.widget-float{position:absolute;bottom:16px;right:16px;width:50px;height:50px;background:var(--teal);border-radius:50%;display:grid;place-items:center;font-size:22px;box-shadow:0 4px 20px rgba(0,212,170,.3);animation:float 3s ease-in-out infinite;}
+@keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-5px);}}
+.chat-bubble{position:absolute;bottom:74px;right:16px;background:var(--s1);border:1px solid var(--b1);border-radius:12px 12px 2px 12px;padding:10px 14px;max-width:220px;font-size:12px;color:var(--t2);line-height:1.5;}
+.live-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--green);margin-right:5px;animation:pdot 2s infinite;}
 @keyframes pdot{0%,100%{opacity:1;}50%{opacity:.3;}}
 
-.code-section{padding:20px 28px;border-top:1px solid var(--g2);}
-.code-label{font-size:12px;font-weight:600;color:var(--g6);margin-bottom:8px;}
-.code-box{background:var(--black);border-radius:10px;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#A5B4FC;position:relative;line-height:1.6;}
-.copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.1);border:none;color:white;font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s;}
-.copy-btn:hover{background:rgba(255,255,255,.2);}
-.copied{background:rgba(16,185,129,.3)!important;}
+.code-box{background:#080808;border:1px solid var(--b1);border-radius:var(--r);padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#A5B4FC;position:relative;line-height:1.6;margin-top:8px;}
+.copy-btn{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.08);border:none;color:white;font-size:11px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;transition:background .12s;}
+.copy-btn:hover{background:rgba(255,255,255,.15);}
+.copy-btn.copied{background:rgba(34,197,94,.2);color:var(--green);}
 
-/* NEXT BTN */
-.next-btn{width:100%;height:54px;background:var(--indigo);color:white;border:none;border-radius:14px;font-size:16px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;}
-.next-btn:hover{background:var(--indigo-d);box-shadow:0 8px 24px rgba(99,102,241,.3);transform:translateY(-1px);}
-.next-btn:disabled{opacity:.5;pointer-events:none;}
+.next-btn{width:100%;height:52px;background:var(--teal);color:#000;border:none;border-radius:var(--r-lg);font-size:16px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;}
+.next-btn:hover{background:#00FFCC;box-shadow:0 8px 24px rgba(0,212,170,.25);}
+.next-btn:disabled{opacity:.4;pointer-events:none;}
+.skip{text-align:center;margin-top:14px;font-size:13px;color:var(--t3);}
+.skip a{color:var(--teal);text-decoration:none;font-weight:600;}
 
-.skip-link{text-align:center;margin-top:16px;font-size:13px;color:var(--g4);}
-.skip-link a{color:var(--indigo);text-decoration:none;font-weight:600;}
+.btn-sm{padding:5px 12px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--b1);background:var(--s2);color:var(--t2);font-family:'Inter',sans-serif;transition:all .12s;}
+.btn-sm:hover{border-color:var(--teal);color:var(--teal);}
 </style>
 </head>
 <body>
 
 <nav>
-  <a href="index.html" class="nav-logo">Recep<em>AI</em></a>
+  <a href="index.html" class="logo">Recep<em>AI</em></a>
   <span class="nav-step">Pas 3 din 3 — Configurare AI</span>
 </nav>
 
 <div class="container">
-  <div class="ob-header">
+  <div class="ob-head">
     <div class="ob-title">🧠 Configurăm AI-ul tău</div>
-    <div class="ob-sub">Scanăm site-ul tău și AI-ul va ști instant tot despre afacerea ta</div>
+    <div class="ob-sub">Scanăm site-ul și AI-ul va cunoaște instant afacerea ta</div>
   </div>
 
-  <!-- SCAN -->
-  <div class="scan-card">
-    <div class="scan-head">
-      <div class="scan-step">Pas 1 — Business Brain</div>
-      <div class="scan-title">Introduceți adresa site-ului vostru</div>
-      <div class="scan-desc">Analizăm automat serviciile, prețurile, programul și informațiile de contact. Durează ~30 secunde.</div>
+  <!-- SCANNER -->
+  <div class="scard">
+    <div class="sch">
+      <div class="sc-step">Pas 1 — Business Brain Scanner</div>
+      <div class="sc-title">Introdu adresa site-ului tău</div>
+      <div class="sc-desc">Analizăm automat serviciile, prețurile, programul și informațiile de contact.</div>
     </div>
-    <div class="scan-body">
-      <div class="url-input-wrap">
-        <input class="url-input" id="site-url" placeholder="https://clinica-voastra.ro" type="url">
-        <button class="scan-btn" id="scan-btn" onclick="startScan()">
-          <span>🔍</span> Scanează
-        </button>
+    <div class="scb">
+      <div class="url-row">
+        <input class="url-in" id="scan-url" placeholder="https://clinica-ta.ro" type="url">
+        <button class="scan-btn" id="scan-btn" onclick="startScan()">🔍 Scanează</button>
       </div>
-
-      <!-- PROGRESS -->
-      <div class="scan-progress" id="scan-progress">
-        <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
-        <div class="scan-log" id="scan-log"></div>
+      <div class="prog-wrap">
+        <div class="prog-info">
+          <span class="prog-lbl" id="scan-status">Gata pentru scanare</span>
+          <span class="prog-pct" id="scan-pct">0%</span>
+        </div>
+        <div class="prog-track"><div class="prog-fill" id="prog-fill"></div></div>
+      </div>
+      <div class="log-box" id="scan-log">
+        <div class="ll"><span class="lt">--:--</span><span class="linf">RecepAI Brain Scanner v2.0 gata.</span></div>
+        <div class="ll"><span class="lt">--:--</span><span class="linf">Introdu URL-ul și apasă Scanează.</span></div>
       </div>
 
       <!-- RESULT -->
-      <div class="scan-result" id="scan-result"></div>
+      <div class="result" id="scan-result"></div>
     </div>
   </div>
 
-  <!-- WIDGET PREVIEW -->
-  <div class="widget-card" id="widget-section" style="display:none">
-    <div class="scan-head">
-      <div class="scan-step">Pas 2 — Widget instalat</div>
-      <div class="scan-title">Widget-ul tău AI este gata</div>
-      <div class="scan-desc">Copiați codul de mai jos și inserați-l în site-ul vostru, înainte de &lt;/body&gt;. Sau trimiteți-l dezvoltatorului.</div>
+  <!-- WIDGET -->
+  <div class="scard widget-section" id="widget-section">
+    <div class="sch">
+      <div class="sc-step">Pas 2 — Instalare Widget</div>
+      <div class="sc-title">Widget-ul tău AI este gata</div>
+      <div class="sc-desc">Copiați codul și inserați-l în site înainte de &lt;/body&gt;. Sau trimiteți-l programatorului.</div>
     </div>
-    <div class="widget-preview">
+    <div class="scb">
       <div class="site-mock">
-        <div class="site-bar med"></div>
-        <div class="site-bar short"></div>
-        <div class="site-content">
-          <div class="site-block"></div>
-          <div class="site-block"></div>
+        <div class="mock-bars">
+          <div class="mock-bar" style="width:65%"></div>
+          <div class="mock-bar" style="width:45%"></div>
         </div>
-        <div class="site-bar"></div>
+        <div class="mock-grid">
+          <div class="mock-block"></div>
+          <div class="mock-block"></div>
+        </div>
+        <div class="chat-bubble"><span class="live-dot"></span>AI activ — răspunde vizitatorilor tăi 24/7</div>
+        <div class="widget-float">💬</div>
       </div>
-      <div class="widget-chat-preview">
-        <span class="chat-dot"></span>AI-ul tău este activ și răspunde vizitatorilor
-      </div>
-      <div class="widget-bubble">💬</div>
-    </div>
-    <div class="code-section">
-      <div class="code-label">Cod de instalare widget</div>
+      <div style="font-size:12px;color:var(--t3);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:.4px">Cod de instalare</div>
       <div class="code-box" id="widget-code">
-        <button class="copy-btn" onclick="copyCode()" id="copy-btn">Copiază</button>
+        <button class="copy-btn" id="copy-btn" onclick="copyCode()">Copiază</button>
         Se generează...
       </div>
     </div>
   </div>
 
-  <!-- NEXT -->
   <button class="next-btn" id="next-btn" disabled onclick="goToDashboard()">
     Mergi la dashboard →
   </button>
-  <div class="skip-link"><a href="dashboard.html">Sari peste și configurează mai târziu</a></div>
-
+  <div class="skip"><a href="dashboard.html">Sari peste — configurez mai târziu</a></div>
 </div>
 
 <script>
 const API = window.location.hostname==='localhost'||window.location.hostname==='127.0.0.1'?'http://localhost:8080':'https://ai-reception-platform-production.up.railway.app';
 const CID = localStorage.getItem('recepai_client_id');
 const BIZ = localStorage.getItem('recepai_business');
+const BTYPE = localStorage.getItem('recepai_business_type');
 
 if (!localStorage.getItem('recepai_token')) window.location.href = 'login.html';
 
-let scannedProfile = null;
+let isScanning = false;
+let scannedData = null;
 
-const LOGS = [
-  {icon:'🔍', text:'Se conectează la site...'},
-  {icon:'📄', text:'Se citesc paginile principale...'},
-  {icon:'💰', text:'Se extrag serviciile și prețurile...'},
-  {icon:'📞', text:'Se detectează contact și program...'},
-  {icon:'🧠', text:'Se construiește Business Brain...'},
-  {icon:'✅', text:'Gata!'},
-];
+function ts() { const d=new Date(); return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`; }
+
+function addLog(msg, type='info') {
+  const box = document.getElementById('scan-log');
+  const cls = {ok:'lok',err:'lerr',info:'linf',warn:'lwrn'}[type]||'linf';
+  const div = document.createElement('div');
+  div.className = 'll';
+  div.innerHTML = `<span class="lt">${ts()}</span><span class="${cls}">${msg}</span>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function setProgress(pct, label) {
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('scan-pct').textContent = pct + '%';
+  document.getElementById('scan-status').textContent = label;
+}
 
 async function startScan() {
-  const url = document.getElementById('site-url').value.trim();
-  if (!url || !url.startsWith('http')) {
-    document.getElementById('site-url').style.borderColor = 'var(--red)';
-    setTimeout(() => document.getElementById('site-url').style.borderColor = '', 2000);
-    return;
-  }
+  if (isScanning) return;
+  let url = document.getElementById('scan-url').value.trim();
+  if (!url) { addLog('✗ Introdu URL-ul site-ului', 'err'); return; }
+  if (!url.startsWith('http')) url = 'https://' + url;
+  document.getElementById('scan-url').value = url;
 
+  isScanning = true;
   const btn = document.getElementById('scan-btn');
   btn.disabled = true;
   btn.innerHTML = '<span style="animation:spin .6s linear infinite;display:inline-block">⟳</span> Se scanează...';
-
-  document.getElementById('scan-progress').classList.add('show');
   document.getElementById('scan-result').classList.remove('show');
+  document.getElementById('scan-result').innerHTML = '';
+  setProgress(0, 'Se pornește scanarea...');
+  addLog(`→ Se scanează: ${url}`, 'info');
+  addLog('→ Se conectează la server...', 'info');
 
-  const log = document.getElementById('scan-log');
-  const bar = document.getElementById('progress-bar');
-  log.innerHTML = '';
-
-  // Animate logs
-  for (let i = 0; i < LOGS.length - 1; i++) {
-    await new Promise(r => setTimeout(r, 800));
-    bar.style.width = ((i+1) / LOGS.length * 80) + '%';
-    const line = document.createElement('div');
-    line.className = 'log-line';
-    line.innerHTML = `<span class="log-icon">${LOGS[i].icon}</span><span>${LOGS[i].text}</span>`;
-    log.appendChild(line);
-    log.scrollTop = log.scrollHeight;
-  }
-
-  // Real API call
   try {
+    // Start scan job
+    const startRes = await fetch(`${API}/api/scan/start`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ url, clientId: CID, industry: BTYPE || 'auto' })
+    });
+    const startData = await startRes.json();
+
+    if (!startData.jobId && !startData.success) {
+      // Fallback to direct /api/brain/scan
+      addLog('→ Scanare directă...', 'info');
+      await directScan(url);
+      return;
+    }
+
+    const jobId = startData.jobId;
+    addLog(`✓ Job pornit: ${jobId}`, 'ok');
+    setProgress(10, 'Se citesc paginile...');
+
+    // Poll status
+    let attempts = 0;
+    const maxAttempts = 40;
+    const poll = setInterval(async () => {
+      attempts++;
+      if (attempts > maxAttempts) {
+        clearInterval(poll);
+        addLog('✗ Timeout — scanare prea lungă', 'err');
+        setProgress(0, 'Timeout');
+        isScanning = false;
+        btn.disabled = false;
+        btn.innerHTML = '🔍 Rescané';
+        return;
+      }
+
+      try {
+        const statusRes = await fetch(`${API}/api/scan/status/${jobId}`);
+        const status = await statusRes.json();
+
+        if (status.log && status.log.length > 0) {
+          // Show new logs
+          const box = document.getElementById('scan-log');
+          const shown = box.querySelectorAll('.ll:not(.init)').length;
+          const newLogs = status.log.slice(shown);
+          newLogs.forEach(l => addLog(l.message || l, l.type || 'info'));
+        }
+
+        const pct = Math.min(10 + Math.round((attempts/maxAttempts)*85), 95);
+        setProgress(pct, status.status || 'Se procesează...');
+
+        if (status.status === 'completed' || status.result) {
+          clearInterval(poll);
+          setProgress(100, '✓ Scanare completă!');
+          addLog(`✓ Scanare finalizată!`, 'ok');
+          const data = status.result || status;
+          scannedData = data;
+          showResult(data, url);
+          saveProfile(data, url);
+        } else if (status.status === 'failed' || status.error) {
+          clearInterval(poll);
+          addLog(`✗ Eroare: ${status.error || 'necunoscută'}`, 'err');
+          showPartialResult(url);
+        }
+      } catch(e) {
+        addLog(`⚠ Verificare status: ${e.message}`, 'warn');
+      }
+    }, 2000);
+
+  } catch(e) {
+    addLog(`✗ Eroare conexiune: ${e.message}`, 'err');
+    addLog('→ Încerc scanare alternativă...', 'info');
+    await directScan(url);
+  }
+}
+
+async function directScan(url) {
+  try {
+    setProgress(30, 'Scanare directă...');
+    addLog('→ Se analizează site-ul...', 'info');
     const r = await fetch(`${API}/api/brain/scan`, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({url, clientId: CID})
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ url, clientId: CID })
     });
     const d = await r.json();
-
-    bar.style.width = '100%';
-    const doneLine = document.createElement('div');
-    doneLine.className = 'log-line log-ok';
-    doneLine.innerHTML = `<span class="log-icon">✅</span><span>Scanare completă!</span>`;
-    log.appendChild(doneLine);
-
+    setProgress(100, '✓ Gata!');
     if (d.success && d.brain) {
-      scannedProfile = d.brain;
-      showResult(d.brain);
+      addLog(`✓ Brain configurat: ${d.brain.services?.length||0} servicii`, 'ok');
+      scannedData = d.brain;
+      showResult(d.brain, url);
+      saveProfile(d.brain, url);
     } else {
-      showManualResult(url);
+      addLog('⚠ Scanare parțială — date limitate', 'warn');
+      showPartialResult(url);
     }
   } catch(e) {
-    bar.style.width = '100%';
-    showManualResult(url);
+    addLog(`✗ Eroare: ${e.message}`, 'err');
+    showPartialResult(url);
+  } finally {
+    isScanning = false;
+    const btn = document.getElementById('scan-btn');
+    btn.disabled = false;
+    btn.innerHTML = '🔄 Rescané';
   }
-
-  btn.disabled = false;
-  btn.innerHTML = '<span>🔄</span> Rescană';
 }
 
-function showResult(brain) {
-  const el = document.getElementById('scan-result');
-  const svcCount = brain.services?.length || 0;
-  const faqCount = brain.faq?.length || 0;
-  const conf = brain.confidence || 90;
+function confBadge(val) {
+  if (!val && val !== 0) return '';
+  const pct = typeof val === 'number' ? val : 0;
+  const cls = pct >= 80 ? 'conf-high' : pct >= 50 ? 'conf-med' : 'conf-low';
+  return `<span class="conf-badge ${cls}">${pct}%</span>`;
+}
 
-  el.innerHTML = `
-    <div class="result-card">
-      <div class="result-icon">🧠</div>
-      <div class="result-info">
-        <div class="result-name">${brain.name || BIZ} — AI configurat</div>
-        <div class="result-sub">AI-ul cunoaște acum afacerea ta</div>
-        <div class="result-stats">
+function showResult(data, url) {
+  const svcCount = data.services?.length || 0;
+  const faqCount = data.faq?.length || 0;
+  const conf = data.confidence || 0;
+  const missing = [];
+  if (!data.phone) missing.push('Telefon');
+  if (!data.hours) missing.push('Program');
+  if (!data.address) missing.push('Adresă');
+  if (svcCount === 0) missing.push('Servicii');
+
+  let html = `
+    <div class="res-overview">
+      <div class="res-icon">🧠</div>
+      <div class="res-info">
+        <div class="res-name">${data.name || BIZ || 'Afacerea ta'} — Brain configurat</div>
+        <div class="res-sub">${url}</div>
+        <div class="res-stats">
           <span class="rstat">✅ ${svcCount} servicii</span>
           <span class="rstat">💡 ${faqCount} FAQ</span>
-          <span class="rstat">🎯 ${conf}% precizie</span>
+          <span class="rstat">🎯 ${conf}% acuratețe</span>
+          ${missing.length > 0 ? `<span class="rstat warn">⚠ ${missing.length} câmpuri lipsă</span>` : ''}
         </div>
       </div>
-    </div>
-    <div class="result-fields">
-      ${brain.phone ? `<div class="rf"><div class="rf-label">Telefon</div><div class="rf-val mono">${brain.phone}</div></div>` : ''}
-      ${brain.hours ? `<div class="rf"><div class="rf-label">Program</div><div class="rf-val">${brain.hours}</div></div>` : ''}
-      ${brain.address ? `<div class="rf" style="grid-column:1/-1"><div class="rf-label">Adresă</div><div class="rf-val">${brain.address}</div></div>` : ''}
     </div>`;
 
-  el.classList.add('show');
-  showWidget();
-}
+  if (missing.length > 0) {
+    html += `<div class="missing-alert">
+      <span class="ma-icon">⚠️</span>
+      <div><div class="ma-title">Câmpuri lipsă — completează manual</div>
+      <div class="ma-desc">Nu am detectat: <strong>${missing.join(', ')}</strong>. Poți adăuga din dashboard → AI Brain.</div></div>
+    </div>`;
+  }
 
-function showManualResult(url) {
-  const el = document.getElementById('scan-result');
-  el.innerHTML = `
-    <div class="result-card" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2)">
-      <div class="result-icon">⚠️</div>
-      <div class="result-info">
-        <div class="result-name">Scanare parțială</div>
-        <div class="result-sub">Nu am putut accesa complet site-ul. AI-ul este activ dar cu informații limitate. Poți adăuga manual din dashboard.</div>
+  html += `<div class="fields-grid">`;
+
+  // Name
+  html += fieldCard('Nume afacere', data.name || '—', 'name', conf >= 80 ? 90 : 60);
+  // Phone
+  html += fieldCard('Telefon', data.phone || '', 'phone', data.phone ? 95 : 0);
+  // Email
+  html += fieldCard('Email', data.email || '', 'email', data.email ? 90 : 0);
+  // Address
+  html += fieldCard('Adresă', data.address || '', 'address', data.address ? 85 : 0);
+  // Hours
+  html += fieldCard('Program', data.hours || '', 'hours', data.hours ? 80 : 0);
+  // Website
+  html += fieldCard('Website', url, 'website', 100);
+
+  html += `</div>`;
+
+  // Services
+  if (svcCount > 0) {
+    html += `<div class="scard" style="margin-top:4px">
+      <div class="sch" style="padding:12px 16px">
+        <div class="sc-step" style="margin-bottom:3px">Servicii detectate (${svcCount})</div>
+        <div class="svcs-list">
+          ${data.services.map(s => `<span class="svc-tag">${s.name}${s.price ? ' · ' + s.price : ''}</span>`).join('')}
+        </div>
       </div>
     </div>`;
-  el.classList.add('show');
+  }
+
+  // FAQ
+  if (faqCount > 0) {
+    html += `<div class="scard" style="margin-top:10px">
+      <div class="sch" style="padding:12px 16px">
+        <div class="sc-step" style="margin-bottom:6px">FAQ detectate (${faqCount})</div>
+        ${data.faq.slice(0,3).map(f => `<div style="font-size:12px;color:var(--t2);padding:5px 0;border-bottom:1px solid var(--b1)"><span style="color:var(--teal)">Q:</span> ${f.question}</div>`).join('')}
+        ${faqCount > 3 ? `<div style="font-size:11px;color:var(--t3);padding-top:6px">+ ${faqCount-3} mai multe</div>` : ''}
+      </div>
+    </div>`;
+  }
+
+  const resultEl = document.getElementById('scan-result');
+  resultEl.innerHTML = html;
+  resultEl.classList.add('show');
+
+  // Make fields editable
+  resultEl.querySelectorAll('.field-card.editable').forEach(card => {
+    card.addEventListener('click', () => editField(card));
+  });
+
   showWidget();
+  isScanning = false;
+  const btn = document.getElementById('scan-btn');
+  btn.disabled = false;
+  btn.innerHTML = '🔄 Rescané';
+}
+
+function fieldCard(label, val, key, confVal) {
+  const hasVal = val && val !== '—';
+  return `<div class="field-card editable" data-key="${key}" data-val="${(val||'').replace(/"/g,'&quot;')}">
+    <div class="fc-label">
+      <span>${label}</span>
+      <span style="display:flex;align-items:center;gap:4px">${confBadge(confVal)}<span class="fc-edit">✏️</span></span>
+    </div>
+    <div class="fc-val ${hasVal?'':'empty'}">${hasVal ? val : 'Nedetectat — click pentru a adăuga'}</div>
+  </div>`;
+}
+
+function editField(card) {
+  const key = card.dataset.key;
+  const curVal = card.dataset.val || '';
+  const label = card.querySelector('.fc-label span').textContent;
+  const newVal = prompt(`Editează ${label}:`, curVal);
+  if (newVal === null) return;
+  card.querySelector('.fc-val').textContent = newVal || 'Nedetectat';
+  card.querySelector('.fc-val').className = 'fc-val' + (newVal ? '' : ' empty');
+  card.dataset.val = newVal;
+  if (scannedData) scannedData[key] = newVal;
+  saveProfile(scannedData, scannedData?.website || document.getElementById('scan-url').value);
+}
+
+function showPartialResult(url) {
+  document.getElementById('scan-result').innerHTML = `
+    <div class="missing-alert" style="background:rgba(245,158,11,.08);border-color:rgba(245,158,11,.2)">
+      <span class="ma-icon">⚠️</span>
+      <div><div class="ma-title" style="color:var(--amber)">Scanare parțială</div>
+      <div class="ma-desc">Nu am putut accesa complet site-ul (posibil site dinamic/React). AI-ul este activ dar cu informații limitate. Completează manual din Dashboard → AI Brain.</div></div>
+    </div>`;
+  document.getElementById('scan-result').classList.add('show');
+  showWidget();
+  isScanning = false;
+  const btn = document.getElementById('scan-btn');
+  btn.disabled = false;
+  btn.innerHTML = '🔄 Rescané';
+}
+
+async function saveProfile(data, url) {
+  if (!data || !CID) return;
+  try {
+    await fetch(`${API}/api/profile/save`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ ...data, clientId: CID, website: url })
+    });
+  } catch(e) {}
 }
 
 function showWidget() {
-  document.getElementById('widget-section').style.display = 'block';
+  document.getElementById('widget-section').classList.add('show');
   const code = `<script src="https://receptieai.ro/widget.js?id=${CID}"><\/script>`;
-  document.getElementById('widget-code').innerHTML = `<button class="copy-btn" onclick="copyCode()" id="copy-btn">Copiază</button>${escHtml(code)}`;
+  document.getElementById('widget-code').innerHTML = `<button class="copy-btn" id="copy-btn" onclick="copyCode()">Copiază</button>${esc(code)}`;
   document.getElementById('next-btn').disabled = false;
-  document.getElementById('widget-section').scrollIntoView({behavior:'smooth'});
+  setTimeout(() => document.getElementById('widget-section').scrollIntoView({behavior:'smooth'}), 300);
 }
 
 function copyCode() {
@@ -312,13 +519,8 @@ function copyCode() {
   });
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
-
-function goToDashboard() {
-  window.location.href = 'dashboard.html';
-}
+function esc(s) { return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function goToDashboard() { window.location.href = 'dashboard.html'; }
 </script>
 </body>
 </html>
