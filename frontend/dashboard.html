@@ -297,20 +297,57 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 
     <!-- BRAIN -->
     <div class="panel" id="panel-brain">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
-        <div class="card">
-          <div class="ch"><span class="ct">🧠 Business Brain</span><button class="btn btn-ghost btn-sm" onclick="rescan()">🔄 Rescană</button></div>
-          <div style="padding:14px" id="brain-info"><div class="loading"><div class="spin"></div></div></div>
+      <!-- SCANNER -->
+      <div class="card" style="margin-bottom:14px">
+        <div class="ch">
+          <span class="ct">🔍 Business Brain Scanner</span>
+          <span style="font-size:11px;color:var(--t3)" id="brain-conf-badge"></span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;align-content:start">
-          <div class="brain-stat"><div class="brain-val" id="bs-svc">0</div><div class="brain-lbl">Servicii</div></div>
-          <div class="brain-stat"><div class="brain-val" id="bs-faq">0</div><div class="brain-lbl">FAQ</div></div>
-          <div class="brain-stat"><div class="brain-val" id="bs-conf">—</div><div class="brain-lbl">Precizie</div></div>
+        <div style="padding:16px">
+          <div style="display:flex;gap:10px;margin-bottom:12px">
+            <input id="scan-url" placeholder="https://site-client.ro" type="url" style="flex:1;height:44px;background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--r);padding:0 14px;font-size:13px;color:var(--tx);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor=''">
+            <button onclick="startBrainScan()" id="brain-scan-btn" style="height:44px;padding:0 18px;background:var(--teal);color:#000;border:none;border-radius:var(--r);font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;flex-shrink:0;">🔍 Scanează</button>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px">
+              <span style="color:var(--t2);font-weight:600" id="brain-scan-status">Gata pentru scanare</span>
+              <span style="font-family:'JetBrains Mono',monospace;color:var(--teal);font-weight:700" id="brain-scan-pct">0%</span>
+            </div>
+            <div style="height:4px;background:var(--b1);border-radius:2px;overflow:hidden"><div id="brain-prog" style="height:100%;background:linear-gradient(90deg,var(--teal),#00FFCC);border-radius:2px;width:0%;transition:width .4s"></div></div>
+          </div>
+          <div id="brain-log" style="background:#080808;border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;height:100px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin-bottom:12px">
+            <div style="color:var(--teal)">RecepAI Brain Scanner — gata.</div>
+          </div>
+          <div id="brain-scan-result"></div>
         </div>
       </div>
+
+      <!-- CURRENT BRAIN -->
+      <div class="g2" style="margin-bottom:14px">
+        <div class="card">
+          <div class="ch"><span class="ct">🧠 Date curente Brain</span></div>
+          <div style="padding:14px" id="brain-info"><div class="loading"><div class="spin"></div></div></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+            <div class="brain-stat"><div class="brain-val" id="bs-svc">0</div><div class="brain-lbl">Servicii</div></div>
+            <div class="brain-stat"><div class="brain-val" id="bs-faq">0</div><div class="brain-lbl">FAQ</div></div>
+            <div class="brain-stat"><div class="brain-val" id="bs-conf">—</div><div class="brain-lbl">Precizie</div></div>
+          </div>
+          <div class="card">
+            <div class="ch" style="padding:10px 14px"><span class="ct" style="font-size:12px">💡 Fără răspuns</span><span id="gaps-count" class="sbadge s-contacted">0</span></div>
+            <div id="brain-gaps" style="max-height:180px;overflow-y:auto"><div class="loading"><div class="spin"></div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SERVICES EDITOR -->
       <div class="card">
-        <div class="ch"><span class="ct">💡 Întrebări fără răspuns</span><span id="gaps-count" class="sbadge s-contacted">0</span></div>
-        <div id="brain-gaps"><div class="loading"><div class="spin"></div></div></div>
+        <div class="ch">
+          <span class="ct">🔧 Servicii</span>
+          <button class="btn btn-teal btn-sm" onclick="addBrainService()">+ Adaugă</button>
+        </div>
+        <div id="brain-services" style="padding:0 16px"><div class="loading"><div class="spin"></div></div></div>
       </div>
     </div>
 

@@ -127,6 +127,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
     <div class="ni" onclick="nav('clients',this)"><span class="ni-icon">🏥</span>Clienți</div>
     <div class="ni" onclick="nav('revenue',this)"><span class="ni-icon">💰</span>Revenue</div>
     <div class="sb-section">Sistem</div>
+    <div class="ni" onclick="nav('scanner',this)"><span class="ni-icon">🔍</span>Scanner</div>
     <div class="ni" onclick="nav('health',this)"><span class="ni-icon">❤️</span>Health</div>
   </nav>
   <div class="sb-foot">
@@ -226,6 +227,34 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);min-hei
       </div>
     </div>
 
+    <!-- SCANNER -->
+    <div class="panel" id="panel-scanner">
+      <div class="card">
+        <div class="ch"><span class="ct">🔍 Business Brain Scanner</span></div>
+        <div style="padding:16px">
+          <div style="display:flex;gap:10px;margin-bottom:12px">
+            <input id="adm-scan-url" placeholder="https://clinica-client.ro" type="url" style="flex:1;height:44px;background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--r);padding:0 14px;font-size:13px;color:var(--tx);font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor=''">
+            <input id="adm-scan-cid" placeholder="CLI-XXXXXX (opțional)" style="width:160px;height:44px;background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--r);padding:0 14px;font-size:13px;color:var(--tx);font-family:'JetBrains Mono',monospace;outline:none;">
+            <button onclick="startAdminScan()" id="adm-scan-btn" style="height:44px;padding:0 18px;background:var(--teal);color:#000;border:none;border-radius:var(--r);font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;white-space:nowrap;flex-shrink:0;">🔍 Scanează</button>
+          </div>
+          <div style="margin-bottom:10px">
+            <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px">
+              <span style="color:var(--t2);font-weight:600" id="adm-scan-status">Gata</span>
+              <span style="font-family:'JetBrains Mono',monospace;color:var(--teal);font-weight:700" id="adm-scan-pct">0%</span>
+            </div>
+            <div style="height:4px;background:var(--b1);border-radius:2px;overflow:hidden"><div id="adm-brain-prog" style="height:100%;background:linear-gradient(90deg,var(--teal),#00FFCC);border-radius:2px;width:0%;transition:width .4s"></div></div>
+          </div>
+          <div id="adm-scan-log" style="background:#080808;border:1px solid var(--b1);border-radius:8px;padding:10px;font-family:'JetBrains Mono',monospace;font-size:10px;height:120px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;margin-bottom:14px">
+            <div style="color:var(--teal)">Brain Scanner v2 gata. Introdu URL și scanează.</div>
+          </div>
+        </div>
+      </div>
+      <div class="card" id="adm-scan-result" style="display:none">
+        <div class="ch"><span class="ct">🧠 Rezultat scanare</span></div>
+        <div style="padding:14px" id="adm-result-body"></div>
+      </div>
+    </div>
+
     <!-- HEALTH -->
     <div class="panel" id="panel-health">
       <div class="card">
@@ -263,7 +292,7 @@ const COLORS = ['#00D4AA','#3B82F6','#F59E0B','#8B5CF6','#EF4444','#22C55E'];
 const now = new Date();
 document.getElementById('tb-date').textContent = now.toLocaleDateString('ro-RO',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 
-const TITLES = {overview:'Overview',clients:'Clienți',revenue:'Revenue',health:'Health Monitor'};
+const TITLES = {overview:'Overview',clients:'Clienți',revenue:'Revenue',scanner:'Scanner',health:'Health Monitor'};
 function nav(p, el) {
   document.querySelectorAll('.panel').forEach(x => x.classList.remove('active'));
   document.querySelectorAll('.ni').forEach(x => x.classList.remove('active'));
@@ -427,6 +456,75 @@ async function activateClient(email) {
 async function suspendClient(email) {
   if (!confirm(`Suspendezi contul ${email}?`)) return;
   toast('⏸ Funcție în curând');
+}
+
+async function startAdminScan() {
+  const url = document.getElementById('adm-scan-url').value.trim();
+  const cid = document.getElementById('adm-scan-cid').value.trim() || null;
+  if (!url) { toast('Introdu URL-ul'); return; }
+  const btn = document.getElementById('adm-scan-btn');
+  btn.disabled = true; btn.textContent = '⟳ Se scanează...';
+  const log = document.getElementById('adm-scan-log');
+  log.innerHTML = '';
+  const addLog = (msg, col='var(--teal)') => {
+    const d = document.createElement('div');
+    d.style.color = col;
+    d.textContent = `${new Date().toLocaleTimeString('ro-RO')} ${msg}`;
+    log.appendChild(d); log.scrollTop = log.scrollHeight;
+  };
+  const setP = (p, lbl) => {
+    document.getElementById('adm-brain-prog').style.width = p + '%';
+    document.getElementById('adm-scan-pct').textContent = p + '%';
+    document.getElementById('adm-scan-status').textContent = lbl;
+  };
+  addLog('→ Se conectează la server...'); setP(10, 'Se pornește...');
+  try {
+    const r = await fetch(`${API}/api/scan/start`, {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ url: url.startsWith('http')?url:'https://'+url, clientId: cid })
+    });
+    const d = await r.json();
+    const jobId = d.jobId;
+    if (!jobId) throw new Error('No jobId');
+    addLog(`✓ Job: ${jobId}`, 'var(--green)');
+    let att = 0;
+    const poll = setInterval(async () => {
+      att++;
+      if (att > 40) { clearInterval(poll); addLog('✗ Timeout', 'var(--red)'); btn.disabled=false; btn.textContent='🔍 Scanează'; return; }
+      const sr = await fetch(`${API}/api/scan/status/${jobId}`);
+      const sd = await sr.json();
+      if (sd.log) sd.log.slice(-2).forEach(l => addLog(l.message||l, 'var(--t2)'));
+      setP(Math.min(10+att*2, 95), sd.status||'Se procesează...');
+      if (sd.status==='completed'||sd.result) {
+        clearInterval(poll); setP(100,'✓ Gata!');
+        const res = sd.result||sd;
+        addLog(`✓ ${res.name||url} — ${res.services?.length||0} servicii, ${res.confidence||0}% acuratețe`, 'var(--green)');
+        document.getElementById('adm-scan-result').style.display='block';
+        document.getElementById('adm-result-body').innerHTML = `
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            ${[['Clinică',res.name],['Telefon',res.phone],['Email',res.email],['Adresă',res.address],['Program',res.hours],['Acuratețe',(res.confidence||0)+'%']].map(([l,v])=>`
+            <div style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px">
+              <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">${l}</div>
+              <div style="font-size:13px;color:${v?'var(--tx)':'var(--t3)'}">${v||'—'}</div>
+            </div>`).join('')}
+          </div>
+          ${res.services?.length?`<div style="margin-top:10px"><div style="font-size:11px;font-weight:600;color:var(--t3);margin-bottom:6px">SERVICII (${res.services.length})</div><div style="display:flex;flex-wrap:wrap;gap:6px">${res.services.map(s=>`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--td);color:var(--teal)">${s.name}</span>`).join('')}</div></div>`:''}`;
+        btn.disabled=false; btn.textContent='🔄 Rescané';
+      } else if (sd.status==='failed') {
+        clearInterval(poll); addLog('✗ Eroare scanare', 'var(--red)');
+        btn.disabled=false; btn.textContent='🔍 Scanează';
+      }
+    }, 2000);
+  } catch(e) {
+    addLog(`✗ ${e.message}`, 'var(--red)');
+    // Try direct
+    try {
+      const r2 = await fetch(`${API}/api/brain/scan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,clientId:cid})});
+      const d2 = await r2.json();
+      if(d2.success){addLog(`✓ Gata! ${d2.brain?.services?.length||0} servicii`,'var(--green)');setP(100,'✓ Gata!');}
+    } catch(e2){addLog('✗ Eroare completă','var(--red)');}
+    btn.disabled=false; btn.textContent='🔍 Scanează';
+  }
 }
 
 function toast(msg, dur=3000) {
