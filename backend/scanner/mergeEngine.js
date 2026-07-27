@@ -14,16 +14,13 @@ function mergeResults(extracted, claudeResult, brainResult) {
   const merged = {};
   const sources = {};
 
-  // CONTACT FIELDS — extractor wins, preserve real confidence
+  // CONTACT FIELDS — extractor wins
   const contactFields = ['name', 'phone', 'email', 'city', 'address'];
   for (const field of contactFields) {
     const extVal = extracted[field];
     const claudeVal = claudeResult?.[field];
-    // extVal from extractors_v2 is an object with {value, confidence, source}
-    const extConf = extVal?.confidence || (extVal?.value ? 75 : 0);
     const best = pickBest(
-      extVal?.value ? { value: extVal.value, confidence: extConf, source: extVal.source || 'extractor' } : null,
-      extVal && typeof extVal === 'string' ? { value: extVal, confidence: 75, source: 'extractor' } : null,
+      extVal ? { value: extVal.value || extVal, confidence: extVal.confidence || 80, source: 'extractor' } : null,
       claudeVal ? { value: claudeVal, confidence: 70, source: 'claude' } : null,
     );
     merged[field] = best.value;
@@ -33,10 +30,8 @@ function mergeResults(extracted, claudeResult, brainResult) {
   // HOURS — extractor wins, Claude fills if missing
   const hoursExt = extracted.hours;
   const hoursClaude = claudeResult?.hours;
-  const hoursVal = hoursExt?.value || (typeof hoursExt === 'string' ? hoursExt : null);
-  const hoursConf = hoursExt?.confidence || (hoursVal ? 78 : 0);
   const hoursBest = pickBest(
-    hoursVal ? { value: hoursVal, confidence: hoursConf, source: 'extractor' } : null,
+    hoursExt ? { value: hoursExt.value || hoursExt, confidence: hoursExt.confidence || 78, source: 'extractor' } : null,
     hoursClaude ? { value: hoursClaude, confidence: 65, source: 'claude' } : null,
   );
   merged.hours = hoursBest.value;
