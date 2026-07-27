@@ -53,6 +53,15 @@ function extractCity(html, page='homepage') {
   return bestField(...candidates);
 }
 
+function isValidAddress(addr) {
+  if (!addr || addr.length < 5 || addr.length > 200) return false;
+  // Must contain street indicator OR number
+  if (!/(?:str|bd|calea|șos|aleea|nr|strada|bulevardul|\d{1,4})/i.test(addr)) return false;
+  // Must not be a review/testimonial
+  if (/(?:sunat|recomandat|multumesc|excellent|bun[aă]|stăpân|câine|pisic)/i.test(addr)) return false;
+  return true;
+}
+
 function extractAddress(html, page='homepage') {
   const candidates = [];
   const jsonLd = extractJsonLd(html);
@@ -62,7 +71,9 @@ function extractAddress(html, page='homepage') {
   if (addrMatch) candidates.push(field(addrMatch[0].trim(),'regex',75,'address regex',page));
   const labelMatch = textOnly.match(/Adres[aă]\s*:?\s*([A-ZĂÂÎȘȚa-zăâîșț0-9\s\-\.,]+\d+[A-Za-z]?)/i);
   if (labelMatch) candidates.push(field(labelMatch[1].trim().substring(0,150),'label_text',70,'Adresa: label',page));
-  return bestField(...candidates);
+  const best = bestField(...candidates);
+  if (best && best.value && !isValidAddress(best.value)) return field(null,'invalid',0,'invalid address',page);
+  return best;
 }
 
 function extractContact(html, page='homepage') {
