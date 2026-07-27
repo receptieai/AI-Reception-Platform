@@ -408,16 +408,23 @@ function showResult(data, url) {
   html += `</div>`;
 
   // Services
-  if (svcCount > 0) {
-    html += `<div class="scard" style="margin-top:4px">
-      <div class="sch" style="padding:12px 16px">
-        <div class="sc-step" style="margin-bottom:3px">Servicii detectate (${svcCount})</div>
-        <div class="svcs-list">
-          ${data.services.map(s => `<span class="svc-tag">${s.name}${s.price ? ' · ' + s.price : ''}</span>`).join('')}
-        </div>
-      </div>
-    </div>`;
-  }
+  const svcs = data.services || [];
+  html += `<div class="scard" style="margin-top:4px">
+    <div class="sch" style="padding:12px 16px;display:flex;align-items:center;justify-content:space-between">
+      <div class="sc-step" style="margin-bottom:0">Servicii detectate (${svcs.length})</div>
+      <button class="btn-sm" onclick="addService()">+ Adaugă serviciu</button>
+    </div>
+    <div style="padding:12px 16px" id="svcs-container">
+      ${svcs.map((s,i) => `
+        <div class="svc-row" id="svc-${i}" style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1)">
+          <span style="flex:1;font-size:13px;font-weight:600;color:var(--tx)">${s.name}</span>
+          <span style="font-size:12px;color:var(--teal);font-family:'JetBrains Mono',monospace">${s.price||''}</span>
+          <button class="btn-sm" onclick="editService(${i})" style="padding:3px 8px">✏️</button>
+          <button class="btn-sm" onclick="removeService(${i})" style="padding:3px 8px;color:var(--red)">✕</button>
+        </div>`).join('')}
+      ${svcs.length===0?'<div style="font-size:12px;color:var(--t3);padding:8px 0">Niciun serviciu detectat — adaugă manual</div>':''}
+    </div>
+  </div>`;
 
   // FAQ
   if (faqCount > 0) {
@@ -512,6 +519,35 @@ function copyCode() {
     btn.classList.add('copied');
     setTimeout(() => { btn.textContent = 'Copiază'; btn.classList.remove('copied'); }, 2000);
   });
+}
+
+function addService() {
+  const name = prompt('Nume serviciu:');
+  if (!name) return;
+  const price = prompt('Preț (opțional, ex: 150 RON):', '') || '';
+  if (!scannedData) scannedData = {};
+  if (!scannedData.services) scannedData.services = [];
+  scannedData.services.push({name, price});
+  showResult(scannedData, scannedData.website || document.getElementById('scan-url').value);
+  saveProfile(scannedData, scannedData.website || document.getElementById('scan-url').value);
+}
+
+function editService(i) {
+  const svc = scannedData?.services?.[i];
+  if (!svc) return;
+  const name = prompt('Nume serviciu:', svc.name);
+  if (!name) return;
+  const price = prompt('Preț:', svc.price || '');
+  scannedData.services[i] = {name, price: price||''};
+  showResult(scannedData, scannedData.website || document.getElementById('scan-url').value);
+  saveProfile(scannedData, scannedData.website || document.getElementById('scan-url').value);
+}
+
+function removeService(i) {
+  if (!confirm('Ștergi serviciul?')) return;
+  scannedData.services.splice(i, 1);
+  showResult(scannedData, scannedData.website || document.getElementById('scan-url').value);
+  saveProfile(scannedData, scannedData.website || document.getElementById('scan-url').value);
 }
 
 function esc(s) { return s.replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
