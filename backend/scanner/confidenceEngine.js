@@ -21,23 +21,13 @@ const WEIGHTS = {
 function calculateConfidence(merged, sources, extractedRaw) {
   const scores = {};
 
-  // Name
-  scores.name = sources.name?.confidence || (merged.name ? 70 : 0);
-
-  // Phone
-  scores.phone = sources.phone?.confidence || (merged.phone ? 70 : 0);
-
-  // Email
-  scores.email = sources.email?.confidence || (merged.email ? 70 : 0);
-
-  // City
-  scores.city = sources.city?.confidence || (merged.city ? 60 : 0);
-
-  // Address
-  scores.address = sources.address?.confidence || (merged.address ? 60 : 0);
-
-  // Hours
-  scores.hours = merged.hours ? Math.max(sources.hours?.confidence || 75, 75) : 0;
+  // Contact fields — use actual extractor confidence
+  scores.name = sources.name?.confidence || (merged.name ? 75 : 0);
+  scores.phone = sources.phone?.confidence || (merged.phone ? 75 : 0);
+  scores.email = sources.email?.confidence || (merged.email ? 75 : 0);
+  scores.city = sources.city?.confidence || (merged.city ? 65 : 0);
+  scores.address = sources.address?.confidence || (merged.address ? 65 : 0);
+  scores.hours = merged.hours ? Math.max(sources.hours?.confidence || 78, 78) : 0;
 
   // Services — based on count and price coverage
   const svcCount = merged.services?.length || 0;
