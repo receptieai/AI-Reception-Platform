@@ -37,7 +37,7 @@ function calculateConfidence(merged, sources, extractedRaw) {
   scores.address = sources.address?.confidence || (merged.address ? 60 : 0);
 
   // Hours
-  scores.hours = sources.hours?.confidence || (merged.hours ? 65 : 0);
+  scores.hours = merged.hours ? Math.max(sources.hours?.confidence || 75, 75) : 0;
 
   // Services — based on count and price coverage
   const svcCount = merged.services?.length || 0;
@@ -57,7 +57,7 @@ function calculateConfidence(merged, sources, extractedRaw) {
 
   // FAQ
   const faqCount = merged.faq?.length || 0;
-  scores.faq = faqCount > 5 ? 90 : faqCount > 2 ? 75 : faqCount > 0 ? 60 : 0;
+  scores.faq = faqCount > 5 ? 92 : faqCount > 2 ? 82 : faqCount > 0 ? 65 : 0;
 
   // Brain
   scores.brain = Math.min((merged.brain?.facilities?.length || 0) * 8 + (merged.brain?.insurances?.length || 0) * 10, 100);
