@@ -500,15 +500,45 @@ async function startAdminScan() {
         const res = sd.result||sd;
         addLog(`✓ ${res.name||url} — ${res.services?.length||0} servicii, ${res.confidence||0}% acuratețe`, 'var(--green)');
         document.getElementById('adm-scan-result').style.display='block';
+        const fc = res.fieldConfidence||{};
+        const confBadge = v => v>=80?`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(34,197,94,.12);color:var(--green)">${v}%</span>`:v>=50?`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(245,158,11,.12);color:var(--amber)">${v}%</span>`:`<span style="font-size:9px;font-weight:700;padding:1px 6px;border-radius:4px;background:rgba(239,68,68,.12);color:var(--red)">${v}%</span>`;
         document.getElementById('adm-result-body').innerHTML = `
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            ${[['Clinică',res.name],['Telefon',res.phone],['Email',res.email],['Adresă',res.address],['Program',res.hours],['Acuratețe',(res.confidence||0)+'%']].map(([l,v])=>`
+          <div style="background:var(--td);border:1px solid var(--tm);border-radius:10px;padding:14px;margin-bottom:14px;display:flex;align-items:center;gap:14px">
+            <span style="font-size:28px">🧠</span>
+            <div>
+              <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700">${res.name||url}</div>
+              <div style="font-size:12px;color:var(--t2);margin-top:3px">
+                <span style="color:var(--green);font-weight:700">${res.services?.length||0} servicii</span> · 
+                <span style="color:var(--blue);font-weight:700">${res.doctors?.length||0} doctori</span> · 
+                <span style="color:var(--teal);font-weight:700">${res.confidence||0}% acuratețe</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">
+            ${[['Telefon',res.phone,'phone'],['Email',res.email,'email'],['Adresă',res.address,'address'],['Program',res.hours,'hours'],['Oraș',res.city,'city'],['Facebook',res.facebook,'facebook']].map(([l,v,k])=>`
             <div style="background:var(--s2);border:1px solid var(--b1);border-radius:8px;padding:10px">
-              <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px">${l}</div>
-              <div style="font-size:13px;color:${v?'var(--tx)':'var(--t3)'}">${v||'—'}</div>
+              <div style="font-size:9px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px;display:flex;align-items:center;justify-content:space-between">
+                <span>${l}</span>${fc[k]?confBadge(fc[k]):''}
+              </div>
+              <div style="font-size:12px;color:${v?'var(--tx)':'var(--t3)'};word-break:break-all">${v||'—'}</div>
             </div>`).join('')}
           </div>
-          ${res.services?.length?`<div style="margin-top:10px"><div style="font-size:11px;font-weight:600;color:var(--t3);margin-bottom:6px">SERVICII (${res.services.length})</div><div style="display:flex;flex-wrap:wrap;gap:6px">${res.services.map(s=>`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--td);color:var(--teal)">${s.name}</span>`).join('')}</div></div>`:''}`;
+          ${res.services?.length?`
+          <div style="margin-bottom:12px">
+            <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between">
+              <span>SERVICII (${res.services.length})</span>${fc.services?confBadge(fc.services):''}
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
+              ${res.services.map(s=>`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:var(--td);color:var(--teal);border:1px solid var(--tm)">${s.name}${s.price?' · '+s.price:''}</span>`).join('')}
+            </div>
+          </div>`:''}
+          ${res.doctors?.length?`
+          <div>
+            <div style="font-size:10px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">DOCTORI (${res.doctors.length})</div>
+            <div style="display:flex;flex-wrap:wrap;gap:5px">
+              ${res.doctors.map(d=>`<span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:6px;background:rgba(59,130,246,.1);color:var(--blue);border:1px solid rgba(59,130,246,.2)">${d.name||d}</span>`).join('')}
+            </div>
+          </div>`:''}`;
         btn.disabled=false; btn.textContent='🔄 Rescané';
       } else if (sd.status==='failed') {
         clearInterval(poll); addLog('✗ Eroare scanare', 'var(--red)');
