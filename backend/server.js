@@ -719,9 +719,19 @@ function setCors(res, origin) {
 
 
 
+function sanitizeForJson(obj) {
+  try {
+    return JSON.parse(JSON.stringify(obj, (k, v) => {
+      if (typeof v === 'string') return v.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, ' ');
+      return v;
+    }));
+  } catch(e) { return obj; }
+}
+
 function sendJson(res, data, status = 200) {
-  res.writeHead(status, { 'Content-Type': 'application/json' });
-  res.end(JSON.stringify(data));
+  res.writeHead(status, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+  try { res.end(JSON.stringify(sanitizeForJson(data))); }
+  catch(e) { res.end(JSON.stringify({success:false,error:'Serialize error'})); }
 }
 
 // ── SERVER ────────────────────────────────────
