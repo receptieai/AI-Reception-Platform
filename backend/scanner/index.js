@@ -30,9 +30,7 @@ async function scan(url, options={}) {
   let bestExtracted = null;
   for (const page of crawlResult.pages) {
     try {
-      // Pass a fake URL to prevent Playwright from re-fetching
-      const fakeUrl = 'https://recepai-local-extract.invalid/' + page.label;
-      const ext = await extractAll(page.html, fakeUrl, page.label);
+      const ext = await extractAll(page.html, page.url, page.label);
       if (!bestExtracted) {
         bestExtracted = ext;
       } else {
