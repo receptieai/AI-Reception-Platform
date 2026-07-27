@@ -3,18 +3,18 @@
 // Confidence Engine — scor per camp + global
 
 const WEIGHTS = {
-  name:        { weight: 10, label: 'Nume afacere' },
+  name:        { weight: 12, label: 'Nume afacere' },
   phone:       { weight: 15, label: 'Telefon' },
   email:       { weight: 8,  label: 'Email' },
-  city:        { weight: 5,  label: 'Oraș' },
-  address:     { weight: 5,  label: 'Adresă' },
-  hours:       { weight: 10, label: 'Program' },
+  city:        { weight: 4,  label: 'Oraș' },
+  address:     { weight: 4,  label: 'Adresă' },
+  hours:       { weight: 8,  label: 'Program' },
   services:    { weight: 20, label: 'Servicii' },
-  prices:      { weight: 10, label: 'Prețuri' },
-  facebook:    { weight: 4,  label: 'Facebook' },
-  instagram:   { weight: 3,  label: 'Instagram' },
-  doctors:     { weight: 5,  label: 'Doctori/Echipă' },
-  faq:         { weight: 3,  label: 'FAQ' },
+  prices:      { weight: 12, label: 'Prețuri' },
+  facebook:    { weight: 3,  label: 'Facebook' },
+  instagram:   { weight: 2,  label: 'Instagram' },
+  doctors:     { weight: 6,  label: 'Doctori/Echipă' },
+  faq:         { weight: 4,  label: 'FAQ' },
   brain:       { weight: 2,  label: 'Business Brain' },
 };
 
