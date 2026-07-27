@@ -37,6 +37,7 @@ const googleAuth = require('./googleAuth');
 
 
 const { buildBusinessBrain } = require('./businessBrainScanner');
+const { scan: scanV3 } = require('./scanner/index');
 
 // ── STORAGE ENGINE ──
 storage.migrate();
@@ -743,6 +744,32 @@ const server = http.createServer(async (req, res) => {
 
   // Analyze
   // ── SCAN JOB ENDPOINTS ──────────────────────
+  // ── SCANNER V3 ───────────────────────────────────────────
+  if (pathname === '/api/scan' && req.method === 'POST') {
+    const body = await parseBody(req);
+    if (!body.url) { sendJson(res, { error: 'URL lipsa' }, 400); return; }
+    try {
+      const result = await scanV3(body.url, {
+        apiKey: CLAUDE_API_KEY,
+        industry: body.industry || 'auto',
+        clientId: body.clientId,
+      });
+      // Save to profile if clientId provided
+      if (body.clientId && result.success) {
+        await supa.saveProfile(body.clientId, {
+          ...result,
+          clientId: body.clientId,
+          website: body.url,
+        });
+      }
+      sendJson(res, result);
+    } catch(e) {
+      console.error('[SCAN V3]', e.message);
+      sendJson(res, { success: false, error: e.message }, 500);
+    }
+    return;
+  }
+
   if (pathname === '/api/scan/start' && req.method === 'POST') {
     const body = await parseBody(req);
     if (!body.url) { sendJson(res, { error: 'URL lipsa' }, 400); return; }

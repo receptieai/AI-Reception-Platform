@@ -1,7 +1,7 @@
 'use strict';
 const { extractJsonLd } = require('./utils');
 
-const PRICE_REGEX = /(\d{1,5}(?:[.,]\d{2}?)?)\s*(?:lei|ron|€|eur|\$)/i;
+const PRICE_REGEX = /(?:de la\s+)?(\d{1,5}(?:[.,]\d{2}?)?)\s*(?:lei|ron|€|eur|\$)/i;
 
 function cleanName(name) {
   return name.replace(/<[^>]+>/g,'').replace(/\s+/g,' ').replace(/^[\-–—•·\s]+/,'').trim();
@@ -51,17 +51,32 @@ function extractServices(html, page='homepage') {
   // Dash/tilde pattern (82%)
   const lines = html.replace(/<[^>]+>/g,'\n').split('\n').map(l=>l.trim()).filter(l=>l.length>2);
   lines.forEach(line => {
-    const m = line.match(/^([A-ZĂÂÎȘȚa-zăâîșț][^–~\-]{3,80}?)\s*[–~-]\s*(\d{1,5}(?:[.,]\d{2})?)\s*(?:lei|ron|€)/i);
+    // Pattern: "Serviciu de la 150 RON" or "Serviciu — 150 RON"
+    const delaMatch = line.match(/^([A-ZĂÂÎȘȚa-zăâîșț][^0-9]{5,80}?)\s+de la\s+(\d{1,5})\s*(?:RON|lei|ron|€)/i);
+    if (delaMatch) add(delaMatch[1].replace(/[-–]+$/,'').trim(), delaMatch[2]+' RON', 'text_lines', 'de la price', 82);
+    const m = line.match(/^([A-ZĂÂÎȘȚa-zăâîșț][^–~\-]{3,80}?)\s*[–~-]\s*(\d{1,5}(?:[.,]\d{2})?)\s*(?:lei|ron|RON|€)/i);
     if (m) add(m[1].replace(/[-–]+$/,'').trim(), m[2]+' LEI','text_lines','name – price',82);
     const m2 = line.match(/^([A-ZĂÂÎȘȚa-zăâîșț][^~]{3,80}?)\s*~\s*(\d{1,5})\s*lei/i);
     if (m2) add(m2[1].trim(), m2[2]+' LEI','text_lines','name ~ price',80);
   });
 
-  // Consecutive lines (78%)
-  if (services.length < 5) {
-    for (let i = 0; i < lines.length-1; i++) {
-      const pm = lines[i+1].match(/^(\d{1,5}(?:[.,]\d{2})?)\s*(?:Lei|RON|€)/i);
-      if (pm && isValidName(lines[i])) add(lines[i].replace(/[:\-–]+$/,'').trim(), pm[1]+' LEI','consecutive','consecutive lines',78);
+  // Consecutive lines (78%) — always run, not just when few services
+  for (let i = 0; i < lines.length-1; i++) {
+    // Pattern: name on line i, "de la X RON" or "X RON" on line i+1
+    const pm = lines[i+1].match(/^(?:de la\s+)?(\d{1,5}(?:[.,–\-]\d{0,3})?(?:\s*[–\-]\s*\d{1,5})?)\s*(?:Lei|RON|ron|€)/i);
+    if (pm && isValidName(lines[i]) && lines[i].length > 3 && lines[i].length < 100) {
+      const price = pm[1].replace(/\s+/g,'') + ' RON';
+      add(lines[i].replace(/[:\-–]+$/,'').trim(), price, 'consecutive', 'consecutive lines', 78);
+    }
+    // Pattern: "Serviciu | de la X RON" on same line (split by |)
+    const parts = lines[i].split('|').map(p => p.trim());
+    if (parts.length >= 2) {
+      const namePart = parts[0];
+      const pricePart = parts.find(p => /\d+\s*RON/i.test(p));
+      if (pricePart && isValidName(namePart)) {
+        const pm2 = pricePart.match(/(\d{1,5}(?:\s*[–\-]\s*\d{1,5})?)\s*RON/i);
+        if (pm2) add(namePart.replace(/[:\-–]+$/,'').trim(), pm2[1].replace(/\s+/g,'')+' RON', 'pipe_split', 'name|price', 80);
+      }
     }
   }
 
