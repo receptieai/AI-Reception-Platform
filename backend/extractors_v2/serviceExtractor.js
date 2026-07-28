@@ -11,6 +11,9 @@ function isValidName(name) {
   if (!name || name.length < 3 || name.length > 120) return false;
   if (!/[a-zA-ZăâîșțĂÂÎȘȚ]{3,}/.test(name)) return false;
   if (/^[\\/\d\s\-\+\.]+$/.test(name)) return false;
+  const junk = ["reducere","discount","oferta","promotie","click","vezi","afla","cumpara","adauga","selecteaza","detalii","contact","acasa","home","menu","despre","blog","stiri","cookies","newsletter","privacy"];
+  const lower = name.toLowerCase().trim();
+  if (junk.some(j => lower === j || lower.startsWith(j+" "))) return false;
   return true;
 }
 
