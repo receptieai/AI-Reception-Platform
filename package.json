@@ -2,7 +2,9 @@
   "name": "receptieai",
   "version": "1.1.0",
   "scripts": {
-    "start": "node backend/server.js"
+    "start": "node backend/server.js",
+    "deploy": "wrangler deploy",
+    "preview": "wrangler dev"
   },
   "engines": {
     "node": ">=18.0.0"
@@ -11,5 +13,8 @@
     "@supabase/supabase-js": "^2.110.8",
     "playwright": "^1.61.1",
     "ws": "^8.21.1"
+  },
+  "devDependencies": {
+    "wrangler": "^4.114.0"
   }
 }
