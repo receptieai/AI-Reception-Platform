@@ -1,0 +1,71 @@
+{
+  "date": "2026-07-28T20:06:02.520Z",
+  "avg": 77,
+  "passed": 7,
+  "total": 7,
+  "results": [
+    {
+      "url": "https://clinicatrident.ro",
+      "industry": "dental",
+      "minScore": 85,
+      "confidence": 90,
+      "services": 24,
+      "duration": 7,
+      "status": "pass"
+    },
+    {
+      "url": "https://amonvet.ro",
+      "industry": "vet",
+      "minScore": 82,
+      "confidence": 86,
+      "services": 60,
+      "duration": 8,
+      "status": "pass"
+    },
+    {
+      "url": "https://satoshicourt.com",
+      "industry": "dental",
+      "minScore": 82,
+      "confidence": 87,
+      "services": 39,
+      "duration": 1,
+      "status": "pass"
+    },
+    {
+      "url": "https://dentalmed.ro",
+      "industry": "dental",
+      "minScore": 82,
+      "confidence": 88,
+      "services": 7,
+      "duration": 1,
+      "status": "pass"
+    },
+    {
+      "url": "https://clinicaelite.ro",
+      "industry": "dental",
+      "minScore": 82,
+      "confidence": 86,
+      "services": 19,
+      "duration": 12,
+      "status": "pass"
+    },
+    {
+      "url": "https://vetconsult.ro",
+      "industry": "vet",
+      "minScore": 45,
+      "confidence": 62,
+      "services": 8,
+      "duration": 6,
+      "status": "pass"
+    },
+    {
+      "url": "https://salonfabricadefrumusete.ro",
+      "industry": "beauty",
+      "minScore": 30,
+      "confidence": 40,
+      "services": 8,
+      "duration": 11,
+      "status": "pass"
+    }
+  ]
+}

@@ -18,8 +18,9 @@ const API = process.env.API_URL || 'https://ai-reception-platform-production.up.
 async function scanSite(url) {
   return new Promise((resolve) => {
     const body = JSON.stringify({ url });
-    const req = https.request(API.replace('https://', ''), {
-      hostname: API.replace('https://', '').replace('http://', ''),
+    const apiUrl = new URL(API);
+    const req = https.request({
+      hostname: apiUrl.hostname,
       path: '/api/scan',
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) },
