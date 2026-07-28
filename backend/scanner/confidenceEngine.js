@@ -55,7 +55,9 @@ function calculateConfidence(merged, sources, extractedRaw) {
 
   // FAQ
   const faqCount = merged.faq?.length || 0;
-  scores.faq = faqCount > 5 ? 92 : faqCount > 2 ? 82 : faqCount > 0 ? 65 : 0;
+  // Daca nu avem FAQ dar avem date bune, AI-ul poate raspunde oricum
+  const hasSufficientData = (merged.services?.length > 5 || merged.doctors?.length > 0) && merged.phone;
+  scores.faq = faqCount > 5 ? 92 : faqCount > 2 ? 82 : faqCount > 0 ? 65 : hasSufficientData ? 50 : 0;
 
   // Brain
   scores.brain = Math.min((merged.brain?.facilities?.length || 0) * 8 + (merged.brain?.insurances?.length || 0) * 10, 100);
