@@ -709,6 +709,63 @@ async function saveServices() {
   } catch(e) { toast('❌ Eroare'); }
 }
 
+async function startBrainScan() {
+  const url = document.getElementById('scan-url').value.trim() || PROFILE?.website;
+  if (!url) { toast('Introdu URL-ul site-ului'); return; }
+  
+  const btn = document.getElementById('brain-scan-btn');
+  btn.disabled = true; btn.innerHTML = '⟳ Se scanează...';
+  
+  const log = document.getElementById('brain-log');
+  const addLog = (msg, col='var(--teal)') => {
+    const d = document.createElement('div');
+    d.style.color = col; d.textContent = new Date().toLocaleTimeString('ro-RO') + ' ' + msg;
+    log.appendChild(d); log.scrollTop = log.scrollHeight;
+  };
+  
+  const prog = document.getElementById('brain-prog');
+  const status = document.getElementById('brain-scan-status');
+  const pct = document.getElementById('brain-scan-pct');
+  
+  let p = 10;
+  const timer = setInterval(() => {
+    p = Math.min(p + 3, 85);
+    prog.style.width = p + '%';
+    pct.textContent = p + '%';
+    const msgs = ['Se descarcă paginile...','Se extrag serviciile...','Business Brain activ...','Claude completează datele...'];
+    status.textContent = msgs[Math.floor((p-10)/20)] || 'Se procesează...';
+  }, 1500);
+  
+  addLog('→ Se scanează: ' + url);
+  
+  try {
+    const r = await fetch(`${API}/api/scan`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ url: url.startsWith('http')?url:'https://'+url, clientId: CID, industry: localStorage.getItem('recepai_business_type')||'auto' })
+    });
+    clearInterval(timer);
+    const d = await r.json();
+    
+    if (d.success) {
+      prog.style.width = '100%'; pct.textContent = '100%'; status.textContent = '✓ Gata!';
+      addLog(`✓ ${d.name||url} — ${d.services?.length||0} servicii, ${d.confidence||0}% acuratețe`, 'var(--green)');
+      if (d.brain?.insurances?.length) addLog(`✓ Asigurări: ${d.brain.insurances.join(', ')}`, 'var(--green)');
+      PROFILE = {...PROFILE, ...d, website: url, clientId: CID};
+      renderBrain();
+      showToast('✅', 'Brain actualizat!', `${d.services?.length||0} servicii · ${d.confidence||0}% acuratețe`);
+    } else {
+      addLog(`✗ Eroare: ${d.error||'necunoscută'}`, 'var(--red)');
+      status.textContent = 'Eroare';
+    }
+  } catch(e) {
+    clearInterval(timer);
+    addLog(`✗ ${e.message}`, 'var(--red)');
+  }
+  
+  btn.disabled = false; btn.innerHTML = '🔍 Scanează';
+}
+
 async function saveBrainFields() {
   const fields = ['name','phone','email','city','address','hours','website'];
   for (const key of fields) {
