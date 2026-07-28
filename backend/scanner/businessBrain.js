@@ -292,4 +292,61 @@ function applyBrain(combinedText, industry, extractedData) {
   };
 }
 
-module.exports = { applyBrain, detectIndustry };
+
+const TYPICAL_SERVICES = {
+  dental: [
+    { name: 'Consultație stomatologică', price: null },
+    { name: 'Detartraj și periaj profesional', price: null },
+    { name: 'Obturație compozită', price: null },
+    { name: 'Tratament de canal', price: null },
+    { name: 'Extracție dentară', price: null },
+    { name: 'Albire dentară', price: null },
+    { name: 'Implant dentar', price: null },
+    { name: 'Proteză dentară', price: null },
+    { name: 'Aparat dentar', price: null },
+    { name: 'Radiografie dentară', price: null },
+  ],
+  vet: [
+    { name: 'Consultație veterinară', price: null },
+    { name: 'Vaccinare', price: null },
+    { name: 'Deparazitare internă și externă', price: null },
+    { name: 'Sterilizare', price: null },
+    { name: 'Analize sânge', price: null },
+    { name: 'Ecografie', price: null },
+    { name: 'Radiografie', price: null },
+    { name: 'Chirurgie veterinară', price: null },
+  ],
+  beauty: [
+    { name: 'Tuns și coafat', price: null },
+    { name: 'Vopsit păr', price: null },
+    { name: 'Manichiură', price: null },
+    { name: 'Pedichiură', price: null },
+    { name: 'Epilare ceară', price: null },
+    { name: 'Masaj relaxant', price: null },
+    { name: 'Tratament facial', price: null },
+    { name: 'Extensii gene', price: null },
+  ],
+  physio: [
+    { name: 'Consultație kinetoterapie', price: null },
+    { name: 'Masaj terapeutic', price: null },
+    { name: 'Electroterapie', price: null },
+    { name: 'Recuperare medicală', price: null },
+    { name: 'Kinetoterapie', price: null },
+    { name: 'Ultrasunete terapeutice', price: null },
+    { name: 'Laserterapie', price: null },
+  ],
+  medical: [
+    { name: 'Consultație medicală', price: null },
+    { name: 'Analize medicale', price: null },
+    { name: 'Ecografie', price: null },
+    { name: 'Electrocardiogramă', price: null },
+    { name: 'Vaccinare', price: null },
+  ],
+};
+
+function getTypicalServices(industry) {
+  return TYPICAL_SERVICES[industry] || [];
+}
+
+module.exports = { applyBrain, detectIndustry, getTypicalServices };
+

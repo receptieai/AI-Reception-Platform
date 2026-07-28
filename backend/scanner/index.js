@@ -2,7 +2,7 @@
 
 const { crawl } = require('./crawler');
 const { extractAll } = require('../extractors_v2/index');
-const { applyBrain, detectIndustry } = require('./businessBrain');
+const { applyBrain, detectIndustry, getTypicalServices } = require('./businessBrain');
 const { fillMissingFields } = require('./claudeEngine');
 const { mergeResults } = require('./mergeEngine');
 const { calculateConfidence } = require('./confidenceEngine');
@@ -127,6 +127,16 @@ async function scan(url, options={}) {
       missingFields,
       brainInferences: brainResult,
     }, apiKey);
+  }
+
+  // Fallback: daca extractorul nu a gasit servicii, folosim servicii tipice per industrie
+  if (extracted.services.length === 0) {
+    const typical = getTypicalServices(industry);
+    if (typical.length > 0) {
+      extracted.services = typical.map(s => ({...s, source: 'businessBrain', method: 'typical', confidence: 40, page: 'inferred'}));
+      extracted.servicesConfidence = 40;
+      console.log('[SCAN] Using', typical.length, 'typical services for', industry);
+    }
   }
 
   // STEP 6: MERGE
