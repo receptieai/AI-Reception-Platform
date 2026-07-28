@@ -9,6 +9,8 @@ const PRIORITY_PATHS = [
   '/medici', '/doctori', '/doctori/', '/faq', '/faq/', '/urgente',
   '/tratamente', '/tratamente/', '/oferte', '/programari',
   '/pachete', '/pachete/', '/pachete-locatii', '/pachete-locatii/',
+  '/pachete-bucuresti', '/pachete-bucuresti/', '/pachete-cluj', '/pachete-timisoara',
+  '/tratamente-faciale', '/epilare', '/epilare-definitiva', '/cosmetica',
   '/servicii-si-preturi', '/lista-preturi', '/preturi-servicii',
   '/servicii-medicale', '/consultatii', '/proceduri', '/produse',
 ];
@@ -151,15 +153,36 @@ async function crawl(startUrl, options={}) {
   const priority_batch = candidates.filter(c => !c.fromSite).slice(0, 6);
 
   // Fetch discovered in parallel
+  const depth2Links = new Set();
   await Promise.all(discovered_batch.map(async ({ path }) => {
     try {
       const html = await fetchHtml(origin + path, timeout);
       if (html.length > 500) {
         results.push({ url: origin + path, path, html, label: getLabel(path), priority: scorePath(path) + 5 });
         console.log('[CRAWLER] ✓ (site):', path, html.length, 'chars');
+        // Depth-2: extract links from important pages
+        if (scorePath(path) > 20) {
+          for (const link of extractLinks(html, origin)) {
+            if (!seen.has(link) && scorePath(link) > 5) { depth2Links.add(link); seen.add(link); }
+          }
+        }
       }
     } catch(e) { console.log('[CRAWLER] ✗:', path, e.message.substring(0,30)); }
   }));
+
+  // Fetch depth-2 links
+  if (results.length < maxPages && depth2Links.size > 0) {
+    const d2 = [...depth2Links].slice(0, 4);
+    await Promise.all(d2.map(async path => {
+      try {
+        const html = await fetchHtml(origin + path, timeout);
+        if (html.length > 500) {
+          results.push({ url: origin + path, path, html, label: getLabel(path), priority: scorePath(path) });
+          console.log('[CRAWLER] ✓ (depth2):', path, html.length, 'chars');
+        }
+      } catch(e) {}
+    }));
+  }
 
   // Fetch priority paths that weren't discovered (may 404, that's ok)
   if (results.length < maxPages) {
