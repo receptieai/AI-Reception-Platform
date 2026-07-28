@@ -609,8 +609,9 @@ function renderBrain(){
 
   // Doctors
   if (PROFILE.doctors?.length) {
+    const teamLabel = {'dental':'Medici','vet':'Medici veterinari','beauty':'Echipă salon','physio':'Terapeuți','medical':'Medici'}[brain.industry||PROFILE.industry||'other'] || 'Echipă';
     html += `<div class="ai-field" style="margin-bottom:8px;margin-top:8px">
-      <div class="ai-fl">Echipă medicală (${PROFILE.doctors.length})</div>
+      <div class="ai-fl">${teamLabel} (${PROFILE.doctors.length})</div>
       <div class="ai-fv">${PROFILE.doctors.slice(0,4).map(d=>`<span class="ai-tag" style="background:rgba(59,130,246,.1);color:var(--blue)">${d.name}</span>`).join('')}${PROFILE.doctors.length>4?`<span class="ai-tag" style="background:rgba(59,130,246,.1);color:var(--blue)">+${PROFILE.doctors.length-4}</span>`:''}</div>
     </div>`;
   }
@@ -678,7 +679,7 @@ function renderBrainServices() {
       <input value="${(s.price||'').replace(/"/g,'&quot;')}" onchange="updateService(${i},'price',this.value)" placeholder="Preț"
         style="width:110px;background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:6px 10px;color:var(--teal);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor=''">
       <button onclick="removeService(${i})" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:12px;">✕</button>
-    </div>`).join('') + `<button class="btn btn-ghost btn-sm" style="margin:10px 0;width:100%" onclick="saveServices()">💾 Salvează serviciile</button>`;
+    </div>`).join('') + `<button class="btn btn-teal btn-sm" style="margin:10px 0;width:100%" onclick="saveServices()">💾 Salvează serviciile</button>`;
 }
 
 function updateService(i, key, val) {
