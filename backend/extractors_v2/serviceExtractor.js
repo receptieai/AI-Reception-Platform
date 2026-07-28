@@ -63,6 +63,22 @@ function extractServices(html, page='homepage') {
     if (m2) add(m2[1].trim(), m2[2]+' LEI','text_lines','name ~ price',80);
   });
 
+  // Elementor/WordPress price widgets (86%)
+  // Pattern: heading widget with name, then another with price
+  const elementorHeadings = [...html.matchAll(/<h[1-6][^>]*elementor[^>]*>([\s\S]{0,500}?)<\/h[1-6]>/gi)];
+  if (elementorHeadings.length > 0) {
+    const headTexts = elementorHeadings.map(m => m[1].replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim());
+    for (let i = 0; i < headTexts.length - 1; i++) {
+      const nameText = headTexts[i];
+      const nextText = headTexts[i+1];
+      // If current is a name and next has a price
+      const pm = nextText.match(/(\d{1,5})\s*(?:Lei|RON|ron|€)/i);
+      if (pm && isValidName(nameText) && nameText.length > 3 && nameText.length < 100) {
+        add(nameText.replace(/\s+/g,' ').trim(), pm[1]+' LEI', 'elementor', 'elementor heading', 86);
+      }
+    }
+  }
+
   // Consecutive lines (78%) — always run, not just when few services
   for (let i = 0; i < lines.length-1; i++) {
     // Pattern: name on line i, "de la X RON" or "X RON" on line i+1
