@@ -589,12 +589,18 @@ function renderBrain(){
 async function rescan(){
   const site=PROFILE?.website||prompt('URL website:','https://');
   if(!site)return;
-  showToast('⏳','Scanare în curs','Procesăm website-ul... (30-60 sec)',8000);
+  showToast('⏳','Scanner V3 activ','Analizăm site-ul... (15-30 sec)',10000);
   try{
-    const r=await fetch(`${API}/api/brain/scan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:site,clientId:CID})});
+    const r=await fetch(`${API}/api/scan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:site,clientId:CID,industry:localStorage.getItem('recepai_business_type')||'auto'})});
     const d=await r.json();
-    if(d.success){PROFILE=d.brain;renderBrain();showToast('✅','Gata!',`${d.brain.services?.length||0} servicii, ${d.brain.faq?.length||0} FAQ`);}
-  }catch(e){showToast('❌','Eroare','Nu s-a putut scana.');}
+    if(d.success){
+      PROFILE={...PROFILE,...d,website:site,clientId:CID};
+      renderBrain();
+      showToast('✅','Gata!',`${d.services?.length||0} servicii · ${d.confidence||0}% acuratețe · ${d.brain?.insurances?.length||0} asigurări`);
+    }else{
+      showToast('❌','Eroare',d.error||'Nu s-a putut scana.');
+    }
+  }catch(e){showToast('❌','Eroare',e.message);}
 }
 
 function answerGap(q){
