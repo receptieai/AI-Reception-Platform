@@ -567,12 +567,95 @@ function renderBrain(){
   document.getElementById('bs-svc').textContent=PROFILE?.services?.length||0;
   document.getElementById('bs-faq').textContent=PROFILE?.faq?.length||0;
   document.getElementById('bs-conf').textContent=PROFILE?.confidence?PROFILE.confidence+'%':'—';
-  document.getElementById('brain-info').innerHTML=PROFILE?`
-    ${PROFILE.name?`<div class="ai-field"><div class="ai-fl">Clinică</div><div class="ai-fv">${PROFILE.name}</div></div>`:''}
-    ${PROFILE.phone?`<div class="ai-field"><div class="ai-fl">Telefon</div><div class="ai-fv">${PROFILE.phone}</div></div>`:''}
-    ${PROFILE.hours?`<div class="ai-field"><div class="ai-fl">Program</div><div class="ai-fv">${PROFILE.hours}</div></div>`:''}
-    ${PROFILE.services?.length?`<div class="ai-field"><div class="ai-fl">Top servicii</div><div class="ai-fv">${PROFILE.services.slice(0,4).map(s=>`<span class="ai-tag">${s.name}</span>`).join('')}${PROFILE.services.length>4?`<span class="ai-tag">+${PROFILE.services.length-4}</span>`:''}</div></div>`:''}`
-    :`<div class="empty"><div class="ei">🧠</div><div class="et">AI Brain gol</div><div class="es">Scaneaza site-ul pentru a activa AI-ul</div></div>`;
+  
+  if (!PROFILE) {
+    document.getElementById('brain-info').innerHTML='<div class="empty"><div class="ei">🧠</div><div class="et">AI Brain gol</div><div class="es">Scanează site-ul pentru a activa AI-ul</div></div>';
+    return;
+  }
+
+  const brain = PROFILE.brain || {};
+  const confFields = PROFILE.fieldConfidence || {};
+  
+  const confBadge = (v) => {
+    if (!v) return '';
+    const cls = v>=85?'color:var(--green)':v>=65?'color:var(--amber)':'color:var(--red)';
+    return `<span style="font-size:10px;font-weight:700;${cls}">${v}%</span>`;
+  };
+
+  let html = '';
+
+  // Contact info
+  html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">`;
+  const fields = [
+    ['Clinică', PROFILE.name, 'name'],
+    ['Telefon', PROFILE.phone, 'phone'],
+    ['Email', PROFILE.email, 'email'],
+    ['Oraș', PROFILE.city, 'city'],
+    ['Adresă', PROFILE.address, 'address'],
+    ['Program', PROFILE.hours, 'hours'],
+  ];
+  for (const [label, val, key] of fields) {
+    html += `<div class="ai-field">
+      <div class="ai-fl" style="display:flex;justify-content:space-between">${label} ${confBadge(confFields[key])}</div>
+      <div class="ai-fv ${val?'':'empty'}">${val||'Nedetectat'}</div>
+    </div>`;
+  }
+  html += `</div>`;
+
+  // Services
+  if (PROFILE.services?.length) {
+    const realSvcs = PROFILE.services.filter(s => s.method !== 'typical');
+    const typicalSvcs = PROFILE.services.filter(s => s.method === 'typical');
+    html += `<div class="ai-field" style="margin-bottom:8px">
+      <div class="ai-fl">Servicii detectate (${realSvcs.length}) ${confBadge(confFields.services)}</div>
+      <div class="ai-fv">${realSvcs.slice(0,6).map(s=>`<span class="ai-tag">${s.name}${s.price?' · '+s.price:''}</span>`).join('')}
+      ${realSvcs.length>6?`<span class="ai-tag">+${realSvcs.length-6} mai multe</span>`:''}
+      ${typicalSvcs.length>0?`<span class="ai-tag" style="background:var(--s3);color:var(--t3)">+${typicalSvcs.length} sugerate</span>`:''}</div>
+    </div>`;
+  }
+
+  // Doctors
+  if (PROFILE.doctors?.length) {
+    html += `<div class="ai-field" style="margin-bottom:8px">
+      <div class="ai-fl">Echipă medicală (${PROFILE.doctors.length})</div>
+      <div class="ai-fv">${PROFILE.doctors.slice(0,4).map(d=>`<span class="ai-tag" style="background:rgba(59,130,246,.1);color:var(--blue)">${d.name}</span>`).join('')}${PROFILE.doctors.length>4?`<span class="ai-tag" style="background:rgba(59,130,246,.1);color:var(--blue)">+${PROFILE.doctors.length-4}</span>`:''}</div>
+    </div>`;
+  }
+
+  // Brain — insurances
+  if (brain.insurances?.length) {
+    html += `<div class="ai-field" style="margin-bottom:8px">
+      <div class="ai-fl">🏥 Asigurări acceptate</div>
+      <div class="ai-fv">${brain.insurances.map(i=>`<span class="ai-tag" style="background:rgba(139,92,246,.1);color:var(--purple)">${i}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  // Brain — facilities
+  if (brain.facilities?.length) {
+    html += `<div class="ai-field" style="margin-bottom:8px">
+      <div class="ai-fl">✨ Facilități detectate</div>
+      <div class="ai-fv">${brain.facilities.slice(0,8).map(f=>`<span class="ai-tag">${f}</span>`).join('')}${brain.facilities.length>8?`<span class="ai-tag">+${brain.facilities.length-8}</span>`:''}</div>
+    </div>`;
+  }
+
+  // Brain — technologies
+  if (brain.technologies?.length) {
+    html += `<div class="ai-field" style="margin-bottom:8px">
+      <div class="ai-fl">🔬 Tehnologii</div>
+      <div class="ai-fv">${brain.technologies.map(t=>`<span class="ai-tag" style="background:rgba(34,197,94,.1);color:var(--green)">${t.name}</span>`).join('')}</div>
+    </div>`;
+  }
+
+  // Social
+  const socials = [['Facebook',PROFILE.facebook,'#3B82F6'],['Instagram',PROFILE.instagram,'#E1306C'],['TikTok',PROFILE.tiktok,'#000'],['WhatsApp',PROFILE.whatsapp,'#25D366']].filter(s=>s[1]);
+  if (socials.length) {
+    html += `<div class="ai-field">
+      <div class="ai-fl">Social Media</div>
+      <div class="ai-fv">${socials.map(([name,url,color])=>`<a href="${url}" target="_blank" style="text-decoration:none"><span class="ai-tag" style="background:${color}22;color:${color}">${name}</span></a>`).join('')}</div>
+    </div>`;
+  }
+
+  document.getElementById('brain-info').innerHTML = html;
   // Load gaps
   fetch(`${API}/api/learning/gaps?clientId=${CID}`).then(r=>r.json()).then(d=>{
     const gaps=d.gaps||[];
