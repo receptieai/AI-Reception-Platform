@@ -32,9 +32,16 @@ function calculateConfidence(merged, sources, extractedRaw) {
 
   // Services — based on count and price coverage
   const svcCount = merged.services?.length || 0;
-  const withPrice = (merged.services || []).filter(s => s.price).length;
-  const priceRatio = svcCount > 0 ? withPrice / svcCount : 0;
-  scores.services = svcCount > 20 ? 95 : svcCount > 10 ? 88 : svcCount > 5 ? 75 : svcCount > 0 ? 55 : 0;
+  const realSvcs = (merged.services || []).filter(s => s.source !== 'businessBrain' || s.method !== 'typical');
+  const typicalSvcs = svcCount - realSvcs.length;
+  const withPrice = realSvcs.filter(s => s.price).length;
+  const priceRatio = realSvcs.length > 0 ? withPrice / realSvcs.length : 0;
+  // Typical services get lower score
+  if (typicalSvcs > 0 && realSvcs.length === 0) {
+    scores.services = 30; // Only typical — low confidence
+  } else {
+    scores.services = realSvcs.length > 20 ? 95 : realSvcs.length > 10 ? 88 : realSvcs.length > 5 ? 75 : realSvcs.length > 0 ? 55 : 0;
+  }
   scores.prices = priceRatio > 0.8 ? 95 : priceRatio > 0.5 ? 80 : priceRatio > 0.2 ? 60 : withPrice > 0 ? 40 : 0;
 
   // Social — nu penalizam daca site-ul pur si simplu nu are social media
