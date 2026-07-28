@@ -586,37 +586,30 @@ function renderBrain(){
 
   // Contact info
   html += `<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px">`;
-  const fields = [
-    ['Clinică', PROFILE.name, 'name'],
-    ['Telefon', PROFILE.phone, 'phone'],
-    ['Email', PROFILE.email, 'email'],
-    ['Oraș', PROFILE.city, 'city'],
-    ['Adresă', PROFILE.address, 'address'],
-    ['Program', PROFILE.hours, 'hours'],
+  const editFields = [
+    ['Clinică', 'name', 'text'],
+    ['Telefon', 'phone', 'tel'],
+    ['Email', 'email', 'email'],
+    ['Oraș', 'city', 'text'],
+    ['Adresă', 'address', 'text'],
+    ['Program', 'hours', 'text'],
+    ['Website', 'website', 'url'],
   ];
-  for (const [label, val, key] of fields) {
-    html += `<div class="ai-field">
-      <div class="ai-fl" style="display:flex;justify-content:space-between">${label} ${confBadge(confFields[key])}</div>
-      <div class="ai-fv ${val?'':'empty'}">${val||'Nedetectat'}</div>
-    </div>`;
-  }
-  html += `</div>`;
-
-  // Services
-  if (PROFILE.services?.length) {
-    const realSvcs = PROFILE.services.filter(s => s.method !== 'typical');
-    const typicalSvcs = PROFILE.services.filter(s => s.method === 'typical');
+  for (const [label, key, type] of editFields) {
+    const val = PROFILE[key] || '';
     html += `<div class="ai-field" style="margin-bottom:8px">
-      <div class="ai-fl">Servicii detectate (${realSvcs.length}) ${confBadge(confFields.services)}</div>
-      <div class="ai-fv">${realSvcs.slice(0,6).map(s=>`<span class="ai-tag">${s.name}${s.price?' · '+s.price:''}</span>`).join('')}
-      ${realSvcs.length>6?`<span class="ai-tag">+${realSvcs.length-6} mai multe</span>`:''}
-      ${typicalSvcs.length>0?`<span class="ai-tag" style="background:var(--s3);color:var(--t3)">+${typicalSvcs.length} sugerate</span>`:''}</div>
+      <div class="ai-fl" style="display:flex;justify-content:space-between;margin-bottom:4px">${label} ${confBadge(confFields[key])}</div>
+      <input id="bf-${key}" type="${type}" value="${val.toString().replace(/"/g,'&quot;')}" placeholder="${val||'Nedetectat'}"
+        style="width:100%;background:var(--s3);border:1px solid var(--b1);border-radius:7px;padding:7px 10px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;"
+        onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor=''">
     </div>`;
   }
+  html += `<button class="btn btn-teal btn-sm" style="margin-top:8px;width:100%" onclick="saveBrainFields()">💾 Salvează modificările</button>`;
+  html += `</div>`;
 
   // Doctors
   if (PROFILE.doctors?.length) {
-    html += `<div class="ai-field" style="margin-bottom:8px">
+    html += `<div class="ai-field" style="margin-bottom:8px;margin-top:8px">
       <div class="ai-fl">Echipă medicală (${PROFILE.doctors.length})</div>
       <div class="ai-fv">${PROFILE.doctors.slice(0,4).map(d=>`<span class="ai-tag" style="background:rgba(59,130,246,.1);color:var(--blue)">${d.name}</span>`).join('')}${PROFILE.doctors.length>4?`<span class="ai-tag" style="background:rgba(59,130,246,.1);color:var(--blue)">+${PROFILE.doctors.length-4}</span>`:''}</div>
     </div>`;
@@ -656,6 +649,7 @@ function renderBrain(){
   }
 
   document.getElementById('brain-info').innerHTML = html;
+  renderBrainServices();
   // Load gaps
   fetch(`${API}/api/learning/gaps?clientId=${CID}`).then(r=>r.json()).then(d=>{
     const gaps=d.gaps||[];
@@ -667,6 +661,65 @@ function renderBrain(){
         <button class="btn btn-ghost btn-sm" onclick="answerGap('${(g.question||g).replace(/'/g,'')}')" style="font-size:11px">Răspunde</button>
       </div>`).join(''):`<div class="empty"><div class="ei">✅</div><div class="et">AI răspunde la toate întrebările</div></div>`;
   }).catch(()=>{document.getElementById('brain-gaps').innerHTML='<div class="empty"><div class="et">—</div></div>';});
+}
+
+function renderBrainServices() {
+  const el = document.getElementById('brain-services');
+  if (!el) return;
+  const svcs = (PROFILE?.services || []).filter(s => s.method !== 'typical');
+  if (svcs.length === 0) {
+    el.innerHTML = '<div class="empty" style="padding:16px"><div class="et">Niciun serviciu detectat</div><div class="es">Adaugă manual sau rescaneaza</div></div>';
+    return;
+  }
+  el.innerHTML = svcs.map((s, i) => `
+    <div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--b1)" id="svc-row-${i}">
+      <input value="${(s.name||'').replace(/"/g,'&quot;')}" onchange="updateService(${i},'name',this.value)"
+        style="flex:1;background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:6px 10px;color:var(--tx);font-size:12px;font-family:'Inter',sans-serif;outline:none;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor=''">
+      <input value="${(s.price||'').replace(/"/g,'&quot;')}" onchange="updateService(${i},'price',this.value)" placeholder="Preț"
+        style="width:110px;background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:6px 10px;color:var(--teal);font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;" onfocus="this.style.borderColor='var(--teal)'" onblur="this.style.borderColor=''">
+      <button onclick="removeService(${i})" style="background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:7px;padding:5px 9px;cursor:pointer;font-size:12px;">✕</button>
+    </div>`).join('') + `<button class="btn btn-ghost btn-sm" style="margin:10px 0;width:100%" onclick="saveServices()">💾 Salvează serviciile</button>`;
+}
+
+function updateService(i, key, val) {
+  const svcs = (PROFILE?.services || []).filter(s => s.method !== 'typical');
+  if (svcs[i]) svcs[i][key] = val;
+}
+
+function removeService(i) {
+  const svcs = (PROFILE?.services || []).filter(s => s.method !== 'typical');
+  svcs.splice(i, 1);
+  if (PROFILE) PROFILE.services = [...svcs, ...(PROFILE.services||[]).filter(s=>s.method==='typical')];
+  renderBrainServices();
+}
+
+function addBrainService() {
+  if (!PROFILE) return;
+  if (!PROFILE.services) PROFILE.services = [];
+  PROFILE.services.unshift({ name: 'Serviciu nou', price: '', source: 'manual', method: 'manual', confidence: 100 });
+  renderBrainServices();
+}
+
+async function saveServices() {
+  PROFILE.clientId = CID;
+  try {
+    await fetch(`${API}/api/profile/save`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(PROFILE)});
+    toast('✅ Servicii salvate');
+  } catch(e) { toast('❌ Eroare'); }
+}
+
+async function saveBrainFields() {
+  const fields = ['name','phone','email','city','address','hours','website'];
+  for (const key of fields) {
+    const el = document.getElementById('bf-'+key);
+    if (el) PROFILE[key] = el.value.trim();
+  }
+  PROFILE.clientId = CID;
+  try {
+    await fetch(`${API}/api/profile/save`, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(PROFILE)});
+    toast('✅ Date salvate');
+    renderBrain();
+  } catch(e) { toast('❌ Eroare la salvare'); }
 }
 
 async function rescan(){
