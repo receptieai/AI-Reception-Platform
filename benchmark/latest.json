@@ -1,5 +1,5 @@
 {
-  "date": "2026-07-28T20:06:02.520Z",
+  "date": "2026-07-29T18:08:53.275Z",
   "avg": 77,
   "passed": 7,
   "total": 7,
@@ -19,7 +19,7 @@
       "minScore": 82,
       "confidence": 86,
       "services": 60,
-      "duration": 8,
+      "duration": 5,
       "status": "pass"
     },
     {
@@ -46,7 +46,7 @@
       "minScore": 82,
       "confidence": 86,
       "services": 19,
-      "duration": 12,
+      "duration": 9,
       "status": "pass"
     },
     {
@@ -55,7 +55,7 @@
       "minScore": 45,
       "confidence": 62,
       "services": 8,
-      "duration": 6,
+      "duration": 7,
       "status": "pass"
     },
     {
@@ -64,7 +64,7 @@
       "minScore": 30,
       "confidence": 40,
       "services": 8,
-      "duration": 11,
+      "duration": 10,
       "status": "pass"
     }
   ]
