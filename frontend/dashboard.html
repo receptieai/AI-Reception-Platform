@@ -213,6 +213,13 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 .toast-card-close{background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;}
 
 @media(max-width:768px){
+  .sb{position:fixed;left:-100%;top:0;bottom:0;z-index:200;width:82%;max-width:280px;transition:left .25s ease;box-shadow:6px 0 30px rgba(0,0,0,.6);}
+  .sb.mob-open{left:0;}
+  .main{width:100%!important;}
+  .content{padding:12px!important;}
+  .g2,.g3{grid-template-columns:1fr!important;}
+  .metrics{grid-template-columns:1fr 1fr!important;}
+
   .sb{display:none;}
   .metrics{grid-template-columns:1fr 1fr;}
 }
@@ -250,7 +257,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 </aside>
 
 <main class="main">
-  <div class="topbar">
+  <div class="topbar" style="display:flex;align-items:center;gap:10px">
+  <button onclick="openSb()" style="display:none;background:none;border:none;color:var(--tx);cursor:pointer;padding:4px;font-size:20px;line-height:1;" id="hbg-btn">☰</button>
     <div style="flex:1">
       <div class="tb-title" id="tb-title">Acasă</div>
       <div class="tb-sub" id="tb-sub">Bun venit în RecepAI</div>
