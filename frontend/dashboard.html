@@ -212,7 +212,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display
 .toast-card-msg{font-size:12px;color:var(--t2);}
 .toast-card-close{background:none;border:none;color:var(--t3);cursor:pointer;font-size:16px;}
 
+.bottom-nav{display:none;position:fixed;bottom:0;left:0;right:0;z-index:150;background:var(--s1);border-top:1px solid var(--b1);padding:8px 0;padding-bottom:calc(8px + env(safe-area-inset-bottom));display:none;grid-template-columns:repeat(5,1fr);}
+.bn-item{display:flex;flex-direction:column;align-items:center;gap:3px;padding:4px 0;cursor:pointer;text-decoration:none;color:var(--t3);transition:color .15s;}
+.bn-item.on{color:var(--teal);}
+.bn-item:active{transform:scale(.9);}
+.bn-icon{font-size:20px;line-height:1;}
+.bn-label{font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:.3px;}
+
 @media(max-width:768px){
+  .bottom-nav{display:grid;}
+  .sb{display:none!important;}
+  .content{padding:12px 12px 80px!important;}
+  .g2,.g3{grid-template-columns:1fr!important;}
+  .metrics{grid-template-columns:1fr 1fr!important;}
+  #hbg-btn{display:none!important;}
+
   .sb{position:fixed;left:-100%;top:0;bottom:0;z-index:200;width:82%;max-width:280px;transition:left .25s ease;box-shadow:6px 0 30px rgba(0,0,0,.6);}
   .sb.mob-open{left:0;}
   .main{width:100%!important;}
@@ -944,5 +958,23 @@ if('serviceWorker' in navigator)navigator.serviceWorker.register('/pwa/sw.js').c
 
 init();
 </script>
+
+<nav class="bottom-nav" id="bottom-nav">
+  <a class="bn-item" onclick="nav('home',this)" href="#">
+    <span class="bn-icon">🏠</span><span class="bn-label">Acasă</span>
+  </a>
+  <a class="bn-item" onclick="nav('leads',this)" href="#">
+    <span class="bn-icon">📥</span><span class="bn-label">Lead-uri</span>
+  </a>
+  <a class="bn-item" onclick="nav('convs',this)" href="#">
+    <span class="bn-icon">💬</span><span class="bn-label">Chat</span>
+  </a>
+  <a class="bn-item" onclick="nav('brain',this)" href="#">
+    <span class="bn-icon">🧠</span><span class="bn-label">Brain</span>
+  </a>
+  <a class="bn-item" onclick="nav('settings',this)" href="#">
+    <span class="bn-icon">⚙️</span><span class="bn-label">Setări</span>
+  </a>
+</nav>
 </body>
 </html>
