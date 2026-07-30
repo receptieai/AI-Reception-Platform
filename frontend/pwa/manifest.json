@@ -1,14 +1,24 @@
 {
   "name": "RecepAI",
   "short_name": "RecepAI",
-  "description": "Radarul care nu lasă niciun client să se piardă",
+  "description": "Recepționerul AI care nu lasă niciun client să se piardă",
   "start_url": "/dashboard.html",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#6366F1",
+  "background_color": "#09090B",
+  "theme_color": "#00D4AA",
   "icons": [
-    { "src": "/pwa/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+    {
+      "src": "/pwa/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
   ],
-  "categories": ["business", "productivity"],
-  "lang": "ro"
+  "categories": [
+    "business",
+    "productivity"
+  ],
+  "lang": "ro",
+  "orientation": "portrait-primary",
+  "scope": "/"
 }
