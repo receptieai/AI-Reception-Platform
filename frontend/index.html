@@ -3,394 +3,2319 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="description" content="RecepAI — Recepționerul AI care răspunde 24/7 și transformă vizitatorii în programări.">
-<title>RecepAI — Recepționerul AI al clinicii tale</title>
+<title>RecepAI — Recepționistul AI al clinicii tale</title>
+<meta name="description" content="RecepAI răspunde 24/7, captează lead-uri și le trimite direct la recepție. Instalare în 5 minute.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bg:#09090B; --s1:#111214; --s2:#18191C; --s3:#1F2024;
-  --b1:rgba(255,255,255,.07); --b2:rgba(255,255,255,.13);
-  --tx:#F0F0F2; --t2:#8A8A94; --t3:#3E3E46;
-  --teal:#00D4AA; --td:rgba(0,212,170,.08); --tm:rgba(0,212,170,.18);
-  --green:#22C55E; --red:#EF4444; --amber:#F59E0B; --blue:#3B82F6;
-  --r:10px;
+
+/* ═══════════════════════════════════════════
+   DESIGN SYSTEM
+═══════════════════════════════════════════ */
+:root {
+  --bg:       #080809;
+  --bg-1:     #0D0D0F;
+  --bg-2:     #111115;
+  --bg-3:     #16161A;
+  --bg-4:     #1C1C22;
+  --b1:       rgba(255,255,255,.05);
+  --b2:       rgba(255,255,255,.09);
+  --b3:       rgba(255,255,255,.14);
+  --b4:       rgba(255,255,255,.22);
+  --tx-1:     #F2F2F5;
+  --tx-2:     #9898A6;
+  --tx-3:     #55555F;
+  --tx-4:     #38383F;
+  --teal:     #00D4AA;
+  --teal-2:   #00FFCC;
+  --td:       rgba(0,212,170,.06);
+  --tm:       rgba(0,212,170,.15);
+  --tg:       rgba(0,212,170,.30);
+  --green:    #22C55E;
+  --red:      #EF4444;
+  --amber:    #F59E0B;
+  --blue:     #3B82F6;
+  --purple:   #8B5CF6;
+  --font-d:   'Space Grotesk', sans-serif;
+  --font-b:   'Inter', sans-serif;
+  --font-m:   'JetBrains Mono', monospace;
+  --nav-h:    64px;
+  --ease:     cubic-bezier(0.16,1,0.3,1);
+  --r:        10px;
+  --r-lg:     18px;
+  --r-xl:     26px;
 }
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);font-size:16px;line-height:1.6;overflow-x:hidden;}
 
-/* NAV */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;height:62px;display:flex;align-items:center;padding:0 max(20px,5vw);justify-content:space-between;background:rgba(9,9,11,.9);backdrop-filter:blur(14px);border-bottom:1px solid var(--b1);}
-.logo{font-family:'Space Grotesk',sans-serif;font-size:19px;font-weight:700;color:var(--tx);text-decoration:none;letter-spacing:-.4px;}
-.logo em{color:var(--teal);font-style:normal;}
-.nav-mid{display:flex;align-items:center;gap:26px;}
-.nav-mid a{font-size:13px;font-weight:500;color:var(--t2);text-decoration:none;transition:color .14s;}
-.nav-mid a:hover{color:var(--tx);}
-.nav-r{display:flex;align-items:center;gap:10px;}
-.btn-ghost{padding:7px 16px;border:1px solid var(--b2);border-radius:8px;background:transparent;color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;transition:all .14s;}
-.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
-.btn-teal{padding:8px 20px;border:none;border-radius:8px;background:var(--teal);color:#000;font-size:13px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-decoration:none;transition:all .14s;display:inline-block;}
-.btn-teal:hover{background:#00FFCC;}
-.hbg{display:none;flex-direction:column;gap:5px;cursor:pointer;}
-.hbg span{display:block;width:22px;height:2px;background:var(--tx);border-radius:2px;}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-/* SECTIONS */
-section{padding:90px max(20px,5vw);}
-.eyebrow{font-size:11px;font-weight:700;color:var(--teal);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;}
-.h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,4.5vw,48px);font-weight:700;letter-spacing:-1.2px;line-height:1.1;margin-bottom:14px;}
-.lead{font-size:16px;color:var(--t2);line-height:1.75;max-width:540px;}
-.center{text-align:center;}
-.center .lead{margin:0 auto;}
-
-/* HERO */
-.hero{min-height:100svh;display:flex;align-items:center;padding-top:120px;padding-bottom:60px;position:relative;overflow:hidden;}
-.hero-glow{position:absolute;width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,170,.06) 0%,transparent 65%);top:30%;left:50%;transform:translateX(-50%);pointer-events:none;}
-.hero-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;width:100%;}
-.hero-copy{}
-.hero-checks{display:flex;flex-direction:column;gap:9px;margin:24px 0 32px;}
-.hero-check{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:var(--t2);}
-.hero-check::before{content:'✔';color:var(--teal);font-size:13px;flex-shrink:0;}
-.hero-h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(32px,4.5vw,54px);font-weight:700;letter-spacing:-1.8px;line-height:1.06;margin-bottom:18px;}
-.hero-sub{font-size:17px;color:var(--t2);line-height:1.7;margin-bottom:0;}
-.hero-btn-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
-.btn-hero{padding:14px 32px;border:none;border-radius:11px;background:var(--teal);color:#000;font-size:15px;font-weight:700;cursor:pointer;font-family:'Space Grotesk',sans-serif;text-decoration:none;display:inline-block;transition:all .15s;}
-.btn-hero:hover{background:#00FFCC;box-shadow:0 0 32px rgba(0,212,170,.35);transform:translateY(-1px);}
-.btn-hero-ghost{padding:14px 24px;border:1px solid var(--b2);border-radius:11px;background:transparent;color:var(--tx);font-size:15px;font-weight:500;cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;display:inline-block;transition:all .15s;}
-.btn-hero-ghost:hover{border-color:var(--teal);color:var(--teal);}
-
-/* HERO CHAT — live demo */
-.hero-chat{background:var(--s1);border:1px solid var(--b1);border-radius:18px;overflow:hidden;}
-.hc-head{padding:12px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:10px;}
-.hc-dots{display:flex;gap:5px;}
-.hc-dot{width:10px;height:10px;border-radius:50%;}
-.hc-title{font-size:12px;color:var(--t3);margin-left:4px;font-family:'Space Grotesk',sans-serif;}
-.hc-live{margin-left:auto;font-size:9px;font-weight:700;color:var(--green);background:rgba(34,197,94,.1);padding:2px 8px;border-radius:8px;border:1px solid rgba(34,197,94,.2);}
-.hc-body{padding:16px;display:flex;flex-direction:column;gap:10px;min-height:320px;}
-.hc-msg{max-width:84%;font-size:13px;line-height:1.55;padding:9px 13px;border-radius:10px;}
-.hc-u{background:var(--s2);color:var(--t2);align-self:flex-end;border-radius:10px 10px 2px 10px;}
-.hc-a{background:var(--td);color:var(--teal);border:1px solid var(--tm);align-self:flex-start;border-radius:10px 10px 10px 2px;}
-.hc-typing{display:flex;gap:4px;padding:9px 13px;background:var(--td);border:1px solid var(--tm);border-radius:10px 10px 10px 2px;width:fit-content;}
-.hc-typing span{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:typ 1.2s infinite;}
-.hc-typing span:nth-child(2){animation-delay:.2s;}
-.hc-typing span:nth-child(3){animation-delay:.4s;}
-@keyframes typ{0%,100%{opacity:.2;transform:scale(.8);}50%{opacity:1;transform:scale(1);}}
-.hc-notify{margin:4px 0;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:8px;padding:9px 13px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--green);font-weight:600;}
-.hc-notify-icon{font-size:16px;}
-
-/* PROBLEM / SOLUTION */
-.ps{background:var(--s1);border-top:1px solid var(--b1);border-bottom:1px solid var(--b1);}
-.ps-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start;}
-.ps-col{}
-.ps-list{display:flex;flex-direction:column;gap:12px;margin-top:24px;}
-.ps-item{display:flex;align-items:flex-start;gap:12px;padding:14px;background:var(--bg);border:1px solid var(--b1);border-radius:var(--r);}
-.ps-item.green{border-color:rgba(0,212,170,.18);}
-.ps-icon{font-size:18px;flex-shrink:0;margin-top:1px;}
-.ps-text{font-size:14px;color:var(--t2);line-height:1.6;}
-.ps-text strong{color:var(--tx);font-weight:600;}
-
-/* COMPARISON TABLE */
-.compare{max-width:860px;margin:0 auto;}
-.compare-table{width:100%;border-collapse:collapse;margin-top:40px;}
-.compare-table th{font-size:13px;font-weight:700;padding:12px 16px;text-align:left;border-bottom:1px solid var(--b1);}
-.compare-table th:first-child{color:var(--t3);}
-.compare-table th:last-child{color:var(--teal);}
-.compare-table td{font-size:13px;padding:12px 16px;border-bottom:1px solid var(--b1);color:var(--t2);}
-.compare-table td:first-child{color:var(--t3);}
-.compare-table td:last-child{color:var(--tx);font-weight:600;}
-.compare-table tr:last-child td{border-bottom:none;}
-.compare-table tr:hover td{background:var(--s2);}
-
-/* BRAIN SECTION */
-.brain{background:var(--s1);border-top:1px solid var(--b1);}
-.brain-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
-.brain-visual{background:var(--bg);border:1px solid var(--b1);border-radius:16px;padding:24px;}
-.brain-flow{display:flex;flex-direction:column;gap:0;}
-.brain-step{display:flex;align-items:center;gap:14px;padding:10px 0;}
-.brain-step-icon{width:36px;height:36px;border-radius:9px;background:var(--td);border:1px solid var(--tm);display:grid;place-items:center;font-size:15px;flex-shrink:0;}
-.brain-step-info{flex:1;}
-.brain-step-label{font-size:12px;font-weight:700;color:var(--tx);}
-.brain-step-sub{font-size:11px;color:var(--t3);}
-.brain-arrow{margin-left:9px;color:var(--t3);font-size:12px;}
-.brain-checks{display:flex;flex-direction:column;gap:8px;margin-top:24px;}
-.brain-check{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--t2);}
-.brain-check::before{content:'✔';color:var(--teal);font-size:12px;flex-shrink:0;}
-
-/* HOW */
-.how-inner{max-width:860px;margin:0 auto;text-align:center;}
-.how-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:52px;position:relative;}
-.how-steps::before{content:'';position:absolute;top:21px;left:16.6%;right:16.6%;height:1px;background:linear-gradient(90deg,transparent,var(--tm),var(--tm),transparent);}
-.how-step{padding:0 16px;text-align:center;}
-.how-n{width:42px;height:42px;border-radius:50%;background:var(--td);border:1.5px solid var(--tm);color:var(--teal);font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;position:relative;z-index:1;}
-.how-t{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:7px;}
-.how-s{font-size:13px;color:var(--t3);line-height:1.6;}
-
-/* DASHBOARD */
-.dash-inner{max-width:1100px;margin:0 auto;}
-.dash-frame{background:var(--s1);border:1px solid var(--b1);border-radius:18px;overflow:hidden;box-shadow:0 30px 80px rgba(0,0,0,.5);}
-.dash-bar{height:38px;background:var(--s2);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 14px;gap:7px;}
-.dash-dot{width:10px;height:10px;border-radius:50%;}
-.dash-url{flex:1;background:var(--bg);border-radius:5px;height:22px;margin:0 10px;display:flex;align-items:center;padding:0 10px;}
-.dash-url-txt{font-size:10px;color:var(--t3);font-family:'Space Grotesk',sans-serif;}
-.dash-body{display:grid;grid-template-columns:190px 1fr;min-height:380px;}
-.dash-sb{background:var(--s2);border-right:1px solid var(--b1);padding:12px 0;}
-.dash-sb-logo{padding:0 14px 12px;border-bottom:1px solid var(--b1);margin-bottom:8px;font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;}
-.dash-sb-logo em{color:var(--teal);font-style:normal;}
-.dash-ni{display:flex;align-items:center;gap:7px;padding:8px 14px;font-size:12px;font-weight:500;color:var(--t2);}
-.dash-ni.on{background:var(--td);color:var(--teal);}
-.dash-main{padding:16px;}
-.dash-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
-.dash-mc{background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:13px;}
-.dash-mc-v{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;line-height:1;margin-bottom:3px;}
-.dash-mc-l{font-size:10px;color:var(--t3);}
-.dash-leads{background:var(--s2);border:1px solid var(--b1);border-radius:9px;overflow:hidden;}
-.dash-leads-h{padding:9px 13px;border-bottom:1px solid var(--b1);font-size:11px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
-.dash-lr{display:flex;align-items:center;gap:9px;padding:9px 13px;border-bottom:1px solid var(--b1);font-size:11px;}
-.dash-lr:last-child{border-bottom:none;}
-.dash-av{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:10px;font-weight:700;flex-shrink:0;}
-.dash-lname{font-weight:600;color:var(--tx);}
-.dash-lsvc{color:var(--t3);margin-top:1px;}
-.dash-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:4px;margin-left:auto;}
-.b-red{background:rgba(239,68,68,.12);color:#EF4444;}
-.b-ylw{background:rgba(245,158,11,.12);color:#F59E0B;}
-.b-grn{background:rgba(34,197,94,.12);color:#22C55E;}
-.dash-phone{font-size:11px;color:var(--teal);font-family:'JetBrains Mono',monospace;}
-
-/* PRICING */
-.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:50px;max-width:860px;margin-left:auto;margin-right:auto;}
-.plan{background:var(--s1);border:1px solid var(--b1);border-radius:16px;padding:24px;position:relative;}
-.plan.featured{border-color:var(--tm);background:var(--td);}
-.plan-badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--teal);color:#000;font-size:10px;font-weight:700;padding:2px 12px;border-radius:9px;white-space:nowrap;}
-.plan-name{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.6px;margin-bottom:8px;}
-.plan-price{font-family:'Space Grotesk',sans-serif;font-size:34px;font-weight:700;line-height:1;margin-bottom:4px;}
-.plan-price span{font-size:14px;font-weight:400;color:var(--t3);}
-.plan-desc{font-size:12px;color:var(--t3);margin-bottom:20px;}
-.plan-feats{list-style:none;display:flex;flex-direction:column;gap:8px;margin-bottom:22px;}
-.plan-feats li{font-size:13px;color:var(--t2);display:flex;align-items:flex-start;gap:7px;line-height:1.5;}
-.plan-feats li::before{content:'✓';color:var(--teal);font-weight:700;flex-shrink:0;}
-.plan-feats li.off{color:var(--t3);}
-.plan-feats li.off::before{content:'—';color:var(--t3);}
-.plan-btn{width:100%;padding:10px;border-radius:9px;font-size:13px;font-weight:700;font-family:'Space Grotesk',sans-serif;cursor:pointer;border:none;text-align:center;text-decoration:none;display:block;transition:all .14s;}
-.plan-btn-teal{background:var(--teal);color:#000;}.plan-btn-teal:hover{background:#00FFCC;}
-.plan-btn-ghost{background:var(--s2);color:var(--tx);}.plan-btn-ghost:hover{background:var(--b1);}
-
-/* FAQ */
-.faq-wrap{max-width:680px;margin:40px auto 0;}
-.faq-item{border-bottom:1px solid var(--b1);padding:16px 0;cursor:pointer;}
-.faq-q{font-size:14px;font-weight:600;color:var(--tx);display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}
-.faq-icon{color:var(--teal);font-size:18px;transition:transform .2s;flex-shrink:0;}
-.faq-a{font-size:14px;color:var(--t2);line-height:1.7;margin-top:10px;display:none;}
-.faq-item.open .faq-icon{transform:rotate(45deg);}
-.faq-item.open .faq-a{display:block;}
-
-/* CTA */
-.cta{text-align:center;position:relative;overflow:hidden;}
-.cta-glow{position:absolute;width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,212,170,.07) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;}
-.cta-inner{position:relative;}
-.cta h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(28px,5vw,56px);font-weight:700;letter-spacing:-1.5px;margin-bottom:14px;}
-.cta p{font-size:16px;color:var(--t2);margin-bottom:32px;}
-
-/* FOOTER */
-footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px max(20px,5vw) 28px;}
-.footer-grid{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1.5fr 1fr 1fr 1fr;gap:40px;margin-bottom:36px;}
-.footer-logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;margin-bottom:8px;}
-.footer-logo em{color:var(--teal);font-style:normal;}
-.footer-tagline{font-size:13px;color:var(--t3);line-height:1.6;}
-.footer-col h4{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;}
-.footer-col a{display:block;font-size:13px;color:var(--t2);text-decoration:none;margin-bottom:7px;transition:color .13s;}
-.footer-col a:hover{color:var(--teal);}
-.footer-bottom{max-width:1100px;margin:0 auto;border-top:1px solid var(--b1);padding-top:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
-.footer-copy{font-size:12px;color:var(--t3);}
-
-/* MOBILE */
-@media(max-width:768px){
-  .nav-mid{display:none;}
-  .nav-mid.open{display:flex;flex-direction:column;position:fixed;top:62px;left:0;right:0;background:var(--s1);border-bottom:1px solid var(--b1);padding:16px 20px;gap:16px;z-index:99;}
-  .hbg{display:flex;}
-  .nav-r .btn-ghost{display:none;}
-  section{padding:60px max(20px,5vw);}
-  .hero{padding-top:100px;padding-bottom:40px;min-height:auto;}
-  .hero-inner{grid-template-columns:1fr;gap:36px;}
-  .ps-inner{grid-template-columns:1fr;}
-  .brain-inner{grid-template-columns:1fr;}
-  .how-steps{grid-template-columns:1fr;gap:24px;}
-  .how-steps::before{display:none;}
-  .dash-body{grid-template-columns:1fr;}
-  .dash-sb{display:none;}
-  .plans{grid-template-columns:1fr;max-width:100%;}
-  .footer-grid{grid-template-columns:1fr 1fr;gap:28px;}
-  .compare-table{font-size:12px;}
-  .compare-table th,.compare-table td{padding:9px 10px;}
+html {
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
-@media(max-width:480px){
-  .footer-grid{grid-template-columns:1fr;}
-  .dash-metrics{grid-template-columns:1fr 1fr;}
-  .hero-btn-row{flex-direction:column;align-items:flex-start;}
+
+body {
+  font-family: var(--font-b);
+  background: var(--bg);
+  color: var(--tx-1);
+  overflow-x: hidden;
+}
+
+::selection { background: rgba(0,212,170,.2); color: var(--teal-2); }
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--b3); border-radius: 9px; }
+
+/* ═══════════════════════════════════════════
+   NAVBAR
+═══════════════════════════════════════════ */
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 200;
+  height: var(--nav-h);
+  display: flex;
+  align-items: center;
+  padding: 0 max(20px, 5vw);
+  transition: background 0.3s var(--ease), border-color 0.3s;
+  border-bottom: 1px solid transparent;
+}
+
+.nav.scrolled {
+  background: rgba(8,8,9,.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom-color: var(--b1);
+}
+
+.nav-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+/* Logo */
+.nav-logo {
+  font-family: var(--font-d);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--tx-1);
+  text-decoration: none;
+  letter-spacing: -0.5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nav-logo-icon {
+  width: 30px;
+  height: 30px;
+  background: var(--teal);
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+.nav-logo em { color: var(--teal); font-style: normal; }
+
+/* Center links */
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin: 0 auto;
+}
+
+.nav-link {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tx-2);
+  text-decoration: none;
+  padding: 7px 14px;
+  border-radius: var(--r);
+  transition: color 0.15s, background 0.15s;
+}
+
+.nav-link:hover {
+  color: var(--tx-1);
+  background: var(--b1);
+}
+
+/* Right actions */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.nav-btn-ghost {
+  font-family: var(--font-b);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--tx-2);
+  text-decoration: none;
+  padding: 8px 16px;
+  border-radius: var(--r);
+  border: 1px solid transparent;
+  transition: all 0.15s;
+}
+
+.nav-btn-ghost:hover {
+  color: var(--tx-1);
+  border-color: var(--b2);
+  background: var(--b1);
+}
+
+.nav-btn-primary {
+  font-family: var(--font-d);
+  font-size: 13px;
+  font-weight: 700;
+  color: #000;
+  background: var(--teal);
+  text-decoration: none;
+  padding: 9px 20px;
+  border-radius: var(--r);
+  border: none;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.nav-btn-primary:hover {
+  background: var(--teal-2);
+  box-shadow: 0 0 0 3px var(--tm), 0 4px 20px var(--tg);
+  transform: translateY(-1px);
+}
+
+.nav-btn-primary:active { transform: none; }
+
+/* Hamburger */
+.nav-hbg {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: var(--r);
+  border: 1px solid var(--b2);
+  background: var(--b1);
+  margin-left: 8px;
+}
+
+.nav-hbg span {
+  display: block;
+  width: 18px;
+  height: 1.5px;
+  background: var(--tx-1);
+  border-radius: 2px;
+  transition: all 0.2s;
+}
+
+.nav-hbg.open span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); }
+.nav-hbg.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
+.nav-hbg.open span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); }
+
+/* Mobile menu */
+.nav-mobile {
+  display: none;
+  position: fixed;
+  top: var(--nav-h);
+  left: 0; right: 0;
+  background: rgba(8,8,9,.97);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--b2);
+  padding: 16px max(20px,5vw) 24px;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 199;
+  animation: slideDown 0.2s var(--ease);
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nav-mobile.open { display: flex; }
+
+.nav-mobile-link {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--tx-2);
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: var(--r);
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-mobile-link:hover {
+  color: var(--tx-1);
+  background: var(--b1);
+}
+
+.nav-mobile-divider {
+  height: 1px;
+  background: var(--b1);
+  margin: 8px 0;
+}
+
+.nav-mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.nav-mobile-btn-ghost {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tx-2);
+  text-decoration: none;
+  padding: 12px 16px;
+  border-radius: var(--r);
+  border: 1px solid var(--b2);
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.nav-mobile-btn-ghost:hover { color: var(--tx-1); background: var(--b1); }
+
+.nav-mobile-btn-primary {
+  font-family: var(--font-d);
+  font-size: 14px;
+  font-weight: 700;
+  color: #000;
+  background: var(--teal);
+  text-decoration: none;
+  padding: 13px 16px;
+  border-radius: var(--r);
+  text-align: center;
+  transition: all 0.15s;
+}
+
+.nav-mobile-btn-primary:hover { background: var(--teal-2); }
+
+/* ═══════════════════════════════════════════
+   HERO
+═══════════════════════════════════════════ */
+.hero {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--nav-h) + 60px) max(20px,5vw) 80px;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
+}
+
+/* Background effects */
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.hero-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  animation: orbFloat 8s ease-in-out infinite;
+}
+
+.hero-orb-1 {
+  width: 600px; height: 600px;
+  background: radial-gradient(circle, rgba(0,212,170,.09) 0%, transparent 70%);
+  top: -100px; left: 50%;
+  transform: translateX(-50%);
+}
+
+.hero-orb-2 {
+  width: 400px; height: 400px;
+  background: radial-gradient(circle, rgba(139,92,246,.06) 0%, transparent 70%);
+  top: 20%; right: -100px;
+  animation-delay: -3s;
+}
+
+.hero-orb-3 {
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(59,130,246,.05) 0%, transparent 70%);
+  bottom: 10%; left: -50px;
+  animation-delay: -5s;
+}
+
+@keyframes orbFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-20px); }
+}
+
+/* Grid pattern */
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--b1) 1px, transparent 1px),
+    linear-gradient(90deg, var(--b1) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 100%);
+}
+
+/* Hero content */
+.hero-content { position: relative; z-index: 1; max-width: 800px; }
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--td);
+  border: 1px solid var(--tm);
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  margin-bottom: 28px;
+  letter-spacing: 0.3px;
+  cursor: default;
+}
+
+.hero-badge-dot {
+  width: 6px; height: 6px;
+  background: var(--teal);
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 var(--tg); }
+  50% { opacity: .5; box-shadow: 0 0 0 4px transparent; }
+}
+
+.hero-h1 {
+  font-family: var(--font-d);
+  font-size: clamp(38px, 6.5vw, 82px);
+  font-weight: 700;
+  line-height: 1.03;
+  letter-spacing: -3px;
+  margin-bottom: 22px;
+  color: var(--tx-1);
+}
+
+.hero-h1 .line-teal {
+  background: linear-gradient(90deg, var(--teal) 0%, var(--teal-2) 60%, #fff 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hero-sub {
+  font-size: clamp(15px, 2vw, 18px);
+  color: var(--tx-2);
+  line-height: 1.75;
+  max-width: 520px;
+  margin: 0 auto 36px;
+}
+
+/* Industry selector */
+.hero-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin-bottom: 44px;
+  flex-wrap: wrap;
+}
+
+.ind-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: var(--r);
+  border: 1px solid var(--b2);
+  background: var(--b1);
+  color: var(--tx-3);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.18s var(--ease);
+  font-family: var(--font-b);
+  white-space: nowrap;
+}
+
+.ind-tab:hover {
+  border-color: var(--b3);
+  color: var(--tx-2);
+  background: var(--b2);
+}
+
+.ind-tab.active {
+  border-color: var(--teal);
+  background: var(--td);
+  color: var(--teal);
+  box-shadow: 0 0 0 3px var(--tm);
+}
+
+.ind-tab-icon { font-size: 16px; }
+
+/* CTA buttons */
+.hero-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 60px;
+  flex-wrap: wrap;
+}
+
+.hero-btn-primary {
+  font-family: var(--font-d);
+  font-size: 15px;
+  font-weight: 700;
+  color: #000;
+  background: var(--teal);
+  text-decoration: none;
+  padding: 14px 32px;
+  border-radius: var(--r-lg);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.15) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+.hero-btn-primary:hover {
+  background: var(--teal-2);
+  box-shadow: 0 0 0 4px var(--tm), 0 8px 40px var(--tg);
+  transform: translateY(-2px);
+}
+
+.hero-btn-secondary {
+  font-family: var(--font-b);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--tx-2);
+  background: transparent;
+  text-decoration: none;
+  padding: 14px 24px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--b3);
+  cursor: pointer;
+  transition: all 0.18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.hero-btn-secondary:hover {
+  color: var(--tx-1);
+  border-color: var(--b4);
+  background: var(--b1);
+}
+
+/* Proof stats */
+.hero-proof {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.proof-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.proof-val {
+  font-family: var(--font-d);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--tx-1);
+  letter-spacing: -0.5px;
+}
+
+.proof-lbl {
+  font-size: 11px;
+  color: var(--tx-3);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.proof-div {
+  width: 1px;
+  height: 28px;
+  background: var(--b3);
+}
+
+/* ═══════════════════════════════════════════
+   CHAT DEMO
+═══════════════════════════════════════════ */
+.chat-section {
+  padding: 0 max(20px,5vw) 100px;
+  position: relative;
+}
+
+.chat-wrap {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.chat-frame {
+  background: var(--bg-2);
+  border: 1px solid var(--b2);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: 0 24px 80px rgba(0,0,0,.5), 0 0 0 1px var(--b1);
+  position: relative;
+}
+
+.chat-frame::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--teal-2), transparent);
+  opacity: 0.4;
+}
+
+.chat-header {
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--b1);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-3);
+}
+
+.chat-header-dots {
+  display: flex;
+  gap: 5px;
+}
+
+.chat-header-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+}
+
+.chat-header-title {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--tx-2);
+  text-align: center;
+  font-family: var(--font-d);
+}
+
+.chat-live-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--green);
+  background: rgba(34,197,94,.08);
+  border: 1px solid rgba(34,197,94,.2);
+  padding: 3px 8px;
+  border-radius: 9999px;
+}
+
+.chat-live-dot {
+  width: 5px; height: 5px;
+  background: var(--green);
+  border-radius: 50%;
+  animation: pulse 1.5s infinite;
+}
+
+/* Input area */
+.chat-input-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--b1);
+  background: var(--bg-3);
+}
+
+.chat-input {
+  flex: 1;
+  background: var(--bg-4);
+  border: 1px solid var(--b2);
+  border-radius: var(--r);
+  padding: 9px 14px;
+  font-size: 13px;
+  font-family: var(--font-b);
+  color: var(--tx-1);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.chat-input:focus { border-color: var(--teal); }
+.chat-input::placeholder { color: var(--tx-4); }
+
+.chat-send {
+  width: 34px; height: 34px;
+  background: var(--teal);
+  border: none;
+  border-radius: var(--r);
+  color: #000;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.chat-send:hover { background: var(--teal-2); transform: scale(1.05); }
+
+.chat-body {
+  padding: 18px;
+  min-height: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.chat-msg {
+  max-width: 82%;
+  font-size: 13px;
+  line-height: 1.6;
+  padding: 10px 14px;
+  border-radius: 14px;
+  animation: msgIn 0.25s var(--ease);
+}
+
+@keyframes msgIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.chat-msg-user {
+  background: var(--bg-3);
+  color: var(--tx-2);
+  align-self: flex-end;
+  border-radius: 14px 14px 4px 14px;
+  border: 1px solid var(--b2);
+}
+
+.chat-msg-ai {
+  background: var(--td);
+  color: var(--teal);
+  border: 1px solid var(--tm);
+  align-self: flex-start;
+  border-radius: 14px 14px 14px 4px;
+}
+
+.chat-typing {
+  display: flex;
+  gap: 4px;
+  padding: 12px 14px;
+  background: var(--td);
+  border: 1px solid var(--tm);
+  border-radius: 14px 14px 14px 4px;
+  width: fit-content;
+  align-self: flex-start;
+}
+
+.chat-typing span {
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--teal);
+  animation: blink 1.2s infinite;
+}
+
+.chat-typing span:nth-child(2) { animation-delay: 0.18s; }
+.chat-typing span:nth-child(3) { animation-delay: 0.36s; }
+
+@keyframes blink {
+  0%, 100% { opacity: 0.2; transform: scale(0.8); }
+  50%       { opacity: 1;   transform: scale(1); }
+}
+
+/* Notificare lead */
+.chat-notification {
+  margin: 6px 0;
+  background: rgba(34,197,94,.05);
+  border: 1px solid rgba(34,197,94,.18);
+  border-radius: var(--r-lg);
+  padding: 13px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  align-self: stretch;
+  animation: notifIn 0.3s var(--ease);
+}
+
+@keyframes notifIn {
+  from { opacity: 0; transform: scale(0.97) translateY(4px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.notif-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+
+.notif-body { flex: 1; }
+
+.notif-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--green);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  margin-bottom: 5px;
+}
+
+.notif-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--tx-2);
+  margin-bottom: 2px;
+}
+
+.notif-val {
+  font-weight: 600;
+  color: var(--tx-1);
+  font-family: var(--font-m);
+  font-size: 12px;
+}
+
+.notif-btn {
+  margin-top: 9px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--green);
+  color: #000;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: var(--r);
+  cursor: pointer;
+  border: none;
+  font-family: var(--font-d);
+  transition: all 0.15s;
+}
+
+.notif-btn:hover { background: #4ade80; }
+
+/* ═══════════════════════════════════════════
+   PROBLEM / SOLUTION
+═══════════════════════════════════════════ */
+.ps-section {
+  padding: 100px max(20px,5vw);
+  background: var(--bg-1);
+  border-top: 1px solid var(--b1);
+  border-bottom: 1px solid var(--b1);
+}
+
+.ps-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: start;
+}
+
+.ps-col-title {
+  font-family: var(--font-d);
+  font-size: clamp(20px, 3vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.8px;
+  margin-bottom: 24px;
+  line-height: 1.2;
+}
+
+.ps-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ps-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 13px;
+  padding: 14px 16px;
+  background: var(--bg-2);
+  border: 1px solid var(--b1);
+  border-radius: var(--r-lg);
+  transition: border-color 0.2s;
+}
+
+.ps-item:hover { border-color: var(--b2); }
+.ps-item.sol { border-color: rgba(0,212,170,.1); }
+.ps-item.sol:hover { border-color: var(--tm); }
+
+.ps-item-icon { font-size: 20px; flex-shrink: 0; margin-top: 1px; }
+.ps-item-text { font-size: 14px; color: var(--tx-2); line-height: 1.65; }
+.ps-item-text strong { color: var(--tx-1); font-weight: 600; }
+
+/* ═══════════════════════════════════════════
+   INDUSTRY CARDS
+═══════════════════════════════════════════ */
+.industries-section {
+  padding: 100px max(20px,5vw);
+}
+
+.ind-header {
+  max-width: 1160px;
+  margin: 0 auto 52px;
+  text-align: center;
+}
+
+.ind-cards {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 12px;
+}
+
+.ind-card {
+  padding: 24px 20px;
+  background: var(--bg-1);
+  border: 1px solid var(--b2);
+  border-radius: var(--r-xl);
+  cursor: pointer;
+  transition: all 0.22s var(--ease);
+  text-decoration: none;
+  display: block;
+}
+
+.ind-card:hover {
+  border-color: var(--b3);
+  background: var(--bg-2);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 40px rgba(0,0,0,.4);
+}
+
+.ind-card-icon {
+  font-size: 36px;
+  margin-bottom: 14px;
+  display: block;
+}
+
+.ind-card-name {
+  font-family: var(--font-d);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tx-1);
+  margin-bottom: 5px;
+  letter-spacing: -0.3px;
+}
+
+.ind-card-count {
+  font-size: 12px;
+  color: var(--tx-3);
+  margin-bottom: 14px;
+}
+
+.ind-card-features {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ind-card-feat {
+  font-size: 12px;
+  color: var(--tx-3);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ind-card-feat::before { content: '·'; color: var(--teal); font-size: 14px; }
+
+.ind-card-arrow {
+  margin-top: 18px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0;
+  transform: translateX(-4px);
+  transition: all 0.15s;
+}
+
+.ind-card:hover .ind-card-arrow { opacity: 1; transform: translateX(0); }
+
+/* ═══════════════════════════════════════════
+   INDUSTRY SECTIONS
+═══════════════════════════════════════════ */
+.ind-section {
+  padding: 80px max(20px,5vw);
+  border-top: 1px solid var(--b1);
+}
+
+.ind-section:nth-child(even) { background: var(--bg-1); }
+
+.ind-section-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.ind-section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--teal);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.ind-section-title {
+  font-family: var(--font-d);
+  font-size: clamp(22px, 3.5vw, 36px);
+  font-weight: 700;
+  letter-spacing: -1px;
+  line-height: 1.15;
+  margin-bottom: 14px;
+}
+
+.ind-section-sub {
+  font-size: 15px;
+  color: var(--tx-2);
+  line-height: 1.75;
+  margin-bottom: 22px;
+}
+
+.ind-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ind-benefit {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--tx-2);
+}
+
+.ind-benefit::before {
+  content: '✓';
+  color: var(--teal);
+  font-weight: 700;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════
+   BUSINESS BRAIN
+═══════════════════════════════════════════ */
+.brain-section {
+  padding: 100px max(20px,5vw);
+  background: var(--bg-1);
+  border-top: 1px solid var(--b1);
+}
+
+.brain-inner {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.brain-visual {
+  background: var(--bg-2);
+  border: 1px solid var(--b2);
+  border-radius: var(--r-xl);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.brain-visual::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--teal-2), transparent);
+  opacity: 0.3;
+}
+
+.brain-flow { display: flex; flex-direction: column; gap: 4px; }
+
+.brain-node {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 11px 14px;
+  border-radius: var(--r-lg);
+  transition: all 0.2s;
+  position: relative;
+}
+
+.brain-node.active {
+  background: var(--td);
+  border: 1px solid var(--tm);
+}
+
+.brain-node-icon {
+  width: 38px; height: 38px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 17px;
+  flex-shrink: 0;
+  background: var(--bg-3);
+  border: 1px solid var(--b2);
+}
+
+.brain-node.active .brain-node-icon {
+  background: var(--td);
+  border-color: var(--tm);
+}
+
+.brain-node-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--tx-1);
+  letter-spacing: -0.2px;
+}
+
+.brain-node-sub { font-size: 11px; color: var(--tx-3); margin-top: 1px; }
+
+.brain-node.active .brain-node-label { color: var(--teal); }
+
+.brain-connector {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 0 14px;
+  margin: 2px 0;
+}
+
+.brain-connector-line {
+  width: 1px;
+  height: 16px;
+  background: linear-gradient(180deg, var(--b2), var(--tm));
+  margin-left: 18px;
+}
+
+.brain-data-flow {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--b1);
+}
+
+.brain-tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: var(--td);
+  border: 1px solid var(--tm);
+  color: var(--teal);
+  font-family: var(--font-m);
+}
+
+.brain-checks { display: flex; flex-direction: column; gap: 10px; margin-top: 24px; }
+
+.brain-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--tx-2);
+  line-height: 1.6;
+}
+
+.brain-check-icon {
+  width: 18px; height: 18px;
+  background: var(--td);
+  border: 1px solid var(--tm);
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--teal);
+}
+
+/* ═══════════════════════════════════════════
+   HOW IT WORKS
+═══════════════════════════════════════════ */
+.how-section {
+  padding: 100px max(20px,5vw);
+  text-align: center;
+}
+
+.how-inner { max-width: 900px; margin: 0 auto; }
+
+.how-steps {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 0;
+  margin-top: 60px;
+  position: relative;
+}
+
+.how-steps::before {
+  content: '';
+  position: absolute;
+  top: 21px;
+  left: 16.6%; right: 16.6%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--tm) 20%, var(--tm) 80%, transparent);
+}
+
+.how-step { padding: 0 24px; text-align: center; }
+
+.how-n {
+  width: 42px; height: 42px;
+  border-radius: 50%;
+  background: var(--td);
+  border: 1.5px solid var(--tm);
+  color: var(--teal);
+  font-family: var(--font-d);
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  position: relative;
+  z-index: 1;
+  transition: all 0.2s;
+}
+
+.how-step:hover .how-n {
+  background: var(--teal);
+  color: #000;
+  box-shadow: 0 0 0 6px var(--td);
+}
+
+.how-t {
+  font-family: var(--font-d);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--tx-1);
+  margin-bottom: 9px;
+  letter-spacing: -0.3px;
+}
+
+.how-s { font-size: 13px; color: var(--tx-3); line-height: 1.7; }
+
+/* ═══════════════════════════════════════════
+   COMPARISON TABLE
+═══════════════════════════════════════════ */
+.compare-section {
+  padding: 100px max(20px,5vw);
+  background: var(--bg-1);
+  border-top: 1px solid var(--b1);
+}
+
+.compare-inner { max-width: 820px; margin: 0 auto; text-align: center; }
+
+.compare-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 44px;
+  text-align: left;
+}
+
+.compare-table th {
+  font-family: var(--font-d);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--b2);
+}
+
+.compare-table th:first-child { color: var(--tx-3); }
+.compare-table th:last-child { color: var(--teal); }
+
+.compare-table td {
+  font-size: 13px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--b1);
+  color: var(--tx-3);
+  transition: background 0.15s;
+}
+
+.compare-table td:last-child {
+  color: var(--tx-1);
+  font-weight: 500;
+}
+
+.compare-table tr:hover td { background: rgba(255,255,255,.02); }
+.compare-table tr:last-child td { border-bottom: none; }
+
+/* ═══════════════════════════════════════════
+   DASHBOARD PREVIEW
+═══════════════════════════════════════════ */
+.dash-section {
+  padding: 100px max(20px,5vw);
+  overflow: hidden;
+}
+
+.dash-inner { max-width: 1160px; margin: 0 auto; }
+
+.dash-header { text-align: center; margin-bottom: 56px; }
+
+.dash-preview {
+  background: var(--bg-2);
+  border: 1px solid var(--b2);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-xl);
+}
+
+.dash-bar {
+  height: 40px;
+  background: var(--bg-3);
+  border-bottom: 1px solid var(--b1);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 8px;
+}
+
+.dash-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+.dash-url-bar {
+  flex: 1;
+  background: var(--bg-4);
+  border-radius: 6px;
+  height: 22px;
+  margin: 0 12px;
+  display: flex;
+  align-items: center;
+  padding: 0 10px;
+}
+
+.dash-url-txt {
+  font-size: 10px;
+  color: var(--tx-4);
+  font-family: var(--font-m);
+}
+
+.dash-body {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  min-height: 400px;
+}
+
+.dash-sb {
+  background: var(--bg-3);
+  border-right: 1px solid var(--b1);
+  padding: 14px 0;
+}
+
+.dash-sb-logo {
+  font-family: var(--font-d);
+  font-size: 16px;
+  font-weight: 700;
+  padding: 0 14px 14px;
+  border-bottom: 1px solid var(--b1);
+  margin-bottom: 8px;
+}
+
+.dash-sb-logo em { color: var(--teal); font-style: normal; }
+
+.dash-ni {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--tx-3);
+  transition: all 0.15s;
+}
+
+.dash-ni:hover { color: var(--tx-2); background: var(--b1); }
+.dash-ni.on { background: var(--td); color: var(--teal); }
+
+.dash-main { padding: 18px; }
+
+.dash-metrics {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.dash-mc {
+  background: var(--bg-3);
+  border: 1px solid var(--b1);
+  border-radius: var(--r-lg);
+  padding: 14px;
+}
+
+.dash-mc-v {
+  font-family: var(--font-d);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.dash-mc-l { font-size: 10px; color: var(--tx-3); }
+
+.dash-leads {
+  background: var(--bg-3);
+  border: 1px solid var(--b1);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.dash-leads-h {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--b1);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dash-lr {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--b1);
+  font-size: 11px;
+  transition: background 0.15s;
+}
+
+.dash-lr:hover { background: rgba(255,255,255,.02); }
+.dash-lr:last-child { border-bottom: none; }
+
+.dash-av {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.dash-lname { font-weight: 600; color: var(--tx-1); }
+.dash-lsvc { color: var(--tx-3); font-size: 10px; margin-top: 1px; }
+.dash-phone { font-family: var(--font-m); font-size: 11px; color: var(--teal); margin-left: auto; }
+.dash-badge { font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 4px; margin-left: 8px; }
+
+/* ═══════════════════════════════════════════
+   PRICING
+═══════════════════════════════════════════ */
+.pricing-section {
+  padding: 100px max(20px,5vw);
+  text-align: center;
+  border-top: 1px solid var(--b1);
+}
+
+.pricing-inner { max-width: 920px; margin: 0 auto; }
+
+.plans {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 12px;
+  margin-top: 52px;
+  text-align: left;
+}
+
+.plan {
+  background: var(--bg-1);
+  border: 1px solid var(--b2);
+  border-radius: var(--r-xl);
+  padding: 28px;
+  position: relative;
+  transition: all 0.22s var(--ease);
+}
+
+.plan:hover {
+  border-color: var(--b3);
+  transform: translateY(-3px);
+  box-shadow: 0 16px 50px rgba(0,0,0,.4);
+}
+
+.plan.featured {
+  border-color: var(--tm);
+  background: linear-gradient(160deg, rgba(0,212,170,.04) 0%, var(--bg-1) 100%);
+}
+
+.plan.featured:hover { border-color: var(--teal); }
+
+.plan-badge {
+  position: absolute;
+  top: -12px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--teal);
+  color: #000;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 14px;
+  border-radius: 9999px;
+  white-space: nowrap;
+  font-family: var(--font-d);
+}
+
+.plan-name {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--tx-3);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 12px;
+}
+
+.plan-price {
+  font-family: var(--font-d);
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -1.5px;
+  margin-bottom: 5px;
+  color: var(--tx-1);
+}
+
+.plan-price span {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--tx-3);
+  letter-spacing: 0;
+}
+
+.plan-desc { font-size: 12px; color: var(--tx-3); margin-bottom: 24px; }
+
+.plan-feats { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 26px; }
+
+.plan-feat {
+  font-size: 13px;
+  color: var(--tx-2);
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  line-height: 1.5;
+}
+
+.plan-feat::before {
+  content: '✓';
+  color: var(--teal);
+  font-weight: 700;
+  flex-shrink: 0;
+  font-size: 11px;
+  margin-top: 2px;
+}
+
+.plan-feat.off { color: var(--tx-4); }
+.plan-feat.off::before { content: '—'; color: var(--tx-4); }
+
+.plan-cta {
+  display: block;
+  width: 100%;
+  padding: 11px;
+  border-radius: var(--r-lg);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--font-d);
+  cursor: pointer;
+  border: none;
+  text-align: center;
+  text-decoration: none;
+  transition: all 0.18s;
+}
+
+.plan-cta-teal { background: var(--teal); color: #000; }
+.plan-cta-teal:hover { background: var(--teal-2); box-shadow: 0 4px 20px var(--tg); }
+.plan-cta-ghost { background: var(--bg-3); color: var(--tx-1); border: 1px solid var(--b2); }
+.plan-cta-ghost:hover { background: var(--b1); border-color: var(--b3); }
+
+/* ═══════════════════════════════════════════
+   FAQ
+═══════════════════════════════════════════ */
+.faq-section { padding: 100px max(20px,5vw); }
+.faq-inner { max-width: 680px; margin: 0 auto; }
+.faq-title-area { text-align: center; margin-bottom: 48px; }
+
+.faq-item {
+  border-bottom: 1px solid var(--b1);
+  padding: 0;
+  overflow: hidden;
+}
+
+.faq-q {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 18px 0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--tx-1);
+  transition: color 0.15s;
+  user-select: none;
+}
+
+.faq-q:hover { color: var(--teal); }
+
+.faq-icon {
+  width: 22px; height: 22px;
+  border: 1px solid var(--b3);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: var(--teal);
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: all 0.2s var(--ease);
+  margin-top: 1px;
+}
+
+.faq-item.open .faq-icon { transform: rotate(45deg); background: var(--td); border-color: var(--tm); }
+
+.faq-a {
+  font-size: 14px;
+  color: var(--tx-2);
+  line-height: 1.75;
+  padding-bottom: 18px;
+  display: none;
+}
+
+.faq-item.open .faq-a { display: block; }
+
+/* ═══════════════════════════════════════════
+   CTA FINAL
+═══════════════════════════════════════════ */
+.cta-section {
+  padding: 120px max(20px,5vw);
+  text-align: center;
+  background: var(--bg-1);
+  border-top: 1px solid var(--b1);
+  position: relative;
+  overflow: hidden;
+}
+
+.cta-glow {
+  position: absolute;
+  width: 700px; height: 700px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0,212,170,.06) 0%, transparent 65%);
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+}
+
+.cta-inner { position: relative; }
+
+.cta-h2 {
+  font-family: var(--font-d);
+  font-size: clamp(30px, 5.5vw, 60px);
+  font-weight: 700;
+  letter-spacing: -2px;
+  line-height: 1.06;
+  margin-bottom: 16px;
+}
+
+.cta-sub {
+  font-size: 17px;
+  color: var(--tx-2);
+  margin-bottom: 36px;
+  line-height: 1.7;
+}
+
+.cta-actions { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+/* ═══════════════════════════════════════════
+   FOOTER
+═══════════════════════════════════════════ */
+footer {
+  background: var(--bg-1);
+  border-top: 1px solid var(--b1);
+  padding: 52px max(20px,5vw) 32px;
+}
+
+.footer-grid {
+  max-width: 1160px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 44px;
+}
+
+.footer-brand-logo {
+  font-family: var(--font-d);
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.footer-brand-logo em { color: var(--teal); font-style: normal; }
+
+.footer-tagline { font-size: 13px; color: var(--tx-3); line-height: 1.7; }
+
+.footer-col h4 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--tx-4);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+}
+
+.footer-col a {
+  display: block;
+  font-size: 13px;
+  color: var(--tx-3);
+  text-decoration: none;
+  margin-bottom: 8px;
+  transition: color 0.14s;
+}
+
+.footer-col a:hover { color: var(--teal); }
+
+.footer-bottom {
+  max-width: 1160px;
+  margin: 0 auto;
+  border-top: 1px solid var(--b1);
+  padding-top: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.footer-copy { font-size: 12px; color: var(--tx-4); }
+
+/* ═══════════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════════ */
+@media(max-width:1024px) {
+  .ind-cards { grid-template-columns: repeat(2,1fr); }
+  .brain-inner { grid-template-columns: 1fr; gap: 44px; }
+  .ind-section-inner { grid-template-columns: 1fr; gap: 36px; }
+  .dash-body { grid-template-columns: 160px 1fr; }
+}
+
+@media(max-width:768px) {
+  .nav-links { display: none; }
+  .nav-links.open {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: var(--nav-h); left: 0; right: 0;
+    background: rgba(8,8,9,.97);
+    backdrop-filter: blur(20px);
+    padding: 16px max(20px,5vw) 24px;
+    gap: 4px;
+    border-bottom: 1px solid var(--b1);
+    z-index: 199;
+    animation: slideDown 0.2s var(--ease);
+  }
+  .nav-hbg { display: flex; }
+  .nav-actions .nav-btn-ghost { display: none; }
+  .hero { min-height: auto; padding-top: calc(var(--nav-h) + 40px); }
+  .ps-inner { grid-template-columns: 1fr; gap: 36px; }
+  .ind-cards { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .how-steps { grid-template-columns: 1fr; gap: 28px; }
+  .how-steps::before { display: none; }
+  .plans { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .dash-body { grid-template-columns: 1fr; }
+  .dash-sb { display: none; }
+  .dash-metrics { grid-template-columns: 1fr 1fr; }
+  .compare-table { font-size: 12px; }
+  .compare-table th, .compare-table td { padding: 10px 12px; }
+  .hero-proof { gap: 20px; }
+  .proof-div { display: none; }
+}
+
+@media(max-width:480px) {
+  .ind-cards { grid-template-columns: 1fr; }
+  .footer-grid { grid-template-columns: 1fr; }
+  .hero-h1 { letter-spacing: -2px; }
+  .hero-selector { gap: 4px; }
+  .ind-tab { padding: 7px 12px; font-size: 12px; }
+  .cta-actions { flex-direction: column; }
 }
 </style>
-  <meta name="theme-color" content="#00D4AA">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="RecepAI">
-  <link rel="manifest" href="/pwa/manifest.json">
-  <link rel="apple-touch-icon" href="/pwa/icon.svg">
 </head>
 <body>
 
-<!-- NAV -->
-<nav>
-  <a href="#" class="logo">Recep<em>AI</em></a>
-  <div class="nav-mid" id="nav-mid">
-    <a href="#cum-functioneaza">Cum funcționează</a>
-    <a href="#preturi">Prețuri</a>
-    <a href="#faq">FAQ</a>
+<!-- ═══ NAVBAR ═══════════════════════════════ -->
+<header>
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#" class="nav-logo">
+      <div class="nav-logo-icon">🤖</div>
+      Recep<em>AI</em>
+    </a>
+
+    <div class="nav-links" id="nav-links">
+      <a href="#cum-functioneaza" class="nav-link">Cum funcționează</a>
+      <a href="#industrii" class="nav-link">Industrii</a>
+      <a href="#preturi" class="nav-link">Prețuri</a>
+      <a href="#faq" class="nav-link">FAQ</a>
+    </div>
+
+    <div class="nav-actions">
+      <a href="login.html" class="nav-btn-ghost">Intră în cont</a>
+      <a href="register.html" class="nav-btn-primary">
+        Încearcă gratuit
+        <span>→</span>
+      </a>
+    </div>
+
+    <div class="nav-hbg" id="nav-hbg" onclick="toggleNav()">
+      <span></span><span></span><span></span>
+    </div>
   </div>
-  <div class="nav-r">
-    <a href="login.html" class="btn-ghost">Intră în cont</a>
-    <a href="register.html" class="btn-teal">Încearcă gratuit</a>
-  </div>
-  <div class="hbg" id="hbg" onclick="toggleNav()"><span></span><span></span><span></span></div>
 </nav>
 
-<!-- HERO -->
-<section class="hero">
-  <div class="hero-glow"></div>
-  <div class="hero-inner">
-    <div class="hero-copy">
-      <div class="eyebrow">Recepționist AI pentru clinici</div>
-      <h1 class="hero-h1">Recepționerul AI care răspunde 24/7 și transformă vizitatorii în programări.</h1>
-      <p class="hero-sub">Când recepția este ocupată sau clinica este închisă, AI-ul răspunde instant, explică serviciile, oferă prețurile și colectează datele pacientului.</p>
-      <div class="hero-checks">
-        <div class="hero-check">Instalare în 5 minute</div>
-        <div class="hero-check">Fără training, fără configurare manuală</div>
-        <div class="hero-check">Fără schimbarea softului existent</div>
+<!-- Mobile nav -->
+<div class="nav-mobile" id="nav-mobile">
+  <a href="#cum-functioneaza" class="nav-mobile-link" onclick="closeNav()">⚡ Cum funcționează</a>
+  <a href="#industrii" class="nav-mobile-link" onclick="closeNav()">🏥 Industrii</a>
+  <a href="#preturi" class="nav-mobile-link" onclick="closeNav()">💰 Prețuri</a>
+  <a href="#faq" class="nav-mobile-link" onclick="closeNav()">❓ FAQ</a>
+  <div class="nav-mobile-divider"></div>
+  <div class="nav-mobile-actions">
+    <a href="login.html" class="nav-mobile-btn-ghost">Intră în cont</a>
+    <a href="register.html" class="nav-mobile-btn-primary">Încearcă gratuit — 7 zile →</a>
+  </div>
+</div>
+</header>
+
+<!-- ═══ HERO ══════════════════════════════════ -->
+<section class="hero" id="hero">
+  <div class="hero-bg">
+    <div class="hero-grid"></div>
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+  </div>
+
+  <div class="hero-content">
+    <div class="hero-badge">
+      <span class="hero-badge-dot"></span>
+      AI activ 24/7 · Zero întreținere
+    </div>
+
+    <h1 class="hero-h1">
+      Recepționistul AI<br>
+      <span class="line-teal">al clinicii tale.</span>
+    </h1>
+
+    <p class="hero-sub">
+      Când recepția e ocupată sau clinica e închisă, AI-ul răspunde instant, explică serviciile, captează datele și trimite lead-ul direct la tine.
+    </p>
+
+    <!-- Industry selector -->
+    <div class="hero-selector">
+      <button class="ind-tab active" onclick="switchIndustry('dental',this)">
+        <span class="ind-tab-icon">🦷</span> Stomatologie
+      </button>
+      <button class="ind-tab" onclick="switchIndustry('vet',this)">
+        <span class="ind-tab-icon">🐾</span> Veterinar
+      </button>
+      <button class="ind-tab" onclick="switchIndustry('beauty',this)">
+        <span class="ind-tab-icon">✨</span> Beauty
+      </button>
+      <button class="ind-tab" onclick="switchIndustry('physio',this)">
+        <span class="ind-tab-icon">🏃</span> Fizioterapie
+      </button>
+    </div>
+
+    <div class="hero-actions">
+      <a href="register.html" class="hero-btn-primary">
+        Încearcă gratuit — 7 zile →
+      </a>
+      <a href="#demo" class="hero-btn-secondary">
+        ▶ Vezi demo live
+      </a>
+    </div>
+
+    <div class="hero-proof">
+      <div class="proof-item">
+        <div class="proof-val">24/7</div>
+        <div class="proof-lbl">Disponibil</div>
       </div>
-      <div class="hero-btn-row">
-        <a href="register.html" class="btn-hero">Încearcă gratuit — 7 zile →</a>
-        <a href="#demo" class="btn-hero-ghost">Vezi cum funcționează</a>
+      <div class="proof-div"></div>
+      <div class="proof-item">
+        <div class="proof-val">&lt;2s</div>
+        <div class="proof-lbl">Răspuns AI</div>
+      </div>
+      <div class="proof-div"></div>
+      <div class="proof-item">
+        <div class="proof-val">5 min</div>
+        <div class="proof-lbl">Instalare</div>
+      </div>
+      <div class="proof-div"></div>
+      <div class="proof-item">
+        <div class="proof-val">0</div>
+        <div class="proof-lbl">Clienți pierduți</div>
       </div>
     </div>
-    <div class="hero-chat" id="demo">
-      <div class="hc-head">
-        <div class="hc-dots">
-          <div class="hc-dot" style="background:#FF5F57"></div>
-          <div class="hc-dot" style="background:#FFBD2E"></div>
-          <div class="hc-dot" style="background:#28CA41"></div>
+  </div>
+</section>
+
+<!-- ═══ CHAT DEMO ══════════════════════════════ -->
+<section class="chat-section" id="demo">
+  <div class="chat-wrap">
+    <div class="chat-frame">
+      <div class="chat-header">
+        <div class="chat-header-dots">
+          <div class="chat-header-dot" style="background:#FF5F57"></div>
+          <div class="chat-header-dot" style="background:#FFBD2E"></div>
+          <div class="chat-header-dot" style="background:#28CA41"></div>
         </div>
-        <div class="hc-title">DentaVita — AI Receptionist</div>
-        <div class="hc-live">LIVE</div>
+        <div class="chat-header-title" id="chat-title">🦷 AI Recepție — DentaVita</div>
+        <div class="chat-live-badge">
+          <div class="chat-live-dot"></div> LIVE
+        </div>
       </div>
-      <div class="hc-body" id="hero-chat-body">
-        <div class="hc-msg hc-u">Bună seara. Cât costă un implant?</div>
-        <div class="hc-typing"><span></span><span></span><span></span></div>
+
+      <div class="chat-body" id="chat-body">
+        <div class="chat-msg chat-msg-user">Bună ziua, cât costă un implant?</div>
+        <div class="chat-typing" id="chat-typing">
+          <span></span><span></span><span></span>
+        </div>
+      </div>
+
+      <div class="chat-input-area">
+        <input type="text" class="chat-input" id="chat-input" placeholder="Scrieți o întrebare..." onkeydown="if(event.key==='Enter')sendMsg()">
+        <button class="chat-send" onclick="sendMsg()">↑</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- PROBLEM -->
-<section class="ps">
+<!-- ═══ PROBLEMA / SOLUȚIA ════════════════════ -->
+<section class="ps-section">
   <div class="ps-inner">
-    <div class="ps-col">
+    <div>
       <div class="eyebrow">Problema</div>
-      <h2 class="h2">Pierzi pacienți când nu răspunde nimeni.</h2>
+      <div class="ps-col-title">Pierzi pacienți când nu răspunde nimeni.</div>
       <div class="ps-list">
-        <div class="ps-item"><span class="ps-icon">🌙</span><span class="ps-text"><strong>70% din solicitări</strong> vin seara, în weekend sau în sărbători — exact când recepția e închisă.</span></div>
-        <div class="ps-item"><span class="ps-icon">⏱</span><span class="ps-text">Dacă nu răspunzi în <strong>primele 5 minute</strong>, 80% din potențiali pacienți merg la concurență.</span></div>
-        <div class="ps-item"><span class="ps-icon">📱</span><span class="ps-text">Recepția nu poate monitoriza <strong>chat-ul de pe site</strong> toată ziua.</span></div>
+        <div class="ps-item">
+          <span class="ps-item-icon">🌙</span>
+          <span class="ps-item-text"><strong>70% din solicitări</strong> vin seara, în weekend sau în sărbători — exact când recepția e închisă.</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-item-icon">⏱</span>
+          <span class="ps-item-text">Dacă nu răspunzi în <strong>primele 5 minute</strong>, 80% din pacienți merg la concurență.</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-item-icon">💸</span>
+          <span class="ps-item-text">Fiecare client pierdut înseamnă <strong>sute sau mii de RON</strong> în venituri ratate.</span>
+        </div>
       </div>
     </div>
-    <div class="ps-col">
+    <div>
       <div class="eyebrow">Soluția</div>
-      <h2 class="h2">RecepAI răspunde ca recepționerul clinicii tale.</h2>
+      <div class="ps-col-title">RecepAI răspunde ca recepționerul tău.</div>
       <div class="ps-list">
-        <div class="ps-item green"><span class="ps-icon">🤖</span><span class="ps-text"><strong>AI răspunde instant</strong> la orice întrebare — prețuri, program, urgențe, servicii disponibile.</span></div>
-        <div class="ps-item green"><span class="ps-icon">📲</span><span class="ps-text"><strong>Lead capturat</strong> — email + notificare push + sunet alert în aplicație. Imposibil de ratat.</span></div>
-        <div class="ps-item green"><span class="ps-icon">📅</span><span class="ps-text"><strong>Recepția sună înapoi</strong> și programează în agenda lor existentă. Zero schimbare în workflow.</span></div>
+        <div class="ps-item sol">
+          <span class="ps-item-icon">🤖</span>
+          <span class="ps-item-text"><strong>AI răspunde instant</strong> — prețuri, program, servicii, urgențe. Oricând, oricui.</span>
+        </div>
+        <div class="ps-item sol">
+          <span class="ps-item-icon">📲</span>
+          <span class="ps-item-text"><strong>Notificare instant</strong> — email + push + sunet. Lead-ul ajunge la tine în secunde.</span>
+        </div>
+        <div class="ps-item sol">
+          <span class="ps-item-icon">📅</span>
+          <span class="ps-item-text"><strong>Recepția sună</strong> și programează în agenda lor. Zero schimbare în workflow.</span>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- COMPARISON -->
-<section>
-  <div class="compare center">
+<!-- ═══ INDUSTRY CARDS ════════════════════════ -->
+<section class="industries-section" id="industrii">
+  <div class="ind-header">
+    <div class="eyebrow">Funcționează pentru</div>
+    <h2 class="section-title">Orice tip de clinică sau cabinet</h2>
+  </div>
+  <div class="ind-cards">
+    <a href="#dental" class="ind-card">
+      <span class="ind-card-icon">🦷</span>
+      <div class="ind-card-name">Stomatologie</div>
+      <div class="ind-card-count">40+ servicii detectate automat</div>
+      <div class="ind-card-features">
+        <div class="ind-card-feat">Implanturi, ortodonție, estetică</div>
+        <div class="ind-card-feat">Asigurări acceptate</div>
+        <div class="ind-card-feat">Sedare disponibilă</div>
+      </div>
+      <div class="ind-card-arrow">Vezi secțiunea →</div>
+    </a>
+    <a href="#vet" class="ind-card">
+      <span class="ind-card-icon">🐾</span>
+      <div class="ind-card-name">Veterinar</div>
+      <div class="ind-card-count">60+ servicii detectate automat</div>
+      <div class="ind-card-features">
+        <div class="ind-card-feat">Urgențe 24/7</div>
+        <div class="ind-card-feat">Consultații, vaccinări</div>
+        <div class="ind-card-feat">Chirurgie, internări</div>
+      </div>
+      <div class="ind-card-arrow">Vezi secțiunea →</div>
+    </a>
+    <a href="#beauty" class="ind-card">
+      <span class="ind-card-icon">✨</span>
+      <div class="ind-card-name">Beauty & Wellness</div>
+      <div class="ind-card-count">70+ tratamente detectate</div>
+      <div class="ind-card-features">
+        <div class="ind-card-feat">Epilare, facialuri, masaj</div>
+        <div class="ind-card-feat">Pachete și prețuri</div>
+        <div class="ind-card-feat">Programări online</div>
+      </div>
+      <div class="ind-card-arrow">Vezi secțiunea →</div>
+    </a>
+    <a href="#physio" class="ind-card">
+      <span class="ind-card-icon">🏃</span>
+      <div class="ind-card-name">Fizioterapie</div>
+      <div class="ind-card-count">50+ proceduri detectate</div>
+      <div class="ind-card-features">
+        <div class="ind-card-feat">Recuperare, kinetoterapie</div>
+        <div class="ind-card-feat">Masaj terapeutic</div>
+        <div class="ind-card-feat">Electroterapie, laser</div>
+      </div>
+      <div class="ind-card-arrow">Vezi secțiunea →</div>
+    </a>
+  </div>
+</section>
+
+<!-- ═══ DENTAL ════════════════════════════════ -->
+<section class="ind-section" id="dental">
+  <div class="ind-section-inner">
+    <div>
+      <div class="ind-section-tag">🦷 Stomatologie</div>
+      <h2 class="ind-section-title">AI care cunoaște fiecare serviciu stomatologic.</h2>
+      <p class="ind-section-sub">De la implanturi la albire, de la consultații la urgențe — AI-ul explică prețurile, verifică disponibilitatea și captează pacientul.</p>
+      <div class="ind-benefits">
+        <div class="ind-benefit">Răspunde instant despre implanturi, coroane, fațete</div>
+        <div class="ind-benefit">Știe asigurările acceptate (Signal Iduna, Allianz, MedLife)</div>
+        <div class="ind-benefit">Programează urgențe stomatologice</div>
+        <div class="ind-benefit">Explică sedarea și tehnologiile disponibile</div>
+      </div>
+    </div>
+    <div class="chat-frame" style="max-width:100%">
+      <div class="chat-header">
+        <div class="chat-header-dots">
+          <div class="chat-header-dot" style="background:#FF5F57"></div>
+          <div class="chat-header-dot" style="background:#FFBD2E"></div>
+          <div class="chat-header-dot" style="background:#28CA41"></div>
+        </div>
+        <div class="chat-header-title">🦷 Clinică stomatologică</div>
+        <div class="chat-live-badge"><div class="chat-live-dot"></div>LIVE</div>
+      </div>
+      <div class="chat-body" style="min-height:200px">
+        <div class="chat-msg chat-msg-user">Cât costă un implant?</div>
+        <div class="chat-msg chat-msg-ai">Implanturile noastre pornesc de la 2.500 RON (MegaGen) și 3.800 RON (Nobel Biocare). Prețul include bontul și coroana ceramică. Acceptăm Signal Iduna și Medicover. 😊</div>
+        <div class="chat-msg chat-msg-user">Vreau o programare</div>
+        <div class="chat-msg chat-msg-ai">Cu plăcere! Scrieți-mi numele și telefonul și vă contactăm în maximum 2 ore.</div>
+        <div class="chat-notification">
+          <span class="notif-icon">🔔</span>
+          <div class="notif-body">
+            <div class="notif-title">Lead nou — Dashboard</div>
+            <div class="notif-row">👤 <span class="notif-val">Ion Popescu</span></div>
+            <div class="notif-row">📞 <span class="notif-val">0722 123 456</span></div>
+            <div class="notif-row">🦷 <span class="notif-val">Implant dentar</span></div>
+            <button class="notif-btn">📞 Sună acum</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ VET ════════════════════════════════ -->
+<section class="ind-section" id="vet">
+  <div class="ind-section-inner">
+    <div class="chat-frame" style="max-width:100%">
+      <div class="chat-header">
+        <div class="chat-header-dots">
+          <div class="chat-header-dot" style="background:#FF5F57"></div>
+          <div class="chat-header-dot" style="background:#FFBD2E"></div>
+          <div class="chat-header-dot" style="background:#28CA41"></div>
+        </div>
+        <div class="chat-header-title">🐾 Cabinet veterinar</div>
+        <div class="chat-live-badge"><div class="chat-live-dot"></div>LIVE</div>
+      </div>
+      <div class="chat-body" style="min-height:200px">
+        <div class="chat-msg chat-msg-user">Câinele meu nu mănâncă de 2 zile</div>
+        <div class="chat-msg chat-msg-ai">Înțeleg că e urgent. Medicul nostru veterinar este disponibil chiar acum pentru o consultație de urgență. Doriți să vă programăm? 🐾</div>
+        <div class="chat-msg chat-msg-user">Da, cât mai repede</div>
+        <div class="chat-msg chat-msg-ai">Perfect. Scrieți-mi numele, telefonul și rasa câinelui — vă sunăm în câteva minute.</div>
+        <div class="chat-notification">
+          <span class="notif-icon">🔔</span>
+          <div class="notif-body">
+            <div class="notif-title">Urgență veterinară</div>
+            <div class="notif-row">👤 <span class="notif-val">Andrei Marin</span></div>
+            <div class="notif-row">📞 <span class="notif-val">0744 567 890</span></div>
+            <div class="notif-row">🐕 <span class="notif-val">Golden Retriever · Urgență</span></div>
+            <button class="notif-btn">📞 Sună acum</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="ind-section-tag">🐾 Veterinar</div>
+      <h2 class="ind-section-title">AI care gestionează urgențele veterinare cu calm.</h2>
+      <p class="ind-section-sub">Stăpânii de animale sunt emoționați când animalul e bolnav. AI-ul răspunde empatic, colectează datele esențiale și alertează medicul instant.</p>
+      <div class="ind-benefits">
+        <div class="ind-benefit">Urgențe veterinare gestionate 24/7</div>
+        <div class="ind-benefit">Informații despre vaccinuri, deparazitare</div>
+        <div class="ind-benefit">Prețuri consultații și intervenții</div>
+        <div class="ind-benefit">Colectează rasa, vârsta și simptomele animalului</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BEAUTY ════════════════════════════════ -->
+<section class="ind-section" id="beauty">
+  <div class="ind-section-inner">
+    <div>
+      <div class="ind-section-tag">✨ Beauty & Wellness</div>
+      <h2 class="ind-section-title">AI care știe fiecare tratament și preț din salon.</h2>
+      <p class="ind-section-sub">De la HydraFacial la epilare definitivă — AI-ul explică tratamentele, comunică prețurile și captează programările chiar și la miezul nopții.</p>
+      <div class="ind-benefits">
+        <div class="ind-benefit">Prețuri pachete epilare, tratamente faciale</div>
+        <div class="ind-benefit">Disponibilitate și programări</div>
+        <div class="ind-benefit">Promoții și oferte speciale</div>
+        <div class="ind-benefit">Recomandări personalizate de tratamente</div>
+      </div>
+    </div>
+    <div class="chat-frame" style="max-width:100%">
+      <div class="chat-header">
+        <div class="chat-header-dots">
+          <div class="chat-header-dot" style="background:#FF5F57"></div>
+          <div class="chat-header-dot" style="background:#FFBD2E"></div>
+          <div class="chat-header-dot" style="background:#28CA41"></div>
+        </div>
+        <div class="chat-header-title">✨ Salon beauty</div>
+        <div class="chat-live-badge"><div class="chat-live-dot"></div>LIVE</div>
+      </div>
+      <div class="chat-body" style="min-height:200px">
+        <div class="chat-msg chat-msg-user">Cât costă un tratament HydraFacial?</div>
+        <div class="chat-msg chat-msg-ai">Tratamentul HydraFacial costă 350 RON/ședință sau 3 ședințe la 900 RON. Durează 60 de minute și include curățare, exfoliere și hidratare intensă ✨</div>
+        <div class="chat-msg chat-msg-user">Vreau să mă programez mâine</div>
+        <div class="chat-msg chat-msg-ai">Super! Avem disponibilitate mâine la 14:00 și 17:00. Scrieți-mi numele și telefonul!</div>
+        <div class="chat-notification">
+          <span class="notif-icon">🔔</span>
+          <div class="notif-body">
+            <div class="notif-title">Programare salon</div>
+            <div class="notif-row">👤 <span class="notif-val">Elena Ionescu</span></div>
+            <div class="notif-row">📞 <span class="notif-val">0756 789 012</span></div>
+            <div class="notif-row">✨ <span class="notif-val">HydraFacial · Mâine 14:00</span></div>
+            <button class="notif-btn">📞 Confirmă</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PHYSIO ════════════════════════════════ -->
+<section class="ind-section" id="physio">
+  <div class="ind-section-inner">
+    <div class="chat-frame" style="max-width:100%">
+      <div class="chat-header">
+        <div class="chat-header-dots">
+          <div class="chat-header-dot" style="background:#FF5F57"></div>
+          <div class="chat-header-dot" style="background:#FFBD2E"></div>
+          <div class="chat-header-dot" style="background:#28CA41"></div>
+        </div>
+        <div class="chat-header-title">🏃 Fizioterapie & Recuperare</div>
+        <div class="chat-live-badge"><div class="chat-live-dot"></div>LIVE</div>
+      </div>
+      <div class="chat-body" style="min-height:200px">
+        <div class="chat-msg chat-msg-user">Aveți recuperare după operație la genunchi?</div>
+        <div class="chat-msg chat-msg-ai">Da, oferim programe complete de recuperare post-operatorie. Un program standard durează 10-15 ședințe și include kinetoterapie + electroterapie. 🏃</div>
+        <div class="chat-msg chat-msg-user">Cât costă o ședință?</div>
+        <div class="chat-msg chat-msg-ai">O ședință individuală costă 120 RON. Pentru pachetul de 10 ședințe avem un preț special: 1.000 RON. Vă pot programa pentru o evaluare gratuită inițială!</div>
+        <div class="chat-notification">
+          <span class="notif-icon">🔔</span>
+          <div class="notif-body">
+            <div class="notif-title">Solicitare recuperare</div>
+            <div class="notif-row">👤 <span class="notif-val">Mihai Popa</span></div>
+            <div class="notif-row">📞 <span class="notif-val">0733 456 789</span></div>
+            <div class="notif-row">🏃 <span class="notif-val">Recuperare genunchi</span></div>
+            <button class="notif-btn">📞 Sună acum</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="ind-section-tag">🏃 Fizioterapie</div>
+      <h2 class="ind-section-title">AI care ghidează pacienții spre recuperare.</h2>
+      <p class="ind-section-sub">Pacienții cu dureri caută ajutor urgent. AI-ul înțelege problema, recomandă serviciile potrivite și captează lead-ul pentru echipa ta.</p>
+      <div class="ind-benefits">
+        <div class="ind-benefit">Recuperare post-operatorie, kinetoterapie</div>
+        <div class="ind-benefit">Masaj terapeutic și relaxant</div>
+        <div class="ind-benefit">Electroterapie, ultrasunete, laser</div>
+        <div class="ind-benefit">Pachete de ședințe cu prețuri speciale</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ BUSINESS BRAIN ════════════════════════ -->
+<section class="brain-section">
+  <div class="brain-inner">
+    <div>
+      <div class="eyebrow">Diferențiatorul nostru</div>
+      <h2 class="section-title">AI care îți învață afacerea în 30 de secunde.</h2>
+      <p class="section-sub" style="margin-bottom:24px">Nu configurezi nimic manual. Scanăm site-ul tău și AI-ul cunoaște instant servicii, prețuri, doctori, asigurări, facilități.</p>
+      <div class="brain-checks">
+        <div class="brain-check"><div class="brain-check-icon">✓</div>Citește toate paginile site-ului automat</div>
+        <div class="brain-check"><div class="brain-check-icon">✓</div>Identifică serviciile și prețurile exacte</div>
+        <div class="brain-check"><div class="brain-check-icon">✓</div>Detectează asigurările și facilitățile</div>
+        <div class="brain-check"><div class="brain-check-icon">✓</div>Găsește doctorii și specialitățile</div>
+        <div class="brain-check"><div class="brain-check-icon">✓</div>Răspunde natural, ca un angajat real</div>
+        <div class="brain-check"><div class="brain-check-icon">✓</div>Acuratețe 87-91% pe orice site</div>
+      </div>
+    </div>
+    <div class="brain-visual">
+      <div style="font-size:10px;font-weight:700;color:var(--tx-4);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px">Business Brain Scanner</div>
+      <div class="brain-flow">
+        <div class="brain-node active"><div class="brain-node-icon">🌐</div><div><div class="brain-node-label">Site-ul tău</div><div class="brain-node-sub">www.clinica.ro</div></div></div>
+        <div class="brain-connector"><div class="brain-connector-line"></div></div>
+        <div class="brain-node"><div class="brain-node-icon">🔍</div><div><div class="brain-node-label">Crawler</div><div class="brain-node-sub">12+ pagini analizate în paralel</div></div></div>
+        <div class="brain-connector"><div class="brain-connector-line"></div></div>
+        <div class="brain-node"><div class="brain-node-icon">⚡</div><div><div class="brain-node-label">Extractori deterministici</div><div class="brain-node-sub">Servicii · Prețuri · Program · Doctori</div></div></div>
+        <div class="brain-connector"><div class="brain-connector-line"></div></div>
+        <div class="brain-node"><div class="brain-node-icon">🧠</div><div><div class="brain-node-label">Business Brain</div><div class="brain-node-sub">Inferență semantică per industrie</div></div></div>
+        <div class="brain-connector"><div class="brain-connector-line"></div></div>
+        <div class="brain-node active"><div class="brain-node-icon">✅</div><div><div class="brain-node-label">AI gata în 30 secunde</div><div class="brain-node-sub">87-91% acuratețe · Zero configurare</div></div></div>
+      </div>
+      <div class="brain-data-flow">
+        <span class="brain-tag">Straumann</span>
+        <span class="brain-tag">Invisalign</span>
+        <span class="brain-tag">Signal Iduna</span>
+        <span class="brain-tag">parcare</span>
+        <span class="brain-tag">sedare</span>
+        <span class="brain-tag">urgențe</span>
+        <span class="brain-tag">implant 2500 RON</span>
+        <span class="brain-tag">Dr. Popescu</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ CUM FUNCȚIONEAZĂ ══════════════════════ -->
+<section class="how-section" id="cum-functioneaza">
+  <div class="how-inner">
+    <div class="eyebrow">Cum funcționează</div>
+    <h2 class="section-title">Trei pași. Niciun efort.</h2>
+    <p class="section-sub" style="margin:0 auto">De la cont nou la AI activ pe site-ul tău în mai puțin de 10 minute.</p>
+    <div class="how-steps">
+      <div class="how-step">
+        <div class="how-n">1</div>
+        <div class="how-t">Conectezi site-ul</div>
+        <div class="how-s">Adaugi o linie de cod. AI-ul scanează automat și e gata în 30 de secunde. Fără programator.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-n">2</div>
+        <div class="how-t">AI învață afacerea</div>
+        <div class="how-s">Servicii, prețuri, program, doctori, asigurări — totul detectat automat, fără configurare manuală.</div>
+      </div>
+      <div class="how-step">
+        <div class="how-n">3</div>
+        <div class="how-t">Primești programări</div>
+        <div class="how-s">AI captează lead-uri 24/7, te notifică instant. Tu suni și programezi în agenda ta existentă.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ COMPARISON ════════════════════════════ -->
+<section class="compare-section">
+  <div class="compare-inner">
     <div class="eyebrow">Comparație</div>
-    <h2 class="h2">Fără RecepAI vs. Cu RecepAI</h2>
+    <h2 class="section-title">Fără RecepAI vs. Cu RecepAI</h2>
     <table class="compare-table">
-      <thead><tr><th>❌ Fără RecepAI</th><th>✅ Cu RecepAI</th></tr></thead>
+      <thead>
+        <tr>
+          <th>❌ Fără RecepAI</th>
+          <th>✅ Cu RecepAI</th>
+        </tr>
+      </thead>
       <tbody>
-        <tr><td>Pacientul pleacă dacă nu răspunde nimeni</td><td>AI răspunde în sub 2 secunde</td></tr>
-        <tr><td>Recepția disponibilă doar în program</td><td>AI disponibil 24/7, inclusiv nopți și weekenduri</td></tr>
-        <tr><td>Lead-uri pierdute din uitare sau lipsă de timp</td><td>Fiecare lead capturat, notificat instant</td></tr>
-        <tr><td>Întrebări repetitive consumă timp din recepție</td><td>AI răspunde automat: prețuri, program, servicii</td></tr>
-        <tr><td>Nu știi ce întreabă clienții pe site</td><td>Dashboard cu toate conversațiile și statistici</td></tr>
-        <tr><td>Instalare și configurare complexă</td><td>O linie de cod. Gata în 5 minute.</td></tr>
+        <tr><td>Pacientul pleacă dacă nu răspunde nimeni</td><td>AI răspunde în sub 2 secunde, oricând</td></tr>
+        <tr><td>Recepția disponibilă doar 9-18</td><td>AI disponibil 24/7, inclusiv nopți și weekenduri</td></tr>
+        <tr><td>Lead-uri pierdute din lipsă de timp</td><td>Fiecare lead capturat, notificat instant</td></tr>
+        <tr><td>Întrebări repetitive consumă recepția</td><td>AI răspunde automat: prețuri, program, servicii</td></tr>
+        <tr><td>Nu știi ce întreabă clienții pe site</td><td>Dashboard complet cu statistici și conversații</td></tr>
+        <tr><td>Instalare complexă, training lung</td><td>5 minute instalare, zero training</td></tr>
       </tbody>
     </table>
   </div>
 </section>
 
-<!-- BUSINESS BRAIN -->
-<section class="brain">
-  <div class="brain-inner">
-    <div>
-      <div class="eyebrow">Diferențiatorul nostru</div>
-      <h2 class="h2">AI care îți învață afacerea în 30 de secunde.</h2>
-      <p class="lead" style="margin-bottom:24px">Nu configurezi nimic manual. Scanăm site-ul tău și AI-ul cunoaște instant tot ce trebuie să știe pentru a răspunde ca un angajat al clinicii.</p>
-      <div class="brain-checks">
-        <div class="brain-check">Citește toate paginile site-ului</div>
-        <div class="brain-check">Identifică serviciile și prețurile</div>
-        <div class="brain-check">Înțelege programul și locația</div>
-        <div class="brain-check">Găsește doctorii și specialitățile</div>
-        <div class="brain-check">Detectează asigurările acceptate</div>
-        <div class="brain-check">Răspunde natural, ca un angajat real</div>
-        <div class="brain-check">Învață din conversații în timp</div>
-      </div>
-    </div>
-    <div class="brain-visual">
-      <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:16px">Business Brain Scanner</div>
-      <div class="brain-flow">
-        <div class="brain-step"><div class="brain-step-icon">🌐</div><div class="brain-step-info"><div class="brain-step-label">Site-ul tău</div><div class="brain-step-sub">www.clinica.ro</div></div></div>
-        <div class="brain-arrow" style="margin-left:9px;padding:2px 0">↓</div>
-        <div class="brain-step"><div class="brain-step-icon">🔍</div><div class="brain-step-info"><div class="brain-step-label">Crawler</div><div class="brain-step-sub">12+ pagini analizate</div></div></div>
-        <div class="brain-arrow" style="margin-left:9px;padding:2px 0">↓</div>
-        <div class="brain-step"><div class="brain-step-icon">⚡</div><div class="brain-step-info"><div class="brain-step-label">Extractori deterministici</div><div class="brain-step-sub">Servicii · Prețuri · Program · Doctori</div></div></div>
-        <div class="brain-arrow" style="margin-left:9px;padding:2px 0">↓</div>
-        <div class="brain-step"><div class="brain-step-icon">🧠</div><div class="brain-step-info"><div class="brain-step-label">Business Brain</div><div class="brain-step-sub">Straumann → implant premium · Invisalign → ortodonție</div></div></div>
-        <div class="brain-arrow" style="margin-left:9px;padding:2px 0">↓</div>
-        <div class="brain-step"><div class="brain-step-icon">✅</div><div class="brain-step-info"><div class="brain-step-label">AI gata în 30 secunde</div><div class="brain-step-sub" style="color:var(--teal)">87-91% acuratețe · Zero configurare</div></div></div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- HOW -->
-<section id="cum-functioneaza">
-  <div class="how-inner">
-    <div class="eyebrow center">Cum funcționează</div>
-    <h2 class="h2 center">Trei pași. Niciun efort.</h2>
-    <div class="how-steps">
-      <div class="how-step"><div class="how-n">1</div><div class="how-t">Conectezi site-ul</div><div class="how-s">Adaugi o linie de cod. AI-ul scanează automat și e gata în 30 de secunde.</div></div>
-      <div class="how-step"><div class="how-n">2</div><div class="how-t">AI învață afacerea</div><div class="how-s">Servicii, prețuri, program, doctori, asigurări — totul automat, fără configurare.</div></div>
-      <div class="how-step"><div class="how-n">3</div><div class="how-t">Primești programări</div><div class="how-s">AI captează lead-uri 24/7, notifică recepția instant, tu suni și programezi.</div></div>
-    </div>
-  </div>
-</section>
-
-<!-- DASHBOARD -->
-<section style="background:var(--s1);border-top:1px solid var(--b1);">
+<!-- ═══ DASHBOARD ══════════════════════════════ -->
+<section class="dash-section">
   <div class="dash-inner">
-    <div class="center" style="margin-bottom:44px">
-      <div class="eyebrow center">Dashboard</div>
-      <h2 class="h2 center">Tot ce ai nevoie. Nimic în plus.</h2>
+    <div class="dash-header">
+      <div class="eyebrow">Dashboard</div>
+      <h2 class="section-title">Tot ce ai nevoie. Nimic în plus.</h2>
     </div>
-    <div class="dash-frame">
+    <div class="dash-preview">
       <div class="dash-bar">
         <div class="dash-dot" style="background:#FF5F57"></div>
         <div class="dash-dot" style="background:#FFBD2E"></div>
         <div class="dash-dot" style="background:#28CA41"></div>
-        <div class="dash-url"><span class="dash-url-txt">app.receptieai.ro/dashboard</span></div>
+        <div class="dash-url-bar"><span class="dash-url-txt">app.receptieai.ro/dashboard</span></div>
       </div>
       <div class="dash-body">
         <div class="dash-sb">
@@ -403,29 +2328,41 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px max(20px
         </div>
         <div class="dash-main">
           <div class="dash-metrics">
-            <div class="dash-mc"><div class="dash-mc-v" style="color:var(--red)">7</div><div class="dash-mc-l">Lead-uri noi</div></div>
-            <div class="dash-mc"><div class="dash-mc-v" style="color:var(--teal)">34</div><div class="dash-mc-l">Conversații azi</div></div>
-            <div class="dash-mc"><div class="dash-mc-v" style="color:var(--green)">12m</div><div class="dash-mc-l">Timp mediu răspuns</div></div>
+            <div class="dash-mc">
+              <div class="dash-mc-v" style="color:var(--red)">7</div>
+              <div class="dash-mc-l">Lead-uri noi</div>
+            </div>
+            <div class="dash-mc">
+              <div class="dash-mc-v" style="color:var(--teal)">34</div>
+              <div class="dash-mc-l">Conversații azi</div>
+            </div>
+            <div class="dash-mc">
+              <div class="dash-mc-v" style="color:var(--green)">12m</div>
+              <div class="dash-mc-l">Timp mediu răspuns</div>
+            </div>
           </div>
           <div class="dash-leads">
-            <div class="dash-leads-h"><span>📥 Solicitări recente</span><span style="font-size:10px;color:var(--teal)">Vezi toate →</span></div>
+            <div class="dash-leads-h">
+              <span>📥 Solicitări recente</span>
+              <span style="font-size:10px;color:var(--teal)">Vezi toate →</span>
+            </div>
             <div class="dash-lr">
               <div class="dash-av" style="background:rgba(239,68,68,.1);color:var(--red)">MP</div>
               <div><div class="dash-lname">Maria Popescu</div><div class="dash-lsvc">Implant dentar</div></div>
-              <div class="dash-phone">0721 234 567</div>
-              <span class="dash-badge b-red">🔴 Nou</span>
+              <span class="dash-phone">0721 234 567</span>
+              <span class="dash-badge" style="background:rgba(239,68,68,.12);color:var(--red)">🔴 Nou</span>
             </div>
             <div class="dash-lr">
               <div class="dash-av" style="background:rgba(245,158,11,.1);color:var(--amber)">AI</div>
               <div><div class="dash-lname">Andrei Ionescu</div><div class="dash-lsvc">Consultație</div></div>
-              <div class="dash-phone">0744 567 890</div>
-              <span class="dash-badge b-ylw">🟡 Contactat</span>
+              <span class="dash-phone">0744 567 890</span>
+              <span class="dash-badge" style="background:rgba(245,158,11,.12);color:var(--amber)">🟡 Contactat</span>
             </div>
             <div class="dash-lr">
               <div class="dash-av" style="background:rgba(34,197,94,.1);color:var(--green)">EM</div>
               <div><div class="dash-lname">Elena Marin</div><div class="dash-lsvc">Albire dentară</div></div>
-              <div class="dash-phone">0756 789 012</div>
-              <span class="dash-badge b-grn">✅ Programat</span>
+              <span class="dash-phone">0756 789 012</span>
+              <span class="dash-badge" style="background:rgba(34,197,94,.12);color:var(--green)">✅ Programat</span>
             </div>
           </div>
         </div>
@@ -434,119 +2371,123 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px max(20px
   </div>
 </section>
 
-<!-- PRICING -->
-<section id="preturi" class="center">
-  <div class="eyebrow center">Prețuri</div>
-  <h2 class="h2 center">Simplu și transparent</h2>
-  <p class="lead center" style="margin-bottom:0">Fără contracte. Fără surprize. Anulezi oricând.</p>
-  <div class="plans">
-    <div class="plan">
-      <div class="plan-name">Starter</div>
-      <div class="plan-price">0 <span>RON/lună</span></div>
-      <div class="plan-desc">7 zile trial · Fără card</div>
-      <ul class="plan-feats">
-        <li>1 widget pe site</li>
-        <li>50 conversații AI</li>
-        <li>20 lead-uri/lună</li>
-        <li>Email notificări</li>
-        <li class="off">Fără watermark</li>
-        <li class="off">Follow-up automat</li>
-        <li class="off">Aplicație mobilă</li>
-      </ul>
-      <a href="register.html" class="plan-btn plan-btn-ghost">Începe gratuit</a>
-    </div>
-    <div class="plan featured">
-      <div class="plan-badge">⭐ Cel mai popular</div>
-      <div class="plan-name">Pro</div>
-      <div class="plan-price">249 <span>RON/lună</span></div>
-      <div class="plan-desc">Conversații nelimitate</div>
-      <ul class="plan-feats">
-        <li>3 widget-uri pe site</li>
-        <li>Conversații nelimitate</li>
-        <li>Lead-uri nelimitate</li>
-        <li>Fără watermark</li>
-        <li>Follow-up automat 24/48h</li>
-        <li>Aplicație mobilă PWA</li>
-        <li>Analytics avansate</li>
-      </ul>
-      <a href="register.html" class="plan-btn plan-btn-teal">Începe Pro</a>
-    </div>
-    <div class="plan">
-      <div class="plan-name">Enterprise</div>
-      <div class="plan-price">499 <span>RON/lună</span></div>
-      <div class="plan-desc">Clinici mari · Multi-locație</div>
-      <ul class="plan-feats">
-        <li>Widget-uri nelimitate</li>
-        <li>Multi-locație</li>
-        <li>Learning Engine</li>
-        <li>Onboarding dedicat</li>
-        <li>Support prioritar 24/7</li>
-        <li>Rapoarte lunare</li>
-        <li>API access</li>
-      </ul>
-      <a href="register.html" class="plan-btn plan-btn-ghost">Contactează-ne</a>
+<!-- ═══ PRICING ════════════════════════════════ -->
+<section class="pricing-section" id="preturi">
+  <div class="pricing-inner">
+    <div class="eyebrow">Prețuri</div>
+    <h2 class="section-title">Simplu și transparent</h2>
+    <p style="font-size:15px;color:var(--tx-2)">Fără contracte. Fără surprize. Anulezi oricând.</p>
+    <div class="plans">
+      <div class="plan">
+        <div class="plan-name">Starter</div>
+        <div class="plan-price">0 <span>RON/lună</span></div>
+        <div class="plan-desc">7 zile trial · Fără card</div>
+        <ul class="plan-feats">
+          <li class="plan-feat">1 widget pe site</li>
+          <li class="plan-feat">50 conversații AI</li>
+          <li class="plan-feat">20 lead-uri/lună</li>
+          <li class="plan-feat">Email notificări</li>
+          <li class="plan-feat off">Fără watermark</li>
+          <li class="plan-feat off">Follow-up automat</li>
+        </ul>
+        <a href="register.html" class="plan-cta plan-cta-ghost">Începe gratuit</a>
+      </div>
+      <div class="plan featured">
+        <div class="plan-badge">⭐ Cel mai popular</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">249 <span>RON/lună</span></div>
+        <div class="plan-desc">Conversații nelimitate</div>
+        <ul class="plan-feats">
+          <li class="plan-feat">3 widget-uri</li>
+          <li class="plan-feat">Conversații nelimitate</li>
+          <li class="plan-feat">Lead-uri nelimitate</li>
+          <li class="plan-feat">Fără watermark</li>
+          <li class="plan-feat">Follow-up automat 24/48h</li>
+          <li class="plan-feat">Aplicație mobilă PWA</li>
+        </ul>
+        <a href="register.html" class="plan-cta plan-cta-teal">Începe Pro</a>
+      </div>
+      <div class="plan">
+        <div class="plan-name">Enterprise</div>
+        <div class="plan-price">499 <span>RON/lună</span></div>
+        <div class="plan-desc">Clinici mari · Multi-locație</div>
+        <ul class="plan-feats">
+          <li class="plan-feat">Widget-uri nelimitate</li>
+          <li class="plan-feat">Multi-locație</li>
+          <li class="plan-feat">Onboarding dedicat</li>
+          <li class="plan-feat">Support prioritar 24/7</li>
+          <li class="plan-feat">Rapoarte lunare</li>
+          <li class="plan-feat">API access</li>
+        </ul>
+        <a href="register.html" class="plan-cta plan-cta-ghost">Contactează-ne</a>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- FAQ -->
-<section id="faq">
-  <div class="center">
-    <div class="eyebrow center">FAQ</div>
-    <h2 class="h2 center">Întrebări frecvente</h2>
-  </div>
-  <div class="faq-wrap">
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Funcționează cu orice tip de site?<span class="faq-icon">+</span></div><div class="faq-a">Da. Funcționează cu WordPress, Wix, site custom, orice. Adaugi o linie de cod și gata. Nu contează platforma.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Trebuie să schimb softul sau agenda clinicii?<span class="faq-icon">+</span></div><div class="faq-a">Nu schimbi absolut nimic. RecepAI funcționează în paralel cu sistemul tău existent. Recepția continuă cu agenda lor — RecepAI aduce clienți noi și îi notifică instant.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Dacă schimb prețurile pe site, AI-ul se actualizează?<span class="faq-icon">+</span></div><div class="faq-a">Da. Poți rescana site-ul oricând din dashboard în câteva secunde. AI-ul va cunoaște instant noile prețuri. Poți și edita manual orice informație.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Ce se întâmplă dacă AI-ul nu știe răspunsul?<span class="faq-icon">+</span></div><div class="faq-a">AI-ul redirecționează clientul să sune la recepție pentru detalii suplimentare. Nu inventează niciodată informații — dacă nu știe, spune clar.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">AI-ul învață singur din conversații?<span class="faq-icon">+</span></div><div class="faq-a">Da. Learning Engine-ul nostru identifică întrebările fără răspuns și le sugerează în dashboard. Tu adaugi răspunsul o singură dată și AI-ul îl știe pentru totdeauna.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Cine poate vedea conversațiile?<span class="faq-icon">+</span></div><div class="faq-a">Doar tu și echipa ta. Conversațiile sunt private și accesibile doar din dashboard-ul tău. RecepAI nu le distribuie nimănui.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Datele pacienților sunt în siguranță? GDPR?<span class="faq-icon">+</span></div><div class="faq-a">Da. Serverele sunt în Europa (Frankfurt). Suntem GDPR compliant. Nu stocăm date medicale — colectăm doar nume, telefon și serviciul dorit. Poți șterge orice date la cerere.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Funcționează și pe WhatsApp sau Facebook?<span class="faq-icon">+</span></div><div class="faq-a">Momentan RecepAI funcționează pe site-ul tău prin widget. Integrarea cu WhatsApp și Facebook Messenger este în roadmap pentru versiunile viitoare.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Pot face programări direct din chat?<span class="faq-icon">+</span></div><div class="faq-a">În versiunea curentă AI-ul captează datele pacientului și notifică recepția instant. Recepția programează în agenda lor. Programarea automată directă este planificată pentru V2.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Pot folosi RecepAI pentru mai multe clinici?<span class="faq-icon">+</span></div><div class="faq-a">Da. Planul Enterprise suportă mai multe locații, fiecare cu propriul Business Brain și widget configurat specific.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Cât durează instalarea?<span class="faq-icon">+</span></div><div class="faq-a">5 minute. Adaugi o linie de cod pe site (sau prin Google Tag Manager), AI-ul scanează automat și e gata. Fără programator dacă folosești WordPress sau Wix.</div></div>
-    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Pot testa gratuit înainte să plătesc?<span class="faq-icon">+</span></div><div class="faq-a">Da, 7 zile gratuit, fără card necesar. Creezi cont, scanezi site-ul, instalezi widget-ul și testezi tot cu pacienți reali. Dacă nu ești mulțumit, nu plătești nimic.</div></div>
+<!-- ═══ FAQ ════════════════════════════════════ -->
+<section class="faq-section" id="faq">
+  <div class="faq-inner">
+    <div class="faq-title-area">
+      <div class="eyebrow">FAQ</div>
+      <h2 class="section-title">Întrebări frecvente</h2>
+    </div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Funcționează cu orice tip de site?<div class="faq-icon">+</div></div><div class="faq-a">Da. WordPress, Wix, site custom, orice platformă. Adaugi o linie de cod și gata. Nu contează cum e construit site-ul.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Trebuie să schimb softul sau agenda clinicii?<div class="faq-icon">+</div></div><div class="faq-a">Nu schimbi absolut nimic. RecepAI funcționează în paralel. Recepția continuă cu agenda lor — RecepAI aduce clienți noi și îi notifică instant.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Dacă schimb prețurile pe site, AI-ul se actualizează?<div class="faq-icon">+</div></div><div class="faq-a">Da. Poți rescana site-ul oricând din dashboard în câteva secunde. Poți și edita manual orice informație direct din interfață.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Ce se întâmplă dacă AI-ul nu știe răspunsul?<div class="faq-icon">+</div></div><div class="faq-a">AI-ul redirecționează clientul să sune la recepție. Nu inventează niciodată informații — dacă nu știe, spune clar și oferă alternativa.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">AI-ul învață singur din conversații?<div class="faq-icon">+</div></div><div class="faq-a">Da. Learning Engine-ul identifică întrebările fără răspuns și le sugerează în dashboard. Tu adaugi răspunsul o dată și AI-ul îl știe pentru totdeauna.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Datele pacienților sunt în siguranță? GDPR?<div class="faq-icon">+</div></div><div class="faq-a">Da. Servere în Europa (Frankfurt). GDPR compliant. Nu stocăm date medicale — doar nume, telefon și serviciul dorit.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Pot folosi RecepAI pentru mai multe clinici?<div class="faq-icon">+</div></div><div class="faq-a">Da. Planul Enterprise suportă locații multiple, fiecare cu propriul Business Brain și widget configurat specific.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Cât durează instalarea?<div class="faq-icon">+</div></div><div class="faq-a">5 minute. O linie de cod pe site sau prin Google Tag Manager. AI-ul scanează automat și e gata imediat.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Pot testa gratuit înainte să plătesc?<div class="faq-icon">+</div></div><div class="faq-a">Da, 7 zile gratuit, fără card necesar. Testezi tot cu clienți reali. Dacă nu ești mulțumit, nu plătești nimic.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Funcționează și pe WhatsApp sau Facebook?<div class="faq-icon">+</div></div><div class="faq-a">Momentan RecepAI funcționează pe site prin widget. Integrarea WhatsApp și Facebook Messenger este în roadmap.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Cine poate vedea conversațiile?<div class="faq-icon">+</div></div><div class="faq-a">Doar tu și echipa ta. Conversațiile sunt private și accesibile doar din dashboard-ul tău.</div></div>
+    <div class="faq-item" onclick="ft(this)"><div class="faq-q">Există suport tehnic?<div class="faq-icon">+</div></div><div class="faq-a">Da. Email support pentru toate planurile. Support prioritar 24/7 pe planul Enterprise. Răspundem în maximum 4 ore.</div></div>
   </div>
 </section>
 
-<!-- CTA -->
-<section class="cta" style="background:var(--s1);border-top:1px solid var(--b1);">
+<!-- ═══ CTA FINAL ══════════════════════════════ -->
+<section class="cta-section">
   <div class="cta-glow"></div>
   <div class="cta-inner">
-    <h2>Gata să nu mai pierzi<br>niciun client?</h2>
-    <p>Instalare în 5 minute. 7 zile gratuit. Fără card.</p>
-    <a href="register.html" class="btn-hero">Creează cont gratuit →</a>
+    <h2 class="cta-h2">Gata să nu mai pierzi<br>niciun client?</h2>
+    <p class="cta-sub">Instalare în 5 minute. 7 zile gratuit. Fără card.</p>
+    <div class="cta-actions">
+      <a href="register.html" class="hero-btn-primary">Creează cont gratuit →</a>
+      <a href="#demo" class="hero-btn-secondary">▶ Vezi demo</a>
+    </div>
   </div>
 </section>
 
-<!-- FOOTER -->
+<!-- ═══ FOOTER ════════════════════════════════ -->
 <footer>
   <div class="footer-grid">
     <div>
-      <div class="footer-logo">Recep<em>AI</em></div>
-      <div class="footer-tagline">Recepționerul AI care nu<br>lasă niciun client să se piardă.</div>
+      <div class="footer-brand-logo">
+        <div class="nav-logo-icon" style="width:26px;height:26px;font-size:13px">🤖</div>
+        Recep<em>AI</em>
+      </div>
+      <div class="footer-tagline">Recepționistul AI care nu lasă<br>niciun client să se piardă.</div>
     </div>
     <div class="footer-col">
       <h4>Produs</h4>
-      <a href="#demo">Demo</a>
+      <a href="#demo">Demo live</a>
       <a href="#preturi">Prețuri</a>
       <a href="dashboard.html">Dashboard</a>
-      <a href="register.html">Începe gratuit</a>
+      <a href="register.html">Încearcă gratuit</a>
     </div>
     <div class="footer-col">
       <h4>Industrii</h4>
-      <a href="#">Stomatologie</a>
-      <a href="#">Fizioterapie</a>
-      <a href="#">Veterinar</a>
-      <a href="#">Salon beauty</a>
-      <a href="#">Cabinet medical</a>
+      <a href="#dental">Stomatologie</a>
+      <a href="#vet">Veterinar</a>
+      <a href="#beauty">Beauty & Wellness</a>
+      <a href="#physio">Fizioterapie</a>
     </div>
     <div class="footer-col">
       <h4>Legal</h4>
       <a href="#">Termeni și condiții</a>
-      <a href="#">Politică confidențialitate</a>
+      <a href="#">Confidențialitate</a>
       <a href="#">GDPR</a>
       <a href="mailto:contact@receptieai.ro">contact@receptieai.ro</a>
     </div>
@@ -558,66 +2499,234 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px max(20px
 </footer>
 
 <script>
+// ── NAV ──────────────────────────────────────
+let navOpen = false;
+
 function toggleNav() {
-  document.getElementById('nav-mid').classList.toggle('open');
+  navOpen = !navOpen;
+  document.getElementById('nav-hbg').classList.toggle('open', navOpen);
+  document.getElementById('nav-mobile').classList.toggle('open', navOpen);
 }
 
+function closeNav() {
+  navOpen = false;
+  document.getElementById('nav-hbg').classList.remove('open');
+  document.getElementById('nav-mobile').classList.remove('open');
+}
+
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 20);
+  if (navOpen) closeNav();
+});
+
+// Close on outside click
+document.addEventListener('click', e => {
+  if (navOpen && !e.target.closest('header')) closeNav();
+});
+
+// ── FAQ ──────────────────────────────────────
 function ft(el) { el.classList.toggle('open'); }
 
-// Hero chat animation
-const heroMsgs = [
-  {r:'a', t:'Bună seara! Implanturile noastre pornesc de la 2.500 RON (MegaGen) și 3.800 RON (Nobel Biocare). Includ bontul și coroana.'},
-  {r:'a', t:'Vă pot programa pentru o consultație gratuită. Scrieți-mi numele și telefonul 😊'},
-  {r:'u', t:'Ion Popescu'},
-  {r:'a', t:'Mulțumesc, Ion! Numărul de telefon?'},
-  {r:'u', t:'0722 123 456'},
-  {r:'a', t:'✅ Perfect! Solicitarea a fost înregistrată. Vă sunăm mâine dimineață la deschiderea programului.'},
-  {r:'notify', t:'🔔 Lead nou — Ion Popescu · 0722 123 456 · Implant'},
-];
+// ── INDUSTRY SELECTOR ──────────────────────
+const industryData = {
+  dental: {
+    title: '🦷 AI Recepție — Clinică Stomatologică',
+    msgs: [
+      { r: 'u', t: 'Bună ziua, cât costă un implant?' },
+      { r: 'a', t: 'Implanturile noastre pornesc de la 2.500 RON (MegaGen) și 3.800 RON (Nobel Biocare). Prețul include bontul și coroana ceramică. Acceptăm Signal Iduna și Medicover. 😊' },
+      { r: 'u', t: 'Vreau să mă programez' },
+      { r: 'a', t: 'Cu plăcere! Scrieți-mi numele și telefonul și vă contactăm în maximum 2 ore.' },
+      { r: 'u', t: 'Ion Popescu, 0722 123 456' },
+      { r: 'notify', name: 'Ion Popescu', phone: '0722 123 456', service: 'Implant dentar' },
+    ]
+  },
+  vet: {
+    title: '🐾 AI Recepție — Cabinet Veterinar',
+    msgs: [
+      { r: 'u', t: 'Câinele meu nu mănâncă de 2 zile' },
+      { r: 'a', t: 'Înțeleg că e urgent. Medicul nostru este disponibil chiar acum. Doriți o consultație de urgență? 🐾' },
+      { r: 'u', t: 'Da, cât mai repede' },
+      { r: 'a', t: 'Scrieți-mi numele, telefonul și rasa câinelui — vă sunăm în câteva minute.' },
+      { r: 'u', t: 'Andrei Marin, 0744 567 890, Golden Retriever' },
+      { r: 'notify', name: 'Andrei Marin', phone: '0744 567 890', service: 'Urgență veterinară' },
+    ]
+  },
+  beauty: {
+    title: '✨ AI Recepție — Salon Beauty',
+    msgs: [
+      { r: 'u', t: 'Cât costă un tratament HydraFacial?' },
+      { r: 'a', t: 'HydraFacial costă 350 RON/ședință sau 3 ședințe la 900 RON. Durează 60 min și include curățare, exfoliere și hidratare intensă ✨' },
+      { r: 'u', t: 'Vreau să mă programez mâine' },
+      { r: 'a', t: 'Avem disponibilitate mâine la 14:00 și 17:00. Scrieți-mi numele și telefonul!' },
+      { r: 'u', t: 'Elena Ionescu, 0756 789 012, la 14:00' },
+      { r: 'notify', name: 'Elena Ionescu', phone: '0756 789 012', service: 'HydraFacial · 14:00' },
+    ]
+  },
+  physio: {
+    title: '🏃 AI Recepție — Fizioterapie',
+    msgs: [
+      { r: 'u', t: 'Aveți recuperare după operație la genunchi?' },
+      { r: 'a', t: 'Da! Oferim programe complete de recuperare post-operatorie: 10-15 ședințe kinetoterapie + electroterapie. 🏃' },
+      { r: 'u', t: 'Cât costă o ședință?' },
+      { r: 'a', t: 'O ședință: 120 RON. Pachet 10 ședințe: 1.000 RON. Vă pot programa pentru o evaluare gratuită!' },
+      { r: 'u', t: 'Mihai Popa, 0733 456 789' },
+      { r: 'notify', name: 'Mihai Popa', phone: '0733 456 789', service: 'Recuperare genunchi' },
+    ]
+  }
+};
 
-function animateHeroChat() {
-  const box = document.getElementById('hero-chat-body');
-  let i = 0;
-  function next() {
-    if (i >= heroMsgs.length) return;
-    const m = heroMsgs[i];
-    const typing = box.querySelector('.hc-typing');
-    if (typing) typing.remove();
-    if (m.r === 'notify') {
-      const d = document.createElement('div');
-      d.className = 'hc-notify';
-      d.innerHTML = '<span class="hc-notify-icon">🔔</span>' + m.t;
-      box.appendChild(d);
-    } else {
-      const d = document.createElement('div');
-      d.className = 'hc-msg ' + (m.r === 'u' ? 'hc-u' : 'hc-a');
-      d.textContent = m.t;
-      box.appendChild(d);
-    }
-    box.scrollTop = box.scrollHeight;
-    i++;
-    if (i < heroMsgs.length) {
+let currentIndustry = 'dental';
+let chatAnimating = false;
+
+function switchIndustry(ind, btn) {
+  if (ind === currentIndustry || chatAnimating) return;
+  currentIndustry = ind;
+  document.querySelectorAll('.ind-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  startChatAnimation(ind);
+}
+
+function startChatAnimation(ind) {
+  chatAnimating = true;
+  const body = document.getElementById('chat-body');
+  const title = document.getElementById('chat-title');
+  const data = industryData[ind];
+
+  title.textContent = data.title;
+
+  // Fade out
+  body.style.opacity = '0';
+  body.style.transform = 'translateY(4px)';
+  body.style.transition = 'all 0.2s ease';
+
+  setTimeout(() => {
+    body.innerHTML = '';
+    body.style.opacity = '1';
+    body.style.transform = 'translateY(0)';
+    animateMsgs(body, data.msgs, 0, () => { chatAnimating = false; });
+  }, 220);
+}
+
+function animateMsgs(body, msgs, i, done) {
+  if (i >= msgs.length) { done(); return; }
+  const m = msgs[i];
+  const typing = body.querySelector('.chat-typing');
+  if (typing) typing.remove();
+
+  if (m.r === 'notify') {
+    const el = document.createElement('div');
+    el.className = 'chat-notification';
+    el.innerHTML = `
+      <span class="notif-icon">🔔</span>
+      <div class="notif-body">
+        <div class="notif-title">Lead nou — Dashboard</div>
+        <div class="notif-row">👤 <span class="notif-val">${m.name}</span></div>
+        <div class="notif-row">📞 <span class="notif-val">${m.phone}</span></div>
+        <div class="notif-row">🏥 <span class="notif-val">${m.service}</span></div>
+        <button class="notif-btn">📞 Sună acum</button>
+      </div>`;
+    body.appendChild(el);
+    body.scrollTop = body.scrollHeight;
+    setTimeout(() => animateMsgs(body, msgs, i+1, done), 800);
+  } else {
+    const el = document.createElement('div');
+    el.className = 'chat-msg ' + (m.r === 'u' ? 'chat-msg-user' : 'chat-msg-ai');
+    el.textContent = m.t;
+    body.appendChild(el);
+    body.scrollTop = body.scrollHeight;
+
+    if (i + 1 < msgs.length) {
       const t = document.createElement('div');
-      t.className = 'hc-typing';
+      t.className = 'chat-typing';
       t.innerHTML = '<span></span><span></span><span></span>';
-      box.appendChild(t);
-      box.scrollTop = box.scrollHeight;
-      setTimeout(next, heroMsgs[i].r === 'u' ? 1400 : 1800);
+      body.appendChild(t);
+      body.scrollTop = body.scrollHeight;
+      const delay = msgs[i+1].r === 'u' ? 1200 : 1800;
+      setTimeout(() => animateMsgs(body, msgs, i+1, done), delay);
+    } else {
+      done();
     }
   }
-  setTimeout(next, 1000);
 }
-animateHeroChat();
 
-// Scroll reveal
+// Manual chat input
+const API = 'https://ai-reception-platform-production.up.railway.app';
+
+async function sendMsg() {
+  const input = document.getElementById('chat-input');
+  const text = input.value.trim();
+  if (!text) return;
+  input.value = '';
+
+  const body = document.getElementById('chat-body');
+
+  // Add user msg
+  const umsg = document.createElement('div');
+  umsg.className = 'chat-msg chat-msg-user';
+  umsg.textContent = text;
+  body.appendChild(umsg);
+
+  // Typing indicator
+  const t = document.createElement('div');
+  t.className = 'chat-typing';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  body.appendChild(t);
+  body.scrollTop = body.scrollHeight;
+
+  try {
+    const r = await fetch(`${API}/api/widget/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ clientId: 'CLI-8ULSIV', message: text, sessionId: 'demo-' + Date.now() })
+    });
+    const d = await r.json();
+    t.remove();
+    const amsg = document.createElement('div');
+    amsg.className = 'chat-msg chat-msg-ai';
+    amsg.textContent = d.reply || d.message || 'Vă mulțumim pentru mesaj! Vă contactăm în curând.';
+    body.appendChild(amsg);
+    body.scrollTop = body.scrollHeight;
+  } catch(e) {
+    t.remove();
+    const amsg = document.createElement('div');
+    amsg.className = 'chat-msg chat-msg-ai';
+    amsg.textContent = 'Vă mulțumim pentru mesaj! Scrieți-mi datele de contact și vă sunăm în curând. 😊';
+    body.appendChild(amsg);
+    body.scrollTop = body.scrollHeight;
+  }
+}
+
+// Start initial animation
+setTimeout(() => {
+  const body = document.getElementById('chat-body');
+  animateMsgs(body, industryData.dental.msgs, 0, () => {});
+}, 800);
+
+// ── SCROLL REVEAL ─────────────────────────
 const obs = new IntersectionObserver(entries => {
-  entries.forEach(e => { if (e.isIntersecting) { e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; } });
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+    }
+  });
 }, { threshold: 0.08 });
-document.querySelectorAll('.plan, .how-step, .ps-item, .brain-step').forEach(el => {
-  el.style.opacity='0'; el.style.transform='translateY(16px)';
-  el.style.transition='opacity .45s ease, transform .45s ease';
+
+document.querySelectorAll('.plan, .how-step, .ps-item, .brain-node, .ind-card').forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(16px)';
+  el.style.transition = 'opacity 0.45s ease, transform 0.45s ease';
   obs.observe(el);
 });
+
+// Brain node animation
+let brainStep = 0;
+const brainNodes = document.querySelectorAll('.brain-node');
+setInterval(() => {
+  brainNodes.forEach(n => n.classList.remove('active'));
+  brainNodes[brainStep % brainNodes.length].classList.add('active');
+  brainStep++;
+}, 1200);
 </script>
 </body>
 </html>
