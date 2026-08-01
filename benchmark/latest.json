@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-01T13:29:59.831Z",
+  "date": "2026-08-01T16:18:25.471Z",
   "avg": 70,
   "passed": 14,
   "total": 14,
@@ -37,7 +37,7 @@
       "minScore": 82,
       "confidence": 86,
       "services": 19,
-      "duration": 9,
+      "duration": 10,
       "status": "pass"
     },
     {
@@ -55,7 +55,7 @@
       "minScore": 40,
       "confidence": 45,
       "services": 10,
-      "duration": 3,
+      "duration": 2,
       "status": "pass"
     },
     {
@@ -64,7 +64,7 @@
       "minScore": 82,
       "confidence": 86,
       "services": 60,
-      "duration": 7,
+      "duration": 9,
       "status": "pass"
     },
     {
@@ -82,7 +82,7 @@
       "minScore": 40,
       "confidence": 49,
       "services": 8,
-      "duration": 8,
+      "duration": 11,
       "status": "pass"
     },
     {
@@ -91,7 +91,7 @@
       "minScore": 30,
       "confidence": 40,
       "services": 8,
-      "duration": 16,
+      "duration": 15,
       "status": "pass"
     },
     {
@@ -109,7 +109,7 @@
       "minScore": 40,
       "confidence": 61,
       "services": 1,
-      "duration": 8,
+      "duration": 7,
       "status": "pass"
     },
     {

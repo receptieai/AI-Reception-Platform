@@ -100,7 +100,10 @@ async function scan(url, options={}) {
   const missingFields = [];
   if (!extracted.name) missingFields.push('name');
   if (!extracted.hours) missingFields.push('hours');
-  if (extracted.services.length === 0) missingFields.push('services');
+  // Ask Claude for services if we have very few or none with prices
+  const realSvcs = extracted.services.filter(s => s.method !== 'typical');
+  const svcsWithPrice = realSvcs.filter(s => s.price);
+  if (realSvcs.length === 0 || svcsWithPrice.length < 3) missingFields.push('services');
   if (extracted.doctors.length === 0) missingFields.push('doctors');
   missingFields.push('faq');
   missingFields.push('description');
