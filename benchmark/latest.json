@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-01T17:23:48.497Z",
+  "date": "2026-08-01T17:45:54.286Z",
   "avg": 70,
   "passed": 14,
   "total": 14,
@@ -28,16 +28,16 @@
       "minScore": 82,
       "confidence": 88,
       "services": 7,
-      "duration": 1,
+      "duration": 2,
       "status": "pass"
     },
     {
       "url": "https://clinicaelite.ro",
       "industry": "dental",
       "minScore": 82,
-      "confidence": 86,
-      "services": 19,
-      "duration": 10,
+      "confidence": 87,
+      "services": 31,
+      "duration": 11,
       "status": "pass"
     },
     {
@@ -55,7 +55,7 @@
       "minScore": 40,
       "confidence": 45,
       "services": 10,
-      "duration": 4,
+      "duration": 3,
       "status": "pass"
     },
     {
@@ -64,7 +64,7 @@
       "minScore": 82,
       "confidence": 86,
       "services": 60,
-      "duration": 7,
+      "duration": 5,
       "status": "pass"
     },
     {
@@ -73,7 +73,7 @@
       "minScore": 45,
       "confidence": 62,
       "services": 8,
-      "duration": 7,
+      "duration": 8,
       "status": "pass"
     },
     {
@@ -91,7 +91,7 @@
       "minScore": 30,
       "confidence": 40,
       "services": 8,
-      "duration": 16,
+      "duration": 15,
       "status": "pass"
     },
     {
@@ -107,8 +107,8 @@
       "url": "https://lovelyskin.ro",
       "industry": "beauty",
       "minScore": 40,
-      "confidence": 61,
-      "services": 1,
+      "confidence": 67,
+      "services": 6,
       "duration": 8,
       "status": "pass"
     },

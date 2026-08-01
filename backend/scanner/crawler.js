@@ -8,7 +8,7 @@ const PRIORITY_PATHS = [
   '/contact', '/contact/', '/despre', '/despre-noi', '/echipa', '/echipa/',
   '/medici', '/doctori', '/doctori/', '/faq', '/faq/', '/urgente',
   '/tratamente', '/tratamente/', '/oferte', '/programari',
-  '/pachete', '/pachete/', '/pachete-locatii', '/pachete-locatii/',
+  '/pachete', '/pachete/', '/pachete-locatii', '/pachete-locatii/', '/pachete-bucuresti', '/pachete-bucuresti/',
   '/pachete-bucuresti', '/pachete-bucuresti/', '/pachete-cluj', '/pachete-timisoara',
   '/tratamente-faciale', '/epilare', '/epilare-definitiva', '/cosmetica',
   '/servicii-si-preturi', '/lista-preturi', '/preturi-servicii',
