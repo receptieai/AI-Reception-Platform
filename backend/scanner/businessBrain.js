@@ -319,6 +319,11 @@ function applyBrain(combinedText, industry, extractedData) {
 }
 
 
+// Detect WooCommerce/JS sites
+function isJsSite(html) {
+  return /woocommerce|wp-content|elementor|divi|react-root|__NEXT_DATA__|gatsby/i.test(html);
+}
+
 const TYPICAL_SERVICES = {
   dental: [
     { name: 'Consultație stomatologică', price: null },
@@ -374,5 +379,5 @@ function getTypicalServices(industry) {
   return TYPICAL_SERVICES[industry] || [];
 }
 
-module.exports = { applyBrain, detectIndustry, getTypicalServices };
+module.exports = { applyBrain, detectIndustry, getTypicalServices, isJsSite };
 

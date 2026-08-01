@@ -63,6 +63,31 @@ function extractServices(html, page='homepage') {
     if (m2) add(m2[1].trim(), m2[2]+' LEI','text_lines','name ~ price',80);
   });
 
+  // DataLayer ecommerce extraction (Google Analytics / WooCommerce)
+  const dataLayerMatches = [...html.matchAll(/dataLayer\.push\s*\(\s*\{[\s\S]{0,2000}?'ecommerce'[\s\S]{0,2000}?\}\s*\)/g)];
+  for (const m of dataLayerMatches) {
+    try {
+      // Extract items from dataLayer
+      const itemsMatch = m[0].match(/'items'\s*:\s*\[([\s\S]+?)\]/);
+      if (itemsMatch) {
+        const itemsStr = itemsMatch[1];
+        const nameMatches = [...itemsStr.matchAll(/'item_name'\s*:\s*'([^']+)'/g)];
+        const priceMatches = [...itemsStr.matchAll(/'price'\s*:\s*(\d+(?:\.\d+)?)/g)];
+        nameMatches.forEach((nm, i) => {
+          const name = nm[1].trim();
+          const price = priceMatches[i] ? priceMatches[i][1] + ' RON' : null;
+          if (isValidName(name)) add(name, price, 'datalayer', 'google datalayer', 88);
+        });
+      }
+      // Also try value field for single product pages
+      const valueMatch = m[0].match(/'value'\s*:\s*(\d+)/);
+      const nameMatch = m[0].match(/'item_name'\s*:\s*'([^']+)'/);
+      if (valueMatch && nameMatch && isValidName(nameMatch[1])) {
+        add(nameMatch[1].trim(), valueMatch[1] + ' RON', 'datalayer', 'datalayer value', 85);
+      }
+    } catch(e) {}
+  }
+
   // Elementor/WordPress price widgets (86%)
   // Pattern: heading widget with name, then another with price
   const elementorHeadings = [...html.matchAll(/<h[1-6][^>]*elementor[^>]*>([\s\S]{0,500}?)<\/h[1-6]>/gi)];

@@ -2,7 +2,7 @@
 
 const { crawl } = require('./crawler');
 const { extractAll } = require('../extractors_v2/index');
-const { applyBrain, detectIndustry, getTypicalServices } = require('./businessBrain');
+const { applyBrain, detectIndustry, getTypicalServices, isJsSite } = require('./businessBrain');
 const { fillMissingFields } = require('./claudeEngine');
 const { mergeResults } = require('./mergeEngine');
 const { calculateConfidence, calculateReadiness } = require('./confidenceEngine');
@@ -133,6 +133,11 @@ async function scan(url, options={}) {
   }
 
   // Fallback: daca extractorul nu a gasit servicii, folosim servicii tipice per industrie
+  const homepageHtml = pages[0]?.html || '';
+  const siteIsJs = isJsSite(homepageHtml);
+  if (siteIsJs && extracted.services.filter(s=>s.method!=='typical').length < 3) {
+    console.log('[SCAN] JS/WooCommerce site detected — using typical services');
+  }
   if (extracted.services.length === 0) {
     const typical = getTypicalServices(industry);
     if (typical.length > 0) {
@@ -187,6 +192,7 @@ async function scan(url, options={}) {
     sources,
     _meta: {
       pagesScanned: crawlResult.totalFetched,
+      isJsSite: siteIsJs || false,
       durationMs: duration,
       industry,
       usedClaude: !!claudeResult,
