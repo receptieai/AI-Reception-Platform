@@ -50,7 +50,9 @@ function buildPrompt(context) {
     .slice(0, 5)
     .map(p => {
       const text = p.html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
-      return `[${p.label.toUpperCase()}]\n${text.substring(0, 800)}`;
+      // More text for price/service pages
+      const maxChars = ['prices','services','pachete'].includes(p.label) ? 2000 : 800;
+      return `[${p.label.toUpperCase()}]\n${text.substring(0, maxChars)}`;
     })
     .join('\n\n---\n\n');
 
