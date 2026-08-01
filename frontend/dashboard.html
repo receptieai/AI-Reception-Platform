@@ -668,6 +668,39 @@ function renderBrain(){
     </div>`;
   }
 
+  // Readiness Score
+  const readiness = PROFILE.readiness;
+  if (readiness) {
+    const gradeColor = {'A':'#22C55E','B':'#84CC16','C':'#F59E0B','D':'#F97316','F':'#EF4444'}[readiness.grade] || '#EF4444';
+    html += `<div style="background:var(--s2);border:1px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+        <div style="width:52px;height:52px;border-radius:12px;background:${gradeColor}22;border:2px solid ${gradeColor}44;display:grid;place-items:center;flex-shrink:0">
+          <span style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:700;color:${gradeColor}">${readiness.grade}</span>
+        </div>
+        <div>
+          <div style="font-size:13px;font-weight:700;color:var(--tx)">Business Readiness Score</div>
+          <div style="font-size:11px;color:var(--t2);margin-top:2px">Cât de pregătit e site-ul tău pentru AI</div>
+          <div style="margin-top:6px;height:4px;background:var(--b1);border-radius:2px;overflow:hidden;width:200px">
+            <div style="height:100%;background:${gradeColor};border-radius:2px;width:${readiness.score}%;transition:width .5s"></div>
+          </div>
+        </div>
+        <div style="margin-left:auto;font-family:'Space Grotesk',sans-serif;font-size:28px;font-weight:700;color:${gradeColor}">${readiness.score}%</div>
+      </div>
+      ${readiness.recommendations?.length ? `
+        <div style="font-size:11px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px">Recomandări</div>
+        ${readiness.recommendations.map(r => `
+          <div style="display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1);font-size:12px;color:var(--t2)">
+            <span style="color:var(--teal);flex-shrink:0;margin-top:1px">→</span>${r}
+          </div>`).join('')}
+      ` : ''}
+      ${readiness.missing?.length ? `
+        <div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:6px">
+          ${readiness.missing.map(m => `<span style="font-size:10px;font-weight:600;padding:3px 8px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:var(--red);border-radius:5px">Lipsă: ${m}</span>`).join('')}
+        </div>
+      ` : ''}
+    </div>`;
+  }
+
   // Social
   const socials = [['Facebook',PROFILE.facebook,'#3B82F6'],['Instagram',PROFILE.instagram,'#E1306C'],['TikTok',PROFILE.tiktok,'#000'],['WhatsApp',PROFILE.whatsapp,'#25D366']].filter(s=>s[1]);
   if (socials.length) {
