@@ -133,7 +133,7 @@ async function scan(url, options={}) {
   }
 
   // Fallback: daca extractorul nu a gasit servicii, folosim servicii tipice per industrie
-  const homepageHtml = pages[0]?.html || '';
+  const homepageHtml = crawlResult.pages[0]?.html || '';
   const siteIsJs = isJsSite(homepageHtml);
   if (siteIsJs && extracted.services.filter(s=>s.method!=='typical').length < 3) {
     console.log('[SCAN] JS/WooCommerce site detected — using typical services');
