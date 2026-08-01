@@ -1,8 +1,8 @@
 {
-  "date": "2026-08-01T12:59:15.550Z",
-  "avg": 72,
-  "passed": 12,
-  "total": 12,
+  "date": "2026-08-01T13:29:59.831Z",
+  "avg": 70,
+  "passed": 14,
+  "total": 14,
   "results": [
     {
       "url": "https://clinicatrident.ro",
@@ -37,7 +37,25 @@
       "minScore": 82,
       "confidence": 86,
       "services": 19,
-      "duration": 11,
+      "duration": 9,
+      "status": "pass"
+    },
+    {
+      "url": "https://dentexpert.ro",
+      "industry": "dental",
+      "minScore": 60,
+      "confidence": 67,
+      "services": 10,
+      "duration": 16,
+      "status": "pass"
+    },
+    {
+      "url": "https://ortodont.ro",
+      "industry": "dental",
+      "minScore": 40,
+      "confidence": 45,
+      "services": 10,
+      "duration": 3,
       "status": "pass"
     },
     {
@@ -46,7 +64,7 @@
       "minScore": 82,
       "confidence": 86,
       "services": 60,
-      "duration": 8,
+      "duration": 7,
       "status": "pass"
     },
     {
@@ -64,7 +82,7 @@
       "minScore": 40,
       "confidence": 49,
       "services": 8,
-      "duration": 7,
+      "duration": 8,
       "status": "pass"
     },
     {
@@ -98,7 +116,7 @@
       "url": "https://fizioplus.ro",
       "industry": "physio",
       "minScore": 55,
-      "confidence": 67,
+      "confidence": 68,
       "services": 7,
       "duration": 6,
       "status": "pass"
@@ -107,7 +125,7 @@
       "url": "https://recuperare-medicala.ro",
       "industry": "physio",
       "minScore": 45,
-      "confidence": 57,
+      "confidence": 59,
       "services": 7,
       "duration": 4,
       "status": "pass"

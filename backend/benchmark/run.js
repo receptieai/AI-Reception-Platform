@@ -9,6 +9,8 @@ const SITES = [
   { url: 'https://satoshicourt.com', industry: 'dental', minScore: 82 },
   { url: 'https://dentalmed.ro', industry: 'dental', minScore: 82 },
   { url: 'https://clinicaelite.ro', industry: 'dental', minScore: 82 },
+  { url: 'https://dentexpert.ro', industry: 'dental', minScore: 60 },
+  { url: 'https://ortodont.ro', industry: 'dental', minScore: 40 },
   // VET
   { url: 'https://amonvet.ro', industry: 'vet', minScore: 82 },
   { url: 'https://vetconsult.ro', industry: 'vet', minScore: 45 },
