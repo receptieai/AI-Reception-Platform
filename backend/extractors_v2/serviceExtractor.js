@@ -63,6 +63,96 @@ function extractServices(html, page='homepage') {
     if (m2) add(m2[1].trim(), m2[2]+' LEI','text_lines','name ~ price',80);
   });
 
+  // ── WOODMART THEME CARD DETECTOR ────────────────────────────
+  // Pattern: WoodMart titles paired with bold span prices
+  const woodmartTitles = [];
+  const wmTitleRegex = /<h[2-6][^>]*woodmart-title[^>]*>([^<]{3,120})<\/h[2-6]>/gi;
+  let wmm;
+  while ((wmm = wmTitleRegex.exec(html)) !== null) {
+    woodmartTitles.push({ name: wmm[1].trim(), pos: wmm.index });
+  }
+
+  if (woodmartTitles.length > 0) {
+    // Find bold/colored span prices (WoodMart pattern)
+    const boldSpanPrices = [];
+    const bspRegex = /<span[^>]*(?:font-weight:\s*bold|font-weight:bold|color:#)[^>]*>(\d{1,5}(?:[.,]\d{0,2})?)\s*(?:Lei|RON|ron|lei|€)<\/span>/gi;
+    let bsp;
+    while ((bsp = bspRegex.exec(html)) !== null) {
+      boldSpanPrices.push({ price: bsp[1], pos: bsp.index });
+    }
+
+    for (const card of woodmartTitles) {
+      const nextPrice = boldSpanPrices.find(p => p.pos > card.pos && p.pos < card.pos + 20000);
+      if (nextPrice) {
+        const name = card.name.split('|')[0].trim();
+        if (isValidName(name) && name.length > 3) {
+          add(name, nextPrice.price + ' LEI', 'woodmart', 'woodmart card', 90);
+        }
+      }
+    }
+    if (woodmartTitles.length > 0) console.log('[EXTRACTOR] WoodMart:', woodmartTitles.length, 'cards');
+  }
+
+  // ── CARD DETECTOR V1 ─────────────────────────────────────
+  // Detecteaza carduri repetitive cu titlu + pret + CTA
+  // Functioneaza pentru Elementor, WooCommerce, orice grid de servicii
+  
+  // Pattern 1: Elementor heading sequence (titlu → pret → CTA)
+  // Extrage toate h1-h6 cu clasa elementor-heading-title
+  const cardHeadings = [];
+  const ehRegex = /<h[1-6][^>]*elementor-heading-title[^>]*>([\s\S]{0,600}?)<\/h[1-6]>/gi;
+  let ehMatch;
+  while ((ehMatch = ehRegex.exec(html)) !== null) {
+    const raw = ehMatch[1];
+    const text = raw.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    const priceM = raw.match(/(\d{1,5}(?:[.,]\d{0,2})?)\s*(?:Lei|RON|ron|lei|€)/i);
+    cardHeadings.push({ text, price: priceM ? priceM[1] : null, raw });
+  }
+  
+  if (cardHeadings.length >= 3) {
+    let i = 0;
+    while (i < cardHeadings.length) {
+      const h = cardHeadings[i];
+      if (h.price) {
+        let nameIdx = i - 1;
+        while (nameIdx >= 0 && !isValidName(cardHeadings[nameIdx].text)) nameIdx--;
+        if (nameIdx >= 0) {
+          const name = cardHeadings[nameIdx].text
+            .replace(/^(Pachete?|Servicii?|Tratament[e]?)\s*/i,'')
+            .trim();
+          if (isValidName(name) && name.length > 3) {
+            add(name, h.price + ' LEI', 'elementor_card', 'elementor card detector', 88);
+          }
+        }
+      }
+      i++;
+    }
+  }
+  
+  // Pattern 2: Lista cu structura Nume + Pret (li sau div repetitive)
+  // Gaseste blocuri <li> sau <div> care contin atat un titlu cat si un pret
+  const listItemRegex = /<li[^>]*>([\s\S]{0,500}?)<\/li>/gi;
+  let liMatch;
+  while ((liMatch = listItemRegex.exec(html)) !== null) {
+    const content = liMatch[1];
+    const priceM = content.match(/(\d{2,5})\s*(?:Lei|RON|ron|lei|€)/i);
+    if (!priceM) continue;
+    // Extract text content
+    const text = content.replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim();
+    // First line before the price is usually the name
+    const beforePrice = text.substring(0, text.search(/\d{2,5}\s*(?:Lei|RON)/i)).trim();
+    // Take last meaningful phrase as name
+    const parts = beforePrice.split(/[,;(]/).map(p=>p.trim()).filter(p=>p.length>3);
+    if (parts.length > 0) {
+      const name = parts[0].substring(0, 80).trim();
+      if (isValidName(name)) {
+        add(name, priceM[1] + ' LEI', 'list_card', 'list item card', 82);
+      }
+    }
+  }
+
+  // ── END CARD DETECTOR ──────────────────────────────────────
+
   // DataLayer ecommerce extraction (Google Analytics / WooCommerce)
   const dataLayerMatches = [...html.matchAll(/dataLayer\.push\s*\(\s*\{[\s\S]{0,2000}?'ecommerce'[\s\S]{0,2000}?\}\s*\)/g)];
   for (const m of dataLayerMatches) {
