@@ -16,7 +16,7 @@ async function scan(url, options={}) {
 
   // STEP 1: CRAWLER
   console.log('[SCAN] Step 1: Crawling...');
-  const crawlResult = await crawl(url, { maxPages: 12, timeout: 10000 });
+  const crawlResult = await crawl(url, { maxPages: 15, timeout: 10000 });
   if (!crawlResult.pages || crawlResult.pages.length === 0) {
     throw new Error('Nu am putut accesa site-ul: ' + url);
   }
