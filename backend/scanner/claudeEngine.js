@@ -94,7 +94,7 @@ Răspunde STRICT cu JSON valid, fără markdown, fără explicații. Exemplu for
 Completează DOAR câmpurile din lista missingFields. 
 PENTRU SERVICES: extrage TOATE serviciile și prețurile din text. Dacă prețul lipsește, pune price: null dar include serviciul.
 Format services: [{"name": "Serviciu", "price": "150 RON"}, ...]
-Nu inventa prețuri. Nu inventa servicii care nu există în text.;
+Nu inventa prețuri. Nu inventa servicii care nu există în text.`;
 }
 
 function isRelevantPage(label, field) {
