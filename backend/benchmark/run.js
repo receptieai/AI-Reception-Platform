@@ -4,13 +4,22 @@
 const https = require('https');
 
 const SITES = [
+  // DENTAL
   { url: 'https://clinicatrident.ro', industry: 'dental', minScore: 85 },
-  { url: 'https://amonvet.ro', industry: 'vet', minScore: 82 },
   { url: 'https://satoshicourt.com', industry: 'dental', minScore: 82 },
   { url: 'https://dentalmed.ro', industry: 'dental', minScore: 82 },
   { url: 'https://clinicaelite.ro', industry: 'dental', minScore: 82 },
+  // VET
+  { url: 'https://amonvet.ro', industry: 'vet', minScore: 82 },
   { url: 'https://vetconsult.ro', industry: 'vet', minScore: 45 },
+  { url: 'https://animallife.ro', industry: 'vet', minScore: 40 },
+  // BEAUTY
   { url: 'https://salonfabricadefrumusete.ro', industry: 'beauty', minScore: 30 },
+  { url: 'https://artistsalonacademy.ro', industry: 'beauty', minScore: 60 },
+  { url: 'https://lovelyskin.ro', industry: 'beauty', minScore: 40 },
+  // PHYSIO
+  { url: 'https://fizioplus.ro', industry: 'physio', minScore: 55 },
+  { url: 'https://recuperare-medicala.ro', industry: 'physio', minScore: 45 },
 ];
 
 const API = process.env.API_URL || 'https://ai-reception-platform-production.up.railway.app';

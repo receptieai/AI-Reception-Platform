@@ -249,6 +249,32 @@ function applyBrain(combinedText, industry, extractedData) {
     for (const [kw, label] of Object.entries(PHYSIO_SIGNALS.services)) {
       if (text.includes(kw.toLowerCase())) {
         if (!inferences.specialties.includes(label)) inferences.specialties.push(label);
+        if (!inferences.tags.includes(label)) inferences.tags.push(label);
+      }
+    }
+    // Physio facilities
+    const physioFacilities = {
+      'kinetoterapie': 'kinetoterapie disponibila',
+      'fizioterapie': 'fizioterapie disponibila',
+      'electroterapie': 'electroterapie disponibila',
+      'ultrasun': 'ultrasunete terapeutice',
+      'laser': 'laserterapie disponibila',
+      'masaj': 'masaj terapeutic disponibil',
+      'recuperare': 'recuperare medicala',
+      'magnetoter': 'magnetoterapie disponibila',
+      'hidroterapie': 'hidroterapie disponibila',
+      'termoterapie': 'termoterapie disponibila',
+    };
+    for (const [kw, label] of Object.entries(physioFacilities)) {
+      if (text.includes(kw.toLowerCase())) {
+        if (!inferences.facilities.includes(label)) inferences.facilities.push(label);
+      }
+    }
+    // Physio insurances
+    const physioInsurances = ['cnas', 'cas', 'medicover', 'regina maria', 'medlife', 'signal iduna'];
+    for (const ins of physioInsurances) {
+      if (text.toLowerCase().includes(ins) && !inferences.insurances.includes(ins)) {
+        inferences.insurances.push(ins);
       }
     }
   }
