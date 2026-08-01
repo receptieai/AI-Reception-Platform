@@ -135,8 +135,14 @@ async function scan(url, options={}) {
   // Fallback: daca extractorul nu a gasit servicii, folosim servicii tipice per industrie
   const homepageHtml = crawlResult.pages[0]?.html || '';
   const siteIsJs = isJsSite(homepageHtml);
-  if (siteIsJs && extracted.services.filter(s=>s.method!=='typical').length < 3) {
-    console.log('[SCAN] JS/WooCommerce site detected — using typical services');
+  const realSvcsCount = extracted.services.filter(s=>s.method!=='typical').length;
+  if (siteIsJs && realSvcsCount < 3) {
+    console.log('[SCAN] JS site — forcing typical services fallback');
+    const typical = getTypicalServices(industry);
+    if (typical.length > 0) {
+      extracted.services = typical.map(s => ({...s, source: 'businessBrain', method: 'typical', confidence: 35, page: 'inferred'}));
+      extracted.servicesConfidence = 35;
+    }
   }
   if (extracted.services.length === 0) {
     const typical = getTypicalServices(industry);
