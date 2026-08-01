@@ -5,7 +5,7 @@ const { extractAll } = require('../extractors_v2/index');
 const { applyBrain, detectIndustry, getTypicalServices } = require('./businessBrain');
 const { fillMissingFields } = require('./claudeEngine');
 const { mergeResults } = require('./mergeEngine');
-const { calculateConfidence } = require('./confidenceEngine');
+const { calculateConfidence, calculateReadiness } = require('./confidenceEngine');
 
 async function scan(url, options={}) {
   const startTime = Date.now();
@@ -150,8 +150,12 @@ async function scan(url, options={}) {
 
   const duration = Date.now() - startTime;
 
+  // Calculate readiness score
+  const readiness = calculateReadiness(merged, industry);
+
   return {
     success: true,
+    readiness,
     url,
     origin: crawlResult.origin,
     industry,

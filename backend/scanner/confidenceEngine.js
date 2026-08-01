@@ -94,4 +94,50 @@ function calculateConfidence(merged, sources, extractedRaw) {
   };
 }
 
-module.exports = { calculateConfidence };
+function calculateReadiness(merged, industry) {
+  let score = 0;
+  const missing = [];
+  const recommendations = [];
+
+  if (merged.phone) score += 20;
+  else { missing.push('Număr de telefon'); recommendations.push('Adaugă telefon vizibil pe site — clienții îl caută primul'); }
+
+  const realSvcs = (merged.services||[]).filter(s => s.method !== 'typical');
+  if (realSvcs.length >= 5) score += 20;
+  else if (realSvcs.length > 0) { score += 10; recommendations.push('Adaugă mai multe servicii cu prețuri — crește conversia cu 40%'); }
+  else { missing.push('Servicii cu prețuri'); recommendations.push('Listează serviciile și prețurile pe site — cel mai important factor de conversie'); }
+
+  if (merged.hours) score += 10;
+  else { missing.push('Program de lucru'); recommendations.push('Adaugă programul de lucru — 60% din clienți întreabă când ești deschis'); }
+
+  if (merged.email) score += 8;
+  else { missing.push('Email de contact'); recommendations.push('Adaugă email de contact pe site'); }
+
+  if (merged.faq?.length >= 3) score += 10;
+  else { recommendations.push('Adaugă FAQ — AI-ul va răspunde mai bine la întrebări frecvente'); }
+
+  if (merged.facebook || merged.instagram) score += 7;
+  else { recommendations.push('Linkează social media — crește credibilitatea'); }
+
+  if (merged.brain?.insurances?.length) score += 10;
+  else if (['dental','medical','physio'].includes(industry)) {
+    recommendations.push('Menționează asigurările acceptate pe site');
+  }
+
+  if (merged.doctors?.length) score += 8;
+  else if (['dental','medical','vet','physio'].includes(industry)) {
+    recommendations.push('Adaugă pagina echipei cu medicii — crește încrederea pacienților');
+  }
+
+  if (merged.address) score += 7;
+  else { missing.push('Adresă'); recommendations.push('Adaugă adresa completă pe site'); }
+
+  return {
+    score: Math.min(score, 100),
+    missing,
+    recommendations: recommendations.slice(0, 5),
+    grade: score >= 85 ? 'A' : score >= 70 ? 'B' : score >= 55 ? 'C' : score >= 40 ? 'D' : 'F'
+  };
+}
+
+module.exports = { calculateConfidence, calculateReadiness };
