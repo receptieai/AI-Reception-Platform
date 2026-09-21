@@ -1,0 +1,11 @@
+{
+  "name": "DentaVita Clinic",
+  "phone": "+40 745 111 222",
+  "email": "office@dentavita.ro",
+  "city": "Cluj-Napoca",
+  "services": ["Implant dentar", "Aparat dentar Invisalign"],
+  "doctors": ["Dr. Ana Popescu"],
+  "prices": 2,
+  "faq": 2,
+  "minConfidence": 60
+}

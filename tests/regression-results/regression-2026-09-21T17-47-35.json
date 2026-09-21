@@ -1,0 +1,196 @@
+{
+  "timestamp": "2026-09-21T17-47-35",
+  "pass": 3,
+  "total": 3,
+  "results": [
+    {
+      "name": "jsonld",
+      "pass": true,
+      "failures": [],
+      "checks": [
+        {
+          "field": "name",
+          "pass": true,
+          "actual": "DentaVita Clinic",
+          "expected": "DentaVita Clinic"
+        },
+        {
+          "field": "phone",
+          "pass": true,
+          "actual": "+40 745 111 222",
+          "expected": "+40 745 111 222"
+        },
+        {
+          "field": "email",
+          "pass": true,
+          "actual": "office@dentavita.ro",
+          "expected": "office@dentavita.ro"
+        },
+        {
+          "field": "city",
+          "pass": true,
+          "actual": "Cluj-Napoca",
+          "expected": "includes Cluj-Napoca"
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "2 items",
+          "expected": "includes \"Implant dentar\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "2 items",
+          "expected": "includes \"Aparat dentar Invisalign\""
+        },
+        {
+          "field": "doctors",
+          "pass": true,
+          "actual": "1 items",
+          "expected": "includes \"Dr. Ana Popescu\""
+        },
+        {
+          "field": "prices",
+          "pass": true,
+          "actual": 2,
+          "expected": ">= 2"
+        },
+        {
+          "field": "faq",
+          "pass": true,
+          "actual": 2,
+          "expected": ">= 2"
+        },
+        {
+          "field": "confidence",
+          "pass": true,
+          "actual": 84,
+          "expected": ">= 60"
+        }
+      ],
+      "confidence": 84,
+      "serviceCount": 2
+    },
+    {
+      "name": "lovelyskin",
+      "pass": true,
+      "failures": [],
+      "checks": [
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Pachet Full Body\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Pachet Full Body Men\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Pachet Flexi 4\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Full Body Superior\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Full Body Inferior\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Summer\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Intimate\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Full Body Men\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Flex Men 3\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Half Body Men\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Athletic Men\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Strong 4\""
+        },
+        {
+          "field": "services",
+          "pass": true,
+          "actual": "15 items",
+          "expected": "includes \"Core 2\""
+        },
+        {
+          "field": "prices",
+          "pass": true,
+          "actual": 15,
+          "expected": ">= 12"
+        }
+      ],
+      "confidence": 47,
+      "serviceCount": 15
+    },
+    {
+      "name": "voting",
+      "pass": true,
+      "failures": [],
+      "checks": [
+        {
+          "field": "name",
+          "pass": true,
+          "actual": "Test Clinic",
+          "expected": "Test Clinic"
+        },
+        {
+          "field": "phone",
+          "pass": true,
+          "actual": "+40 745 111 222",
+          "expected": "+40 745 111 222"
+        },
+        {
+          "field": "email",
+          "pass": true,
+          "actual": "office@testclinic.ro",
+          "expected": "office@testclinic.ro"
+        }
+      ],
+      "confidence": 37,
+      "serviceCount": 0
+    }
+  ]
+}

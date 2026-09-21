@@ -9,6 +9,8 @@ function cleanName(name) {
 
 function isValidName(name) {
   if (!name || name.length < 3 || name.length > 120) return false;
+  // Reject lines that are pure parenthetical descriptions
+  if (/^[\s(][\s(]*[\(]/.test(name) || /^\s*\(/.test(name)) return false;
   if (!/[a-zA-ZăâîșțĂÂÎȘȚ]{3,}/.test(name)) return false;
   if (/^[\\/\d\s\-\+\.]+$/.test(name)) return false;
   const junk = ["reducere","discount","oferta","promotie","click","vezi","afla","cumpara","adauga","selecteaza","detalii","contact","acasa","home","menu","despre","blog","stiri","cookies","newsletter","privacy"];
@@ -214,11 +216,57 @@ function extractServices(html, page='homepage') {
     }
   }
 
+  // ── GENERIC CARD DETECTOR (LovelySkin / plain headings) ──────────
+  // Works for ANY site: a heading (h2-h6) that is a plausible service
+  // name followed within a window by a price "350 Lei" / "350 RON".
+  // No dependency on Elementor/WoodMart/WooCommerce classes.
+  const genericJunk = /(reducer|reducere|promotie|oferte|toate|detalii|mai multe|inapoi|programazi|contact|acasa|home|menu|despre noi|echipa noastra|beneficia|descopera|invit|curioz|alegem|informatii|tarife actuale|ore de program|luni|vineri|samb|dumin|telefon|adresa|email)/i;
+  const gHead = [];
+  const ghRegex = /<h([2-6])([^>]*)>([\s\S]{0,400}?)<\/h\1>/gi;
+  let gh;
+  while ((gh = ghRegex.exec(html)) !== null) {
+    const raw = gh[3];
+    const text = raw.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+    if (!text || text.length < 3 || text.length > 90) continue;
+    if (!/[a-zA-ZăâîșțĂÂÎȘȚ]{3,}/.test(text)) continue;
+    if (genericJunk.test(text)) continue;
+    gHead.push({ text, end: gh.index + gh[0].length });
+  }
+  const usedPriceBucket = new Set();
+  for (const h of gHead) {
+    const windowText = html.slice(h.end, h.end + 3500);
+    // Find the FIRST complete number in the window and check it is a price.
+    // A "complete number" = all consecutive digits/./, grouped, so we never
+    // capture a tail fragment like "000" out of "5.000".
+    const numRe = /\d{1,6}(?:[.,]\d{1,6})*/g;
+    const nms = [...windowText.matchAll(numRe)];
+    let match = null;
+    for (const cand of nms) {
+      const numStr = cand[0];
+      const after = windowText.slice(cand.index + numStr.length, cand.index + numStr.length + 6);
+      if (/^\s*(?:lei|ron|RON|€|eur|LEI)/i.test(after)) {
+        match = { price: numStr, abs: h.end + cand.index };
+        break;
+      }
+    }
+    if (!match) continue;
+    if (/[.,]/.test(match.price.slice(0, 1))) continue;
+    const bucket = Math.floor(match.abs / 80);
+    if (usedPriceBucket.has(bucket)) continue;
+    usedPriceBucket.add(bucket);
+    let name = h.text.split('|')[0].replace(/\s+/g, ' ').trim();
+    if (/[.?!…]$/.test(name)) continue;
+    if (name.length < 3 || name.length > 90) continue;
+    const words = name.split(/\s+/).filter(Boolean);
+    if (words.length > 25) continue;
+    add(name, match.price + ' LEI', 'generic_card', 'generic heading+price', 86);
+  }
+
   return {
     type: 'services',
     items: services.slice(0,60),
     confidence: services.length>10?90:services.length>3?70:services.length>0?50:0,
-    source: ['json_ld','html_table','html_list','text_lines'],
+    source: ['json_ld','html_table','html_list','text_lines','generic_card'],
     warnings: [], durationMs: 0,
   };
 }

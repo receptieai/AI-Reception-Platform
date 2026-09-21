@@ -1,5 +1,6 @@
 'use strict';
 const { field, bestField, extractJsonLd, normalizePhone, isValidEmail, RO_CITIES } = require('./utils');
+const { voteFields } = require('./voting');
 
 function extractPhone(html, page='homepage') {
   const candidates = [];
@@ -12,7 +13,7 @@ function extractPhone(html, page='homepage') {
   const textOnly = html.replace(/<[^>]+>/g,' ');
   const roPatterns = [/\b(07\d{2}[\s.\-]?\d{3}[\s.\-]?\d{3})\b/g, /\b(0[23]\d{2}[\s.\-]?\d{3}[\s.\-]?\d{3})\b/g, /\b(\+40[\s.\-]?\d{3}[\s.\-]?\d{3}[\s.\-]?\d{3})\b/g];
   for (const pat of roPatterns) { const ms = [...textOnly.matchAll(pat)]; if (ms.length > 0) { const p = normalizePhone(ms[0][1]); if (p) { candidates.push(field(p,'regex',75,'phone regex',page)); break; } } }
-  return bestField(...candidates);
+  return voteFields(candidates);
 }
 
 function extractEmail(html, page='homepage') {
@@ -26,7 +27,7 @@ function extractEmail(html, page='homepage') {
   const textOnly = html.replace(/<[^>]+>/g,' ');
   const emails = [...textOnly.matchAll(/\b([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})\b/g)].map(m=>m[1].toLowerCase()).filter(e=>isValidEmail(e)&&!e.includes('example'));
   if (emails[0]) candidates.push(field(emails[0],'regex',70,'email regex',page));
-  return bestField(...candidates);
+  return voteFields(candidates);
 }
 
 function extractName(html, page='homepage') {
