@@ -2,42 +2,12 @@
 
 const { crawl } = require('./crawler');
 const { extractAll } = require('../extractors_v2/index');
-const { extractJsonLdFull } = require('../extractors_v2/jsonLdExtractor');
-const { classifyPage, recommendedExtractors } = require('./pageIntelligence');
 const { applyBrain, detectIndustry, getTypicalServices, isJsSite } = require('./businessBrain');
 const { fillMissingFields } = require('./claudeEngine');
 const { mergeResults } = require('./mergeEngine');
 const { calculateConfidence, calculateReadiness } = require('./confidenceEngine');
-const scannerLearning = require('../learning/scannerLearning');
 
-/**
- * Union services from all pages by name (case-insensitive).
- * Keeps the highest-confidence version for each unique name.
- * Preserves the original page where each service was found.
- */
-function unionServices(perPageLists) {
-  const byName = new Map();
-  for (const list of perPageLists) {
-    for (const svc of list || []) {
-      const key = (svc.name || '').toLowerCase().trim();
-      if (!key) continue;
-      const existing = byName.get(key);
-      if (!existing) {
-        byName.set(key, { ...svc });
-      } else {
-        // Keep the higher-confidence entry, but preserve any missing price
-        if ((svc.confidence || 0) > (existing.confidence || 0)) {
-          byName.set(key, { ...svc });
-        } else if (!existing.price && svc.price) {
-          existing.price = svc.price;
-        }
-      }
-    }
-  }
-  return [...byName.values()];
-}
-
-async function scan(url, options = {}) {
+async function scan(url, options={}) {
   const startTime = Date.now();
   const apiKey = options.apiKey || process.env.CLAUDE_API_KEY;
   const knownIndustry = options.industry || 'auto';
@@ -52,193 +22,75 @@ async function scan(url, options = {}) {
   }
   console.log('[SCAN] Crawled', crawlResult.pages.length, 'pages');
 
-  // STEP 2: EXTRACTORS — run per page, then UNION
-  console.log('[SCAN] Step 2: Extracting per page...');
-  const perPageServices = [];
-  const allDoctors = [];
-  let mergedFaq = [];             // JSON-LD FAQ (highest confidence)
-  const contactFields = {};   // name, phone, email, city, address
-  const socialFields = {};    // facebook, instagram, tiktok, youtube, whatsapp
-  const bestHours = { value: null, confidence: 0 };
-  let bestFacilities = {};
-  let bestPayments = {};
-  const maxServicesConfidence = { services: 0, prices: 0 };
-
+  // STEP 2: EXTRACTORS — run on combined HTML
+  console.log('[SCAN] Step 2: Extracting...');
+  const combinedHtml = crawlResult.pages.map(p => p.html).join('\n');
+  
+  // Run extractors per page for best results
+  let bestExtracted = null;
   for (const page of crawlResult.pages) {
     try {
-      // Page Intelligence: classify before extract, so we know the page's role.
-      const pageClass = classifyPage(page.url, page.html);
-      page.classification = pageClass;
-
-      // Full JSON-LD extraction — high-confidence structured data.
-      let jsonld = null;
-      try { jsonld = extractJsonLdFull(page.html); } catch (e) {}
-
       const ext = await extractAll(page.html, page.url, page.label);
-      if (!ext) continue;
-
-      perPageServices.push(ext.services || []);
-      if (ext.doctors && ext.doctors.length) {
-        for (const d of ext.doctors) {
-          const name = (d.name || '').toLowerCase().trim();
-          if (!name) continue;
-          if (!allDoctors.some(x => (x.name || '').toLowerCase() === name)) {
-            allDoctors.push(d);
-          }
+      if (!bestExtracted) {
+        bestExtracted = ext;
+      } else {
+        // Merge: keep best values
+        if (!bestExtracted.phone && ext.phone) bestExtracted.phone = ext.phone;
+        if (!bestExtracted.email && ext.email) bestExtracted.email = ext.email;
+        if (!bestExtracted.name && ext.name) bestExtracted.name = ext.name;
+        if (!bestExtracted.city && ext.city) bestExtracted.city = ext.city;
+        if (!bestExtracted.address && ext.address) bestExtracted.address = ext.address;
+        if (!bestExtracted.hours && ext.hours) bestExtracted.hours = ext.hours;
+        if (!bestExtracted.facebook && ext.facebook) bestExtracted.facebook = ext.facebook;
+        if (!bestExtracted.instagram && ext.instagram) bestExtracted.instagram = ext.instagram;
+        if (ext.services && ext.services.length > (bestExtracted.services?.length || 0)) {
+          bestExtracted.services = ext.services;
+          bestExtracted.servicesConfidence = ext._confidence?.services;
+        }
+        if (ext.doctors && ext.doctors.length > (bestExtracted.doctors?.length || 0)) {
+          bestExtracted.doctors = ext.doctors;
         }
       }
-
-      // JSON-LD people / services / faq — merge in with high confidence
-      if (jsonld) {
-        for (const p of jsonld.people || []) {
-          const name = (p.name || '').toLowerCase().trim();
-          if (!name) continue;
-          if (!allDoctors.some(x => (x.name || '').toLowerCase() === name)) allDoctors.push(p);
-        }
-        for (const s of jsonld.services || []) {
-          if (!s.name) continue;
-          perPageServices[perPageServices.length - 1] = (perPageServices[perPageServices.length - 1] || []);
-          if (!perPageServices[perPageServices.length - 1].some(x => (x.name || '').toLowerCase() === s.name.toLowerCase())) {
-            perPageServices[perPageServices.length - 1].push(s);
-          }
-        }
-        // JSON-LD FAQ
-        if (jsonld.faq && jsonld.faq.length) {
-          if (!mergedFaq || mergedFaq.length < jsonld.faq.length) mergedFaq = jsonld.faq.map(f => ({ q: f.q, a: f.a }));
-        }
-        // JSON-LD business — highest-confidence contact data
-        const biz = jsonld.business;
-        if (biz) {
-          const setBiz = (key, val) => {
-            if (val && (!contactFields[key] || contactFields[key]._conf < 95)) {
-              contactFields[key] = { value: val, _conf: 95 };
-            }
-          };
-          setBiz('name', biz.name);
-          setBiz('phone', biz.phone);
-          setBiz('email', biz.email);
-          setBiz('address', biz.address);
-          setBiz('city', biz.city);
-        }
-        // JSON-LD opening hours — highest confidence
-        if (jsonld.openingHours && jsonld.openingHours.length) {
-          const ohLine = jsonld.openingHours.map(h => (h.days || []).map(d => ({ Monday: 'Luni', Tuesday: 'Marți', Wednesday: 'Miercuri', Thursday: 'Joi', Friday: 'Vineri', Saturday: 'Sâmbătă', Sunday: 'Duminică' }[d] || d)).join(',') + ' ' + h.opens + '-' + h.closes).join(' | ');
-          if (bestHours.confidence < 95) { bestHours.value = ohLine; bestHours.confidence = 95; }
-        }
-      }
-
-      const takeIfBetter = (key, val, conf) => {
-        if (val && (!contactFields[key] || (conf || 0) > (contactFields[key]._conf || 0))) {
-          contactFields[key] = { value: val, _conf: conf || 0 };
-        }
-      };
-      takeIfBetter('name', ext.name, ext._confidence?.name);
-      takeIfBetter('phone', ext.phone, ext._confidence?.phone);
-      takeIfBetter('email', ext.email, ext._confidence?.email);
-      takeIfBetter('city', ext.city, ext._confidence?.city);
-      takeIfBetter('address', ext.address, ext._confidence?.address);
-
-      if (ext.facebook) socialFields.facebook = { value: ext.facebook, confidence: 90 };
-      if (ext.instagram) socialFields.instagram = { value: ext.instagram, confidence: 90 };
-      if (ext.tiktok) socialFields.tiktok = { value: ext.tiktok, confidence: 90 };
-      if (ext.youtube) socialFields.youtube = { value: ext.youtube, confidence: 90 };
-      if (ext.whatsapp) socialFields.whatsapp = { value: ext.whatsapp, confidence: 90 };
-
-      if (ext.hours && (ext._confidence?.hours || 0) > bestHours.confidence) {
-        bestHours.value = ext.hours;
-        bestHours.confidence = ext._confidence?.hours || 0;
-      }
-
-      const fCount = Object.keys(ext.facilities || {}).length;
-      if (fCount > Object.keys(bestFacilities).length) bestFacilities = ext.facilities;
-      const pCount = Object.keys(ext.payments || {}).length;
-      if (pCount > Object.keys(bestPayments).length) bestPayments = ext.payments;
-
-      const svcConf = ext._confidence?.services || 0;
-      const prcConf = ext._confidence?.prices || 0;
-      if (svcConf > maxServicesConfidence.services) maxServicesConfidence.services = svcConf;
-      if (prcConf > maxServicesConfidence.prices) maxServicesConfidence.prices = prcConf;
-    } catch (e) {
+    } catch(e) {
       console.log('[SCAN] Extractor error on', page.label, ':', e.message);
     }
   }
 
-  // UNION services from ALL pages by name
-  const services = unionServices(perPageServices);
-  const servicesWithPrice = services.filter(s => s.price).length;
-  console.log('[SCAN] Union services:', services.length, '| with price:', servicesWithPrice,
-    '| from', perPageServices.length, 'pages');
+  if (!bestExtracted) throw new Error('Extractorii nu au returnat date');
 
+  // Flatten social into extracted — preserve confidence objects
   const extracted = {
-    name: contactFields.name?.value || null,
-    phone: contactFields.phone?.value || null,
-    email: contactFields.email?.value || null,
-    city: contactFields.city?.value || null,
-    address: contactFields.address?.value || null,
-    hours: bestHours.value,
-    _rawConfidence: {
-      name: contactFields.name?._conf || 0,
-      phone: contactFields.phone?._conf || 0,
-      email: contactFields.email?._conf || 0,
-      city: contactFields.city?._conf || 0,
-      address: contactFields.address?._conf || 0,
-      hours: bestHours.confidence,
-    },
+    name: bestExtracted.name,
+    phone: bestExtracted.phone,
+    email: bestExtracted.email,
+    city: bestExtracted.city,
+    address: bestExtracted.address,
+    hours: bestExtracted.hours,
+    _rawConfidence: bestExtracted._confidence || {},
     social: {
-      facebook: socialFields.facebook || null,
-      instagram: socialFields.instagram || null,
-      tiktok: socialFields.tiktok || null,
-      youtube: socialFields.youtube || null,
-      whatsapp: socialFields.whatsapp || null,
+      facebook: bestExtracted.facebook ? { value: bestExtracted.facebook, confidence: 90 } : null,
+      instagram: bestExtracted.instagram ? { value: bestExtracted.instagram, confidence: 90 } : null,
+      tiktok: bestExtracted.tiktok ? { value: bestExtracted.tiktok, confidence: 90 } : null,
+      youtube: bestExtracted.youtube ? { value: bestExtracted.youtube, confidence: 90 } : null,
+      whatsapp: bestExtracted.whatsapp ? { value: bestExtracted.whatsapp, confidence: 90 } : null,
     },
-    services,
-    servicesConfidence: services.length > 10 ? 90 : services.length > 3 ? 70 : services.length > 0 ? 50 : 0,
-    doctors: allDoctors,
-    facilities: bestFacilities,
-    payments: bestPayments,
-    _confidence: {
-      services: maxServicesConfidence.services,
-      prices: maxServicesConfidence.prices,
-    },
+    services: bestExtracted.services || [],
+    servicesConfidence: bestExtracted._confidence?.services || 0,
+    doctors: bestExtracted.doctors?.items || bestExtracted.doctors || [],
+    facilities: bestExtracted.facilities || {},
+    payments: bestExtracted.payments || {},
+    _confidence: bestExtracted._confidence || {},
   };
 
-  if (!extracted.phone && !extracted.name && services.length === 0) {
-    throw new Error('Extractorii nu au returnat date relevante');
-  }
-
-  // STEP 2.5: LEARNING ENGINE — apply saved corrections (client edits beat
-  // fresh extraction). businessKey is passed via options.businessKey.
-  let appliedCorrections = [];
-  try {
-    const businessKey = options.businessKey || crawlResult.origin;
-    const corrections = scannerLearning.getCorrections(businessKey);
-    for (const [field, c] of Object.entries(corrections)) {
-      if (field === 'services' || field.startsWith('price:')) {
-        const svcName = field.startsWith('price:') ? decodeURIComponent(field.slice(6)) : null;
-        if (c.correction && c.correction.name) {
-          // Replace or insert a corrected service.
-          const idx = extracted.services.findIndex(s => !svcName || (s.name || '').toLowerCase() === c.correction.name.toLowerCase());
-          if (idx >= 0) extracted.services[idx] = { ...c.correction, source: 'corrected', method: 'client correction', confidence: 99 };
-          else extracted.services.push({ ...c.correction, source: 'corrected', method: 'client correction', confidence: 99 });
-        }
-      } else if (['name', 'phone', 'email', 'city', 'address', 'hours'].includes(field)) {
-        extracted[field] = c.correction;
-        extracted._rawConfidence = extracted._rawConfidence || {};
-        extracted._rawConfidence[field] = 99;
-        if (field === 'hours') extracted.hours = c.correction;
-      }
-      appliedCorrections.push({ field, value: c.correction, id: c.id });
-    }
-    if (appliedCorrections.length) {
-      console.log('[SCAN] Applied', appliedCorrections.length, 'saved corrections for', businessKey);
-    }
-  } catch (e) {
-    console.log('[SCAN] Correction apply skipped:', e.message);
-  }
+  console.log('[SCAN] Extracted:', {
+    phone: !!extracted.phone,
+    email: !!extracted.email,
+    services: extracted.services.length,
+    doctors: extracted.doctors.length,
+  });
 
   // STEP 3: BUSINESS BRAIN
   console.log('[SCAN] Step 3: Business Brain...');
-  const combinedHtml = crawlResult.pages.map(p => p.html).join('\n');
   const industry = detectIndustry(combinedHtml, knownIndustry !== 'auto' ? knownIndustry : null);
   const textForBrain = crawlResult.pages.map(p => p.html.replace(/<[^>]+>/g, ' ')).join(' ');
   const brainResult = applyBrain(textForBrain, industry, extracted);
@@ -248,6 +100,7 @@ async function scan(url, options = {}) {
   const missingFields = [];
   if (!extracted.name) missingFields.push('name');
   if (!extracted.hours) missingFields.push('hours');
+  // Ask Claude for services if we have very few or none with prices
   const realSvcs = extracted.services.filter(s => s.method !== 'typical');
   const svcsWithPrice = realSvcs.filter(s => s.price);
   if (realSvcs.length === 0 || svcsWithPrice.length < 3) missingFields.push('services');
@@ -255,8 +108,8 @@ async function scan(url, options = {}) {
   missingFields.push('faq');
   missingFields.push('description');
 
-  // STEP 5: CLAUDE — only for missing fields (skip when no key)
-  console.log('[SCAN] Step 4: Claude for missing:', missingFields.join(', ') || '(none)');
+  // STEP 5: CLAUDE — only for missing fields
+  console.log('[SCAN] Step 4: Claude for missing:', missingFields.join(', '));
   let claudeResult = null;
   if (apiKey && missingFields.length > 0) {
     claudeResult = await fillMissingFields({
@@ -269,7 +122,7 @@ async function scan(url, options = {}) {
         city: extracted.city,
         address: extracted.address,
         hours: extracted.hours,
-        facebook: socialFields.facebook?.value,
+        facebook: extracted.facebook,
         services_count: extracted.services.length,
         brain_facilities: brainResult.facilities.slice(0, 5),
         brain_insurances: brainResult.insurances,
@@ -279,13 +132,13 @@ async function scan(url, options = {}) {
     }, apiKey);
   }
 
-  // Fallback: typical services per industry (only if we have NOTHING)
+  // Fallback: daca extractorul nu a gasit servicii, folosim servicii tipice per industrie
   const homepageHtml = crawlResult.pages[0]?.html || '';
   const siteIsJs = isJsSite(homepageHtml);
   if (extracted.services.length === 0) {
     const typical = getTypicalServices(industry);
     if (typical.length > 0) {
-      extracted.services = typical.map(s => ({ ...s, source: 'businessBrain', method: 'typical', confidence: 40, page: 'inferred' }));
+      extracted.services = typical.map(s => ({...s, source: 'businessBrain', method: 'typical', confidence: 40, page: 'inferred'}));
       extracted.servicesConfidence = 40;
       console.log('[SCAN] Using', typical.length, 'typical services for', industry);
     }
@@ -301,6 +154,8 @@ async function scan(url, options = {}) {
   console.log('[SCAN] Global confidence:', confidence.global + '%');
 
   const duration = Date.now() - startTime;
+
+  // Calculate readiness score
   const readiness = calculateReadiness(merged, industry);
 
   return {
@@ -340,15 +195,8 @@ async function scan(url, options = {}) {
       usedClaude: !!claudeResult,
       extractorServices: extracted.services.length,
       claudeServices: claudeResult?.services?.length || 0,
-      servicesByPage: perPageServices.map((list, i) => ({
-        page: crawlResult.pages[i]?.label || ('page-' + i),
-        url: crawlResult.pages[i]?.url,
-        count: (list || []).length,
-      })),
-      pageTypes: crawlResult.pages.map(p => p.classification?.type || 'UNKNOWN'),
-      appliedCorrections,
     },
   };
 }
 
-module.exports = { scan, unionServices };
+module.exports = { scan };
