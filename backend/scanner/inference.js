@@ -3,9 +3,19 @@
 // ── Unified inference layer ─────────────────────────────────────────
 // Routes the scanner's "fill missing fields" call through:
 //   1. Local OpenMayhem gateway (OpenAI-compatible, http://127.0.0.1:11435)
+//      if it is reachable and has a live chat model
 //   2. Claude API (fallback, needs CLAUDE_API_KEY)
 //   3. null (skip — extractors + Business Brain results stand alone)
-// Generic extraction prompt only — no site-specific rules (Rule #1).
+//
+// RULE #1 (no overfitting): this layer is 100% generic. The prompt it
+// sends is the standard business-extraction prompt from claudeEngine —
+// nothing site-specific. OpenMayhem is just a cheaper inference route,
+// the scanner logic is unchanged.
+//
+// The gateway runs on the OPERATOR'S machine (mayhem up). So the
+// gateway route is only usable when the scanner runs on that same
+// machine (local benchmarks). On Railway it silently falls back to
+// Claude. That is intentional — live widget traffic stays on Claude.
 
 const http = require('http');
 const https = require('https');
@@ -15,8 +25,9 @@ const MAX_TOKENS = 2000;
 const GATEWAY_URL = (process.env.MAYHEM_GATEWAY || 'http://127.0.0.1:11435').replace(/\/+$/, '');
 
 let engineCache = { ok: false, model: null, checkedAt: 0 };
-const PROBE_TTL_MS = 60000;
+const PROBE_TTL_MS = 60000; // re-probe the gateway at most once a minute
 
+// ── tiny JSON-over-HTTP helper ──────────────────────────────────────
 function httpJson(method, url, body, headers = {}, timeout = 10000) {
   return new Promise((resolve, reject) => {
     const u = new URL(url);
@@ -46,15 +57,20 @@ function httpJson(method, url, body, headers = {}, timeout = 10000) {
   });
 }
 
+// ── probe: does the local gateway have a usable chat model? ────────
 function pickModel(ids) {
   if (!ids.length) return null;
+  // Prefer instruct/assistant-style models, then anything that looks
+  // chat-capable. Deliberately generic — no model hardcoded as "the"
+  // one; the local catalog decides.
   const score = (id) => {
     const s = String(id).toLowerCase();
     let sc = 0;
     if (s.includes('instruct')) sc += 4;
     if (s.includes('assistant')) sc += 3;
     if (s.includes('chat')) sc += 2;
-    if (/8b|14b/.test(s)) sc += 1;
+    if (/8b|14b/.test(s)) sc += 1; // 8–14B instruct models are the
+                                    // agent-class the docs recommend
     return sc;
   };
   return [...ids].sort((a, b) => score(b) - score(a))[0];
@@ -90,6 +106,7 @@ async function gatewayChat(model, prompt, timeout = 120000) {
   return text;
 }
 
+// ── Claude fallback (same behaviour as the old claudeEngine) ───────
 function callClaude(prompt, apiKey) {
   return new Promise((resolve, reject) => {
     const body = JSON.stringify({
@@ -125,6 +142,8 @@ function callClaude(prompt, apiKey) {
   });
 }
 
+// ── public API ──────────────────────────────────────────────────────
+// Returns { text, engine } where engine = 'openmayhem' | 'claude' | 'none'
 async function chatCompletion(prompt, apiKey) {
   const probe = await probeGateway();
   if (probe.ok) {
