@@ -230,14 +230,19 @@ function extractServices(html, page='homepage') {
     if (!text || text.length < 3 || text.length > 90) continue;
     if (!/[a-zA-ZăâîșțĂÂÎȘȚ]{3,}/.test(text)) continue;
     if (genericJunk.test(text)) continue;
-    gHead.push({ text, end: gh.index + gh[0].length });
+    gHead.push({ text, start: gh.index, end: gh.index + gh[0].length });
   }
+  // A heading's price is the first price AFTER it but BEFORE the next heading.
+  // This stops category headings ("Pachete femei") from stealing the first
+  // card's price: if the next heading starts before the price, the price
+  // belongs to that next heading, not this one.
   const usedPriceBucket = new Set();
-  for (const h of gHead) {
-    const windowText = html.slice(h.end, h.end + 3500);
-    // Find the FIRST complete number in the window and check it is a price.
-    // A "complete number" = all consecutive digits/./, grouped, so we never
-    // capture a tail fragment like "000" out of "5.000".
+  for (let hi = 0; hi < gHead.length; hi++) {
+    const h = gHead[hi];
+    const boundary = (hi + 1 < gHead.length) ? gHead[hi + 1].start : h.end + 3500;
+    const windowEnd = Math.min(h.end + 3500, boundary);
+    const windowText = html.slice(h.end, windowEnd);
+    // Find the FIRST complete number in the window that is a price.
     const numRe = /\d{1,6}(?:[.,]\d{1,6})*/g;
     const nms = [...windowText.matchAll(numRe)];
     let match = null;
