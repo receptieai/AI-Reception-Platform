@@ -1,6 +1,7 @@
 'use strict';
 
 const https = require('https');
+const { chatCompletion } = require('./inference');
 
 const CLAUDE_MODEL = 'claude-sonnet-4-6';
 const MAX_TOKENS = 2000;
@@ -130,10 +131,6 @@ function parseClaudeResponse(text) {
 }
 
 async function fillMissingFields(context, apiKey) {
-  if (!apiKey) {
-    console.log('[CLAUDE] No API key — skipping');
-    return null;
-  }
   if (!context.missingFields || context.missingFields.length === 0) {
     console.log('[CLAUDE] No missing fields — skipping');
     return null;
@@ -142,15 +139,27 @@ async function fillMissingFields(context, apiKey) {
   console.log('[CLAUDE] Filling:', context.missingFields.join(', '));
   const prompt = buildPrompt(context);
 
+  // Route through the unified inference layer: local OpenMayhem gateway
+  // when reachable (free/cheap), otherwise Claude. The prompt is the same
+  // generic extraction prompt either way — no site-specific rules.
+  let text;
   try {
-    const text = await callClaude(prompt, apiKey);
+    const r = await chatCompletion(prompt, apiKey);
+    text = r.text;
+  } catch (e) {
+    console.log('[CLAUDE] Inference error:', e.message);
+    return null;
+  }
+  if (!text) return null;
+
+  try {
     const parsed = parseClaudeResponse(text);
     if (parsed) {
       console.log('[CLAUDE] OK — got:', Object.keys(parsed).filter(k => parsed[k] !== null).join(', '));
     }
     return parsed;
-  } catch(e) {
-    console.log('[CLAUDE] Error:', e.message);
+  } catch (e) {
+    console.log('[CLAUDE] Parse error:', e.message);
     return null;
   }
 }
