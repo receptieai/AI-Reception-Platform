@@ -10,13 +10,20 @@ const PRIORITY_PATHS = [
   '/tratamente', '/tratamente/', '/oferte', '/programari',
   '/pachete-bucuresti', '/pachete-bucuresti/', '/pachete', '/pachete/', '/pachete-locatii', '/pachete-locatii/',
   '/pachete-bucuresti', '/pachete-bucuresti/', '/pachete-cluj', '/pachete-timisoara',
+  '/pachete-cluj-observatorului', '/pachete-cluj-observatorului/',
+  '/pachete-satu-mare', '/pachete-satu-mare/',
+  '/pachete-iasi', '/pachete-iasi/',
+  '/pachete-arad', '/pachete-arad/',
+  '/pachete-oradea', '/pachete-oradea/',
+  '/pachete-sibiu', '/pachete-sibiu/',
+  '/pachete-timisoara', '/pachete-timisoara/',
   '/tratamente-faciale', '/epilare', '/epilare-definitiva', '/cosmetica',
   '/servicii-si-preturi', '/lista-preturi', '/preturi-servicii',
   '/servicii-medicale', '/consultatii', '/proceduri', '/produse',
 ];
 
 const IMPORTANT_KEYWORDS = [
-  'servic','tarif','pret','contact','despre','echip','medic','doctor',
+  'servic','tarif','pret','pachet','contact','despre','echip','medic','doctor',
   'tratament','procedur','faq','urgent','program','ofert','implant',
   'estetica','ortodont','chirurg','pediatr','veterinar','consultat',
 ];
@@ -67,7 +74,7 @@ function extractLinks(html, origin) {
 function scorePath(path) {
   const p = path.toLowerCase();
   let score = 0;
-  for (const kw of IMPORTANT_KEYWORDS) { if (p.includes(kw)) score += 10; }
+  for (const kw of IMPORTANT_KEYWORDS) { if (p.includes(kw)) score += (kw === 'pachet' || kw === 'pret' || kw === 'tarif' ? 20 : 10); }
   if (path.length > 60) score -= 5;
   if (/\.(jpg|png|gif|pdf|css|js|xml)$/i.test(path)) score -= 100;
   if (/\/(tag|category|author|page\/\d|wp-|feed|rss)/i.test(path)) score -= 50;
@@ -150,7 +157,7 @@ async function crawl(startUrl, options={}) {
 
   // Fetch discovered links first (parallel), then try priority paths
   const discovered_batch = candidates.filter(c => c.fromSite).slice(0, maxPages - 1);
-  const priority_batch = candidates.filter(c => !c.fromSite).slice(0, 6);
+  const priority_batch = candidates.filter(c => !c.fromSite);
 
   // Fetch discovered in parallel
   const depth2Links = new Set();
@@ -160,19 +167,20 @@ async function crawl(startUrl, options={}) {
       if (html.length > 500) {
         results.push({ url: origin + path, path, html, label: getLabel(path), priority: scorePath(path) + 5 });
         console.log('[CRAWLER] ✓ (site):', path, html.length, 'chars');
-        // Depth-2: extract links from important pages
-        if (scorePath(path) > 20) {
+        // Depth-2: extract links from important pages (>= 15 catches
+        // 'pachet', 'pret', 'tarif' at 20; 'servic'/'contact' at 10+5=15)
+        if (scorePath(path) >= 15) {
           for (const link of extractLinks(html, origin)) {
-            if (!seen.has(link) && scorePath(link) > 5) { depth2Links.add(link); seen.add(link); }
+            if (!seen.has(link) && scorePath(link) >= 10) { depth2Links.add(link); seen.add(link); }
           }
         }
       }
     } catch(e) { console.log('[CRAWLER] ✗:', path, e.message.substring(0,30)); }
   }));
 
-  // Fetch depth-2 links
+  // Fetch depth-2 links (higher cap so multi-location pricing pages are covered)
   if (results.length < maxPages && depth2Links.size > 0) {
-    const d2 = [...depth2Links].slice(0, 4);
+    const d2 = [...depth2Links].sort((a, b) => scorePath(b) - scorePath(a)).slice(0, Math.max(8, maxPages - results.length));
     await Promise.all(d2.map(async path => {
       try {
         const html = await fetchHtml(origin + path, timeout);
