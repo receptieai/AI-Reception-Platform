@@ -139,6 +139,19 @@ async function crawl(startUrl, options={}) {
   const seen = new Set(fetched);
   const candidates = [];
 
+  // GUARANTEED: the /contact page holds email + phone + hours. It must always
+  // be crawled (highest value), so force it in with top score even if the site
+  // surfaces many higher-scoring price/service pages that would crowd it out.
+  const CONTACT_PATHS = ['/contact', '/contact/', '/contacte', '/contacte/', '/cont'];
+  let contactFound = false;
+  for (const cp of CONTACT_PATHS) {
+    if (discovered.includes(cp) || seen.has(cp)) { contactFound = true; break; }
+  }
+  if (!contactFound) {
+    candidates.push({ path: '/contact', score: 1000, fromSite: true, guaranteed: true });
+    seen.add('/contact');
+  }
+
   // First: discovered links sorted by score (these definitely work)
   for (const path of discovered) {
     if (!seen.has(path)) {
