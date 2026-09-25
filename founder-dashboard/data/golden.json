@@ -25,8 +25,8 @@
       "city": "București",
       "verified": false,
       "verifiedBy": null,
-      "notes": "Cabinet mare, 50+ servicii. Test de referință pentru dental.",
-      "expected": { "minServices": 50, "minPrices": 50, "hasPhone": true, "hasEmail": false, "hasHours": true },
+      "notes": "Cabinet mare, 50+ servicii. Test de referință pentru dental. Email: office@clinicatrident.ro (pe /contact).",
+      "expected": { "minServices": 50, "minPrices": 50, "hasPhone": true, "hasEmail": true, "hasHours": true },
       "history": []
     },
     {
