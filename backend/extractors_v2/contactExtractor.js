@@ -1,5 +1,5 @@
 'use strict';
-const { field, bestField, extractJsonLd, normalizePhone, isValidEmail, RO_CITIES } = require('./utils');
+const { field, bestField, extractJsonLd, normalizePhone, isValidEmail, decodeCfEmail, RO_CITIES } = require('./utils');
 const { voteFields } = require('./voting');
 
 function extractPhone(html, page='homepage') {
@@ -24,6 +24,17 @@ function extractEmail(html, page='homepage') {
   mailtoLinks.forEach(m => { if (isValidEmail(m[1])) candidates.push(field(m[1].toLowerCase(),'mailto_link',99,'mailto: link',page)); });
   const labelMatch = html.match(/(?:Email|E-mail)\s*:?\s*<?([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})>?/i);
   if (labelMatch && isValidEmail(labelMatch[1])) candidates.push(field(labelMatch[1].toLowerCase(),'label_text',85,'Email: label',page));
+
+  // Cloudflare Email Protection — email is obfuscated in static HTML and
+  // only revealed by a browser. Decode every data-cfemail blob; this is the
+  // most common reason dental/vet/beauty sites show "email not found".
+  const cfMatches = [...html.matchAll(/data-cfemail=["']([0-9a-fA-F]{4,128})["']/gi)];
+  for (const m of cfMatches) {
+    const decoded = decodeCfEmail(m[1]);
+    if (decoded && isValidEmail(decoded)) {
+      candidates.push(field(decoded.toLowerCase(), 'cf_email', 92, 'Cloudflare cfemail decode', page));
+    }
+  }
   const textOnly = html.replace(/<[^>]+>/g,' ');
   const emails = [...textOnly.matchAll(/\b([a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,})\b/g)].map(m=>m[1].toLowerCase()).filter(e=>isValidEmail(e)&&!e.includes('example'));
   if (emails[0]) candidates.push(field(emails[0],'regex',70,'email regex',page));
