@@ -6,9 +6,11 @@ const { extractFacilities } = require('./facilityExtractor');
 const { extractPayments } = require('./paymentExtractor');
 const { extractSocial } = require('./socialExtractor');
 const { extractHours } = require('./hoursExtractor');
-// Playwright disabled — scanner fetches HTML directly
-const isJsSite = () => false;
-const renderPage = async () => ({ success: false });
+// Playwright auto-fallback (rec_002): real engine, used ONLY when the site is
+// detected JS-rendered and the static fetch yielded fewer than 5 services.
+// If Playwright/Chromium is not installed on the host, renderPage returns
+// { success:false } and the pipeline silently continues with static HTML.
+const { isJsSite, renderPage } = require('../playwrightEngine');
 
 async function extractAll(html, url, pageLabel='homepage') {
   const start = Date.now();
