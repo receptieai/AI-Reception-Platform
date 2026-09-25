@@ -1,0 +1,27 @@
+{
+  "mrr": 0,
+  "activeClients": 0,
+  "clientsByIndustry": {
+    "dental": 0,
+    "vet": 0,
+    "beauty": 0,
+    "physio": 0,
+    "other": 0
+  },
+  "leadsToday": 0,
+  "leadsTotal": 0,
+  "avgResponseTimeSec": 1.8,
+  "costAI": 0,
+  "costPerClient": 0,
+  "gatewayStatus": {
+    "openmayhem": "unknown",
+    "claudeFallback": "off"
+  },
+  "alerts": [],
+  "feed": [],
+  "_meta": {
+    "version": 1,
+    "updatedAt": "2026-09-25T09:34:33.488Z",
+    "note": "Reset manually"
+  }
+}
