@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#00D4AA">
+<title>RecepAI — Founder Command Center</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#09090B;--s1:#111214;--s2:#18191C;--s3:#1F2024;
+  --b1:rgba(255,255,255,.07);--b2:rgba(255,255,255,.12);
+  --tx:#F1F1F3;--t2:#A0A0A8;--t3:#505058;
+  --teal:#00D4AA;--td:rgba(0,212,170,.1);--tm:rgba(0,212,170,.2);
+  --green:#22C55E;--red:#EF4444;--amber:#F59E0B;--blue:#3B82F6;--purple:#8B5CF6;
+  --r:10px;--r-lg:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--tx);display:flex;font-size:14px;}
+
+/* SIDEBAR */
+.sb{width:232px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;}
+.sb-head{padding:18px 16px 14px;border-bottom:1px solid var(--b1);}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:18px;font-weight:700;letter-spacing:-.3px;}
+.logo em{color:var(--teal);font-style:normal;}
+.logo-sub{font-size:10px;color:var(--t3);margin-top:3px;letter-spacing:.4px;text-transform:uppercase;font-weight:600;}
+.sb-nav{flex:1;padding:10px;overflow-y:auto;display:flex;flex-direction:column;gap:2px;}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:8px;font-size:13px;font-weight:500;color:var(--t2);cursor:pointer;transition:all .12s;position:relative;user-select:none;}
+.ni:hover{background:var(--s2);color:var(--tx);}
+.ni.active{background:var(--td);color:var(--teal);font-weight:600;}
+.ni.active::before{content:'';position:absolute;left:0;top:20%;bottom:20%;width:2px;background:var(--teal);border-radius:2px;}
+.ni-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0;}
+.ni-badge{margin-left:auto;min-width:18px;height:18px;background:var(--amber);color:#000;font-size:10px;font-weight:700;padding:0 5px;border-radius:9px;display:none;align-items:center;justify-content:center;}
+.ni-badge.show{display:flex;}
+.sb-foot{padding:12px 10px;border-top:1px solid var(--b1);display:flex;flex-direction:column;gap:8px;}
+.gw-pill{display:flex;align-items:center;gap:8px;background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:8px 10px;font-size:11px;color:var(--t2);}
+.gw-dot{width:7px;height:7px;border-radius:50%;background:var(--t3);flex-shrink:0;}
+.gw-dot.ok{background:var(--green);}
+.gw-dot.bad{background:var(--red);}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;}
+.topbar{height:58px;flex-shrink:0;background:var(--s1);border-bottom:1px solid var(--b1);display:flex;align-items:center;padding:0 22px;gap:14px;}
+.tb-title{font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700;flex:1;}
+.tb-sub{font-size:11px;color:var(--t3);margin-top:1px;}
+.content{flex:1;overflow-y:auto;padding:22px;}
+.panel{display:none;animation:fi .15s ease;}
+.panel.active{display:block;}
+@keyframes fi{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px;}
+.metrics.m3{grid-template-columns:repeat(3,1fr);}
+.mc{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-lg);padding:16px;position:relative;overflow:hidden;}
+.mc::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--teal);}
+.m-grn::after{background:var(--green);}
+.m-red::after{background:var(--red);}
+.m-amb::after{background:var(--amber);}
+.mc-val{font-family:'Space Grotesk',sans-serif;font-size:26px;font-weight:700;line-height:1;margin-bottom:3px;}
+.mc-lbl{font-size:11px;color:var(--t2);}
+.mc-sub{font-size:10px;color:var(--t3);margin-top:4px;}
+
+/* CARD */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r-lg);overflow:hidden;margin-bottom:14px;}
+.ch{padding:13px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;}
+.ct{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600;}
+.ca{font-size:11px;color:var(--teal);cursor:pointer;font-weight:600;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g2 .card{margin-bottom:0;}
+.card.mb{margin-bottom:14px;}
+.card-body{padding:16px;}
+
+/* BUTTONS */
+.btn{padding:8px 16px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'Space Grotesk',sans-serif;transition:all .12s;display:inline-flex;align-items:center;gap:6px;}
+.btn-teal{background:var(--teal);color:#000;}.btn-teal:hover{background:#00FFCC;}
+.btn-ghost{background:transparent;color:var(--t2);border:1px solid var(--b1);}.btn-ghost:hover{color:var(--tx);border-color:var(--b2);}
+.btn-red{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.25);}.btn-red:hover{background:rgba(239,68,68,.2);}
+.btn-sm{padding:5px 12px;font-size:12px;}
+input.inp{background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:9px 12px;color:var(--tx);font-size:13px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;width:100%;}
+input.inp:focus{border-color:var(--teal);}
+label.lb{display:block;font-size:11px;font-weight:600;color:var(--t3);margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px;}
+
+/* SCAN LAB */
+.scan-input-row{display:flex;gap:10px;margin-bottom:12px;}
+.scan-input-row input{flex:1;height:44px;background:var(--s2);border:1.5px solid var(--b1);border-radius:var(--r);padding:0 14px;font-size:13px;color:var(--tx);outline:none;transition:border-color .15s;}
+.scan-input-row input:focus{border-color:var(--teal);}
+.prog-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px;}
+.prog{height:4px;background:var(--b1);border-radius:2px;overflow:hidden;margin-bottom:12px;}
+.prog>div{height:100%;background:linear-gradient(90deg,var(--teal),#00FFCC);border-radius:2px;width:0%;transition:width .4s;}
+.log{background:#080808;border:1px solid var(--b1);border-radius:var(--r);padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;max-height:180px;overflow-y:auto;display:flex;flex-direction:column;gap:3px;margin-bottom:12px;}
+.log div{color:var(--t2);}
+.log .ok{color:var(--green);}
+.log .err{color:var(--red);}
+.log .info{color:var(--teal);}
+
+/* CONF FIELD ROWS */
+.cf{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1);}
+.cf:last-child{border-bottom:none;}
+.cf-lbl{width:120px;font-size:11px;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;flex-shrink:0;}
+.cf-val{flex:1;font-size:13px;color:var(--tx);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cf-val.mono{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--teal);}
+.cf-bar{width:120px;height:4px;background:var(--b1);border-radius:2px;overflow:hidden;flex-shrink:0;}
+.cf-bar>div{height:100%;border-radius:2px;transition:width .4s;}
+.cf-pct{width:42px;text-align:right;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;flex-shrink:0;}
+.c-green{color:var(--green);}
+.c-amber{color:var(--amber);}
+.c-red{color:var(--red);}
+.c-dim{color:var(--t3);}
+.svc-chip{display:inline-flex;align-items:center;gap:6px;background:var(--s2);border:1px solid var(--b1);border-radius:7px;padding:5px 10px;margin:3px;font-size:12px;transition:all .12s;}
+.svc-chip .price{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);font-weight:600;}
+.svc-chip .price.miss{color:var(--t3);}
+.svc-chip.corrected{border-color:var(--teal);background:var(--td);}
+.tag{display:inline-block;font-size:10px;font-weight:600;padding:2px 8px;border-radius:5px;background:var(--td);color:var(--teal);margin:2px;}
+.tag.purple{background:rgba(139,92,246,.12);color:var(--purple);}
+.tag.blue{background:rgba(59,130,246,.12);color:var(--blue);}
+.tag.green{background:rgba(34,197,94,.12);color:var(--green);}
+.tag.red{background:rgba(239,68,68,.12);color:var(--red);}
+.tag.amb{background:rgba(245,158,11,.12);color:var(--amber);}
+
+/* GOLDEN TABLE */
+.gt-row{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--b1);}
+.gt-row:last-child{border-bottom:none;}
+.gt-ic{width:32px;height:32px;border-radius:9px;background:var(--s2);display:grid;place-items:center;font-size:15px;flex-shrink:0;}
+.gt-info{flex:1;min-width:0;}
+.gt-name{font-size:13px;font-weight:700;}
+.gt-url{font-size:11px;color:var(--t3);font-family:'JetBrains Mono',monospace;}
+.gt-stat{width:70px;text-align:center;flex-shrink:0;}
+.gt-stat-v{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;}
+.gt-stat-l{font-size:9px;color:var(--t3);text-transform:uppercase;letter-spacing:.4px;}
+.gt-act{display:flex;gap:5px;flex-shrink:0;}
+
+/* RECO */
+.rec{display:flex;align-items:flex-start;gap:12px;padding:14px 0;border-bottom:1px solid var(--b1);}
+.rec:last-child{border-bottom:none;}
+.rec-pr{width:64px;height:22px;border-radius:6px;font-size:10px;font-weight:700;display:grid;place-items:center;flex-shrink:0;text-transform:uppercase;letter-spacing:.4px;}
+.pr-crit{background:rgba(239,68,68,.12);color:var(--red);}
+.pr-high{background:rgba(245,158,11,.12);color:var(--amber);}
+.pr-med{background:rgba(59,130,246,.12);color:var(--blue);}
+.rec-body{flex:1;min-width:0;}
+.rec-t{font-size:13px;font-weight:600;margin-bottom:3px;}
+.rec-d{font-size:12px;color:var(--t2);line-height:1.55;}
+.rec-imp{font-size:11px;color:var(--teal);margin-top:5px;font-weight:600;}
+.rec-acts{display:flex;gap:6px;flex-shrink:0;}
+
+/* FEED */
+.feed-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--b1);font-size:12px;}
+.feed-item:last-child{border-bottom:none;}
+.feed-dot{width:7px;height:7px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+.feed-item .msg{flex:1;color:var(--t2);}
+.feed-item .t{font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;flex-shrink:0;}
+
+/* ALERT */
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:10px;margin-bottom:8px;font-size:12px;}
+.alert.warn{background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);color:var(--amber);}
+.alert.err{background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);color:var(--red);}
+.alert.info{background:var(--td);border:1px solid var(--tm);color:var(--teal);}
+.alert b{display:block;font-size:12px;margin-bottom:2px;color:var(--tx);}
+.alert span{color:var(--t2);}
+
+/* OPS TABLE */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:10px;font-weight:700;color:var(--t3);text-transform:uppercase;letter-spacing:.5px;text-align:left;padding:10px 12px;border-bottom:1px solid var(--b1);}
+.tbl td{font-size:12px;padding:11px 12px;border-bottom:1px solid var(--b1);color:var(--t2);}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl .mono{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);}
+.status-dot{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:600;}
+.status-dot::before{content:'';width:7px;height:7px;border-radius:50%;background:currentColor;}
+
+/* EMPTY */
+.empty{text-align:center;padding:36px 20px;}
+.ei{font-size:32px;margin-bottom:10px;}
+.et{font-size:14px;font-weight:600;color:var(--t2);margin-bottom:4px;}
+.es{font-size:12px;color:var(--t3);line-height:1.6;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(8px);background:var(--s1);border:1px solid var(--tm);color:var(--tx);padding:10px 18px;border-radius:var(--r);font-size:13px;font-weight:500;box-shadow:0 8px 32px rgba(0,0,0,.6);opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* MODAL */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:100;display:none;align-items:center;justify-content:center;padding:20px;}
+.mo.show{display:flex;}
+.md{background:var(--s1);border:1px solid var(--b1);border-radius:18px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;}
+.mh{padding:18px 22px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--s1);}
+.mt{font-family:'Space Grotesk',sans-serif;font-size:16px;font-weight:700;}
+.mc-btn{background:none;border:none;color:var(--t3);font-size:20px;cursor:pointer;}
+.mb{padding:20px 22px;}
+.mf{margin-bottom:14px;}
+.mfoot{padding:14px 22px;border-top:1px solid var(--b1);display:flex;gap:8px;justify-content:flex-end;}
+
+/* PIPELINE */
+.pipe{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px;}
+.pipe-step{background:var(--s2);border:1px solid var(--b1);border-radius:12px;padding:16px;text-align:center;}
+.pipe-v{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700;}
+.pipe-l{font-size:11px;color:var(--t3);margin-top:2px;}
+
+@media(max-width:900px){
+  .sb{display:none;}
+  .metrics{grid-template-columns:repeat(2,1fr);}
+  .g2,.pipe{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<aside class="sb">
+  <div class="sb-head">
+    <div class="logo">Recep<em>AI</em> <span style="font-size:11px;color:var(--t3);font-weight:500">FOUNDER</span></div>
+    <div class="logo-sub">Command Center</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="ni active" data-p="home" onclick="nav('home',this)"><span class="ni-icon">🏠</span>Command Center</div>
+    <div class="ni" data-p="lab" onclick="nav('lab',this)"><span class="ni-icon">🔬</span>Scan &amp; Learn Lab</div>
+    <div class="ni" data-p="ops" onclick="nav('ops',this)"><span class="ni-icon">📊</span>Ops Tower</div>
+    <div class="ni" data-p="learning" onclick="nav('learning',this)"><span class="ni-icon">🧠</span>Learning Inbox<span class="ni-badge" id="badge-learn">0</span></div>
+    <div class="ni" data-p="business" onclick="nav('business',this)"><span class="ni-icon">💰</span>Business</div>
+  </nav>
+  <div class="sb-foot">
+    <div class="gw-pill"><span class="gw-dot" id="gw-dot"></span><div><div style="font-weight:600;color:var(--tx);font-size:11px">Scanner</div><div id="gw-state" style="color:var(--t3)">connect…</div></div></div>
+    <div style="font-size:10px;color:var(--t3);line-height:1.5">Standalone v1 · date demo<br>Telemetry live: curând</div>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div style="flex:1">
+      <div class="tb-title" id="tb-title">Command Center</div>
+      <div class="tb-sub" id="tb-sub">Tot ce ai nevoie să vezi, într-un loc</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="reloadAll()">⟳ Refresh</button>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ COMMAND CENTER ═══ -->
+    <div class="panel active" id="panel-home">
+      <div class="metrics" id="home-metrics"></div>
+      <div class="g2 mb">
+        <div class="card">
+          <div class="ch"><span class="ct">🔔 Alerts</span><span class="ca" onclick="nav('ops',document.querySelector('[data-p=ops]'))">Ops →</span></div>
+          <div class="card-body" id="home-alerts"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">📡 Activitate recentă</span></div>
+          <div class="card-body" style="padding-top:6px" id="home-feed"></div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><span class="ct">🎯 Acuritate per industrie</span></div>
+          <div class="card-body" id="home-industries"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">⚡ Quick actions</span></div>
+          <div class="card-body" style="display:flex;flex-direction:column;gap:10px">
+            <button class="btn btn-teal" onclick="nav('lab',document.querySelector('[data-p=lab]'))">🔬 Deschide Scan &amp; Learn Lab</button>
+            <button class="btn btn-ghost" onclick="openAddGolden()">➕ Adaugă site în Golden Set</button>
+            <button class="btn btn-ghost" onclick="nav('learning',document.querySelector('[data-p=learning]'))">🧠 Vezi recomandările de învățat</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ SCAN & LEARN LAB ═══ -->
+    <div class="panel" id="panel-lab">
+      <div class="card mb">
+        <div class="ch"><span class="ct">🔬 Scan &amp; Learn — scanează și calibrează scanner-ul</span><span style="font-size:11px;color:var(--t3)">Acelasi motor ca clientii</span></div>
+        <div class="card-body">
+          <div class="scan-input-row">
+            <input id="lab-url" placeholder="https://site-romanes.ro — sau alege din Golden Set" onkeydown="if(event.key==='Enter')labScan()">
+            <select id="lab-pick" style="width:220px;background:var(--s2);border:1px solid var(--b1);border-radius:9px;padding:0 12px;color:var(--t2);font-size:12px;outline:none"></select>
+            <button class="btn btn-teal" id="lab-btn" onclick="labScan()">🔍 Scanează</button>
+          </div>
+          <div class="prog-row"><span id="lab-status">Gata pentru scanare</span><span id="lab-pct" style="font-family:'JetBrains Mono',monospace;color:var(--teal);font-weight:700">0%</span></div>
+          <div class="prog"><div id="lab-prog"></div></div>
+          <div class="log" id="lab-log"><div class="info">RecepAI Founder Lab — gata. Alege un site sau introdu un URL.</div></div>
+          <div id="lab-result"></div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div class="card">
+          <div class="ch"><span class="ct">📚 Golden Set</span><button class="btn btn-ghost btn-sm" onclick="openAddGolden()">+ Adaugă</button></div>
+          <div class="card-body" style="padding-top:4px" id="lab-golden"></div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">📈 Acuritate în timp (ultimele scan-uri)</span></div>
+          <div class="card-body" id="lab-trend"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ OPS TOWER ═══ -->
+    <div class="panel" id="panel-ops">
+      <div class="metrics m3" id="ops-metrics"></div>
+      <div class="card mb">
+        <div class="ch"><span class="ct">🫀 Clienți activi — sănătate</span><span style="font-size:11px;color:var(--t3)" id="ops-mode">MOD DEMO — date reale când recepAI trimite telemetry</span></div>
+        <table class="tbl">
+          <thead><tr><th>Client</th><th>Industrie</th><th>Status</th><th>Conversii/săpt</th><th>Lead-uri</th><th>Drift conf.</th><th>Cost/zi</th><th></th></tr></thead>
+          <tbody id="ops-tbody"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">🔌 Gateway &amp; cost control</span></div>
+        <div class="card-body" id="ops-gateway"></div>
+      </div>
+    </div>
+
+    <!-- ═══ LEARNING INBOX ═══ -->
+    <div class="panel" id="panel-learning">
+      <div class="metrics m3">
+        <div class="mc"><div class="mc-val" id="lr-pending">0</div><div class="mc-lbl">Recomandări așteptate</div></div>
+        <div class="mc m-grn"><div class="mc-val" id="lr-approved">0</div><div class="mc-lbl">Aprobate</div></div>
+        <div class="mc"><div class="mc-val" id="lr-corrections">0</div><div class="mc-lbl">Corecții în sistem</div></div>
+      </div>
+      <div class="card mb">
+        <div class="ch"><span class="ct">🧠 Recomandări anonime, per industrie</span><span style="font-size:11px;color:var(--t3)">Zero date personale ale pacienților</span></div>
+        <div class="card-body" style="padding-top:4px" id="lr-recs"></div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">📝 Corecții aplicate de Lab</span></div>
+        <div class="card-body" id="lr-corrections"></div>
+      </div>
+    </div>
+
+    <!-- ═══ BUSINESS ═══ -->
+    <div class="panel" id="panel-business">
+      <div class="metrics m3">
+        <div class="mc"><div class="mc-val" id="biz-mrr">€0</div><div class="mc-lbl">MRR</div><div class="mc-sub" id="biz-mrr-sub">0 clienți activi</div></div>
+        <div class="mc m-grn"><div class="mc-val">€99</div><div class="mc-lbl">Preț mediu plan</div><div class="mc-sub">target unit economics</div></div>
+        <div class="mc m-amb"><div class="mc-val" id="biz-cost">€0</div><div class="mc-lbl">Cost AI / lună</div><div class="mc-sub">OpenMayhem + Claude</div></div>
+      </div>
+      <div class="g2 mb">
+        <div class="card">
+          <div class="ch"><span class="ct">🔀 Pipeline vânzări</span></div>
+          <div class="card-body">
+            <div class="pipe">
+              <div class="pipe-step"><div class="pipe-v" id="pipe-prospect">0</div><div class="pipe-l">Prospecți</div></div>
+              <div class="pipe-step"><div class="pipe-v" id="pipe-trial">0</div><div class="pipe-l">Trial 30 zile</div></div>
+              <div class="pipe-step"><div class="pipe-v" id="pipe-paid">0</div><div class="pipe-l">Plătitori</div></div>
+            </div>
+            <div style="font-size:11px;color:var(--t3);line-height:1.6">Target lună 3: 10 clienți → €990 MRR · lună 6: 50 clienți → €4.950 MRR. Rețelele de freelancri: 1 vânzare = 12 locații.</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="ch"><span class="ct">🤝 Freelanceri parteneri</span></div>
+          <div class="card-body" style="font-size:12px;color:var(--t2);line-height:1.8">
+            <div style="margin-bottom:10px">Model: freelancer face site → adaugă widget → primește <b style="color:var(--teal)">€25/lună</b> pasiv.</div>
+            <div class="feed-item"><span class="feed-dot"></span><span class="msg" style="flex:1">Clienți aduși de freelancri</span><span class="t" id="fr-clients">0</span></div>
+            <div class="feed-item"><span class="feed-dot"></span><span class="msg" style="flex:1">Venit pasiv freelanceri / lună</span><span class="t" id="fr-income">€0</span></div>
+            <div class="feed-item"><span class="feed-dot"></span><span class="msg" style="flex:1">Freelancri activi</span><span class="t" id="fr-active">0</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="ch"><span class="ct">📈 Forecast</span></div>
+        <div class="card-body" style="font-size:12px;color:var(--t2);line-height:2">
+          <div style="display:flex;gap:16px;flex-wrap:wrap">
+            <span><b style="color:var(--tx)">Luna 3:</b> 10 clienți → €990/lună</span>
+            <span><b style="color:var(--tx)">Luna 6:</b> 50 clienți → €4.950/lună</span>
+            <span><b style="color:var(--tx)">Luna 12:</b> 300 clienți → €29.700/lună</span>
+            <span><b style="color:var(--tx)">Exit @ 1000 clienți:</b> ~€3,5M</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- ADD GOLDEN MODAL -->
+<div class="mo" id="modal-golden">
+  <div class="md">
+    <div class="mh"><span class="mt">➕ Adaugă în Golden Set</span><button class="mc-btn" onclick="closeModal()">×</button></div>
+    <div class="mb">
+      <div class="mf"><label class="lb">Nume</label><input class="inp" id="ag-name" placeholder="Clinica Exemplu"></div>
+      <div class="mf"><label class="lb">URL</label><input class="inp" id="ag-url" placeholder="https://clinicaexemplu.ro"></div>
+      <div class="mf"><label class="lb">Industrie</label>
+        <select class="inp" id="ag-industry"><option value="auto">auto</option><option>dental</option><option>vet</option><option>beauty</option><option>physio</option><option>medical</option></select>
+      </div>
+      <div class="mf" style="display:flex;gap:10px">
+        <div style="flex:1"><label class="lb">Min. servicii</label><input class="inp" id="ag-svcs" type="number" value="10"></div>
+        <div style="flex:1"><label class="lb">Min. prețuri</label><input class="inp" id="ag-prices" type="number" value="5"></div>
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="closeModal()">Anulează</button>
+      <button class="btn btn-teal" onclick="addGolden()">Adaugă</button>
+    </div>
+  </div>
+</div>
+
+<!-- CORRECTION MODAL -->
+<div class="mo" id="modal-correction">
+  <div class="md">
+    <div class="mh"><span class="mt">✏️ Corecție — se salvează pentru toți clienții din industrie</span><button class="mc-btn" onclick="closeCorrection()">×</button></div>
+    <div class="mb">
+      <div class="mf"><label class="lb">Serviciu</label><input class="inp" id="cr-svc" placeholder="Numele serviciului"></div>
+      <div class="mf" style="display:flex;gap:10px">
+        <div style="flex:1"><label class="lb">Valoare detectată</label><input class="inp" id="cr-prev" style="color:var(--t3)"></div>
+        <div style="flex:1"><label class="lb">Valoare corectă</label><input class="inp" id="cr-new" placeholder="1200 RON"></div>
+      </div>
+      <div class="mf"><label class="lb">De ce a greșit extractorul? (ajută la tuning)</label><input class="inp" id="cr-reason" placeholder="preț vechi pe site / preț în imagine / etc."></div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.6;background:var(--td);border:1px solid var(--tm);border-radius:9px;padding:10px 12px">
+        Corecția intră în <b style="font-family:'JetBrains Mono',monospace">scannerLearning</b> — următoarele scan-uri din aceeași industrie o aplică automat. Asta e motorul care crește acuratețea pentru toți.
+      </div>
+    </div>
+    <div class="mfoot">
+      <button class="btn btn-ghost" onclick="closeCorrection()">Anulează</button>
+      <button class="btn btn-teal" onclick="saveCorrection()">💾 Salvează corecția</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+'use strict';
+const API = location.protocol === 'file:' ? 'http://localhost:8081' : (location.origin);
+let STATE = { golden: { items: [] }, learning: { recommendations: [], corrections: [] }, metrics: {} };
+let LAST_RESULT = null;
+const IND_ICON = { dental:'🦷', vet:'🐾', beauty:'✨', physio:'🏃', medical:'🩺', auto:'🔍', other:'🏢' };
+
+// ── helpers ─────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function toast(m, dur=3000){ const t=$('toast'); t.textContent=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),dur); }
+function confCls(v){ return v>=85?'c-green':v>=65?'c-amber':v>0?'c-red':'c-dim'; }
+function confBar(v){ const c=v>=85?'var(--green)':v>=65?'var(--amber)':'var(--red)'; return `<div class="cf-bar"><div style="width:${v}%;background:${c}"></div></div><div class="cf-pct ${confCls(v)}">${v}%</div>`; }
+function timeAgo(iso){ if(!iso) return '—'; const s=(Date.now()-new Date(iso))/1000; if(s<60) return 'acum '+Math.floor(s)+'s'; if(s<3600) return 'acum '+Math.floor(s/60)+'m'; if(s<86400) return 'acum '+Math.floor(s/3600)+'h'; return new Date(iso).toLocaleDateString('ro-RO',{day:'numeric',month:'short'}); }
+function api(path, opts={}){
+  return fetch(API+path, { headers:{'Content-Type':'application/json'}, ...opts })
+    .then(async r => { const d = await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.error||('HTTP '+r.status)); return d; });
+}
+
+// ── nav ─────────────────────────────────────────────────
+const TITLES = {
+  home:['Command Center','Tot ce ai nevoie să vezi, într-un loc'],
+  lab:['Scan & Learn Lab','Scanează site-uri, calibrează scanner-ul'],
+  ops:['Ops Tower','Sănătatea clienților + gateway + cost'],
+  learning:['Learning Inbox','Învățăm din agregate anonime, nu din date personale'],
+  business:['Business','MRR, pipeline, freelancri']
+};
+function nav(p, el){
+  document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('active'));
+  $('panel-'+p).classList.add('active');
+  if(el) el.classList.add('active'); else { const n=document.querySelector('.ni[data-p="'+p+'"]'); if(n) n.classList.add('active'); }
+  $('tb-title').textContent = TITLES[p][0];
+  $('tb-sub').textContent = TITLES[p][1];
+  if(p==='lab') renderLab();
+  if(p==='learning') renderLearning();
+  if(p==='ops') renderOps();
+  if(p==='business') renderBusiness();
+  if(p==='home') renderHome();
+}
+async function reloadAll(){
+  try {
+    STATE = await api('/api/founder/state');
+    $('gw-dot').classList.add('ok'); $('gw-state').textContent = 'scanner online';
+    renderAll();
+    toast('⟳ Date actualizate');
+  } catch(e) {
+    $('gw-dot').classList.add('bad'); $('gw-state').textContent = 'server down';
+    toast('❌ Server: pornesc — node founder-dashboard/server.js');
+  }
+}
+function renderAll(){ renderHome(); renderLab(); renderOps(); renderLearning(); renderBusiness(); updateLearnBadge(); }
+
+// ── COMMAND CENTER ──────────────────────────────────────
+function renderHome(){
+  const m = STATE.metrics || {};
+  $('home-metrics').innerHTML = [
+    ['💰','€'+(m.mrr||0),'MRR','m'],['👥',m.activeClients||0,'Clienți activi','m-grn'],['📥',m.leadsToday||0,'Lead-uri azi','m-grn'],['⚡',(m.avgResponseTimeSec||'—')+'s','Răspuns AI mediu','m'],['🔢',STATE.golden.items.length,'Site-uri Golden Set','m-amb']
+  ].map(([ic,v,l,cl])=>`<div class="mc ${cl}"><div style="font-size:15px;margin-bottom:8px">${ic}</div><div class="mc-val">${v}</div><div class="mc-lbl">${l}</div></div>`).join('');
+
+  const alerts = m.alerts || [];
+  $('home-alerts').innerHTML = alerts.length ? alerts.slice(0,4).map(a=>`
+    <div class="alert ${a.type||'info'}"><div style="flex:1"><b>${esc(a.title||'')}</b><span>${esc(a.message||'')}</span></div><span style="font-size:10px;flex-shrink:0">${timeAgo(a.time)}</span></div>`).join('')
+    : '<div class="empty" style="padding:20px"><div class="et">Niciun alert</div></div>';
+
+  const feed = m.feed || [];
+  $('home-feed').innerHTML = feed.length ? feed.slice(0,6).map(f=>`
+    <div class="feed-item"><span class="feed-dot"></span><span class="msg">${esc(f.message||'')}</span><span class="t">${timeAgo(f.time)}</span></div>`).join('')
+    : '<div class="empty" style="padding:20px"><div class="et">Nicio activitate încă</div></div>';
+
+  // accuracy per industry (from golden history)
+  const byInd = {};
+  for (const g of STATE.golden.items) {
+    const h = (g.history||[]).filter(x=>x.accuracy!=null);
+    if (!h.length) continue;
+    const last = h[h.length-1];
+    byInd[g.industry] = byInd[g.industry] || [];
+    byInd[g.industry].push({ g, last });
+  }
+  const rows = Object.entries(byInd).sort((a,b)=>b[1].length-a[1].length);
+  $('home-industries').innerHTML = rows.length ? rows.map(([ind,list])=>{
+    const avg = Math.round(list.reduce((s,x)=>s+x.last.accuracy,0)/list.length);
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--b1)">
+      <span style="font-size:15px;width:22px">${IND_ICON[ind]||'🏢'}</span>
+      <div style="flex:1"><div style="font-size:12px;font-weight:600">${ind}</div><div style="font-size:10px;color:var(--t3)">${list.length} site(uri) scanat(e)</div></div>
+      ${confBar(avg)}
+    </div>`;
+  }).join('') : '<div class="empty" style="padding:20px"><div class="et">Scanează site-uri din Lab</div><div class="es">Acuritatea per industrie apare aici</div></div>';
+}
+
+// ── SCAN & LEARN LAB ────────────────────────────────────
+function renderLab(){
+  // pick list
+  $('lab-pick').innerHTML = '<option value="">— Golden Set —</option>' + STATE.golden.items.map(g=>`<option value="${g.id}">${esc(g.name)} (${g.industry})</option>`).join('');
+  $('lab-pick').onchange = e => {
+    const g = STATE.golden.items.find(x=>x.id===e.target.value);
+    if (g) $('lab-url').value = g.url;
+  };
+  // golden table
+  renderGoldenTable();
+  // trend
+  renderTrend();
+  // last result
+  if (LAST_RESULT) renderResult(LAST_RESULT, null, false);
+}
+
+function renderGoldenTable(){
+  const items = STATE.golden.items;
+  $('lab-golden').innerHTML = items.length ? items.map(g=>{
+    const h = (g.history||[]).filter(x=>x.accuracy!=null);
+    const last = h.length ? h[h.length-1] : null;
+    const acc = last ? last.accuracy : null;
+    return `<div class="gt-row">
+      <div class="gt-ic">${IND_ICON[g.industry]||'🏢'}</div>
+      <div class="gt-info">
+        <div class="gt-name">${esc(g.name)} ${g.verified?'<span class="tag green" style="vertical-align:1px">✓ verificat</span>':'<span class="tag amb" style="vertical-align:1px">de verificat</span>'}</div>
+        <div class="gt-url">${esc(g.url)} · ${esc(g.industry)}${g.city?' · '+esc(g.city):''}</div>
+      </div>
+      <div class="gt-stat">
+        <div class="gt-stat-v ${acc==null?'c-dim':confCls(acc)}">${acc==null?'—':acc+'%'}</div>
+        <div class="gt-stat-l">acuratețe</div>
+      </div>
+      <div class="gt-act">
+        <button class="btn btn-teal btn-sm" onclick="labScanItem('${g.id}')">🔍</button>
+        <button class="btn btn-ghost btn-sm" onclick="toggleVerify('${g.id}')" title="Marchează ca verificat manual">✓</button>
+      </div>
+    </div>`;
+  }).join('') : '<div class="empty"><div class="ei">📚</div><div class="et">Golden Set gol</div><div class="es">Adaugă site-uri românești reale ca să măsori acuratețea</div></div>';
+}
+
+function renderTrend(){
+  const pts = [];
+  for (const g of STATE.golden.items) {
+    for (const h of (g.history||[])) {
+      if (h.accuracy != null) pts.push({ at: h.at, acc: h.accuracy, ind: g.industry, name: g.name });
+    }
+  }
+  pts.sort((a,b)=>new Date(a.at)-new Date(b.at));
+  if (!pts.length) { $('lab-trend').innerHTML = '<div class="empty" style="padding:20px"><div class="et">Nicio scanare încă</div><div class="es">Acuritatea în timp apare după primele scan-uri</div></div>'; return; }
+
+  const W = 320, H = 120, P = 14;
+  const xs = pts.map((p,i)=> P + i*(W-2*P)/Math.max(1,pts.length-1));
+  const ys = pts.map(p => H-P - (p.acc/100)*(H-2*P));
+  const path = xs.map((x,i)=>(i?'L':'M')+x.toFixed(1)+' '+ys[i].toFixed(1)).join(' ');
+  const area = path + ` L ${xs[xs.length-1].toFixed(1)} ${H-P} L ${xs[0].toFixed(1)} ${H-P} Z`;
+  $('lab-trend').innerHTML = `
+    <svg width="100%" viewBox="0 0 ${W} ${H}" style="display:block">
+      <line x1="${P}" y1="${P}" x2="${W-P}" y2="${P}" stroke="var(--b1)" stroke-dasharray="3 3"/>
+      <line x1="${P}" y1="${H-P}" x2="${W-P}" y2="${H-P}" stroke="var(--b1)"/>
+      <text x="${P}" y="${P-4}" fill="var(--t3)" font-size="8">100%</text>
+      <text x="${P}" y="${H-P+10}" fill="var(--t3)" font-size="8">0%</text>
+      <path d="${area}" fill="rgba(0,212,170,.08)"/>
+      <path d="${path}" fill="none" stroke="var(--teal)" stroke-width="2" stroke-linejoin="round"/>
+      ${pts.map((p,i)=>`<circle cx="${xs[i]}" cy="${ys[i]}" r="3" fill="${p.acc>=85?'var(--green)':p.acc>=65?'var(--amber)':'var(--red)'}"><title>${esc(p.name)}: ${p.acc}%</title></circle>`).join('')}
+    </svg>
+    <div style="font-size:10px;color:var(--t3);margin-top:6px">${pts.length} scan-uri · ultimele: ${pts.slice(-3).map(p=>esc(p.name)+' '+p.acc+'%').join(' · ')}</div>`;
+}
+
+function labLog(msg, cls=''){
+  const d = document.createElement('div');
+  d.className = cls;
+  d.textContent = new Date().toLocaleTimeString('ro-RO') + ' ' + msg;
+  $('lab-log').appendChild(d);
+  $('lab-log').scrollTop = $('lab-log').scrollHeight;
+}
+
+function labScan(){
+  const urlInput = $('lab-url').value.trim();
+  const pick = $('lab-pick').value;
+  let item = null;
+  if (pick) item = STATE.golden.items.find(g=>g.id===pick);
+  if (!urlInput && item) { $('lab-url').value = item.url; }
+  const url = urlInput.startsWith('http') ? urlInput : 'https://' + urlInput;
+  if (!url || url.length < 8) { toast('Introdu un URL sau alege din Golden Set'); return; }
+
+  // if no golden item exists for this URL, add one on the fly
+  if (!item) {
+    item = STATE.golden.items.find(g => g.url === url || g.url === url.replace(/^https?:\/\//,''));
+  }
+  if (!item) {
+    const slug = (url.replace(/^https?:\/\//,'').replace(/[^a-z0-9]+/gi,'-').slice(0,30)) || 'site';
+    item = { id: slug + '_tmp', name: slug, url, industry:'auto', verified:false, expected:{ hasPhone:true }, history: [] };
+  }
+  doScan(item, url);
+}
+
+function labScanItem(id){
+  const g = STATE.golden.items.find(x=>x.id===id);
+  if (!g) return;
+  nav('lab', document.querySelector('[data-p=lab]'));
+  $('lab-url').value = g.url;
+  doScan(g, g.url);
+}
+
+async function doScan(item, url){
+  const btn = $('lab-btn');
+  btn.disabled = true; btn.textContent = '⟳ Se scanează…';
+  $('lab-log').innerHTML = '';
+  labLog('→ Se scanează: ' + url, 'info');
+  labLog('→ Crawling + extractors (aceleași ca pentru clienți)…');
+
+  let p = 12;
+  const timer = setInterval(()=>{ p = Math.min(p+3, 90); $('lab-prog').style.width = p+'%'; $('lab-pct').textContent = p+'%'; $('lab-status').textContent = ['Se descarcă paginile…','Se extrag serviciile…','Business Brain activ…','Confidence scoring…'][Math.floor((p-10)/22)]||'Se procesează…'; }, 700);
+
+  try {
+    const d = await api('/api/founder/scan', { method:'POST', body: JSON.stringify({ id: item.id, url, industry: item.industry, name: item.name, force: true }) });
+    clearInterval(timer);
+    $('lab-prog').style.width = '100%'; $('lab-pct').textContent = '100%';
+    $('lab-status').textContent = '✓ Gata';
+
+    const r = d.result;
+    LAST_RESULT = r;
+    STATE.golden.items = STATE.golden.items.map(g => g.id === item.id ? { ...g, history: (g.history||[]).concat(r._golden ? [r._golden] : []) } : g);
+    labLog(`✓ ${r.name||url} — ${(r.services||[]).length} servicii · ${r.confidence||0}% acuratețe globală`, 'ok');
+    if (r._golden && r._golden.accuracy != null) labLog(`✓ Acuritate vs Golden Set: ${r._golden.accuracy}%`, 'ok');
+    if (r.brain && r.brain.insurances && r.brain.insurances.length) labLog('✓ Asigurări: ' + r.brain.insurances.join(', '), 'ok');
+    if (r.missing && r.missing.length) labLog('Lipsă: ' + r.missing.join(', '), 'err');
+    renderResult(r, item, true);
+    renderGoldenTable();
+    renderTrend();
+  } catch(e) {
+    clearInterval(timer);
+    $('lab-prog').style.width = '100%'; $('lab-pct').textContent = 'ERROARE';
+    labLog('✗ ' + e.message, 'err');
+    toast('❌ ' + e.message, 5000);
+  }
+  btn.disabled = false; btn.innerHTML = '🔍 Scanează';
+}
+
+function renderResult(r, item, animate){
+  const fields = r.fieldConfidence || {};
+  const rows = [
+    ['Nume', r.name || '—', fields.name, ''],
+    ['Telefon', r.phone || '—', fields.phone, 'mono'],
+    ['Email', r.email || '—', fields.email, 'mono'],
+    ['Oraș', r.city || '—', fields.city, ''],
+    ['Adresă', r.address || '—', fields.address, ''],
+    ['Program', r.hours || '—', fields.hours, ''],
+  ];
+  const realSvcs = (r.services||[]).filter(s=>s.method!=='typical');
+  const withPrice = realSvcs.filter(s=>s.price);
+  const corrected = new Set((item && item.history||[]).length ? [] : []);
+
+  $('lab-result').innerHTML = `
+    <div style="background:var(--s2);border:1px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:56px;height:56px;border-radius:14px;background:${r.confidence>=85?'rgba(34,197,94,.12)':r.confidence>=65?'rgba(245,158,11,.12)':'rgba(239,68,68,.12)'};display:grid;place-items:center;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:${r.confidence>=85?'var(--green)':r.confidence>=65?'var(--amber)':'var(--red)'}">${r.confidence||0}</div>
+        <div style="flex:1">
+          <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700">${esc(r.name||'')} <span class="tag ${r._golden&&r._golden.accuracy!=null?'green':''}" style="vertical-align:1px">${IND_ICON[r.industry]||'🏢'} ${esc(r.industry||'')}</span></div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">${(r.services||[]).length} servicii · ${withPrice.length} cu preț · ${r._meta?r._meta.pagesScanned:0} pagini · ${(r._meta?r._meta.durationMs/1000:0).toFixed(1)}s</div>
+        </div>
+        ${r._golden && r._golden.accuracy!=null ? `<div style="text-align:right"><div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px">vs Golden Set</div><div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700" class="${confCls(r._golden.accuracy)}">${r._golden.accuracy}%</div></div>` : ''}
+      </div>
+    </div>
+
+    <div class="card mb" style="margin-bottom:14px">
+      <div class="ch"><span class="ct">📡 Câmpuri cu confidență</span><span style="font-size:11px;color:var(--t3)">click pe valoare = corectează</span></div>
+      <div style="padding:4px 16px">
+        ${rows.map(([lbl,val,conf,cls])=>`
+          <div class="cf">
+            <div class="cf-lbl">${lbl}</div>
+            <div class="cf-val ${cls}" style="cursor:pointer" title="Click pentru corecție">${esc(val)}</div>
+            ${confBar(conf||0)}
+          </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="card mb">
+      <div class="ch"><span class="ct">🛠 Servicii (${realSvcs.length}) — click = corectează prețul</span><span style="font-size:11px;color:var(--t3)">${withPrice.length}/${realSvcs.length} cu preț</span></div>
+      <div class="card-body" style="line-height:2.2">
+        ${realSvcs.length ? realSvcs.slice(0,60).map((s,i)=>`
+          <span class="svc-chip" onclick="openCorrection('${esc(s.name)}','${esc(s.price||'')}',${i})" style="cursor:pointer">
+            ${esc(s.name)} <span class="price ${s.price?'':'miss'}">${s.price?esc(s.price):'fără preț'}</span>
+          </span>`).join('') : '<span style="font-size:12px;color:var(--t3)">Niciun serviciu detectat</span>'}
+      </div>
+    </div>
+
+    ${(r.brain&&(r.brain.insurances||r.brain.facilities||r.brain.tags)).length ? `
+    <div class="card">
+      <div class="ch"><span class="ct">🧠 Business Brain</span></div>
+      <div class="card-body">
+        ${r.brain.insurances&&r.brain.insurances.length?`<div style="margin-bottom:8px"><div style="font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">Asigurări</div>${r.brain.insurances.map(i=>`<span class="tag purple">${esc(i)}</span>`).join('')}</div>`:''}
+        ${r.brain.facilities&&r.brain.facilities.length?`<div style="margin-bottom:8px"><div style="font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">Facilități</div>${r.brain.facilities.slice(0,10).map(f=>`<span class="tag">${esc(f)}</span>`).join('')}</div>`:''}
+      </div>
+    </div>` : ''}
+  `;
+}
+
+async function toggleVerify(id){
+  const g = STATE.golden.items.find(x=>x.id===id);
+  if (!g) return;
+  const next = !g.verified;
+  try {
+    await api('/api/founder/golden/'+id, { method:'POST', body: JSON.stringify({ verified: next, verifiedBy: 'founder' }) });
+    g.verified = next; g.verifiedBy = 'founder';
+    renderGoldenTable();
+    toast(next?'✓ Marcat ca verificat manual':'↩ Marcat ca de verificat');
+  } catch(e){ toast('❌ '+e.message); }
+}
+
+// correction modal
+let CORRECTION_SVC = null;
+function openCorrection(svc, price){
+  CORRECTION_SVC = svc;
+  $('cr-svc').value = svc;
+  $('cr-prev').value = price;
+  $('cr-new').value = '';
+  $('cr-reason').value = '';
+  $('modal-correction').classList.add('show');
+}
+function closeCorrection(){ $('modal-correction').classList.remove('show'); }
+async function saveCorrection(){
+  const svc = $('cr-svc').value.trim() || CORRECTION_SVC;
+  const prev = $('cr-prev').value.trim();
+  const next = $('cr-new').value.trim();
+  const reason = $('cr-reason').value.trim();
+  if (!svc || !next) { toast('Completează serviciu + valoare corectă'); return; }
+  try {
+    await api('/api/founder/correction', { method:'POST', body: JSON.stringify({
+      field: 'price:'+encodeURIComponent(svc),
+      correction: { name: svc, price: next },
+      previousValue: prev,
+      detector: 'serviceExtractor',
+      industry: LAST_RESULT ? LAST_RESULT.industry : 'global',
+      reason: reason || 'corecție manuală în Lab'
+    })});
+    closeCorrection();
+    toast('💾 Corecția a intrat în scannerLearning — se aplică pe toți din industrie');
+    reloadAll();
+  } catch(e){ toast('❌ '+e.message); }
+}
+
+// add golden modal
+function openAddGolden(){ $('modal-golden').classList.add('show'); $('ag-url').focus(); }
+function closeModal(){ $('modal-golden').classList.remove('show'); }
+async function addGolden(){
+  const name = $('ag-name').value.trim();
+  const raw = $('ag-url').value.trim();
+  const url = raw.startsWith('http') ? raw : 'https://'+raw;
+  if (!name || url.length < 8) { toast('Nume + URL obligatorii'); return; }
+  try {
+    const d = await api('/api/founder/golden', { method:'POST', body: JSON.stringify({
+      name, url,
+      industry: $('ag-industry').value,
+      expected: { minServices: parseInt($('ag-svcs').value)||0, minPrices: parseInt($('ag-prices').value)||0, hasPhone: true }
+    })});
+    STATE.golden.items.push(d.item);
+    closeModal();
+    renderGoldenTable();
+    renderLab();
+    toast('➕ Adăugat în Golden Set');
+  } catch(e){ toast('❌ '+e.message); }
+}
+
+// ── OPS TOWER ───────────────────────────────────────────
+const OPS_DEMO = [
+  { name:'clinica-demo-1', industry:'dental', status:'active', conv: 142, leads: 31, drift: 2, cost: 0.9 },
+  { name:'salon-demo-2', industry:'beauty', status:'active', conv: 96, leads: 22, drift: 1, cost: 0.7 },
+  { name:'vet-demo-3', industry:'vet', status:'trial', conv: 41, leads: 9, drift: 0, cost: 0.4 },
+];
+function renderOps(){
+  const m = STATE.metrics || {};
+  $('ops-metrics').innerHTML = [
+    ['👥', m.activeClients||0, 'Clienți activi'],
+    ['📥', (m.leadsTotal||0)+' → '+(m.leadsToday||0), 'Lead-uri total → azi'],
+    ['🔥', (m.avgResponseTimeSec||'—')+'s', 'Răspuns mediu AI'],
+  ].map(([ic,v,l])=>`<div class="mc"><div style="font-size:15px;margin-bottom:8px">${ic}</div><div class="mc-val" style="font-size:20px">${v}</div><div class="mc-lbl">${l}</div></div>`).join('');
+
+  const rows = OPS_DEMO;
+  const stCls = { active:'var(--green)', trial:'var(--amber)', drift:'var(--red)' };
+  $('ops-tbody').innerHTML = rows.map(c=>`
+    <tr>
+      <td style="font-weight:600;color:var(--tx)">${esc(c.name)}</td>
+      <td>${IND_ICON[c.industry]||'🏢'} ${esc(c.industry)}</td>
+      <td><span class="status-dot" style="color:${stCls[c.status]||'var(--t3)'}">${c.status}</span></td>
+      <td>${c.conv}</td>
+      <td>${c.leads}</td>
+      <td class="${c.drift>3?'c-red':'c-dim'}">${c.drift>3? '▲ +'+c.drift+'%':'stabil'}</td>
+      <td class="mono">€${c.cost}</td>
+      <td><button class="btn btn-ghost btn-sm" disabled>detaliu</button></td>
+    </tr>`).join('');
+
+  const gw = m.gatewayStatus || {};
+  const om = gw.openmayhem || 'unknown';
+  $('ops-gateway').innerHTML = `
+    <div class="cf"><div class="cf-lbl">OpenMayhem</div><div class="cf-val"><span class="status-dot" style="color:${om==='up'?'var(--green)':om==='down'?'var(--red)':'var(--t3)'}">${om}</span> <span style="font-size:11px;color:var(--t3)">— gateway local, route ieftin pentru gaps</span></div></div>
+    <div class="cf"><div class="cf-lbl">Claude fallback</div><div class="cf-val"><span class="status-dot" style="color:${gw.claudeFallback==='on'?'var(--green)':'var(--t3)'}">${gw.claudeFallback||'off'}</span> <span style="font-size:11px;color:var(--t3)">— activ doar când gateway-ul cade</span></div></div>
+    <div class="cf"><div class="cf-lbl">Cost / zi</div><div class="cf-val mono">€${m.costAI||0}</div><div class="cf-pct c-amb">target &lt; €1/client</div></div>`;
+}
+
+// ── LEARNING INBOX ──────────────────────────────────────
+function renderLearning(){
+  const L = STATE.learning || {};
+  const recs = L.recommendations || [];
+  const cors = L.corrections || [];
+  const st = L.stats || {};
+  $('lr-pending').textContent = st.pending ?? recs.filter(r=>r.status==='pending').length;
+  $('lr-approved').textContent = st.approved ?? recs.filter(r=>r.status==='approved').length;
+  $('lr-corrections').textContent = st.totalCorrections ?? cors.length;
+
+  const prCls = { critical:'pr-crit', high:'pr-high', medium:'pr-med', low:'pr-med' };
+  $('lr-recs').innerHTML = recs.length ? recs.map(r=>`
+    <div class="rec">
+      <div class="rec-pr ${prCls[r.priority]||'pr-med'}">${esc(r.priority||'med')}</div>
+      <div class="rec-body">
+        <div class="rec-t">${IND_ICON[r.industry]||'🏢'} ${esc(r.industry||'global')} · ${esc(r.type||'')}</div>
+        <div class="rec-d">${esc(r.description||'')}</div>
+        <div class="rec-imp">${esc(r.impact||'')}</div>
+      </div>
+      <div class="rec-acts">
+        ${r.status==='pending' ? `
+          <button class="btn btn-teal btn-sm" onclick="setRec('${r.id}','approved')">✓ Aprobă</button>
+          <button class="btn btn-red btn-sm" onclick="setRec('${r.id}','dismissed')">✕</button>`
+        : r.status==='approved' ? '<span class="tag green">aplicată</span>' : '<span class="tag red">respinsă</span>'}
+      </div>
+    </div>`).join('') : '<div class="empty"><div class="ei">🧠</div><div class="et">Nicio recomandare</div></div>';
+
+  $('lr-corrections').innerHTML = cors.length ? cors.map(c=>`
+    <div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--b1);font-size:12px">
+      <span style="font-size:14px">📝</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:600">${esc(c.field||'')}</div>
+        <div style="color:var(--t3);margin-top:2px">${esc(c.previousValue||'—')} → <b style="color:var(--teal)">${esc(c.correctedValue||'—')}</b> · ${esc(c.reason||'')}</div>
+      </div>
+      <span style="font-size:10px;color:var(--t3);font-family:'JetBrains Mono',monospace;flex-shrink:0">${timeAgo(c.createdAt)}</span>
+    </div>`).join('') : '<div class="empty" style="padding:20px"><div class="et">Nicio corecție încă</div><div class="es">Când corectezi un preț în Lab, apare aici</div></div>';
+}
+async function setRec(id, status){
+  try {
+    const d = await api('/api/founder/learning/'+id, { method:'POST', body: JSON.stringify({ status }) });
+    const rec = (STATE.learning.recommendations||[]).find(r=>r.id===id);
+    if (rec) rec.status = status;
+    renderLearning(); updateLearnBadge();
+    toast(status==='approved' ? '✓ Recomandare aprobată — se aplică pe brain-ul industriei' : 'Recomandare respinsă');
+  } catch(e){ toast('❌ '+e.message); }
+}
+function updateLearnBadge(){
+  const n = (STATE.learning.recommendations||[]).filter(r=>r.status==='pending').length;
+  const b = $('badge-learn');
+  if (n>0){ b.textContent = n; b.classList.add('show'); } else b.classList.remove('show');
+}
+
+// ── BUSINESS ────────────────────────────────────────────
+function renderBusiness(){
+  const m = STATE.metrics || {};
+  $('biz-mrr').textContent = '€'+(m.mrr||0);
+  $('biz-mrr-sub').textContent = (m.activeClients||0)+' clienți activi';
+  $('biz-cost').textContent = '€'+(m.costAI||0);
+  // pipeline: paid = activeClients; trial = half (demo); prospects = 3x
+  const paid = m.activeClients||0;
+  $('pipe-paid').textContent = paid;
+  $('pipe-trial').textContent = Math.max(0, Math.round(paid/2));
+  $('pipe-prospect').textContent = Math.max(0, paid*3);
+  const fr = Math.max(0, Math.round(paid*0.4));
+  $('fr-clients').textContent = fr;
+  $('fr-income').textContent = '€'+(fr*25);
+  $('fr-active').textContent = Math.max(0, Math.round(fr/4));
+}
+
+// ── init ────────────────────────────────────────────────
+$('modal-golden').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+reloadAll();
+setInterval(reloadAll, 60000); // refresh silent
+</script>
+</body>
+</html>
