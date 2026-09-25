@@ -1,0 +1,105 @@
+{
+  "_meta": {
+    "version": 1,
+    "updatedAt": "2026-09-25T08:00:00Z",
+    "note": "Golden set — site-uri reale românești cu ground truth verificat manual. Verifică tu fiecare (verified=true) înainte să rulezi benchmark CI."
+  },
+  "items": [
+    {
+      "id": "lovelyskin",
+      "name": "Lovely Skin",
+      "url": "https://lovelyskin.ro",
+      "industry": "beauty",
+      "city": "București",
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "Salon beauty mare, pachete per oraș. Verifică minim 12 servicii + 12 prețuri.",
+      "expected": { "minServices": 12, "minPrices": 12, "hasPhone": true, "hasEmail": true, "hasHours": true },
+      "history": []
+    },
+    {
+      "id": "clinicatrident",
+      "name": "Clinica Stomatologică Trident",
+      "url": "https://clinicatrident.ro",
+      "industry": "dental",
+      "city": "București",
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "Cabinet mare, 50+ servicii. Test de referință pentru dental.",
+      "expected": { "minServices": 50, "minPrices": 50, "hasPhone": true, "hasEmail": false, "hasHours": true },
+      "history": []
+    },
+    {
+      "id": "lifedentalspa",
+      "name": "Life Dental Spa",
+      "url": "https://lifedentalspa.ro",
+      "industry": "dental",
+      "city": "București",
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "Rețea dentară. Verifică +40 servicii cu preț.",
+      "expected": { "minServices": 40, "minPrices": 40, "hasPhone": true, "hasEmail": true, "hasHours": true },
+      "history": []
+    },
+    {
+      "id": "amonvet",
+      "name": "Amon Vet Care",
+      "url": "https://amonvet.ro",
+      "industry": "vet",
+      "city": "București",
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "Clinică veterinară. 50+ servicii + prețuri per talie.",
+      "expected": { "minServices": 50, "minPrices": 50, "hasPhone": true, "hasEmail": false, "hasHours": true },
+      "history": []
+    },
+    {
+      "id": "esthetiquebacau",
+      "name": "Salon Esthetique Bacău",
+      "url": "https://esthetiquebacau.ro",
+      "industry": "beauty",
+      "city": "Bacău",
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "Salon beauty regional. 20+ servicii.",
+      "expected": { "minServices": 20, "minPrices": 20, "hasPhone": true, "hasEmail": true, "hasHours": true },
+      "history": []
+    },
+    {
+      "id": "vetconsult",
+      "name": "Vetconsult Brăila",
+      "url": "https://vetconsult.ro",
+      "industry": "vet",
+      "city": "Brăila",
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "Veterinar regional — test de coveraj orașe mici.",
+      "expected": { "minServices": 5, "minPrices": 0, "hasPhone": true, "hasEmail": true, "hasHours": true },
+      "history": []
+    },
+    {
+      "id": "tiadent",
+      "name": "Tia Dent Iași",
+      "url": "https://tiadent.ro",
+      "industry": "dental",
+      "city": "Iași",
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "Dental Iași — acoperire nord.",
+      "expected": { "minServices": 10, "minPrices": 0, "hasPhone": true, "hasEmail": true, "hasHours": true },
+      "history": []
+    },
+    {
+      "id": "mobilevet",
+      "name": "Mobile Vet",
+      "url": "https://mobile-vet.ro",
+      "industry": "vet",
+      "city": "București",
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "Veterinar cu deplasare — 30+ servicii.",
+      "expected": { "minServices": 30, "minPrices": 0, "hasPhone": true, "hasEmail": false, "hasHours": true },
+      "history": []
+    }
+  ]
+}
