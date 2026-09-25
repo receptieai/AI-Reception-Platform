@@ -206,6 +206,41 @@ async function scan(url, options = {}) {
     throw new Error('Extractorii nu au returnat date relevante');
   }
 
+  // PLAYWRIGHT CONTACT FALLBACK: if email is still null after static extraction
+  // of all pages, it's likely JS-rendered on /contact. Render just that page.
+  // Cheap (one page, ~2s) and only triggers when email is actually missing.
+  if (!extracted.email) {
+    const contactPage = crawlResult.pages.find(p => p.label === 'contact' || p.path === '/contact' || p.path === '/contact/');
+    if (contactPage) {
+      try {
+        const { renderPage } = require('../playwrightEngine');
+        console.log('[SCAN] Email missing — Playwright fallback on /contact…');
+        const rendered = await renderPage(contactPage.url || (crawlResult.origin + '/contact'), {
+          waitAfterLoad: 1500, scrollPage: false, expandAccordions: false
+        });
+        if (rendered.success && rendered.html) {
+          const { extractEmail } = require('../extractors_v2/contactExtractor');
+          const cf = extractEmail(rendered.html, 'contact-pw');
+          if (cf.value) {
+            extracted.email = cf.value;
+            extracted._rawConfidence.email = cf.confidence;
+            console.log('[SCAN] Playwright recovered email:', cf.value, '(' + cf.confidence + '%)');
+          } else {
+            // Also try plain text regex on rendered content
+            const textMatch = (rendered.textContent || '').match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
+            if (textMatch) {
+              extracted.email = textMatch[0].toLowerCase();
+              extracted._rawConfidence.email = 80;
+              console.log('[SCAN] Playwright text recovered email:', extracted.email);
+            }
+          }
+        }
+      } catch (e) {
+        console.log('[SCAN] Playwright contact fallback failed:', e.message);
+      }
+    }
+  }
+
   // STEP 2.5: LEARNING ENGINE — apply saved corrections (client edits beat
   // fresh extraction). businessKey is passed via options.businessKey.
   let appliedCorrections = [];
