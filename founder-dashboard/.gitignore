@@ -1,0 +1,7 @@
+# Never commit the real token
+.env
+
+# Scan history / local data (each founder runs their own)
+data/golden.json
+data/learning.json
+data/metrics.json
