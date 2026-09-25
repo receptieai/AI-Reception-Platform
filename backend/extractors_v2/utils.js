@@ -43,6 +43,29 @@ function isValidEmail(email) {
     && !email.endsWith('.png') && !email.endsWith('.jpg');
 }
 
+// ── Cloudflare Email Protection decoder ────────────────────────────
+// Many sites (dental, vet, beauty...) hide emails via Cloudflare:
+//   <a data-cfemail="1d3c17183c...">office@clinic.ro</a>
+// The real address is NOT in the static HTML — a tiny JS decodes it in
+// the browser. A static crawler sees only the hex blob, so a plain
+// regex never finds it. This XOR-decodes it (first byte = key, each
+// subsequent byte XOR key = the character). Deterministic, no AI.
+function decodeCfEmail(hex) {
+  if (!hex || typeof hex !== 'string') return null;
+  let h = hex.trim().toLowerCase();
+  if (h.length < 4 || h.length % 2 !== 0) return null;
+  if (!/^[0-9a-f]+$/.test(h)) return null;
+  const key = parseInt(h.substring(0, 2), 16);
+  if (isNaN(key)) return null;
+  let out = '';
+  for (let i = 2; i < h.length; i += 2) {
+    const b = parseInt(h.substring(i, i + 2), 16);
+    if (isNaN(b)) return null;
+    out += String.fromCharCode(b ^ key);
+  }
+  return out || null;
+}
+
 function cleanUrl(url) {
   return url.replace(/&amp;/g, '&').split('?')[0].split('#')[0].replace(/\/$/, '');
 }
@@ -76,4 +99,4 @@ const RO_CITIES = [
   'Giurgiu','Alexandria','Slobozia','Tulcea','Vaslui','Câmpina',
 ];
 
-module.exports = { field, bestField, extractJsonLd, normalizePhone, isValidEmail, cleanUrl, stripHtml, deduplicateAndScore, RO_CITIES };
+module.exports = { field, bestField, extractJsonLd, normalizePhone, isValidEmail, decodeCfEmail, cleanUrl, stripHtml, deduplicateAndScore, RO_CITIES };
