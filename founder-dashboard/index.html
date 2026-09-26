@@ -646,17 +646,17 @@ async function doScan(item, url){
 
 function renderResult(r, item, animate){
   const fields = r.fieldConfidence || {};
+  // field key -> [label, current value, confidence, mono?]
   const rows = [
-    ['Nume', r.name || '—', fields.name, ''],
-    ['Telefon', r.phone || '—', fields.phone, 'mono'],
-    ['Email', r.email || '—', fields.email, 'mono'],
-    ['Oraș', r.city || '—', fields.city, ''],
-    ['Adresă', r.address || '—', fields.address, ''],
-    ['Program', r.hours || '—', fields.hours, ''],
+    ['name', 'Nume', r.name || '—', fields.name, ''],
+    ['phone', 'Telefon', r.phone || '—', fields.phone, 'mono'],
+    ['email', 'Email', r.email || '—', fields.email, 'mono'],
+    ['city', 'Oraș', r.city || '—', fields.city, ''],
+    ['address', 'Adresă', r.address || '—', fields.address, ''],
+    ['hours', 'Program', r.hours || '—', fields.hours, ''],
   ];
   const realSvcs = (r.services||[]).filter(s=>s.method!=='typical');
   const withPrice = realSvcs.filter(s=>s.price);
-  const corrected = new Set((item && item.history||[]).length ? [] : []);
 
   $('lab-result').innerHTML = `
     <div style="background:var(--s2);border:1px solid var(--b1);border-radius:14px;padding:16px;margin-bottom:14px">
@@ -671,12 +671,12 @@ function renderResult(r, item, animate){
     </div>
 
     <div class="card mb" style="margin-bottom:14px">
-      <div class="ch"><span class="ct">📡 Câmpuri cu confidență</span><span style="font-size:11px;color:var(--t3)">click pe valoare = corectează</span></div>
+      <div class="ch"><span class="ct">📡 Confirmă / Corectează (30 sec)</span><span style="font-size:11px;color:var(--t3)">click pe un câmp → corectează → se aplică la următorul scan</span></div>
       <div style="padding:4px 16px">
-        ${rows.map(([lbl,val,conf,cls])=>`
+        ${rows.map(([key,lbl,val,conf,cls])=>`
           <div class="cf">
             <div class="cf-lbl">${lbl}</div>
-            <div class="cf-val ${cls}" style="cursor:pointer" title="Click pentru corecție">${esc(val)}</div>
+            <div class="cf-val ${cls}" style="cursor:pointer" title="Click pentru corecție" onclick="openFieldCorrection('${key}','${esc(val=== '—'?'':val)}')">${esc(val)}${conf>0?'':' <span class="tag red" style="vertical-align:1px">gata de corectat</span>'}</div>
             ${confBar(conf||0)}
           </div>`).join('')}
       </div>
@@ -734,6 +734,7 @@ async function toggleVerify(id){
 
 // correction modal
 let CORRECTION_SVC = null;
+let FIELD_CORR = null;   // { field, current }
 function openCorrection(svc, price){
   CORRECTION_SVC = svc;
   $('cr-svc').value = svc;
@@ -743,11 +744,48 @@ function openCorrection(svc, price){
   $('modal-correction').classList.add('show');
 }
 function closeCorrection(){ $('modal-correction').classList.remove('show'); }
+
+// field-level correction (name / phone / email / city / address / hours)
+const FIELD_LABELS = { name:'Nume', phone:'Telefon', email:'Email', city:'Oraș', address:'Adresă', hours:'Program' };
+function openFieldCorrection(field, current){
+  FIELD_CORR = { field, current: current || '' };
+  $('cr-svc').value = FIELD_LABELS[field] || field;
+  $('cr-svc').readOnly = true;
+  $('cr-prev').value = current || '';
+  $('cr-new').value = '';
+  $('cr-reason').value = '';
+  $('modal-correction').classList.add('show');
+}
 async function saveCorrection(){
   const svc = $('cr-svc').value.trim() || CORRECTION_SVC;
   const prev = $('cr-prev').value.trim();
   const next = $('cr-new').value.trim();
   const reason = $('cr-reason').value.trim();
+  const industry = LAST_RESULT ? LAST_RESULT.industry : 'global';
+
+  // FIELD-level correction (name/phone/email/city/address/hours)
+  if (FIELD_CORR) {
+    if (!next) { toast('Scrie valoarea corectă'); return; }
+    try {
+      await api('/api/founder/correction', { method:'POST', body: JSON.stringify({
+        field: FIELD_CORR.field,
+        correction: next,
+        previousValue: FIELD_CORR.current,
+        detector: 'founder-lab',
+        industry,
+        reason: reason || 'corecție manuală în Lab',
+      })});
+      // reflect in current result so the UI updates immediately
+      if (LAST_RESULT) LAST_RESULT[FIELD_CORR.field] = next;
+      FIELD_CORR = null;
+      $('cr-svc').readOnly = false;
+      closeCorrection();
+      toast('💾 Corecția e salvată — se aplică la următorul scan pentru toți din industrie');
+      return;
+    } catch(e){ toast('❌ '+e.message); return; }
+  }
+
+  // SERVICE price correction
   if (!svc || !next) { toast('Completează serviciu + valoare corectă'); return; }
   try {
     await api('/api/founder/correction', { method:'POST', body: JSON.stringify({
@@ -755,7 +793,7 @@ async function saveCorrection(){
       correction: { name: svc, price: next },
       previousValue: prev,
       detector: 'serviceExtractor',
-      industry: LAST_RESULT ? LAST_RESULT.industry : 'global',
+      industry,
       reason: reason || 'corecție manuală în Lab'
     })});
     closeCorrection();
