@@ -157,6 +157,18 @@ function wrapScannerData(scanResult) {
       wrapped[field] = createKnowledge(scanResult[field], source, conf, 'scanner', reason);
     }
   }
+
+  // Multi-location chains: pass every location (with its own phone + hours)
+  // into the brain so the AI can answer "what's the number in Sector 2?".
+  if (Array.isArray(scanResult.locations) && scanResult.locations.length >= 2) {
+    wrapped.locations = scanResult.locations.map((l, i) => ({
+      name: l.name || `Locația ${i + 1}`,
+      address: l.address || null,
+      city: l.city || null,
+      phone: l.phone || null,
+      hours: l.hours || null,
+    }));
+  }
   return wrapped;
 }
 
