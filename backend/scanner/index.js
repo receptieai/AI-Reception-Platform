@@ -263,6 +263,27 @@ async function scan(url, options = {}) {
     }
   }
 
+  // STEP 2.6: GOOGLE PLACES FALLBACK — if key present, fill any still-missing
+  // contact fields (phone / address / website / city) from Google's data.
+  // Silent no-op without GOOGLE_PLACES_API_KEY. Only fills what's missing.
+  const gPlacesKey = process.env.GOOGLE_PLACES_API_KEY || options.placesApiKey;
+  if (gPlacesKey && (!extracted.phone || !extracted.address || !extracted.city)) {
+    try {
+      const { googlePlacesQuery } = require('../extractors_v2/googlePlaces');
+      const g = await googlePlacesQuery(extracted.name || crawlResult.origin, extracted.address, extracted.city, gPlacesKey);
+      if (g) {
+        if (!extracted.phone && g.phone) { extracted.phone = g.phone; extracted._rawConfidence.phone = 88; }
+        if (!extracted.address && g.address) { extracted.address = g.address; extracted._rawConfidence.address = 88; }
+        if (!extracted.city && g.city) { extracted.city = g.city; extracted._rawConfidence.city = 88; }
+        if (g.website) extracted.website = g.website;
+        extracted._googleFilled = Object.keys(g).filter(k => g[k]).length;
+        console.log('[SCAN] Google Places filled missing fields (source: ' + g.source + ')');
+      }
+    } catch (e) {
+      console.log('[SCAN] Google Places fallback skipped:', e.message);
+    }
+  }
+
   // STEP 2.5: LEARNING ENGINE — apply saved corrections (client edits beat
   // fresh extraction). businessKey is passed via options.businessKey.
   let appliedCorrections = [];
@@ -300,6 +321,31 @@ async function scan(url, options = {}) {
   const textForBrain = crawlResult.pages.map(p => p.html.replace(/<[^>]+>/g, ' ')).join(' ');
   const brainResult = applyBrain(textForBrain, industry, extracted);
   console.log('[SCAN] Brain:', industry, '|', brainResult.tags.length, 'tags |', brainResult.facilities.length, 'facilities |', brainResult.insurances.length, 'insurances');
+
+  // STEP 3.5: INDUSTRY LEARNING LOOP — corrections learned from ANY client in
+  // this industry fill fields that are still missing here. This is what makes
+  // "se aplică la toți din industrie" real: fix a phone in the Lab once, and
+  // every future scan in that industry that missed it gets filled.
+  try {
+    const indCorrections = scannerLearning.getIndustryCorrections(industry);
+    const fieldList = ['name', 'phone', 'email', 'city', 'address', 'hours'];
+    let indApplied = 0;
+    for (const field of fieldList) {
+      const c = indCorrections[field];
+      if (!c || !c.correction) continue;
+      const curConf = (extracted._rawConfidence || {})[field] || 0;
+      if ((!extracted[field] || curConf < 50)) {
+        extracted[field] = c.correction;
+        extracted._rawConfidence = extracted._rawConfidence || {};
+        extracted._rawConfidence[field] = Math.max(curConf, 92);
+        appliedCorrections.push({ field: field + ':industry', value: c.correction, id: c.id });
+        indApplied++;
+      }
+    }
+    if (indApplied) console.log('[SCAN] Industry(' + industry + ') learning loop filled', indApplied, 'field(s)');
+  } catch (e) {
+    console.log('[SCAN] Industry correction apply skipped:', e.message);
+  }
 
   // STEP 4: DETECT MISSING FIELDS
   const missingFields = [];
