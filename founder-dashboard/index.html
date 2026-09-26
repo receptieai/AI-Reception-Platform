@@ -628,6 +628,7 @@ async function doScan(item, url){
     LAST_RESULT = r;
     STATE.golden.items = STATE.golden.items.map(g => g.id === item.id ? { ...g, history: (g.history||[]).concat(r._golden ? [r._golden] : []) } : g);
     labLog(`✓ ${r.name||url} — ${(r.services||[]).length} servicii · ${r.confidence||0}% acuratețe globală`, 'ok');
+    if (r.locations && r.locations.length >= 2) labLog(`📍 ${r.locations.length} locații detectate — fiecare cu telefonul propriu`, 'ok');
     if (r._golden && r._golden.accuracy != null) labLog(`✓ Acuritate vs Golden Set: ${r._golden.accuracy}%`, 'ok');
     if (r.brain && r.brain.insurances && r.brain.insurances.length) labLog('✓ Asigurări: ' + r.brain.insurances.join(', '), 'ok');
     if (r.missing && r.missing.length) labLog('Lipsă: ' + r.missing.join(', '), 'err');
@@ -697,6 +698,23 @@ function renderResult(r, item, animate){
       <div class="card-body">
         ${r.brain.insurances&&r.brain.insurances.length?`<div style="margin-bottom:8px"><div style="font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">Asigurări</div>${r.brain.insurances.map(i=>`<span class="tag purple">${esc(i)}</span>`).join('')}</div>`:''}
         ${r.brain.facilities&&r.brain.facilities.length?`<div style="margin-bottom:8px"><div style="font-size:10px;color:var(--t3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">Facilități</div>${r.brain.facilities.slice(0,10).map(f=>`<span class="tag">${esc(f)}</span>`).join('')}</div>`:''}
+      </div>
+    </div>` : ''}
+
+    ${(r.locations&&r.locations.length>=2) ? `
+    <div class="card">
+      <div class="ch"><span class="ct">📍 Locații (${r.locations.length})</span><span class="tag green">rețea multi-locație — AI-ul știe fiecare telefon</span></div>
+      <div class="card-body" style="padding-top:6px">
+        ${r.locations.map((l,i)=>`
+          <div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:${i<r.locations.length-1?'1px solid var(--b1)':'none'}">
+            <div style="width:28px;height:28px;border-radius:8px;background:var(--td);display:grid;place-items:center;font-size:13px;flex-shrink:0;margin-top:2px">📍</div>
+            <div style="flex:1;min-width:0">
+              <div style="font-size:12px;font-weight:600">${esc(l.name||('Locația '+(i+1)))}</div>
+              <div style="font-size:11px;color:var(--t2);margin-top:2px">${esc(l.address||'—')}${l.city?' · '+esc(l.city):''}</div>
+              ${l.phone?`<div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--teal);margin-top:2px">📞 ${esc(l.phone)}</div>`:''}
+              ${l.hours?`<div style="font-size:10px;color:var(--t3);margin-top:2px">🕐 ${esc(l.hours)}</div>`:''}
+            </div>
+          </div>`).join('')}
       </div>
     </div>` : ''}
   `;
