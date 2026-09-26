@@ -284,6 +284,40 @@ async function scan(url, options = {}) {
     }
   }
 
+  // STEP 2.6b: OSM OVERPASS FALLBACK — free, keyless community data.
+  // Fires when the phone is STILL missing after site+Google. Silent no-op
+  // on any failure (network down, OSM unavailable, no match).
+  if (!extracted.phone || !extracted.hours) {
+    try {
+      const { overpassBusinessQuery } = require('../extractors_v2/overpass');
+      const o = await overpassBusinessQuery(extracted.name || crawlResult.origin, extracted.city);
+      if (o) {
+        // Remember whether the SITE had a phone before OSM touched it —
+        // a "two sources agree" verdict only means something if the site
+        // had its own phone independent of OSM.
+        const siteHadPhone = !!(extracted.phone && extracted.phone.replace(/\D/g, '').length >= 9);
+        if (!extracted.phone && o.phone) { extracted.phone = o.phone; extracted._rawConfidence.phone = 82; }
+        if (!extracted.hours && o.hours) { extracted.hours = o.hours; extracted._rawConfidence.hours = 82; }
+        if (!extracted.address && o.address) { extracted.address = o.address; extracted._rawConfidence.address = 82; }
+        if (o.website) extracted.website = o.website;
+        // CROSS-CHECK: only when the site already had its own phone AND it
+        // matches OSM's — two independent sources agree → 99 confidence.
+        if (siteHadPhone && o.phone) {
+          const a = extracted.phone.replace(/\D/g, ''), b = o.phone.replace(/\D/g, '');
+          if (a.length >= 9 && a === b) {
+            extracted._rawConfidence.phone = 99;
+            extracted._phoneVerified = 'osm';
+            console.log('[SCAN] Phone verified by two sources (site + OSM) → 99%');
+          }
+        }
+        extracted._osmFilled = Object.keys(o).filter(k => o[k] && k !== 'name' && k !== 'source').length;
+        console.log('[SCAN] OSM Overpass filled missing fields (source: ' + o.source + ')');
+      }
+    } catch (e) {
+      console.log('[SCAN] Overpass fallback skipped:', e.message);
+    }
+  }
+
   // STEP 2.5: LEARNING ENGINE — apply saved corrections (client edits beat
   // fresh extraction). businessKey is passed via options.businessKey.
   let appliedCorrections = [];
@@ -432,6 +466,7 @@ async function scan(url, options = {}) {
     facilities: merged.facilities,
     payments: merged.payments,
     brain: merged.brain,
+    _phoneVerified: extracted._phoneVerified || null,
     confidence: confidence.global,
     fieldConfidence: confidence.fields,
     missing: confidence.missing,
