@@ -237,7 +237,7 @@ const server = http.createServer(async (req, res) => {
           'founder_' + (body.id || 'global'),
           body.field || 'unknown',
           body.correction,
-          { previousValue: body.previousValue, detector: body.detector || 'founder-lab' }
+          { previousValue: body.previousValue, detector: body.detector || 'founder-lab', industry: body.industry || null }
         );
         // Also store in learning.json for the dashboard UI
         const doc = learningAll();
