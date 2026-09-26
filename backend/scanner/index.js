@@ -3,6 +3,7 @@
 const { crawl } = require('./crawler');
 const { extractAll } = require('../extractors_v2/index');
 const { extractJsonLdFull } = require('../extractors_v2/jsonLdExtractor');
+const { extractLocations } = require('../extractors_v2/locationExtractor');
 const { classifyPage, recommendedExtractors } = require('./pageIntelligence');
 const { applyBrain, detectIndustry, getTypicalServices, isJsSite } = require('./businessBrain');
 const { fillMissingFields } = require('./claudeEngine');
@@ -56,6 +57,7 @@ async function scan(url, options = {}) {
   console.log('[SCAN] Step 2: Extracting per page...');
   const perPageServices = [];
   const allDoctors = [];
+  const allLocations = [];   // multi-location chains (2+ distinct addresses)
   let mergedFaq = [];             // JSON-LD FAQ (highest confidence)
   const contactFields = {};   // name, phone, email, city, address
   const socialFields = {};    // facebook, instagram, tiktok, youtube, whatsapp
@@ -86,6 +88,19 @@ async function scan(url, options = {}) {
             allDoctors.push(d);
           }
         }
+      }
+
+      // Multi-location detection: run on every page, deduplicate by address
+      try {
+        const locs = extractLocations(page.html, page.label);
+        for (const loc of locs) {
+          const key = (loc.address || '').toLowerCase().replace(/\s+/g, ' ').slice(0, 40);
+          if (key && !allLocations.some(x => (x.address || '').toLowerCase().replace(/\s+/g, ' ').slice(0, 40) === key)) {
+            allLocations.push(loc);
+          }
+        }
+      } catch (e) {
+        // location extraction is best-effort
       }
 
       // JSON-LD people / services / faq — merge in with high confidence
@@ -194,6 +209,7 @@ async function scan(url, options = {}) {
     services,
     servicesConfidence: services.length > 10 ? 90 : services.length > 3 ? 70 : services.length > 0 ? 50 : 0,
     doctors: allDoctors,
+    locations: allLocations.length >= 2 ? allLocations : [],
     facilities: bestFacilities,
     payments: bestPayments,
     _confidence: {
@@ -206,27 +222,33 @@ async function scan(url, options = {}) {
     throw new Error('Extractorii nu au returnat date relevante');
   }
 
-  // PLAYWRIGHT CONTACT FALLBACK: if email is still null after static extraction
-  // of all pages, it's likely JS-rendered on /contact. Render just that page.
-  // Cheap (one page, ~2s) and only triggers when email is actually missing.
+  // DIRECT CONTACT RENDER: if email is still null after static extraction of
+  // ALL crawled pages, render the contact page directly with Playwright —
+  // independent of whether the crawler ever visited /contact (price pages can
+  // crowd it out). Tries the crawled contact page first, then /contact/ and
+  // /contact (WordPress sites almost always use /contact/).
   if (!extracted.email) {
+    const { renderPage } = require('../playwrightEngine');
+    const { extractEmail } = require('../extractors_v2/contactExtractor');
+    const targets = [];
     const contactPage = crawlResult.pages.find(p => p.label === 'contact' || p.path === '/contact' || p.path === '/contact/');
-    if (contactPage) {
+    if (contactPage && contactPage.url) targets.push(contactPage.url);
+    targets.push(crawlResult.origin + '/contact/');
+    targets.push(crawlResult.origin + '/contact');
+    for (const target of targets.slice(0, 2)) {
+      if (extracted.email) break;
       try {
-        const { renderPage } = require('../playwrightEngine');
-        console.log('[SCAN] Email missing — Playwright fallback on /contact…');
-        const rendered = await renderPage(contactPage.url || (crawlResult.origin + '/contact'), {
+        console.log('[SCAN] Email missing — rendering', target, 'with Playwright…');
+        const rendered = await renderPage(target, {
           waitAfterLoad: 1500, scrollPage: false, expandAccordions: false
         });
         if (rendered.success && rendered.html) {
-          const { extractEmail } = require('../extractors_v2/contactExtractor');
           const cf = extractEmail(rendered.html, 'contact-pw');
           if (cf.value) {
             extracted.email = cf.value;
             extracted._rawConfidence.email = cf.confidence;
             console.log('[SCAN] Playwright recovered email:', cf.value, '(' + cf.confidence + '%)');
           } else {
-            // Also try plain text regex on rendered content
             const textMatch = (rendered.textContent || '').match(/[a-zA-Z0-9._%+\-]+@[a-zA-Z0-9.\-]+\.[a-zA-Z]{2,}/);
             if (textMatch) {
               extracted.email = textMatch[0].toLowerCase();
@@ -236,7 +258,7 @@ async function scan(url, options = {}) {
           }
         }
       } catch (e) {
-        console.log('[SCAN] Playwright contact fallback failed:', e.message);
+        console.log('[SCAN] Contact render failed for', target, ':', e.message);
       }
     }
   }
@@ -358,6 +380,7 @@ async function scan(url, options = {}) {
     whatsapp: merged.whatsapp,
     services: merged.services,
     doctors: merged.doctors,
+    locations: merged.locations || [],
     faq: merged.faq,
     description: merged.description,
     facilities: merged.facilities,
