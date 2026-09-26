@@ -664,7 +664,7 @@ function renderResult(r, item, animate){
         <div style="width:56px;height:56px;border-radius:14px;background:${r.confidence>=85?'rgba(34,197,94,.12)':r.confidence>=65?'rgba(245,158,11,.12)':'rgba(239,68,68,.12)'};display:grid;place-items:center;font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:700;color:${r.confidence>=85?'var(--green)':r.confidence>=65?'var(--amber)':'var(--red)'}">${r.confidence||0}</div>
         <div style="flex:1">
           <div style="font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:700">${esc(r.name||'')} <span class="tag ${r._golden&&r._golden.accuracy!=null?'green':''}" style="vertical-align:1px">${IND_ICON[r.industry]||'🏢'} ${esc(r.industry||'')}</span></div>
-          <div style="font-size:11px;color:var(--t3);margin-top:2px">${(r.services||[]).length} servicii · ${withPrice.length} cu preț · ${r._meta?r._meta.pagesScanned:0} pagini · ${(r._meta?r._meta.durationMs/1000:0).toFixed(1)}s</div>
+          <div style="font-size:11px;color:var(--t3);margin-top:2px">${(r.services||[]).length} servicii · ${withPrice.length} cu preț · ${r._meta?r._meta.pagesScanned:0} pagini · ${(r._meta?r._meta.durationMs/1000:0).toFixed(1)}s${r._phoneVerified?' · <span class="tag green" style="vertical-align:1px">✓ telefon verificat pe 2 surse</span>':''}</div>
         </div>
         ${r._golden && r._golden.accuracy!=null ? `<div style="text-align:right"><div style="font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:.5px">vs Golden Set</div><div style="font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700" class="${confCls(r._golden.accuracy)}">${r._golden.accuracy}%</div></div>` : ''}
       </div>
