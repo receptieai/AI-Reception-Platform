@@ -63,6 +63,12 @@ function mergeResults(extracted, claudeResult, brainResult) {
   merged.doctors = extracted.doctors || [];
   sources.doctors = { count: merged.doctors.length, confidence: merged.doctors.length > 0 ? 85 : 0, source: 'extractor' };
 
+  // LOCATIONS — multi-location chains (2+ distinct addresses). Each location
+  // carries its own phone + hours so the AI can answer "what's the number in
+  // Sector 2?" instead of always giving the first location found.
+  merged.locations = extracted.locations || [];
+  sources.locations = { count: merged.locations.length, confidence: merged.locations.length >= 2 ? 85 : 0, source: 'extractor' };
+
   // FAQ — Claude wins (extractorul nu extrage FAQ)
   const claudeFaq = claudeResult?.faq || [];
   merged.faq = claudeFaq;
