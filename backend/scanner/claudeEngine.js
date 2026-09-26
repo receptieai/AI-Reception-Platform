@@ -45,14 +45,35 @@ async function callClaude(prompt, apiKey) {
 function buildPrompt(context) {
   const { industry, pages, alreadyExtracted, missingFields, brainInferences } = context;
 
-  // Build page summaries — text only, max 800 chars per page
+  // Clean page text for the LLM — strip 80% of the markup noise BEFORE
+  // sending to the model (saves 3–5x tokens vs raw HTML and reduces
+  // hallucination: the model sees content, not tag soup).
   const pageSummaries = pages
     .filter(p => missingFields.some(f => isRelevantPage(p.label, f)))
     .slice(0, 5)
     .map(p => {
-      const text = p.html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+      let text = p.html
+        // remove non-content blocks wholesale
+        .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+        .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+        .replace(/<nav[\s\S]*?<\/nav>/gi, ' ')
+        .replace(/<footer[\s\S]*?<\/footer>/gi, ' ')
+        .replace(/<aside[\s\S]*?<\/aside>/gi, ' ')
+        .replace(/<!--[\s\S]*?-->/g, ' ')
+        .replace(/<(svg|iframe|form|button|input|img)[\s\S]*?>/gi, ' ');
+      // turn structure into readable lines: headings / lists / paragraphs
+      text = text
+        .replace(/<h[1-6][^>]*>/gi, '\n# ')
+        .replace(/<\/h[1-6]>/gi, '\n')
+        .replace(/<li[^>]*>/gi, '\n- ')
+        .replace(/<(div|p|tr|br|section|article|ul|ol|table)[^>]*>/gi, '\n')
+        .replace(/<[^>]+>/g, ' ')
+        .replace(/&nbsp;|&#160;/g, ' ')
+        .replace(/&amp;/g, '&').replace(/&eacute;/g, 'é').replace(/&iacute;/g, 'í')
+        .replace(/\s+/g, ' ')
+        .trim();
       // More text for price/service pages
-      const maxChars = ['prices','services','pachete'].includes(p.label) ? 2000 : 800;
+      const maxChars = ['prices','services','pachete'].includes(p.label) ? 2500 : 1200;
       return `[${p.label.toUpperCase()}]\n${text.substring(0, maxChars)}`;
     })
     .join('\n\n---\n\n');
@@ -152,15 +173,30 @@ async function fillMissingFields(context, apiKey) {
   }
   if (!text) return null;
 
+  let parsed;
   try {
-    const parsed = parseClaudeResponse(text);
+    parsed = parseClaudeResponse(text);
     if (parsed) {
       console.log('[CLAUDE] OK — got:', Object.keys(parsed).filter(k => parsed[k] !== null).join(', '));
     }
-    return parsed;
   } catch (e) {
     console.log('[CLAUDE] Parse error:', e.message);
     return null;
+  }
+  if (!parsed) return null;
+
+  // VALIDATE the model's answer before trusting it — a hallucinated phone
+  // number or impossible price never reaches the client's widget.
+  try {
+    const { validateAiOutput } = require('./validateEngine');
+    const { data, dropped } = validateAiOutput(parsed);
+    if (dropped.length) {
+      console.log('[VALIDATE] dropped', dropped.length, 'field(s):', dropped.slice(0, 5).join(', '));
+    }
+    return data;
+  } catch (e) {
+    console.log('[VALIDATE] skipped:', e.message);
+    return parsed;
   }
 }
 
