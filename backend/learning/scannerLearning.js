@@ -65,6 +65,7 @@ function recordCorrection(businessKey, field, correction, scan = {}) {
     correction,
     previousValue: scan.previousValue ?? null,
     detector: scan.detector || null,
+    industry: scan.industry || null,
     page: scan.page || null,
     htmlPattern: scan.htmlPattern || (scan.html ? htmlSnippet(scan.html, scan.previousValue) : null),
     timestamp: new Date().toISOString(),
@@ -95,6 +96,23 @@ function getCorrections(businessKey) {
     if (c.businessKey !== businessKey) continue;
     if (c.status !== 'active') continue;
     // Most recent correction for a field wins.
+    if (!out[c.field] || out[c.field].timestamp < c.timestamp) out[c.field] = c;
+  }
+  return out;
+}
+
+// Industry-level corrections: a correction recorded for one client in an
+// industry applies to ALL clients in that industry (the learning loop).
+// Used to FILL a missing field, or OVERRIDE one whose fresh extraction
+// failed (low confidence). Most recent correction wins per field.
+function getIndustryCorrections(industry) {
+  const db = load();
+  if (!industry) return {};
+  const out = {};
+  for (const c of db.corrections) {
+    if (c.status !== 'active') continue;
+    if (c.industry !== industry) continue;
+    if (!c.field || c.field.startsWith('price:')) continue; // field-level only
     if (!out[c.field] || out[c.field].timestamp < c.timestamp) out[c.field] = c;
   }
   return out;
@@ -131,4 +149,4 @@ function getTuningReport() {
   };
 }
 
-module.exports = { recordCorrection, getCorrections, dismissCorrection, getTuningReport, load };
+module.exports = { recordCorrection, getCorrections, getIndustryCorrections, dismissCorrection, getTuningReport, load };
