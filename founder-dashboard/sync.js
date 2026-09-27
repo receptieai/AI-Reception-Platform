@@ -31,6 +31,8 @@ function loadToken() {
 
 // CODE files only — data/ is intentionally excluded (local state).
 const FILES = [
+  'backend/receptionEngine.js',
+  'backend/server.js',
   'backend/scanner/index.js',
   'backend/scanner/crawler.js',
   'backend/scanner/mergeEngine.js',
