@@ -40,7 +40,13 @@ function isPrice(p) {
 
 function isHours(h) {
   if (!h || typeof h !== 'string') return false;
-  return /luni|mar[țt]i|miercuri|joi|vineri|s[âa]mb[âa]t[âa]|duminic|non-?stop|\d{1,2}\s*[:\-]\s*\d{2}/i.test(h);
+  if (!/(luni|mar[țt]i|miercuri|joi|vineri|s[âa]mb[âa]t[âa]|duminic|non-?stop|\d{1,2}\s*[:\-]\s*\d{2})/i.test(h)) return false;
+  // Reject impossible clocks: an AI "Luni-Vineri 03:00-04:00" is a
+  // hallucination — no clinic opens at 3am. If it contains times, at
+  // least one plausible open hour (05–22) must be present.
+  const times = [...h.matchAll(/\d{1,2}[:]\d{2}/g)].map(m => parseInt(m[0], 10));
+  if (times.length) return times.some(t => t >= 5 && t <= 22);
+  return true; // no times at all (e.g. "Non-Stop", "Consultații la program")
 }
 
 function validateAiOutput(parsed) {
