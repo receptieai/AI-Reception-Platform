@@ -56,18 +56,56 @@ function normTime(t) {
 }
 
 // Pull time ranges from a chunk: 09:00-18:00 | 9-18 | 9.00-18.00 | 09:00 – 21:00
+// Guards — what stops prices and dates from becoming "hours":
+//  - raw hour must be a real hour (<=23) and minutes <=59, so "100-200"
+//    (a price) or "2023-2024" (a date) never masquerades as opening hours.
+//  - if NEITHER side has a colon (a real HH:MM marker), BOTH sides must be
+//    1–2 digit numbers. "500-2000" (a price range) has 3–4 digits → rejected.
+//  - a range whose open part is glued to a preceding digit is rejected:
+//    inside "200-350" the "00-35" match has "2" right in front of it.
 function parseTimeRanges(text) {
   const out = [];
   const re = /(\d{1,2})\s*[.:]?\s*(\d{2})?\s*[-–—]\s*(\d{1,2})\s*[.:]?\s*(\d{2})?/g;
   let m;
   while ((m = re.exec(text)) !== null) {
-    const open = normTime(m[1] + ':' + (m[2] || '0'));
-    const close = normTime(m[3] + ':' + (m[4] || '0'));
-    if (open && close && Number(close.slice(0, 2)) > Number(open.slice(0, 2))) {
-      out.push({ open, close });
+    const openH = parseInt(m[1], 10);
+    const openMin = m[2] ? parseInt(m[2], 10) : 0;
+    const closeH = parseInt(m[3], 10);
+    const closeMin = m[4] ? parseInt(m[4], 10) : 0;
+    // Not a real clock value (price/date) → reject.
+    if (openH > 23 || closeH > 23 || openMin > 59 || closeMin > 59) continue;
+    // Real times carry a colon marker somewhere ("08:30-20:00"), or are bare
+    // 1–2 digit hours on both sides ("9-18"). Without a colon, any 3–4 digit
+    // side is a price range ("500-2000"), not a time.
+    const full = m[0];
+    const hasColon = full.includes(':');
+    if (!hasColon) {
+      const openDigits = m[1].length + (m[2] ? m[2].length : 0);
+      const closeDigits = m[3].length + (m[4] ? m[4].length : 0);
+      if (openDigits > 2 || closeDigits > 2) continue;      // "500-2000"
+      // glued-digit guard: "200-350" yields "00-35" with a digit in front
+      const pre = text.slice(Math.max(0, m.index - 1), m.index);
+      if (/[0-9]/.test(pre)) continue;
     }
+    const open = String(openH % 24).padStart(2, '0') + ':' + String(openMin).padStart(2, '0');
+    const close = String(closeH % 24).padStart(2, '0') + ':' + String(closeMin).padStart(2, '0');
+    if (open < close) out.push({ open, close });
   }
   return out;
+}
+
+// A range is "plausible business hours" only if it opens in a sane window
+// and is open for at least an hour. No clinic/salon/vet opens at 03:00; a
+// 45-minute window is almost always a mis-parse. JSON-LD hours bypass this
+// (they are structured and trusted).
+function plausibleRanges(ranges) {
+  return (ranges || []).filter(r => {
+    const oh = parseInt(r.open, 10), om = parseInt(r.open.slice(3), 10) || 0;
+    const ch = parseInt(r.close, 10), cm = parseInt(r.close.slice(3), 10) || 0;
+    if (oh < 5 || oh > 22) return false;        // opens 3am / 11pm is not real
+    if ((ch * 60 + cm) - (oh * 60 + om) < 60) return false; // <1h window
+    return true;
+  });
 }
 
 function formatDays(days) {
@@ -133,20 +171,26 @@ function extractHours(html, page = 'homepage') {
     found.push({ label, open, close });
   }
   if (found.length) {
-    candidates.push(field(found.map(f => f.label + ' ' + f.open + '-' + f.close).join(' | '), 'regex', 80, 'day-hours pattern', page));
+    const good = plausibleRanges(found);
+    // If no range survived the plausibility filter, trust nothing from here.
+    if (good.length) {
+      candidates.push(field(good.map(f => f.label + ' ' + f.open + '-' + f.close).join(' | '), 'regex', 80, 'day-hours pattern', page));
+    }
   }
 
   // Strategy B: labelled block
   const label = textOnly.match(/(?:Program|Orar|Ore de program|Program de lucru)\s*:?\s{0,20}([^\n]{10,260}?\d{1,2}[:.]\d{0,2})/i);
   if (label) {
     const ranges = parseTimeRanges(label[1]);
-    if (ranges.length) candidates.push(field(label[1].trim().substring(0, 200), 'label_text', 72, 'Program: label', page));
+    const good = plausibleRanges(ranges);
+    if (good.length) candidates.push(field(good.map(r => r.open + '-' + r.close).join(', ').slice(0, 200), 'label_text', 72, 'Program: label', page));
   }
 
   // Strategy C: bare time range (generic "09:00 – 18:00")
   const bare = parseTimeRanges(textOnly);
-  if (bare.length) {
-    const first = bare[0];
+  const bareGood = plausibleRanges(bare);
+  if (bareGood.length) {
+    const first = bareGood[0];
     candidates.push(field('Luni-Vineri ' + first.open + '-' + first.close, 'bare_range', 55, 'bare time range', page));
   }
 
