@@ -38,6 +38,7 @@ const googleAuth = require('./googleAuth');
 
 const { buildBusinessBrain } = require('./businessBrainScanner');
 const { scan: scanV3 } = require('./scanner/index');
+const { answer: deterministicAnswer, norm: normish } = require('./receptionEngine');
 
 // ── STORAGE ENGINE ──
 storage.migrate();
@@ -677,7 +678,7 @@ function detectScore(msg) {
 async function sendLeadNotification(lead) {
   try {
     const settings = storage.getSettings ? storage.getSettings(lead.clientId) : {};
-    const email = settings.notifEmail || settings.email;
+    const email = (settings && (settings.notifEmail || settings.email)) || null;
     if (!email) return;
     await sendEmail({
       to: email,
@@ -843,18 +844,49 @@ const server = http.createServer(async (req, res) => {
   if (pathname === '/api/chat' && req.method === 'POST') {
     const body = await parseBody(req);
     if (!body.messages || !body.businessProfile) { sendJson(res, { error: 'Date lipsă' }, 400); return; }
+
+    const clientId = body.clientId ?? body.businessProfile?.clientId ?? null;
+    const businessProfile = getBusinessProfile(clientId, body.businessProfile);
+
+    // ── LAYER 1: deterministic reception engine (instant, zero cost) ──
+    const lastUserMsg = (body.messages || []).filter(m => m.role === 'user').pop();
+    const lastMsgText = lastUserMsg ? lastUserMsg.content : '';
+    const det = deterministicAnswer(lastMsgText, businessProfile);
+    if (det.handled) {
+      // Deterministic answer wins — no Claude call, no hallucination risk.
+      setImmediate(() => {
+        try { saveConversation(body.messages, businessProfile, det.reply); } catch (e) {}
+      });
+      const lead = det.lead ? {
+        id: 'lead_' + Date.now(),
+        clientId: clientId || null,
+        name: det.lead.name,
+        phone: det.lead.phone,
+        service: (businessProfile.services || []).find(s => s && s.name && normish(lastMsgText).includes(normish(s.name)))?.name || null,
+        message: lastMsgText.substring(0, 200),
+        score: 'warm',
+        status: 'new',
+        createdAt: new Date().toISOString(),
+        contactedAt: null,
+      } : null;
+      if (lead && clientId) {
+        try { storage.saveLead(lead); sendLeadNotification(lead); } catch (e) {}
+      }
+      sendJson(res, { success: true, message: det.reply, engine: 'deterministic', lead: lead || null });
+      return;
+    }
+
+    // ── LAYER 2: Claude for everything the engine can't answer ──
     if (!CLAUDE_API_KEY) {
-      sendJson(res, { success: true, message: 'Bună ziua! Vă pot ajuta cu o programare.', mock: true });
+      sendJson(res, { success: true, message: 'Bună ziua! Vă pot ajuta cu o programare. Telefon: ' + (businessProfile.phone || 'necunoscut') + '.', engine: 'fallback' });
       return;
     }
     try {
-      const clientId = body.clientId ?? body.businessProfile?.clientId ?? null;
-      const businessProfile = getBusinessProfile(clientId, body.businessProfile);
       const result = await chatWithAI(body.messages, businessProfile, body.personality);
       // Save conversation for Learning Engine
       setImmediate(() => {
         try {
-          saveConversation(body.messages, body.businessProfile, result.message || '');
+          saveConversation(body.messages, businessProfile, result.message || '');
         } catch(e) {}
       });
       // ── LEAD DETECTION ──────────────────────────────
@@ -885,7 +917,7 @@ const server = http.createServer(async (req, res) => {
           }
         } catch(e) {}
       });
-      sendJson(res, result);
+      sendJson(res, { ...result, engine: 'claude' });
     } catch (e) { sendJson(res, { error: 'Chat error' }, 500); }
     return;
   }
