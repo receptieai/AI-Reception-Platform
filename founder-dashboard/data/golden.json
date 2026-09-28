@@ -1,7 +1,7 @@
 {
   "_meta": {
     "version": 1,
-    "updatedAt": "2026-09-25T08:00:00Z",
+    "updatedAt": "2026-09-27T17:53:34.542Z",
     "note": "Golden set — site-uri reale românești cu ground truth verificat manual. Verifică tu fiecare (verified=true) înainte să rulezi benchmark CI."
   },
   "items": [
@@ -14,8 +14,90 @@
       "verified": false,
       "verifiedBy": null,
       "notes": "Salon beauty mare, pachete per oraș. Verifică minim 12 servicii + 12 prețuri.",
-      "expected": { "minServices": 12, "minPrices": 12, "hasPhone": true, "hasEmail": true, "hasHours": true },
-      "history": []
+      "expected": {
+        "minServices": 12,
+        "minPrices": 12,
+        "hasPhone": true,
+        "hasEmail": true,
+        "hasHours": true
+      },
+      "history": [
+        {
+          "at": "2026-09-25T18:59:08.582Z",
+          "global": 86,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 95,
+            "address": 95,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 0,
+            "faq": 50,
+            "brain": 8
+          },
+          "servicesCount": 47,
+          "pricesCount": 47,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 110171,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-26T15:14:17.671Z",
+          "global": 86,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 95,
+            "address": 95,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 0,
+            "faq": 50,
+            "brain": 8
+          },
+          "servicesCount": 47,
+          "pricesCount": 47,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 127853,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-26T15:25:20.625Z",
+          "global": 86,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 95,
+            "address": 95,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 0,
+            "faq": 50,
+            "brain": 8
+          },
+          "servicesCount": 47,
+          "pricesCount": 47,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 97786,
+          "accuracy": 100
+        }
+      ]
     },
     {
       "id": "clinicatrident",
@@ -26,8 +108,390 @@
       "verified": false,
       "verifiedBy": null,
       "notes": "Cabinet mare, 50+ servicii. Test de referință pentru dental. Email: office@clinicatrident.ro (pe /contact).",
-      "expected": { "minServices": 50, "minPrices": 50, "hasPhone": true, "hasEmail": true, "hasHours": true },
-      "history": []
+      "expected": {
+        "minServices": 50,
+        "minPrices": 50,
+        "hasPhone": true,
+        "hasEmail": true,
+        "hasHours": true
+      },
+      "history": [
+        {
+          "at": "2026-09-25T18:21:34.708Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2705,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T18:37:16.511Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 3704,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T18:45:56.515Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2767,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T18:49:33.678Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2656,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T18:57:25.719Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 8097,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T18:59:54.479Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2654,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T19:10:34.750Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2755,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T19:15:31.252Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2847,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T19:28:22.217Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2826,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-25T19:36:35.275Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2677,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-26T08:23:18.635Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2919,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-26T08:26:23.614Z",
+          "global": 84,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 72,
+          "pages": 15,
+          "durationMs": 2712,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-26T12:36:07.488Z",
+          "global": 92,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 80,
+          "pages": 15,
+          "durationMs": 9962,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-26T15:29:35.972Z",
+          "global": 92,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 80,
+          "pages": 15,
+          "durationMs": 5734,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-27T13:48:32.066Z",
+          "global": 92,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 165,
+          "pricesCount": 165,
+          "ready": 80,
+          "pages": 15,
+          "durationMs": 6136,
+          "accuracy": 100
+        }
+      ]
     },
     {
       "id": "lifedentalspa",
@@ -38,8 +502,65 @@
       "verified": false,
       "verifiedBy": null,
       "notes": "Rețea dentară. Verifică +40 servicii cu preț.",
-      "expected": { "minServices": 40, "minPrices": 40, "hasPhone": true, "hasEmail": true, "hasHours": true },
-      "history": []
+      "expected": {
+        "minServices": 40,
+        "minPrices": 40,
+        "hasPhone": true,
+        "hasEmail": true,
+        "hasHours": true
+      },
+      "history": [
+        {
+          "at": "2026-09-26T08:25:14.865Z",
+          "global": 94,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 95,
+            "address": 95,
+            "hours": 95,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 80,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 68,
+          "pricesCount": 68,
+          "ready": 90,
+          "pages": 12,
+          "durationMs": 112325,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-26T08:28:19.890Z",
+          "global": 94,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 95,
+            "address": 95,
+            "hours": 95,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 80,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 68,
+          "pricesCount": 68,
+          "ready": 90,
+          "pages": 12,
+          "durationMs": 110271,
+          "accuracy": 100
+        }
+      ]
     },
     {
       "id": "amonvet",
@@ -50,8 +571,40 @@
       "verified": false,
       "verifiedBy": null,
       "notes": "Clinică veterinară. 50+ servicii + prețuri per talie.",
-      "expected": { "minServices": 50, "minPrices": 50, "hasPhone": true, "hasEmail": false, "hasHours": true },
-      "history": []
+      "expected": {
+        "minServices": 50,
+        "minPrices": 50,
+        "hasPhone": true,
+        "hasEmail": false,
+        "hasHours": true
+      },
+      "history": [
+        {
+          "at": "2026-09-26T08:28:55.191Z",
+          "global": 90,
+          "fields": {
+            "name": 85,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 105,
+          "pricesCount": 105,
+          "ready": 80,
+          "pages": 15,
+          "durationMs": 12338,
+          "accuracy": 100
+        }
+      ]
     },
     {
       "id": "esthetiquebacau",
@@ -60,9 +613,15 @@
       "industry": "beauty",
       "city": "Bacău",
       "verified": false,
-      "verifiedBy": null,
+      "verifiedBy": "founder",
       "notes": "Salon beauty regional. 20+ servicii.",
-      "expected": { "minServices": 20, "minPrices": 20, "hasPhone": true, "hasEmail": true, "hasHours": true },
+      "expected": {
+        "minServices": 20,
+        "minPrices": 20,
+        "hasPhone": true,
+        "hasEmail": true,
+        "hasHours": true
+      },
       "history": []
     },
     {
@@ -74,8 +633,215 @@
       "verified": false,
       "verifiedBy": null,
       "notes": "Veterinar regional — test de coveraj orașe mici.",
-      "expected": { "minServices": 5, "minPrices": 0, "hasPhone": true, "hasEmail": true, "hasHours": true },
-      "history": []
+      "expected": {
+        "minServices": 5,
+        "minPrices": 0,
+        "hasPhone": true,
+        "hasEmail": true,
+        "hasHours": true
+      },
+      "history": [
+        {
+          "at": "2026-09-26T08:30:52.750Z",
+          "global": 59,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 0,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 40,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 72
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 53,
+          "pages": 15,
+          "durationMs": 72245,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-26T12:37:37.783Z",
+          "global": 59,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 0,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 40,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 72
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 53,
+          "pages": 15,
+          "durationMs": 75562,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-26T12:41:11.664Z",
+          "global": 59,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 0,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 40,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 72
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 53,
+          "pages": 15,
+          "durationMs": 72283,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-26T15:11:39.445Z",
+          "global": 59,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 0,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 40,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 72
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 53,
+          "pages": 15,
+          "durationMs": 74047,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-26T15:30:57.674Z",
+          "global": 59,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 0,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 40,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 72
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 53,
+          "pages": 15,
+          "durationMs": 70975,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-26T18:56:24.168Z",
+          "global": 59,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 0,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 40,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 72
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 53,
+          "pages": 15,
+          "durationMs": 78652,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-27T08:25:40.828Z",
+          "global": 62,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 40,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 72
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 60,
+          "pages": 15,
+          "durationMs": 75660,
+          "accuracy": 80
+        },
+        {
+          "at": "2026-09-27T13:49:59.116Z",
+          "global": 59,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 0,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 40,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 72
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 53,
+          "pages": 15,
+          "durationMs": 72529,
+          "accuracy": 80
+        }
+      ]
     },
     {
       "id": "tiadent",
@@ -86,8 +852,40 @@
       "verified": false,
       "verifiedBy": null,
       "notes": "Dental Iași — acoperire nord.",
-      "expected": { "minServices": 10, "minPrices": 0, "hasPhone": true, "hasEmail": true, "hasHours": true },
-      "history": []
+      "expected": {
+        "minServices": 10,
+        "minPrices": 0,
+        "hasPhone": true,
+        "hasEmail": true,
+        "hasHours": true
+      },
+      "history": [
+        {
+          "at": "2026-09-26T08:33:12.819Z",
+          "global": 91,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 80,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 115,
+          "pricesCount": 115,
+          "ready": 90,
+          "pages": 15,
+          "durationMs": 51186,
+          "accuracy": 100
+        }
+      ]
     },
     {
       "id": "mobilevet",
@@ -98,8 +896,274 @@
       "verified": false,
       "verifiedBy": null,
       "notes": "Veterinar cu deplasare — 30+ servicii.",
-      "expected": { "minServices": 30, "minPrices": 0, "hasPhone": true, "hasEmail": false, "hasHours": true },
-      "history": []
+      "expected": {
+        "minServices": 30,
+        "minPrices": 0,
+        "hasPhone": true,
+        "hasEmail": false,
+        "hasHours": true
+      },
+      "history": [
+        {
+          "at": "2026-09-26T08:35:30.089Z",
+          "global": 83,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 80,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 71,
+          "pricesCount": 71,
+          "ready": 72,
+          "pages": 17,
+          "durationMs": 69386,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-26T09:24:12.219Z",
+          "global": 83,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 80,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 71,
+          "pricesCount": 71,
+          "ready": 72,
+          "pages": 17,
+          "durationMs": 59946,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-26T12:39:10.214Z",
+          "global": 83,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 80,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 71,
+          "pricesCount": 71,
+          "ready": 72,
+          "pages": 17,
+          "durationMs": 68808,
+          "accuracy": 100
+        }
+      ]
+    },
+    {
+      "id": "crystal-vet_muimgskj",
+      "name": "crystal-vet",
+      "url": "https://crystal-vet.ro/",
+      "industry": "auto",
+      "city": null,
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "",
+      "expected": {
+        "minServices": 10,
+        "minPrices": 5,
+        "hasPhone": true
+      },
+      "history": [
+        {
+          "at": "2026-09-26T16:47:03.004Z",
+          "global": 55,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 0,
+            "address": 80,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 52,
+          "pages": 15,
+          "durationMs": 13396,
+          "accuracy": 33
+        },
+        {
+          "at": "2026-09-26T18:54:54.837Z",
+          "global": 55,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 0,
+            "address": 80,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 52,
+          "pages": 15,
+          "durationMs": 14485,
+          "accuracy": 33
+        },
+        {
+          "at": "2026-09-27T13:48:02.985Z",
+          "global": 55,
+          "fields": {
+            "name": 100,
+            "phone": 100,
+            "email": 0,
+            "city": 0,
+            "address": 80,
+            "hours": 78,
+            "services": 30,
+            "prices": 0,
+            "facebook": 90,
+            "instagram": 90,
+            "doctors": 65,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 8,
+          "pricesCount": 0,
+          "ready": 52,
+          "pages": 15,
+          "durationMs": 10859,
+          "accuracy": 33
+        }
+      ]
+    },
+    {
+      "id": "denta-vita_mujwkseu",
+      "name": "denta vita",
+      "url": "https://satoshicourt.com",
+      "industry": "auto",
+      "city": null,
+      "verified": false,
+      "verifiedBy": null,
+      "notes": "",
+      "expected": {
+        "minServices": 10,
+        "minPrices": 5,
+        "hasPhone": true
+      },
+      "history": [
+        {
+          "at": "2026-09-27T14:17:46.040Z",
+          "global": 87,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 40,
+            "instagram": 40,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 50,
+          "pricesCount": 50,
+          "ready": 83,
+          "pages": 1,
+          "durationMs": 6269,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-27T14:20:44.620Z",
+          "global": 87,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 40,
+            "instagram": 40,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 50,
+          "pricesCount": 50,
+          "ready": 83,
+          "pages": 1,
+          "durationMs": 6842,
+          "accuracy": 100
+        },
+        {
+          "at": "2026-09-27T17:53:34.541Z",
+          "global": 87,
+          "fields": {
+            "name": 80,
+            "phone": 100,
+            "email": 100,
+            "city": 80,
+            "address": 80,
+            "hours": 78,
+            "services": 95,
+            "prices": 95,
+            "facebook": 40,
+            "instagram": 40,
+            "doctors": 90,
+            "faq": 50,
+            "brain": 100
+          },
+          "servicesCount": 50,
+          "pricesCount": 50,
+          "ready": 83,
+          "pages": 1,
+          "durationMs": 5137,
+          "accuracy": 100
+        }
+      ]
     }
   ]
 }
