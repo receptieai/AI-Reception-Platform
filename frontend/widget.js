@@ -633,16 +633,64 @@ Apoi adaugă exact: [LEAD_READY]`;
 
   // ── INIT CHAT ─────────────────────────────────
   async function initChat() {
+    // 1) Try the saved profile (filled by the scanner via /api/scan)
     try {
       const r = await fetch(`${C.apiUrl}/api/profile/${C.clientId}`);
       const d = await r.json();
-      if (d.profile) { businessProfile = d.profile; window._rcpai_profile = d.profile; }
-    } catch(e) {}
+      if (d.profile) businessProfile = normalizeProfile(d.profile);
+    } catch (e) { }
+
+    // 2) If the profile is empty/missing, SCAN this page live and cache it.
+    //    The scanner works even without a Claude key (deterministic
+    //    extractors), so this makes the widget self-sufficient: one script
+    //    tag is all a client needs.
+    if (!businessProfile || (!businessProfile.phone && !(businessProfile.services || []).length)) {
+      try {
+        const sr = await fetch(`${C.apiUrl}/api/scan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            url: window.location.origin + window.location.pathname,
+            clientId: C.clientId,
+            industry: script?.getAttribute('data-industrie') || 'auto',
+          }),
+        });
+        const sd = await sr.json();
+        if (sd && sd.success) businessProfile = normalizeProfile(sd);
+      } catch (e) { console.log('[RecepAI] live scan failed:', e.message); }
+    }
+
+    // 3) Last resort: use what the script tag itself declares.
+    if (!businessProfile) {
+      businessProfile = {
+        name: C.name,
+        phone: C.phone || null,
+        email: C.ownerEmail || null,
+        services: [],
+        faq: [],
+        insurances: [],
+      };
+    }
+    window._rcpai_profile = businessProfile;
+
+    // The deterministic engine needs brain-level lists at the top level
+    // (the scan result nests them under brain)
+    function normalizeProfile(p) {
+      const out = { ...p };
+      if (p.brain) {
+        out.insurances = out.insurances || p.brain.insurances || [];
+        out.facilities = out.facilities || p.brain.facilities || [];
+      }
+      out.name = out.name || p.name || C.name;
+      out.phone = out.phone || C.phone || null;
+      return out;
+    }
+
     showTyping(true);
     await new Promise(r => setTimeout(r, 800));
     showTyping(false);
 
-    const greeting = `Bună ziua! 👋 Sunt recepționistul virtual al **${C.name}**.\n\nCu ce vă pot ajuta astăzi?`;
+    const greeting = `Bună ziua! 👋 Sunt recepționistul virtual al ${C.name}.\n\nCu ce vă pot ajuta astăzi?`;
     addMessage(greeting, 'bot');
     conversationHistory.push({ role: 'assistant', content: greeting });
   }
