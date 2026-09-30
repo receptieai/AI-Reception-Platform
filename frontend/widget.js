@@ -422,7 +422,16 @@ Apoi adaugă exact: [LEAD_READY]`;
 
       if (!response.ok) throw new Error('API error: ' + response.status);
       const data = await response.json();
-      const reply = data.message || 'Îmi pare rău, a apărut o eroare. Vă rog sunați direct.';
+      // Accept reply shapes from old and new server versions:
+      // {message} (chatWithAI) or {reply} (deterministic engine)
+      const reply = data.message || data.reply || null;
+      if (data.lead) {
+        // Server already captured the lead — don't double-send
+        collectedData.phone = data.lead.phone || collectedData.phone;
+        collectedData.name = data.lead.name || collectedData.name;
+        leadSent = true;
+      }
+      if (!reply) throw new Error('API returned no reply (server may be running an old version)');
       conversationHistory.push({ role: 'assistant', content: reply });
       return reply;
     } catch (e) {
