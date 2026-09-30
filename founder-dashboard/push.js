@@ -46,6 +46,12 @@ const FILES = [
   'backend/extractors_v2/index.js',
   'backend/extractors_v2/utils.js',
   'backend/extractors_v2/contactExtractor.js',
+  'backend/receptionEngine.js',
+  'backend/scanner/index.js',
+  'backend/scanner/mergeEngine.js',
+  'backend/extractors_v2/faqExtractor.js',
+  'frontend/widget.js',
+  'founder-dashboard/sync.js',
 ];
 
 function api(p, method, body) {
