@@ -69,10 +69,18 @@ function mergeResults(extracted, claudeResult, brainResult) {
   merged.locations = extracted.locations || [];
   sources.locations = { count: merged.locations.length, confidence: merged.locations.length >= 2 ? 85 : 0, source: 'extractor' };
 
-  // FAQ — Claude wins (extractorul nu extrage FAQ)
+  // FAQ — extracted FAQ (from visible HTML / JSON-LD) wins; Claude fills
+  // the gap. Real site questions beat invented ones — this is the single
+  // biggest driver of "the bot knows the real answers".
+  const extFaq = extracted.faqPool || [];
   const claudeFaq = claudeResult?.faq || [];
-  merged.faq = claudeFaq;
-  sources.faq = { count: claudeFaq.length, confidence: claudeFaq.length > 0 ? 80 : 0, source: 'claude' };
+  merged.faq = [...extFaq];
+  for (const f of claudeFaq) {
+    if (!merged.faq.some(x => (x.question || '').toLowerCase().slice(0, 40) === (f.question || '').toLowerCase().slice(0, 40))) {
+      merged.faq.push(f);
+    }
+  }
+  sources.faq = { count: merged.faq.length, confidence: merged.faq.length > 0 ? 85 : 0, source: extFaq.length ? 'extractor' : 'claude' };
 
   // DESCRIPTION — Claude wins
   merged.description = claudeResult?.description || null;
