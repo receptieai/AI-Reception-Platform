@@ -16,21 +16,52 @@ function norm(s) {
   return String(s || '').toLowerCase().replace(/[ăâîșşțĂÂÎȘŞȚ]/g, c => ACC[c] || c).replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
+// Small synonym table so natural patient phrasing matches service names:
+// "sa o scot" → extractie, "sparg o placa" → obturație, etc.
+const SYNS = {
+  'scot': 'extractie', 'scoti': 'extractie', 'scotea': 'extractie', 'extrag': 'extractie',
+  'extract': 'extractie', 'placa': 'obturatie', 'placare': 'obturatie',
+  'plomb': 'obturatie', 'plombare': 'obturatie', 'obtur': 'obturatie',
+};
+
+function expandSynonyms(msgNorm) {
+  let out = msgNorm;
+  for (const [k, v] of Object.entries(SYNS)) {
+    if (out.includes(k)) out += ' ' + v;
+  }
+  return out;
+}
+
+// Loose containment: "extractia" contains the 6-char stem of "extractie",
+// "placa" matches "placare", diacritics are already normalized by norm().
+function wordMatches(word, q) {
+  if (q.includes(word)) return true;
+  if (word.length >= 4) {
+    const stem = word.slice(0, 6);
+    if (q.includes(stem)) return true;
+  }
+  return false;
+}
+
 function pickService(profile, msgNorm) {
   const svcs = (profile.services || []).filter(s => s && s.name);
+  const q = expandSynonyms(msgNorm);
   // exact-ish match: service name appears in the message
   let best = null, bestLen = 0;
   for (const s of svcs) {
     const n = norm(s.name);
-    if (n.length >= 4 && msgNorm.includes(n)) { if (n.length > bestLen) { best = s; bestLen = n.length; } }
+    if (n.length >= 4 && q.includes(n)) { if (n.length > bestLen) { best = s; bestLen = n.length; } }
   }
   if (best) return best;
-  // key-word match: 3+ char words of the service name
+  // key-word match: 3+ char words of the service name, stemmed
   best = null; bestLen = 0;
   for (const s of svcs) {
     const words = norm(s.name).split(' ').filter(w => w.length > 3);
     let hit = 0, total = 0;
-    for (const w of words) { total += w.length; if (msgNorm.includes(w)) hit += w.length; }
+    for (const w of words) {
+      total += w.length;
+      if (wordMatches(w, q)) hit += w.length;
+    }
     if (hit >= 4 && hit >= total * 0.4) { if (hit > bestLen) { best = s; bestLen = hit; } }
   }
   return best;
@@ -69,13 +100,17 @@ function isHoursIntent(t) {
   return /\b(program|orar|deschis|deschis[ae]?|ore|cat (este|e) (programul|orarul)|function[ae]zi|deschideti|deschideți|inchis|închis|noaptea|s[âa]mb[âa]t[âa])\b/.test(t);
 }
 function isLocationIntent(t) {
-  return /\b(adres|unde|locatie|locație|gasiti|găsiți|ajung|parcare|metrou|acces|und e|aflați|aflati)\b/.test(t);
+  return /\b(adres|adresa|undeva?|und e|und esti|locatie|locație|gasiti|găsiți|găsiti|ajung|parcare|metrou|acces|trajet|aflați|aflati)\b/.test(t);
 }
 function isInsuranceIntent(t) {
   return /\b(asigurari|asigurări|casmb|biznis|medicover|medlife|allianz|generali|signal iduna|decont|decontare|card (de )?sanatate|sănătate)\b/.test(t);
 }
 function isUrgencyIntent(t) {
-  return /\b(urgent|urgent[ae]|durere|doare|sanger|sânge|sange|imediat|urgent[ae]|infectie|înfectie|extracție|extractie (urgent)|molar de minte|dentinar urgent|dentar urgent)\b/.test(t);
+  // Strong emergency signals only. "doare/durere" alone was removed: most
+  // price questions contain it ("ma doare maseaua, cat costa sa o scot")
+  // and the urgent reply was hijacking real price questions. A genuine
+  // emergency is signaled by urgent/sange/infectie/imediat/molar inclus.
+  return /\b(urgent|urgen|sanger|sânge|sange|imediat|infectie|înfectie|molar (de )?minte (inclus|includ)|inclus|extrae? (urgent|imediat))\b/.test(t);
 }
 function isDoctorsIntent(t) {
   // Substring root-match so "medicii", "medicești", "medice" all hit,
@@ -145,11 +180,43 @@ function answer(message, profile) {
     }
   }
 
-  // 5) LOCATION / ACCESS
+  // 5) LOCATION / ACCESS — works with facilities as an OBJECT (scanner shape:
+  // {parking:{available,details}}) or as a plain array. Always returns a
+  // real answer when address/facilities are known — never falls through.
   if (isLocationIntent(t)) {
+    const fac = (p.facilities && typeof p.facilities === 'object' && !Array.isArray(p.facilities)) ? p.facilities : {};
+    const det = (k) => fac[k] && fac[k].available !== false ? (fac[k].details ? String(fac[k].details) : 'da') : null;
+
+    if (/parc/.test(t)) {
+      const d = det('parking');
+      if (d) return { reply: '🚗 Da, avem parcare: ' + d + (p.address ? '\nAdresa: ' + p.address : '.'), handled: true };
+    }
+    if (/metr|ajung|trajet/i.test(t)) {
+      const d = det('metro');
+      if (d) return { reply: '🚇 Metrou: ' + d + (p.address ? '\nAdresa: ' + p.address : '.'), handled: true };
+    }
+    if (/dizab|ramp|invalid/.test(t)) {
+      const d = det('disability');
+      if (d) return { reply: '♿ Acces pentru persoane cu dizabilități: ' + d + '.', handled: true };
+    }
+
     const bits = [p.address ? `📍 ${p.address}` : null, p.city ? p.city : null,
-      (p.facilities || []).filter(f => /parc|metr|acces/i.test(f)).map(f => f)].filter(Boolean);
-    if (bits.length) return { reply: bits.join('\n') + (phone ? `\nPentru orientare, sunați la ${phone}.` : ''), handled: true };
+      Array.isArray(p.facilities) ? p.facilities.filter(f => /parc|metr|acces/i.test(String(f))).slice(0, 2) : []
+    ].filter(Boolean);
+    if (bits.length) return { reply: bits.join('\n') + (phone ? '\nPentru orientare, sunați la ' + phone + '.' : ''), handled: true };
+    // Address genuinely unknown → still answer honestly instead of crashing
+    return { reply: 'Ne găsiți la ' + (p.address || 'adresa din secțiunea Contact a site-ului') + (phone ? '. Pentru traseu, sunați la ' + phone + ' 📍' : '.'), handled: true };
+  }
+
+  // 5b) PAYMENT — card / rates / cash from the payments object
+  {
+    const pay = (p.payments && typeof p.payments === 'object') ? p.payments : {};
+    if (/\b(card|cardul|visa|mastercard|pos)\b/.test(t) && pay.card && pay.card.available) {
+      return { reply: 'Da, acceptăm plata cu card (Visa/Mastercard), numerar și transfer bancar.', handled: true };
+    }
+    if (/rate/.test(t) && pay.rates && pay.rates.available) {
+      return { reply: 'Da, oferim plata în rate' + (pay.rates.provider ? ' prin ' + pay.rates.provider : '') + '.', handled: true };
+    }
   }
 
   // 6) INSURANCE
