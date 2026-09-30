@@ -4,6 +4,7 @@ const { crawl } = require('./crawler');
 const { extractAll } = require('../extractors_v2/index');
 const { extractJsonLdFull } = require('../extractors_v2/jsonLdExtractor');
 const { extractLocations } = require('../extractors_v2/locationExtractor');
+const { extractFaq } = require('../extractors_v2/faqExtractor');
 const { classifyPage, recommendedExtractors } = require('./pageIntelligence');
 const { applyBrain, detectIndustry, getTypicalServices, isJsSite } = require('./businessBrain');
 const { fillMissingFields } = require('./claudeEngine');
@@ -59,6 +60,7 @@ async function scan(url, options = {}) {
   const allDoctors = [];
   const allLocations = [];   // multi-location chains (2+ distinct addresses)
   let mergedFaq = [];             // JSON-LD FAQ (highest confidence)
+  const faqPool = [];             // FAQ pairs extracted from visible HTML
   const contactFields = {};   // name, phone, email, city, address
   const socialFields = {};    // facebook, instagram, tiktok, youtube, whatsapp
   const bestHours = { value: null, confidence: 0 };
@@ -101,6 +103,19 @@ async function scan(url, options = {}) {
         }
       } catch (e) {
         // location extraction is best-effort
+      }
+
+      // FAQ pairs from visible HTML (<details>/<summary>, accordions).
+      // These feed the chatbot's brain — a site with a real FAQ section
+      // should NOT be answered from guesses.
+      try {
+        for (const f of extractFaq(page.html, page.label)) {
+          if (!faqPool.some(x => (x.question || '').toLowerCase().slice(0, 40) === (f.question || '').toLowerCase().slice(0, 40))) {
+            faqPool.push(f);
+          }
+        }
+      } catch (e) {
+        // faq extraction is best-effort
       }
 
       // JSON-LD people / services / faq — merge in with high confidence
@@ -209,6 +224,7 @@ async function scan(url, options = {}) {
     services,
     servicesConfidence: services.length > 10 ? 90 : services.length > 3 ? 70 : services.length > 0 ? 50 : 0,
     doctors: allDoctors,
+    faqPool,
     locations: allLocations.length >= 2 ? allLocations : [],
     facilities: bestFacilities,
     payments: bestPayments,
@@ -441,6 +457,12 @@ async function scan(url, options = {}) {
   const duration = Date.now() - startTime;
   const readiness = calculateReadiness(merged, industry);
 
+  // Normalize FAQ to {question, answer} — JSON-LD uses {q, a}, extractors
+  // use {question, answer}. The chatbot's brain needs one shape.
+  const faq = (merged.faq || [])
+    .map(f => f && ((f.question || f.q) ? { question: f.question || f.q, answer: f.answer || f.a, ...f } : null))
+    .filter(Boolean);
+
   return {
     success: true,
     readiness,
@@ -461,7 +483,7 @@ async function scan(url, options = {}) {
     services: merged.services,
     doctors: merged.doctors,
     locations: merged.locations || [],
-    faq: merged.faq,
+    faq,
     description: merged.description,
     facilities: merged.facilities,
     payments: merged.payments,
