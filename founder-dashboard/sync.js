@@ -56,6 +56,7 @@ const FILES = [
   'backend/extractors_v2/paymentExtractor.js',
   'backend/extractors_v2/facilityExtractor.js',
   'backend/extractors_v2/socialExtractor.js',
+  'backend/extractors_v2/faqExtractor.js',
   'backend/brainbank/brainbank.js',
   'frontend/widget.js',
   'founder-dashboard/server.js',
