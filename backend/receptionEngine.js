@@ -126,12 +126,124 @@ function isContactIntent(t) {
   return /\b(contact|telefon|suna|sună|sunati|sunăți|num[ră]r|email|whatsapp|mesaj|contacta)\b/.test(t);
 }
 
+// ── MULTI-INTENT: answer EVERY question in one message ──────────────
+// A patient often asks several things at once ("aveti parcare, cat costa
+// un implant si ce adresa aveti?"). The old engine returned on the FIRST
+// intent it found, so the rest were ignored. Each resolver below checks
+// whether its intent is present in the message and returns an answer if so;
+// we collect ALL active answers and join them, so one message gets every
+// answer in one reply.
+const facDetails = (p) => {
+  const fac = (p.facilities && typeof p.facilities === 'object' && !Array.isArray(p.facilities)) ? p.facilities : {};
+  return (k) => fac[k] && fac[k].available !== false ? (fac[k].details ? String(fac[k].details) : 'da') : null;
+};
+
+function resolveUrgent(t, p, phone) {
+  if (!isUrgencyIntent(t)) return null;
+  const em = p.emergencyPhone || p.phone;
+  return `Pentru urgențe sunați imediat la ${em ? em : 'recepția'} — avem medic de gardă 24/7 🚨\nDacă nu puteți suna, veniți direct: ${p.address || 'adresa din site'}.`;
+}
+
+function resolvePrice(t, p, phone) {
+  if (!isPriceIntent(t)) return null;
+  const svc = pickService(p, t);
+  if (svc && svc.price) {
+    return `${svc.name}: ${priceText(svc)}${svc.duration ? ' · durează ' + svc.duration : ''}.\nDoriți să vă programăm? Scrieți-mi numele și telefonul 😊`;
+  }
+  const withPrice = (p.services || []).filter(s => s && s.price).slice(0, 6);
+  if (withPrice.length) {
+    const lines = withPrice.map(s => `• ${s.name} — ${priceText(s)}`).join('\n');
+    return `Câteva dintre prețurile noastre:\n${lines}`;
+  }
+  return `Pentru prețuri exacte, vă rog sunați la ${phone || 'recepție'}.`;
+}
+
+function resolveHours(t, p, phone) {
+  if (!isHoursIntent(t) || !p.hours) return null;
+  return `🕐 Programul nostru: ${p.hours}${phone ? '\nPentru urgențe: ' + phone + ' (24/7).' : ''}`;
+}
+
+function resolveLocation(t, p, phone) {
+  if (!isLocationIntent(t)) return null;
+  const det = facDetails(p);
+  const bits = [];
+  if (/parc/.test(t)) {
+    const d = det('parking');
+    bits.push(d ? '🚗 Da, avem parcare: ' + d : 'Pentru parcare, vă rog sunați la ' + (phone || 'recepție') + '.');
+  }
+  if (/metr|ajung|trajet/.test(t)) {
+    const d = det('metro');
+    if (d) bits.push('🚇 Metrou: ' + d);
+  }
+  if (/dizab|ramp|invalid/.test(t)) {
+    const d = det('disability');
+    if (d) bits.push('♿ Acces pentru persoane cu dizabilități: ' + d + '.');
+  }
+  // Address question (or a bare location intent with no specific keyword)
+  if (/adres|locatie|locație|und|gasit|gasiti|afla|aflati|trajet/.test(t) || (!/parc|metr|dizab|ramp|invalid/.test(t))) {
+    if (p.address) bits.push('📍 ' + p.address + (p.city ? ', ' + p.city : ''));
+  }
+  if (bits.length) return bits.join('\n');
+  return 'Ne găsiți la ' + (p.address || 'adresa din secțiunea Contact a site-ului') + (phone ? '. Pentru traseu, sunați la ' + phone + ' 📍' : '.');
+}
+
+function resolvePayment(t, p) {
+  const pay = (p.payments && typeof p.payments === 'object') ? p.payments : {};
+  if (/\b(card|cardul|visa|mastercard|pos)\b/.test(t) && pay.card && pay.card.available) {
+    return 'Da, acceptăm plata cu card (Visa/Mastercard), numerar și transfer bancar.';
+  }
+  if (/rate/.test(t) && pay.rates && pay.rates.available) {
+    return 'Da, oferim plata în rate' + (pay.rates.provider ? ' prin ' + pay.rates.provider : '') + '.';
+  }
+  return null;
+}
+
+function resolveInsurance(t, p, phone) {
+  if (!isInsuranceIntent(t)) return null;
+  const ins = (p.insurances || p.brain && p.brain.insurances || []).filter(Boolean);
+  if (!ins.length) return null;
+  return 'Acceptăm: ' + ins.slice(0, 8).join(', ') + '.\nPentru decontare, factura se emite cu datele complete — cu orice întrebare, sunați la ' + (phone || 'recepție') + ' 📞';
+}
+
+function resolveDoctors(t, p) {
+  if (!isDoctorsIntent(t)) return null;
+  const docs = (p.doctors || []).filter(d => d && d.name).slice(0, 6);
+  if (!docs.length) return null;
+  const lines = docs.map(d => `• ${d.name}${d.role ? ' — ' + d.role : ''}`).join('\n');
+  return `Echipa noastră:\n${lines}`;
+}
+
+function resolveServiceList(t, p, phone) {
+  if (!isServiceListIntent(t) || !(p.services || []).length) return null;
+  const svcs = p.services.slice(0, 8).map(s => '• ' + s.name).join('\n');
+  return `Ce oferim:\n${svcs}${phone ? '\nPentru detalii și programare: ' + phone + ' 📞' : ''}`;
+}
+
+function resolveContact(t, p, phone) {
+  if (!isContactIntent(t)) return null;
+  const bits = [phone ? '📞 ' + phone : null, p.email ? '✉️ ' + p.email : null,
+    p.facebook ? '📘 ' + p.facebook : null, p.instagram ? '📸 ' + p.instagram : null].filter(Boolean);
+  return bits.length ? bits.join('\n') : null;
+}
+
+function resolveFaq(t, p) {
+  if (!Array.isArray(p.faq)) return null;
+  for (const f of p.faq) {
+    if (!f || !f.question) continue;
+    const qn = norm(f.question);
+    const words = qn.split(' ').filter(w => w.length > 4);
+    let hit = 0;
+    for (const w of words) if (t.includes(w)) hit++;
+    const need = words.length <= 3 ? 1 : 2;
+    if (words.length && hit >= need && hit / words.length >= 0.35) return f.answer;
+  }
+  return null;
+}
+
 /**
  * @param {string} message   raw user message (Romanian)
- * @param {object} profile   business profile: { name, phone, emergencyPhone, email, city,
- *                           address, hours, services:[{name,price,duration}], faq:[{question,answer}],
- *                           insurances:[], facilities:[], doctors:[{name,role}], locations:[] }
- * @returns {{reply:string, handled:boolean}}
+ * @param {object} profile   business profile
+ * @returns {{reply:string|null, handled:boolean, lead?:{name,phone}}}
  */
 function answer(message, profile) {
   const t = norm(message);
@@ -139,131 +251,47 @@ function answer(message, profile) {
   const bizName = p.name || 'clinica';
   const phone = p.phone ? String(p.phone).replace(/[\s.\-]/g, ' ').trim() : null;
 
-  // 1) URGENT — highest priority, always wins
-  if (isUrgencyIntent(t)) {
-    const em = p.emergencyPhone || (p.locations && p.locations.length > 1 ? null : null) || p.phone;
-    const r = `Pentru urgențe sunați imediat la ${em ? em : 'recepția'} — avem medic de gardă 24/7 🚨\nDacă nu puteți suna, veniți direct: ${p.address || 'adresa din site'}.\nVă luăm în primire în cel mai scurt timp.`;
-    return { reply: r, handled: true };
-  }
+  const parts = [];
+  let lead = null;
 
-  // 2) APPOINTMENT — start intake (widget extracts name+phone as they arrive)
+  // 1) URGENT — always included (safety first)
+  const urg = resolveUrgent(t, p, phone);
+  if (urg) parts.push(urg);
+
+  // 2) APPOINTMENT — if the person wants to book, ask for / confirm
+  //    name+phone. Still answer the other info questions in the same message.
   if (isAppointmentIntent(t)) {
-    const lead = detectLead(message);
+    const leadDet = detectLead(message);
     const svc = pickService(p, t);
-    if (lead.phone && lead.name) {
-      const r = `✅ Mulțumesc, ${lead.name}! Solicitarea a fost înregistrată${svc ? ' pentru ' + svc.name : ''}.\nVă vom contacta în maximum 2 ore (în program) pentru a stabili ora exactă. O zi frumoasă! 😊`;
-      return { reply: r, handled: true, lead };
-    }
-    const r = `Bine! Cu plăcere. ${svc ? 'Vă rezervăm: ' + svc.name + '.' : ''}\nPentru a înregistra programarea, scrieți-mi numele și numărul de telefon într-un singur mesaj — de exemplu: \"Ion Popescu 0721234567\" 😊`;
-    return { reply: r, handled: true };
-  }
-
-  // 3) PRICE — exact service or top list
-  const svc = pickService(p, t);
-  if (svc && svc.price && isPriceIntent(t)) {
-    const r = `${svc.name}: ${priceText(svc)}${svc.duration ? ' · durează ' + svc.duration : ''}.\nDoriți să vă programăm? Scrieți-mi numele și telefonul 😊`;
-    return { reply: r, handled: true };
-  }
-  if (isPriceIntent(t)) {
-    const withPrice = (p.services || []).filter(s => s && s.price).slice(0, 8);
-    if (withPrice.length) {
-      const lines = withPrice.map(s => `• ${s.name} — ${priceText(s)}`).join('\n');
-      const r = `Câteva dintre prețurile noastre:\n${lines}\nLista completă e pe site. Pentru programare, scrieți-mi numele și telefonul 😊`;
-      return { reply: r, handled: true };
+    if (leadDet.phone && leadDet.name) {
+      lead = leadDet;
+      parts.push(`✅ Mulțumesc, ${leadDet.name}! Solicitarea a fost înregistrată${svc ? ' pentru ' + svc.name : ''}.\nVă vom contacta în maximum 2 ore (în program) pentru a stabili ora exactă. O zi frumoasă! 😊`);
+    } else {
+      parts.push(`Bine! Cu plăcere. ${svc ? 'Vă rezervăm: ' + svc.name + '.' : ''}\nPentru a înregistra programarea, scrieți-mi numele și numărul de telefon într-un singur mesaj — de exemplu: \"Ion Popescu 0721234567\" 😊`);
     }
   }
 
-  // 4) HOURS
-  if (isHoursIntent(t)) {
-    if (p.hours) {
-      return { reply: `Programul nostru: ${p.hours}\n${phone ? 'Pentru urgențe: ' + phone + ' (24/7).' : ''}`, handled: true };
-    }
+  // 3) INFO intents — collect every one present in the message
+  const resolvers = [
+    resolvePrice, resolveHours, resolveLocation, resolvePayment,
+    resolveInsurance, resolveDoctors, resolveServiceList, resolveContact,
+  ];
+  for (const r of resolvers) {
+    const out = r(t, p, phone);
+    if (out) parts.push(out);
   }
 
-  // 5) LOCATION / ACCESS — works with facilities as an OBJECT (scanner shape:
-  // {parking:{available,details}}) or as a plain array. Always returns a
-  // real answer when address/facilities are known — never falls through.
-  if (isLocationIntent(t)) {
-    const fac = (p.facilities && typeof p.facilities === 'object' && !Array.isArray(p.facilities)) ? p.facilities : {};
-    const det = (k) => fac[k] && fac[k].available !== false ? (fac[k].details ? String(fac[k].details) : 'da') : null;
-
-    if (/parc/.test(t)) {
-      const d = det('parking');
-      if (d) return { reply: '🚗 Da, avem parcare: ' + d + (p.address ? '\nAdresa: ' + p.address : '.'), handled: true };
-    }
-    if (/metr|ajung|trajet/i.test(t)) {
-      const d = det('metro');
-      if (d) return { reply: '🚇 Metrou: ' + d + (p.address ? '\nAdresa: ' + p.address : '.'), handled: true };
-    }
-    if (/dizab|ramp|invalid/.test(t)) {
-      const d = det('disability');
-      if (d) return { reply: '♿ Acces pentru persoane cu dizabilități: ' + d + '.', handled: true };
-    }
-
-    const bits = [p.address ? `📍 ${p.address}` : null, p.city ? p.city : null,
-      Array.isArray(p.facilities) ? p.facilities.filter(f => /parc|metr|acces/i.test(String(f))).slice(0, 2) : []
-    ].filter(Boolean);
-    if (bits.length) return { reply: bits.join('\n') + (phone ? '\nPentru orientare, sunați la ' + phone + '.' : ''), handled: true };
-    // Address genuinely unknown → still answer honestly instead of crashing
-    return { reply: 'Ne găsiți la ' + (p.address || 'adresa din secțiunea Contact a site-ului') + (phone ? '. Pentru traseu, sunați la ' + phone + ' 📍' : '.'), handled: true };
+  // 4) FAQ — only if nothing else answered, to avoid duplication
+  if (!parts.length) {
+    const faq = resolveFaq(t, p);
+    if (faq) parts.push(faq);
   }
 
-  // 5b) PAYMENT — card / rates / cash from the payments object
-  {
-    const pay = (p.payments && typeof p.payments === 'object') ? p.payments : {};
-    if (/\b(card|cardul|visa|mastercard|pos)\b/.test(t) && pay.card && pay.card.available) {
-      return { reply: 'Da, acceptăm plata cu card (Visa/Mastercard), numerar și transfer bancar.', handled: true };
-    }
-    if (/rate/.test(t) && pay.rates && pay.rates.available) {
-      return { reply: 'Da, oferim plata în rate' + (pay.rates.provider ? ' prin ' + pay.rates.provider : '') + '.', handled: true };
-    }
+  if (parts.length) {
+    return { reply: parts.join('\n\n'), handled: true, ...(lead ? { lead } : {}) };
   }
 
-  // 6) INSURANCE
-  if (isInsuranceIntent(t)) {
-    const ins = (p.insurances || p.brain && p.brain.insurances || []).filter(Boolean);
-    if (ins.length) return { reply: 'Acceptăm: ' + ins.slice(0, 8).join(', ') + '.\nPentru decontare, factura se emite cu datele complete — cu orice întrebare, sunați la ' + (phone || 'recepție') + ' 📞', handled: true };
-  }
-
-  // 7) DOCTORS
-  if (isDoctorsIntent(t)) {
-    const docs = (p.doctors || []).filter(d => d && d.name).slice(0, 6);
-    if (docs.length) {
-      const lines = docs.map(d => `• ${d.name}${d.role ? ' — ' + d.role : ''}`).join('\n');
-      return { reply: `Echipa noastră:\n${lines}\nDoriți programare cu unul dintre ei? Scrieți-mi numele și telefonul 😊`, handled: true };
-    }
-  }
-
-  // 8) SERVICE LIST
-  if (isServiceListIntent(t) && (p.services || []).length) {
-    const svcs = p.services.slice(0, 8).map(s => '• ' + s.name).join('\n');
-    return { reply: `Ce oferim:\n${svcs}\n${phone ? 'Pentru detalii și programare: ' + phone + ' 📞' : ''}`, handled: true };
-  }
-
-  // 9) CONTACT
-  if (isContactIntent(t)) {
-    const bits = [phone ? '📞 ' + phone : null, p.email ? '✉️ ' + p.email : null,
-      p.facebook ? '📘 ' + p.facebook : null, p.instagram ? '📸 ' + p.instagram : null].filter(Boolean);
-    if (bits.length) return { reply: bits.join('\n'), handled: true };
-  }
-
-  // 10) FAQ match (deterministic before AI)
-  if (Array.isArray(p.faq)) {
-    for (const f of p.faq) {
-      if (!f || !f.question) continue;
-      const qn = norm(f.question);
-      const words = qn.split(' ').filter(w => w.length > 4);
-      let hit = 0;
-      for (const w of words) if (t.includes(w)) hit++;
-      // small question (≤3 content words): one matching word is enough
-      const need = words.length <= 3 ? 1 : 2;
-      if (words.length && hit >= need && hit / words.length >= 0.35) {
-        return { reply: f.answer, handled: true };
-      }
-    }
-  }
-
-  // 11) Generic greeting / thanks
+  // 5) Generic greeting / thanks
   if (t.length < 25 && /^(salut|buna|bună|salut|hei|hello|hi|mul[țt]umesc|thanks|ok|da|nu)\b/.test(t)) {
     const svcs = (p.services || []).slice(0, 3).map(s => s.name).join(', ');
     return { reply: `Bună! 👋 Sunt recepționistul virtual al ${bizName}.\nCu ce vă pot ajuta — ${svcs || 'programări, prețuri, program'}?`, handled: true };
