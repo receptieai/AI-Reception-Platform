@@ -441,19 +441,76 @@ Apoi adaugă exact: [LEAD_READY]`;
     }
   }
 
+  // ── LOCAL DETERMINISTIC ENGINE (multi-intent) ───
+  // Even if the server is unreachable, the widget answers basic questions
+  // using the profile it already has — and it answers EVERY question in a
+  // single message (same behavior as the server engine).
+  function localAnswer(msg, p) {
+    const raw = (msg || '').toLowerCase();
+    const t = raw.replace(/[ăâîșț]/g, c => ({ 'ă': 'a', 'â': 'a', 'î': 'i', 'ș': 's', 'ț': 't' }[c]))
+      .replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
+    const phone = (p && p.phone) || C.phone || null;
+    const fac = (p && p.facilities && typeof p.facilities === 'object' && !Array.isArray(p.facilities)) ? p.facilities : {};
+    const det = (k) => fac[k] && fac[k].available !== false ? (fac[k].details ? String(fac[k].details) : 'da') : null;
+    const parts = [];
+
+    // APPOINTMENT
+    if (/(programare|programat|programaza|programam|programez|rezerv|vreau sa|as vrea|dorim)/.test(t)) {
+      parts.push('Bine! 😊 Pentru a înregistra programarea, scrieți-mi numele și numărul de telefon: ex: Ion Popescu 0721234567');
+    }
+
+    // PRICES
+    if (/(pret|costa|cat costa|tarif|cat e)/.test(t)) {
+      const svcs = ((p && p.services) || []).filter(s => s && s.name && s.price).slice(0, 6);
+      if (svcs.length) parts.push('Câteva prețuri:\n' + svcs.map(s => '• ' + s.name + ' — ' + s.price).join('\n'));
+      else parts.push('Pentru prețuri exacte, sunați la ' + (phone || 'recepție') + '.');
+    }
+
+    // HOURS
+    if (/(program|orar|deschis|inchis)/.test(t) && p.hours) {
+      parts.push('🕐 Programul nostru: ' + p.hours);
+    }
+
+    // LOCATION (parking / address / metro)
+    if (/(parcare|parc|adres|locatie|und|gasit|ajung|metr|trajet)/.test(t)) {
+      const bits = [];
+      if (/(parcare|parc)/.test(t)) { const d = det('parking'); if (d) bits.push('🚗 Da, avem parcare: ' + d); }
+      if (/(adres|locatie|und|gasit|ajung|trajet|metr)/.test(t) && p.address) bits.push('📍 ' + p.address + (p.city ? ', ' + p.city : ''));
+      if (bits.length) parts.push(bits.join('\n'));
+    }
+
+    // INSURANCE
+    if (/(asigur|casmb|decont|sanatate)/.test(t)) {
+      const ins = ((p && (p.insurances || (p.brain && p.brain.insurances))) || []).filter(Boolean);
+      if (ins.length) parts.push('Acceptăm: ' + ins.slice(0, 5).join(', ') + '.');
+    }
+
+    // PAYMENT
+    if (/(card|plati|rate|plata)/.test(t)) {
+      const pay = (p && p.payments) || {};
+      const bits = [];
+      if (pay.card && pay.card.available) bits.push('card');
+      if (pay.cash && pay.cash.available) bits.push('numerar');
+      if (pay.rates && pay.rates.available) bits.push('rate' + (pay.rates.provider ? ' prin ' + pay.rates.provider : ''));
+      if (bits.length) parts.push('Da, acceptăm: ' + bits.join(', ') + '.');
+    }
+
+    if (parts.length) return parts.join('\n\n');
+
+    // GREETING
+    if (t.length < 20 && /^(salut|buna|bună|hei|hello|hi|multumesc|ok|da|nu)$/.test(t)) {
+      return 'Bună! 👋 Cu ce vă pot ajuta — programări, prețuri, program?';
+    }
+
+    // FINAL fallback
+    return 'Vă mulțumesc pentru mesaj! 😊\nDacă nu pot răspunde, sunați la ' + (phone || 'recepție') + ' și vă ajutăm imediat.';
+  }
+
   // ── FALLBACK INTELIGENT ───────────────────────
   function getFallbackReply(message) {
-    const m = message.toLowerCase();
-    if (m.includes('program') || m.includes('rezerv') || m.includes('programar')) {
-      return `Vă pot ajuta cu o programare! 😊\nScrieți-mi numele și telefonul împreună: ex: Ion Popescu 0721234567`;
-    }
-    if (m.includes('pret') || m.includes('cost') || m.includes('cat')) {
-      return `Pentru informații despre prețuri, vă rog sunați la ${C.phone || 'recepție'} sau scrieți-ne și vă răspundem imediat! 📞`;
-    }
-    if (m.includes('orar') || m.includes('program') || m.includes('ore') || m.includes('deschis')) {
-      return `Programul nostru de lucru:\nLuni-Vineri: 09:00-19:00\nSâmbătă: 09:00-14:00\n\nDoriți o programare? 😊`;
-    }
-    return `Vă mulțumesc pentru mesaj! 😊\nVă pot ajuta cu:\n📅 Programări\n💰 Informații prețuri\n🕐 Program de lucru\n\nCe vă interesează?`;
+    // Use the local engine with whatever profile we have
+    const p = businessProfile || window._rcpai_profile || {};
+    return localAnswer(message, p);
   }
 
   // ── DETECT LEAD READY ─────────────────────────
@@ -587,9 +644,16 @@ Apoi adaugă exact: [LEAD_READY]`;
 
   // ── SEND MESSAGE ──────────────────────────────
   let businessProfile = null;
+  let profileReady = null; // Promise resolved when initChat finished
 
   async function sendMessage(text) {
     if (!text.trim() || isTyping) return;
+
+    // Make sure the profile is loaded before the first API call.
+    // Without this, the first message is sent with businessProfile={}, the
+    // server engine has no data, and the widget falls back to the generic
+    // "Vă pot ajuta cu:" message — exactly what the user saw.
+    if (profileReady) await profileReady;
 
     // Disable input
     const input = document.getElementById('rcpai-input');
@@ -719,7 +783,7 @@ Apoi adaugă exact: [LEAD_READY]`;
       
       if (!chatInited) {
         chatInited = true;
-        initChat();
+        profileReady = initChat();
       }
       
       setTimeout(() => document.getElementById('rcpai-input')?.focus(), 300);
