@@ -479,6 +479,21 @@ Apoi adaugă exact: [LEAD_READY]`;
       if (bits.length) parts.push(bits.join('\n'));
     }
 
+    // CONTACT / PHONES — including the dedicated emergency line
+    if (/(contact|telefon|numar|numere|urgen|receptie|oficiu|email)/.test(t)) {
+      const bits = [];
+      if (p.emergencyPhone) {
+        if (/(urgen|urgent)/.test(t)) bits.push('🚨 Pentru urgențe: ' + p.emergencyPhone + ' (24/7)');
+        else bits.push('🚨 ' + p.emergencyPhone + ' (urgențe 24/7)');
+      }
+      if (/(receptie|oficiu|secretariat)/.test(t) && phone) bits.push('📞 Recepție: ' + phone);
+      if (!/(urgen|urgent|receptie|oficiu)/.test(t)) {
+        if (phone) bits.push('📞 ' + phone + ' (recepție)');
+        if (p.email) bits.push('✉️ ' + p.email);
+      }
+      if (bits.length) parts.push(bits.join('\n'));
+    }
+
     // INSURANCE
     if (/(asigur|casmb|decont|sanatate)/.test(t)) {
       const ins = ((p && (p.insurances || (p.brain && p.brain.insurances))) || []).filter(Boolean);
