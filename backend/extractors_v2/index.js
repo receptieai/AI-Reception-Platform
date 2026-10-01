@@ -1,5 +1,5 @@
 'use strict';
-const { extractContact } = require('./contactExtractor');
+const { extractContact, extractAllPhones } = require('./contactExtractor');
 const { extractDoctors } = require('./doctorExtractor');
 const { extractServices } = require('./serviceExtractor');
 const { extractFacilities } = require('./facilityExtractor');
@@ -35,6 +35,8 @@ async function extractAll(html, url, pageLabel='homepage') {
   }
 
   const contact = extractContact(finalHtml, pageLabel);
+  let phonesMulti = { all: [], reception: contact.phone?.value || null, emergency: null, primary: contact.phone?.value || null };
+  try { phonesMulti = extractAllPhones(finalHtml, pageLabel); } catch (e) {}
   const doctors = extractDoctors(finalHtml, pageLabel);
   const services = extractServices(finalHtml, pageLabel);
   const facilities = extractFacilities(finalHtml, pageLabel);
@@ -82,7 +84,9 @@ async function extractAll(html, url, pageLabel='homepage') {
 
   return {
     name: contact.name?.value||null,
-    phone: contact.phone?.value||null,
+    phone: (phonesMulti.primary && phonesMulti.primary.replace(/\D/g, '').length >= 9) ? phonesMulti.primary : (contact.phone?.value || null),
+    emergencyPhone: phonesMulti.emergency || null,
+    phones: phonesMulti.all,
     email: contact.email?.value||null,
     city: contact.city?.value||null,
     address: contact.address?.value||null,
