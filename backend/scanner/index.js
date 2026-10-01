@@ -66,6 +66,8 @@ async function scan(url, options = {}) {
   const bestHours = { value: null, confidence: 0 };
   let bestFacilities = {};
   let bestPayments = {};
+  let bestEmergencyPhone = null;      // dedicated 24/7 / gardă line
+  let bestAllPhones = [];             // every distinct phone with labels
   const maxServicesConfidence = { services: 0, prices: 0 };
 
   for (const page of crawlResult.pages) {
@@ -168,6 +170,19 @@ async function scan(url, options = {}) {
       takeIfBetter('city', ext.city, ext._confidence?.city);
       takeIfBetter('address', ext.address, ext._confidence?.address);
 
+      // Multi-phone: capture the dedicated emergency / 24/7 line and the
+      // full labelled phone list so the chatbot can answer "care e numărul
+      // pentru urgențe?" and "care e pentru recepție?" with the RIGHT number.
+      if (ext.emergencyPhone && !bestEmergencyPhone) bestEmergencyPhone = ext.emergencyPhone;
+      if (Array.isArray(ext.phones)) {
+        for (const ph of ext.phones) {
+          const key = String(ph.value || '').replace(/\D/g, '');
+          if (key.length >= 9 && !bestAllPhones.some(x => String(x.value || '').replace(/\D/g, '') === key)) {
+            bestAllPhones.push(ph);
+          }
+        }
+      }
+
       if (ext.facebook) socialFields.facebook = { value: ext.facebook, confidence: 90 };
       if (ext.instagram) socialFields.instagram = { value: ext.instagram, confidence: 90 };
       if (ext.tiktok) socialFields.tiktok = { value: ext.tiktok, confidence: 90 };
@@ -228,6 +243,8 @@ async function scan(url, options = {}) {
     locations: allLocations.length >= 2 ? allLocations : [],
     facilities: bestFacilities,
     payments: bestPayments,
+    emergencyPhone: bestEmergencyPhone,
+    phones: bestAllPhones,
     _confidence: {
       services: maxServicesConfidence.services,
       prices: maxServicesConfidence.prices,
@@ -487,6 +504,8 @@ async function scan(url, options = {}) {
     description: merged.description,
     facilities: merged.facilities,
     payments: merged.payments,
+    emergencyPhone: merged.emergencyPhone || null,
+    phones: merged.phones || [],
     brain: merged.brain,
     _phoneVerified: extracted._phoneVerified || null,
     confidence: confidence.global,
