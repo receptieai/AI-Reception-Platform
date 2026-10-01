@@ -108,6 +108,13 @@ function mergeResults(extracted, claudeResult, brainResult) {
   // PAYMENTS
   merged.payments = extracted.payments || {};
 
+  // PHONES — labelled multi-phone: reception / emergency / 24-7. The bot
+  // needs these to answer "care e numărul pentru urgențe?" with the RIGHT
+  // number instead of always giving the reception line.
+  merged.emergencyPhone = extracted.emergencyPhone || null;
+  merged.phones = extracted.phones || [];
+  sources.phones = { count: merged.phones.length, emergency: !!merged.emergencyPhone, source: 'extractor' };
+
   return { merged, sources };
 }
 
