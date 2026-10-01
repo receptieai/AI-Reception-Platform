@@ -16,11 +16,11 @@ function norm(s) {
   return String(s || '').toLowerCase().replace(/[ăâîșşțĂÂÎȘŞȚ]/g, c => ACC[c] || c).replace(/[^a-z0-9\s]/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
-// Small synonym table so natural patient phrasing matches service names:
-// "sa o scot" → extractie, "sparg o placa" → obturație, etc.
+// "masea de minte" → molar de minte; "scot" → extractie; "albire" → albire
 const SYNS = {
   'scot': 'extractie', 'scoti': 'extractie', 'scotea': 'extractie', 'extrag': 'extractie',
-  'extract': 'extractie', 'placa': 'obturatie', 'placare': 'obturatie',
+  'extract': 'extractie', 'masea': 'extractie molar',
+  'placa': 'obturatie', 'placare': 'obturatie',
   'plomb': 'obturatie', 'plombare': 'obturatie', 'obtur': 'obturatie',
 };
 
@@ -44,27 +44,47 @@ function wordMatches(word, q) {
 }
 
 function pickService(profile, msgNorm) {
+  const list = pickServices(profile, msgNorm);
+  return list[0] || null;
+}
+
+// Multi-service picker: returns every service the message plausibly refers to,
+// best-scored first. This is what lets "vreau o albire si sa scot o masea de
+// minte" return BOTH the albire price AND the molar-de-minte price instead of
+// just the single best guess.
+function pickServices(profile, msgNorm) {
   const svcs = (profile.services || []).filter(s => s && s.name);
   const q = expandSynonyms(msgNorm);
-  // exact-ish match: service name appears in the message
-  let best = null, bestLen = 0;
+  const scored = [];
   for (const s of svcs) {
-    const n = norm(s.name);
-    if (n.length >= 4 && q.includes(n)) { if (n.length > bestLen) { best = s; bestLen = n.length; } }
-  }
-  if (best) return best;
-  // key-word match: 3+ char words of the service name, stemmed
-  best = null; bestLen = 0;
-  for (const s of svcs) {
-    const words = norm(s.name).split(' ').filter(w => w.length > 3);
-    let hit = 0, total = 0;
+    const nameNorm = norm(s.name);
+    // exact-ish full-name match is the strongest signal
+    if (nameNorm.length >= 4 && q.includes(nameNorm)) {
+      scored.push({ s, score: nameNorm.length, matched: nameNorm.length, total: nameNorm.length });
+      continue;
+    }
+    const words = nameNorm.split(' ').filter(w => w.length > 3);
+    let matched = 0, total = 0;
     for (const w of words) {
       total += w.length;
-      if (wordMatches(w, q)) hit += w.length;
+      if (wordMatches(w, q)) matched += w.length;
     }
-    if (hit >= 4 && hit >= total * 0.4) { if (hit > bestLen) { best = s; bestLen = hit; } }
+    // A service is a real candidate when at least one distinctive word
+    // (5+ chars) is present — "albire", "extractie", "implant", "coroana".
+    // Distinctive-word presence beats the old 40%-of-name threshold, which
+    // missed multi-word names like "Albire profesionala in-office".
+    const hasDistinctive = words.some(w => w.length >= 5 && wordMatches(w, q));
+    if (hasDistinctive && matched >= 4) {
+      // more matched length = more specific match; "molar de minte" (3 words
+      // matched) beats bare "Extractie simpla" (1 word) for the same message.
+      scored.push({ s, score: matched, matched, total });
+    }
   }
-  return best;
+  // Best score first; on ties, the more specific (longer matched name) wins,
+  // then the shorter overall name (more distinctive service).
+  scored.sort((a, b) => (b.score - a.score) || (b.matched - a.matched) ||
+    (norm(a.s.name).length - norm(b.s.name).length));
+  return scored.map(x => x.s);
 }
 
 function priceText(s) {
@@ -94,7 +114,10 @@ function isAppointmentIntent(t) {
 }
 
 function isPriceIntent(t) {
-  return /\b(pret|preț|costa|costă|cat costa|cât cost|prețuri|tarif|tarife|preturi|cat e|cât e|costa? (un|o|cu))\b/.test(t) || /\bcat (costa|e|primesti)\b/.test(t);
+  // Substring on the normalised string (norm() already strips diacritics):
+  // "costa", "cat ma costa", "preț", "tarif" are all covered without the
+  // fragile word-boundary + contraction gymnastics.
+  return /pret|pre[st]ur|costa|tarif|cat e\b/.test(t);
 }
 function isHoursIntent(t) {
   return /\b(program|orar|deschis|deschis[ae]?|ore|cat (este|e) (programul|orarul)|function[ae]zi|deschideti|deschideți|inchis|închis|noaptea|s[âa]mb[âa]t[âa])\b/.test(t);
@@ -106,11 +129,13 @@ function isInsuranceIntent(t) {
   return /\b(asigurari|asigurări|casmb|biznis|medicover|medlife|allianz|generali|signal iduna|decont|decontare|card (de )?sanatate|sănătate)\b/.test(t);
 }
 function isUrgencyIntent(t) {
-  // Strong emergency signals only. "doare/durere" alone was removed: most
-  // price questions contain it ("ma doare maseaua, cat costa sa o scot")
-  // and the urgent reply was hijacking real price questions. A genuine
-  // emergency is signaled by urgent/sange/infectie/imediat/molar inclus.
-  return /\b(urgent|urgen|sanger|sânge|sange|imediat|infectie|înfectie|molar (de )?minte (inclus|includ)|inclus|extrae? (urgent|imediat))\b/.test(t);
+  // A GENUINE emergency (blood / infection / severe pain / "am o urgență").
+  // "aveti un numar/telefon pentru urgente" is a CONTACT question, not a live
+  // emergency, so it is excluded — otherwise it would hijack the message and
+  // drop the price/location answers the patient also asked for.
+  const core = /sanger|sânge|sange|infectie|înfectie|ame o urgent[ae]|urgen[țt]e acum|imediat (am|sunt|venit)|durere (intens[ae]|fort[ae]|t[oa]r[ee])|m[ăa] doare (foarte|mult)/.test(t);
+  if (!core) return false;
+  return !/(numar|număr|telefon|tel |contact)/.test(t);
 }
 function isDoctorsIntent(t) {
   // Substring root-match so "medicii", "medicești", "medice" all hit,
@@ -123,7 +148,10 @@ function isServiceListIntent(t) {
   return /\b(servicii|ce oferiti|ce oferiți|activitati|activități|ce faceti|ce faceți|oferta|ofert[ae])\b/.test(t);
 }
 function isContactIntent(t) {
-  return /\b(contact|telefon|suna|sună|sunati|sunăți|num[ră]r|email|whatsapp|mesaj|contacta)\b/.test(t);
+  // Substring match on the normalised string (norm() has already stripped
+  // diacritics and punctuation), so "număr/numărul/numere" and "urgențe"
+  // are all covered without fragile word-boundary logic.
+  return /contact|telefon|telefoane|suna|numar|numere|email|whatsapp|mesaj|receptie|oficiu|urgen|urgent/.test(t);
 }
 
 // ── MULTI-INTENT: answer EVERY question in one message ──────────────
@@ -146,9 +174,14 @@ function resolveUrgent(t, p, phone) {
 
 function resolvePrice(t, p, phone) {
   if (!isPriceIntent(t)) return null;
-  const svc = pickService(p, t);
-  if (svc && svc.price) {
-    return `${svc.name}: ${priceText(svc)}${svc.duration ? ' · durează ' + svc.duration : ''}.\nDoriți să vă programăm? Scrieți-mi numele și telefonul 😊`;
+  const list = pickServices(p, t).slice(0, 4);
+  const priced = list.filter(s => s.price);
+  if (priced.length) {
+    const lines = priced.map(s => `• ${s.name}: ${priceText(s)}${s.duration ? ' · durează ' + s.duration : ''}`).join('\n');
+    const intro = priced.length > 1
+      ? 'Cât vă costă (pe ce ați cerut):'
+      : 'Preț:';
+    return `${intro}\n${lines}\nDoriți să vă programăm? Scrieți-mi numele și telefonul 😊`;
   }
   const withPrice = (p.services || []).filter(s => s && s.price).slice(0, 6);
   if (withPrice.length) {
@@ -221,8 +254,23 @@ function resolveServiceList(t, p, phone) {
 
 function resolveContact(t, p, phone) {
   if (!isContactIntent(t)) return null;
-  const bits = [phone ? '📞 ' + phone : null, p.email ? '✉️ ' + p.email : null,
-    p.facebook ? '📘 ' + p.facebook : null, p.instagram ? '📸 ' + p.instagram : null].filter(Boolean);
+  const bits = [];
+  // "care e numarul pentru urgente / receptie" → give the right line, not just
+  // one number. emergencyPhone is the dedicated 24/7 line the scanner captured.
+  const em = p.emergencyPhone;
+  if (/urgen/.test(t)) {
+    bits.push('🚨 Pentru urgențe: ' + (em || phone || 'recepția') + ' (24/7)');
+  } else if (/recept|oficiu|secretariat/.test(t)) {
+    bits.push('📞 Recepție: ' + (phone || ''));
+  }
+  // Generic contact ask → list the distinct lines we know about
+  if (!/urgen|recept|oficiu|secretariat/.test(t)) {
+    if (phone) bits.push('📞 ' + phone + ' (recepție)');
+    if (em && em !== phone) bits.push('🚨 ' + em + ' (urgențe 24/7)');
+    if (p.email) bits.push('✉️ ' + p.email);
+    if (p.facebook) bits.push('📘 ' + p.facebook);
+    if (p.instagram) bits.push('📸 ' + p.instagram);
+  }
   return bits.length ? bits.join('\n') : null;
 }
 
