@@ -321,6 +321,37 @@ function resolveContact(t, p, phone) {
   return bits.length ? bits.join('\n') : null;
 }
 
+// ── Helpers exported for the Conversation State Manager ────────────
+// infoAnswer returns ONLY the informational parts of a message (price,
+// hours, location, payment, insurance, doctors, service list, contact, FAQ)
+// WITHOUT the booking/lead logic. The state manager uses this to answer a
+// price/hours question inline while a booking is in progress.
+function infoAnswer(message, profile) {
+  const t = norm(message);
+  const p = profile || {};
+  const phone = p.phone ? String(p.phone).replace(/[\s.\-]/g, ' ').trim() : null;
+  const parts = [];
+  const urg = resolveUrgent(t, p, phone);
+  if (urg) parts.push(urg);
+  const resolvers = [resolvePrice, resolveHours, resolveLocation, resolvePayment,
+    resolveInsurance, resolveDoctors, resolveServiceList, resolveContact];
+  for (const r of resolvers) {
+    const out = r(t, p, phone);
+    if (out) parts.push(out);
+  }
+  if (!parts.length) {
+    const faq = resolveFaq(t, p);
+    if (faq) parts.push(faq);
+  }
+  return parts.length ? parts.join('\n\n') : null;
+}
+
+// Best single-service match for a message (reused by the state manager so a
+// patient's free-form wording maps to the profile's service with its duration).
+function matchService(message, profile) {
+  return pickService(profile, message ? norm(message) : '');
+}
+
 function resolveFaq(t, p) {
   if (!Array.isArray(p.faq)) return null;
   for (const f of p.faq) {
@@ -395,4 +426,4 @@ function answer(message, profile) {
   return { reply: null, handled: false };
 }
 
-module.exports = { answer, norm };
+module.exports = { answer, norm, infoAnswer, matchService };

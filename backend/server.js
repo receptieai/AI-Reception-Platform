@@ -39,6 +39,7 @@ const googleAuth = require('./googleAuth');
 const { buildBusinessBrain } = require('./businessBrainScanner');
 const { scan: scanV3 } = require('./scanner/index');
 const { answer: deterministicAnswer, norm: normish } = require('./receptionEngine');
+const conversationState = require('./conversationState');
 
 // ── STORAGE ENGINE ──
 storage.migrate();
@@ -575,7 +576,11 @@ async function chatWithAI(messages, profile, personality) {
   
   const services = (profile.services || [])
     .filter(s => s.name)
-    .map(s => `• ${s.name}${s.price ? ': ' + s.price : ''}${s.duration ? ' (' + s.duration + ')' : ''}`)
+    .map(s => {
+      const dur = s.duration_minutes || (s.duration ? String(s.duration).match(/(\d{1,4})/) : null);
+      const durTxt = dur ? ` (~${dur[0] || dur} min)` : '';
+      return `• ${s.name}${s.price ? ': ' + s.price : ''}${durTxt}`;
+    })
     .join('\n');
   
   const now = new Date();
@@ -848,6 +853,52 @@ const server = http.createServer(async (req, res) => {
 
     const clientId = body.clientId ?? body.businessProfile?.clientId ?? null;
     const businessProfile = getBusinessProfile(clientId, body.businessProfile);
+
+    // ── LAYER 0: Conversation State Manager (the AI-receptionist brain) ──
+    // Keeps per-conversation state so the AI never re-asks for data the
+    // patient already gave, answers info questions inline while booking, and
+    // creates a PENDING appointment the moment the required fields exist.
+    // Keyed by clientId so a patient's booking persists across messages.
+    const lastUserMsg0 = (body.messages || []).filter(m => m.role === 'user').pop();
+    const lastMsgText0 = lastUserMsg0 ? lastUserMsg0.content : '';
+    if (clientId && lastMsgText0) {
+      const st = conversationState.processMessage('conv_' + clientId, lastMsgText0, businessProfile, {
+        createLead(appointment) {
+          try {
+            storage.saveAppointment(appointment);
+            storage.audit('appointment.pending', { id: appointment.id, clientId, service: appointment.service?.name, date: appointment.date });
+            const lead = {
+              id: 'lead_' + Date.now(),
+              clientId,
+              name: appointment.patient?.name || 'Vizitator',
+              phone: appointment.patient?.phone || null,
+              service: appointment.service?.name || null,
+              message: (lastMsgText0 || '').substring(0, 200),
+              score: 'warm',
+              status: 'new',
+              createdAt: new Date().toISOString(),
+              contactedAt: null,
+            };
+            storage.saveLead(lead);
+            sendLeadNotification(lead);
+          } catch (e) { console.error('[STATE] createLead:', e.message); }
+        },
+      });
+      if (st.handled !== false && st.reply) {
+        setImmediate(() => { try { saveConversation(body.messages, businessProfile, st.reply); } catch (e) {} });
+        const lead = st.appointment ? {
+          id: st.appointment.id,
+          clientId,
+          name: st.appointment.patient?.name,
+          phone: st.appointment.patient?.phone,
+          service: st.appointment.service?.name,
+          status: 'pending',
+          createdAt: new Date().toISOString(),
+        } : null;
+        sendJson(res, { success: true, message: st.reply, engine: 'state', lead });
+        return;
+      }
+    }
 
     // ── LAYER 1: deterministic reception engine (instant, zero cost) ──
     const lastUserMsg = (body.messages || []).filter(m => m.role === 'user').pop();
@@ -1309,10 +1360,53 @@ Returnează DOAR JSON valid fără text suplimentar:
   if (pathname === '/api/appointments/save' && req.method === 'POST') {
     const body = await parseBody(req);
     if (!body.clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
-    const appt = storage.saveAppointment({ ...body, id: body.id || 'appt_' + Date.now() });
-    // Auto-notify patient
-    if (body.notify !== false) {
+
+    // Faza 2: appointment can be created directly with status 'pending' (from
+    // chat) or 'confirmed' (from manual dashboard). Default to pending -- the
+    // clinic must always confirm manually before the patient is notified.
+    // Master plan flow: patient asks -> AI creates PENDING -> clinic confirms
+    // -> patient gets SMS/email saying "confirmed for date X".
+    const status = body.status || 'pending';
+    const appt = {
+      ...body,
+      id: body.id || 'appt_' + Date.now(),
+      status,
+      source: body.source || 'manual',
+      duration_minutes: body.duration_minutes || 30,
+      patient: body.patient || { name: body.patient_name || body.name, phone: body.patient_phone || body.phone, email: body.patient_email || body.email },
+      service: body.service && typeof body.service === 'object' ? body.service : { name: body.service_name || body.service, price: body.service_price },
+      doctor: body.doctor && typeof body.doctor === 'object' ? body.doctor : { name: body.doctor_name },
+      start: body.start || (body.date ? `${body.date}T${body.slot || '09:00'}:00` : null),
+      end: body.end || null,
+      createdAt: body.createdAt || new Date().toISOString(),
+    };
+
+    // Backfill duration from the profile's service list if not provided
+    if (!body.duration_minutes) {
+      try {
+        const profile = storage.getProfile(body.clientId);
+        const svcName = (appt.service && appt.service.name) || null;
+        const svc = (profile?.services || []).find(s => s.name && svcName &&
+          s.name.toLowerCase().includes(svcName.toLowerCase().substring(0, 10)));
+        if (svc?.duration_minutes) {
+          appt.duration_minutes = svc.duration_minutes;
+          appt.service.duration_source = svc.duration_source || 'estimated';
+        }
+      } catch (e) {}
+    }
+
+    storage.saveAppointment(appt);
+
+    // Only fire the "confirmed" notification when clinic has actually confirmed.
+    // For pending, no patient notification — the clinic dashboard gets the
+    // entry and the receptionist confirms (or cancels) manually.
+    if (status === 'confirmed' && body.notify !== false) {
       notify('appointmentConfirmed', appt, body.clientId).catch(e => console.error('[NOTIFY]', e.message));
+    }
+    if (status === 'pending') {
+      // Log pending — no patient notification yet.
+      storage.audit('appointment.pending', { id: appt.id, clientId: body.clientId, service: appt.service?.name, date: appt.date || appt.start });
+      console.log('[APPT] Pending:', appt.id, appt.service?.name, appt.date || appt.start);
     }
     sendJson(res, { success: true, appointment: appt });
     return;
@@ -1320,8 +1414,37 @@ Returnează DOAR JSON valid fără text suplimentar:
 
   if (pathname === '/api/appointments/status' && req.method === 'POST') {
     const body = await parseBody(req);
+    if (!body.clientId || !body.id) { sendJson(res, { error: 'clientId si id lipsesc' }, 400); return; }
+    const prevStatus = (storage.getAppointments(body.clientId).find(a => a.id === body.id) || {}).status;
     storage.updateAppointmentStatus(body.clientId, body.id, body.status);
+
+    // Faza 2: fire patient notification only on status transitions that matter.
+    // pending -> confirmed : "Programarea ta a fost confirmata pentru data X."
+    // *       -> cancelled : "Programarea ta a fost anulata."
+    const appts = storage.getAppointments(body.clientId);
+    const appt = appts.find(a => a.id === body.id);
+    if (appt) {
+      if (body.status === 'confirmed' && prevStatus !== 'confirmed') {
+        appt.confirmedAt = new Date().toISOString();
+        appt.confirmedBy = body.confirmedBy || 'clinic';
+        storage.saveAppointment(appt);
+        notify('appointmentConfirmed', appt, body.clientId).catch(e => console.error('[NOTIFY]', e.message));
+      } else if (body.status === 'cancelled' && prevStatus !== 'cancelled') {
+        notify('appointmentCancelled', appt, body.clientId).catch(e => console.error('[NOTIFY]', e.message));
+      }
+    }
     sendJson(res, { success: true });
+    return;
+  }
+
+  // Faza 2: pending-appointments dashboard endpoint.
+  if (pathname === '/api/appointments/pending' && req.method === 'GET') {
+    const clientId = new URL('http://x' + req.url).searchParams.get('clientId');
+    if (!clientId) { sendJson(res, { error: 'clientId lipsa' }, 400); return; }
+    const all = storage.getAppointments(clientId);
+    const pending = all.filter(a => a.status === 'pending')
+      .sort((a, b) => new Date(a.createdAt || 0) - new Date(b.createdAt || 0));
+    sendJson(res, { success: true, pending, count: pending.length });
     return;
   }
 
