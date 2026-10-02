@@ -765,13 +765,14 @@ const server = http.createServer(async (req, res) => {
         industry: body.industry || 'auto',
         clientId: body.clientId,
       });
-      // Save to profile if clientId provided
+      // Save to profile if clientId provided — Supabase first (durable),
+      // local storage as fallback so the profile survives even when
+      // SUPABASE_URL/KEY are not configured (it still helps across requests
+      // within the same container uptime).
       if (body.clientId && result.success) {
-        await supa.saveProfile(body.clientId, {
-          ...result,
-          clientId: body.clientId,
-          website: body.url,
-        });
+        const profile = { ...result, clientId: body.clientId, website: body.url };
+        try { await supa.saveProfile(body.clientId, profile); } catch (e) { console.log('[SCAN] Supabase save skipped:', e.message); }
+        try { storage.saveProfile(profile); } catch (e) {}
       }
       sendJson(res, result);
     } catch(e) {

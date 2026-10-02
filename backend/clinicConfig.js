@@ -211,50 +211,116 @@ const clinicConfig = {
     return this.patch(clientId, partial);
   },
 
-  // ── BUILD AI CONTEXT (for chat prompt) ──
+  // ── BUILD AI CONTEXT (for chat prompt) ─────────
+  // This is the SINGLE most important function for "smart" answers: it is
+  // what Claude actually sees. The scanner produces a rich profile whose
+  // fields live at several different keys (top-level AND under `brain`, with
+  // both singular/plural and RO/EN spellings). We read ALL of them with
+  // fallbacks so nothing (doctors, insurances, emergency line, technologies,
+  // facilities, guarantees) is silently dropped — which is exactly what made
+  // the bot "mediocre": Claude was answering from an almost-empty context.
   buildAIContext(clientId, brain) {
     const config = this.get(clientId);
     const b = brain || {};
+    const bn = b.brain || {};
     const isOpen = this.isOpenNow(clientId);
     const todayH = this.getTodayHours(clientId);
 
+    // pick first non-empty among (dashboard config, profile top-level, brain)
+    const pick = (...vals) => vals.find(v => v && v !== '' && v !== 'nedisponibil' && v !== 'verificați la recepție' && v !== 'același număr') || null;
+
+    const name = pick(config.name, b.name, bn.name) || 'Clinica';
+    const city = pick(config.city, b.city, bn.city) || 'România';
+    const phone = pick(config.phone, b.phone, bn.phone);
+    const email = pick(config.email, b.email, bn.email);
+    const address = pick(config.address, b.address, bn.address);
+    // Dedicated emergency line (24/7) — distinct from the reception number.
+    const emergency = pick(b.emergencyPhone, b.phone_urgente, config.phone_urgente, bn.emergencyPhone);
+
+    // Services (all, with price + duration when present)
     const services = (b.services || [])
-      .filter(s => s.name)
+      .filter(s => s && s.name)
       .map(s => `• ${s.name}${s.price ? ': ' + s.price : ''}${s.duration ? ' (' + s.duration + ')' : ''}`)
       .join('\n');
 
+    // Doctors
+    const doctors = (b.doctors || bn.doctors || [])
+      .filter(d => d && d.name)
+      .map(d => `• ${d.name}${d.role ? ' — ' + d.role : ''}${d.specialization ? ' (' + d.specialization + ')' : ''}`)
+      .join('\n');
+
+    // Insurances (handle every key the scanner/config may use)
+    const insurances = pick(b.insurances, bn.insurances, b.insurance, config.payment?.insurance, []) || [];
+    const insuranceTxt = (Array.isArray(insurances) ? insurances : []).filter(Boolean).join(', ');
+
+    // Technologies (Straumann, Invisalign, CBCT, CEREC, iTero …)
+    const technologies = pick(bn.technologies, b.technologies, []) || [];
+    const techTxt = (Array.isArray(technologies) ? technologies : []).filter(Boolean).join(', ');
+
+    // Facilities — scanner stores an OBJECT {parking:{available,details}};
+    // some sources store a plain array of strings. Handle both.
+    const fac = (b.facilities && typeof b.facilities === 'object' && !Array.isArray(b.facilities)) ? b.facilities
+      : (Array.isArray(b.facilities) ? { _list: b.facilities } : {});
+    const facDetail = (k) => fac[k] && fac[k].available !== false ? (fac[k].details ? fac[k].details : 'da') : null;
+    const parkingTxt = facDetail('parking') || (Array.isArray(b.facilities) ? b.facilities.filter(f => /parc/i.test(String(f))).join(', ') : null) || config.facilities?.parking;
+    const metroTxt = facDetail('metro');
+    const disabTxt = facDetail('disability');
+
+    // Payments / financing / rates
+    const pay = (b.payments && typeof b.payments === 'object' && !Array.isArray(b.payments)) ? b.payments : {};
+    const payBits = [];
+    if (pay.card && pay.card.available) payBits.push('card');
+    if (pay.cash && pay.cash.available) payBits.push('numerar');
+    if (pay.transfer && pay.transfer.available) payBits.push('transfer');
+    if (pay.rates && pay.rates.available) payBits.push('rate' + (pay.rates.provider ? ' (' + pay.rates.provider + ')' : ''));
+    const financing = pick(b.financing, config.payment?.financing, pay.rates && pay.rates.available ? 'Da, plata în rate' : null);
+
+    // Guarantees, description, guarantees
+    const guarantees = pick(b.guarantees, bn.guarantees, null);
+    const description = pick(b.description, bn.description, null);
+
+    // FAQ (real site questions) — question/answer or q/a
     const faq = (b.faq || config.faq || [])
-      .map(f => `Î: ${f.question}\nR: ${f.answer}`)
+      .filter(f => f && (f.question || f.q))
+      .map(f => `Î: ${f.question || f.q}\nR: ${f.answer || f.a}`)
       .join('\n\n');
 
-    const insurance = (b.insurance || config.payment?.insurance || []).join(', ');
+    const line = (label, val, fallback) => `${label}: ${val || fallback}`;
+    const optional = (label, val) => (val ? `\n${label}: ${val}` : '');
 
-    return `CLINICA: ${config.name || b.name || 'Clinica'}
-ORAȘ: ${config.city || b.city || 'România'}
-TELEFON RECEPȚIE: ${config.phone || b.phone || 'nedisponibil'}
-TELEFON URGENȚE: ${config.phone_urgente || b.phone_urgente || config.phone || 'același număr'}
-EMAIL: ${config.email || b.email || 'nedisponibil'}
-ADRESĂ: ${config.address || b.address || 'nedisponibilă'}
-PARCARE: ${config.facilities?.parking || b.parking || 'verificați la recepție'}
-ASIGURĂRI: ${insurance || 'verificați la recepție'}
-FINANȚARE: ${b.financing || config.payment?.financing || 'verificați la recepție'}
-URGENȚE: ${b.emergency || config.emergencyNote || 'sunați la numărul de urgențe'}
-GARANȚII: ${b.guarantees || 'verificați la recepție'}
+    const context = [
+      `CLINICA: ${name}`,
+      `ORAȘ: ${city}`,
+      line('TELEFON RECEPȚIE', phone, 'nedisponibil'),
+      line('TELEFON URGENȚE 24/7', emergency, (phone ? phone + ' (același număr)' : 'nedisponibil')),
+      line('EMAIL', email, 'nedisponibil'),
+      line('ADRESĂ', address, 'nedisponibilă'),
+      line('PARCARE', parkingTxt, 'verificați la recepție'),
+      line('ASIGURĂRI', insuranceTxt, 'verificați la recepție'),
+      line('FINANȚARE/RATE', financing, 'verificați la recepție'),
+      line('MODURI PLATĂ', payBits.join(', ') || 'numerar, card', 'verificați la recepție'),
+      line('PROGRAM COMPLET', config.hoursRaw || b.hours || bn.hours, 'Luni-Vineri 08:00-20:00'),
+      `PROGRAM AZI: ${todayH.active ? todayH.open + ' - ' + todayH.close : 'Închis'}`,
+      `STATUS ACUM: ${isOpen ? 'DESCHIS' : 'ÎNCHIS'}`,
+      optional('TEHNOLOGII', techTxt),
+      optional('GARANȚII', guarantees),
+      optional('DESCRIERE', description),
+      optional('METRO', metroTxt),
+      optional('ACCES DIZABILITĂȚI', disabTxt),
+      doctors ? `\nECHIPA:\n${doctors}` : '',
+      `\nSERVICII ȘI PREȚURI:\n${services || 'Contactați recepția pentru lista completă'}`,
+      faq ? `\nÎNTREBĂRI FRECVENTE:\n${faq}` : '',
+    ].filter(Boolean).join('\n');
 
-PROGRAM AZI: ${todayH.active ? todayH.open + ' - ' + todayH.close : 'Închis'}
-STATUS: ${isOpen ? 'DESCHIS ACUM' : 'ÎNCHIS ACUM'}
-PROGRAM COMPLET: ${config.hoursRaw || b.hours || 'Luni-Vineri 08:00-20:00'}
+    return context + `
 
-SERVICII ȘI PREȚURI:
-${services || 'Contactați recepția pentru lista completă'}
-
-${faq ? 'ÎNTREBĂRI FRECVENTE:\n' + faq : ''}
-
-REGULI AI:
-- Ton: ${config.aiRules?.tone || 'prietenos'}
-- NU inventa prețuri sau servicii inexistente
-- NU da sfaturi medicale
-- Dacă nu știi → "Vă rog sunați la ${config.phone || b.phone || 'recepție'}"
+REGULI RECEPȚIONIST:
+- Ton: ${config.aiRules?.tone || 'prietenos'}, natural, în română, scurt (max 4-6 rânduri).
+- Răspunzi DOAR din datele de mai sus (Business Brain). NU inventa prețuri, servicii, program sau disponibilități.
+- Dacă clientul cere mai multe lucruri într-un mesaj → răspunde la TOATE, pe rând.
+- Nu da sfaturi medicale — pentru ele orientează spre medic.
+- Dacă informația lipsește din date → spune sincer și oferă telefonul de recepție: "Vă recomand să sunați la ${phone || 'recepție'} și vă confirmăm."
+- Când clientul vrea programare: cere numele + numărul de telefon IMPREUNĂ, o singură dată, apoi confirmă înregistrarea.
 ${(config.aiRules?.customRules || []).map(r => '- ' + r).join('\n')}`;
   },
 
