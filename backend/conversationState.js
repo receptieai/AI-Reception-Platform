@@ -35,17 +35,20 @@ function extractEntities(msg, opts = {}) {
   const out = {};
 
   // Phone — RO mobile variants, separators allowed.
-  const pm = raw.match(/(\+?40|0040|0)?\s?7\d(?:[\s.\-]?\d){7,8}/);
-  if (pm) out.phone = pm[0].replace(/[^\d+]/g, '');
+  const phoneMatch = raw.match(/(\+?40|0040|0)?\s?7\d(?:[\s.\-]?\d){7,8}/);
+  if (phoneMatch) out.phone = phoneMatch[0].replace(/[^\d+]/g, '');
 
   // Name — explicit trigger phrase ("mă numesc", "numele meu este", "im nume").
-  const trigger = raw.match(/(?:m[ăa] numesc|numele (?:meu )?(?:e|este)|im? nume|numele meu)\s+([A-ZĂÂÎȘȚ][a-zăâîșț]{1,}(?:[ ]+[A-ZĂÂÎȘȚ][a-zăâîșț]{1,})?)/i);
-  if (trigger) out.name = trigger[1].trim();
+  const trigger = raw.match(/(?:m[ăa] numesc|numele (?:meu )?(?:e|este)|im? nume|numele meu)\s+([A-Za-zĂÂÎȘțăâîș]{1,}(?:[ ]+[A-Za-zĂÂÎȘțăâîș]{1,})?)/i);
+  if (trigger) out.name = titleName(trigger[1].trim());
 
-  // Name glued right before a phone: "Ion Popescu 0721..."
-  if (!out.name && out.phone) {
-    const pm2 = raw.match(/([A-ZĂÂÎȘȚ][a-zăâîșț]{2,}[ ]+[A-ZĂÂÎȘȚ][a-zăâîșț]{2,})\s*\+?\d/);
-    if (pm2) out.name = pm2[1];
+  // Name glued right before a phone — case-insensitive, so "ion maria
+  // 0722345678" and "Ion Popescu 0721234567" are both captured. This is the
+  // most common way patients reply to "cum vă numiți + telefon".
+  if (out.phone && !out.name && phoneMatch && phoneMatch.index != null) {
+    const before = raw.slice(0, phoneMatch.index);
+    const name = nameFromBefore(before);
+    if (name) out.name = titleName(name);
   }
 
   // Bare-name fallback: the AI just asked "Cum vă numiți?" and the patient
@@ -53,7 +56,7 @@ function extractEntities(msg, opts = {}) {
   // words with no digits, when a name is expected and no phone/name found.
   if (!out.name && !out.phone && opts.expectName) {
     const bare = bareName(raw);
-    if (bare) out.name = bare;
+    if (bare) out.name = titleName(bare);
   }
 
   // Relative date.
@@ -64,12 +67,45 @@ function extractEntities(msg, opts = {}) {
   const dm = raw.match(/(\d{1,2})\s*[.\/-]\s*(\d{1,2})/);
   if (dm && !out.date) out.date = dm[1] + '.' + dm[2];
 
-  // Time — "orei 15", "la ora 15:30", "pe la 15", "in jur de 15:00".
+  // Time — "orei 15", "la ora 15:30", "pe la 15", "in jur de 15:00", "la 15".
   const timeM = raw.match(/\b(?:la (?:ora |orei )?|pe (?:la )?|in jur de|dup[ae] ora|ora)\s*(\d{1,2}(?::\d{2})?)\b/i);
   if (timeM) out.time = timeM[1];
   else if (opts.expectTime && /^\d{1,2}(:\d{2})?$/.test(raw.trim())) out.time = raw.trim();
 
   return out;
+}
+
+// Words that are never part of a person's name (prepositions / booking words),
+// so "da vreau maine la ion maria 0722..." does not swallow "la" / "vreau".
+const NAME_STOP = new Set([
+  'buna', 'bună', 'salut', 'hei', 'hello', 'da', 'nu', 'ok', 'da', 'vreau',
+  'as', 'as', 'a', 'sa', 'sa', 'im', 'imi', 'im', 'maine', 'azi', 'poimaine',
+  'luni', 'marti', 'marti', 'miercuri', 'joi', 'vineri', 'sambata', 'sambata',
+  'la', 'pe', 'ora', 'orei', 'in', 'jur', 'de', 'dupa', 'după', 'si', 'si',
+  'am', 'am', 'eu', 'imi', 'imi', 'ma', 'ma', 'vreau', 'programez', 'programare',
+  'programa', 'implant', 'albire', 'detartraj', 'consultat', 'consultație',
+]);
+
+// Take the last 1-3 name-like words immediately preceding the phone number.
+// A digit or stopword stops the scan, so "… la 15 ion maria 0722…" yields
+// "ion maria" while "… maine la 15" alone (no name) yields nothing.
+function nameFromBefore(text) {
+  const words = String(text).trim().split(/\s+/).filter(Boolean);
+  const cand = [];
+  for (let i = words.length - 1; i >= 0 && cand.length < 3; i--) {
+    const w = words[i];
+    if (!/^[A-Za-zĂÂÎȘțăâîș]{2,20}$/.test(w)) break;
+    if (NAME_STOP.has(w.toLowerCase())) break;
+    cand.unshift(w);
+  }
+  return cand.length ? cand.join(' ') : null;
+}
+
+// Title-case a captured name: "ion maria" -> "Ion Maria".
+function titleName(s) {
+  return String(s || '').split(/\s+/).map(w =>
+    w ? w.charAt(0).toUpperCase() + w.slice(1).toLowerCase() : w
+  ).join(' ');
 }
 
 // A "bare name" is 1-2 words, each starting with an uppercase Latin letter,
@@ -82,9 +118,7 @@ function bareName(raw) {
   if (words.length > 2) return null;
   const ok = words.every(w => /^[A-ZĂÂÎȘȚ][a-zăâîșț]{1,20}$/.test(w));
   if (!ok) return null;
-  // must not be a common non-name word
-  const stop = new Set(['buna', 'buna', 'salut', 'da', 'nu', 'ok', 'vreau', 'as', 'as', 'maine', 'azi', 'implant', 'albire', 'detartraj', 'consultat', 'consultatie']);
-  if (words.every(w => stop.has(w.toLowerCase()))) return null;
+  if (words.every(w => NAME_STOP.has(w.toLowerCase()))) return null;
   return s;
 }
 
@@ -118,8 +152,11 @@ function getOrCreate(conversationId) {
 }
 
 function isBookingIntent(t) {
-  return /\b(program|programare|programat|programaza|programez|programam|programeaz|rezerv|rezervare|apoi la|vreau (sa |s[ae] )?(sa |s[ae] )?(ma |s[ae] )?program|dorim|a(v|s) vrea|inregistrat|apointment|book|slot|loc )\b/.test(t) ||
-    /\b(program|rezerv|programare)\b/.test(t);
+  const explicit = /\b(program|programare|programat|programaza|programez|programam|programeaz|rezerv|rezervare|apoi la|dorim|a(v|s) vrea|inregistrat|apointment|book)\b/.test(t);
+  const wantsSlot = /\b(aveti (loc|liber)|aveti liber|e liber|este liber|loc (liber|liber)|slot|disponibil|aveti timp|putem)\b/.test(t);
+  // "vreau maine la 15" — wants something at a time, even without "program".
+  const wantsAtTime = /\bvreau\b/.test(t) && /\b(azi|maine|poimaine|luni|marti|miercuri|joi|vineri|sambata|sambata|ora|orei|pe la|la \d)\b/.test(t);
+  return explicit || wantsSlot || wantsAtTime;
 }
 
 // Has a booking intent been established in THIS conversation (current message

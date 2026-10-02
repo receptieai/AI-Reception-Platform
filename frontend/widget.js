@@ -736,7 +736,7 @@ Apoi adaugă exact: [LEAD_READY]`;
     const delay = 600 + Math.random() * 800;
     await new Promise(r => setTimeout(r, delay));
 
-    let reply = await callAPI(text, businessProfile);
+  let reply = await callAPI(text, businessProfile);
     
     // Fix: daca AI cere doar numele si nu avem inca telefon
     if ((reply.includes('numiți') || reply.includes('numele')) && !reply.includes('telefon') && !collectedData.phone) {
