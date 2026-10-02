@@ -92,6 +92,18 @@ function priceText(s) {
   return String(s.price).replace(/RON/i, 'RON').replace(/lei/gi, 'RON');
 }
 
+function durationText(s) {
+  // duration_minutes is the canonical field (set by the scanner / merge engine).
+  // s.duration may also exist as a human string like "45 min" from Claude.
+  let n = s.duration_minutes;
+  if (!n && s.duration) {
+    const m = String(s.duration).match(/(\d{1,4})/);
+    if (m) n = parseInt(m[1], 10);
+  }
+  if (!n) return null;
+  return ' durează ~' + n + ' min';
+}
+
 function detectLead(message) {
   // RO mobile: 07XXXXXXXX / 7XXXXXXXX / +407XXXXXXXX / 00407... — allow
   // separators. The old pattern demanded one extra digit, so real 10-digit
@@ -172,22 +184,57 @@ function resolveUrgent(t, p, phone) {
   return `Pentru urgențe sunați imediat la ${em ? em : 'recepția'} — avem medic de gardă 24/7 🚨\nDacă nu puteți suna, veniți direct: ${p.address || 'adresa din site'}.`;
 }
 
+// Common service keywords so a service the patient names is never silently
+// dropped even if the scanned profile does not list it. If the profile has
+// the service with a price we use it; otherwise we say "preț la cerere" and
+// offer to book — the patient is still answered on every question they asked.
+const SERVICE_KEYWORDS = [
+  ['albire', 'Albire'], ['whitening', 'Albire'],
+  ['detartraj', 'Detartraj'], ['periaj', 'Detartraj'],
+  ['implant', 'Implant'], ['coroan', 'Coroană'],
+  ['canal', 'Tratament de canal'], ['endodont', 'Tratament de canal'],
+  ['extract', 'Extractie'], ['scot', 'Extractie'], ['molar', 'Extractie molar'], ['masea', 'Extractie molar'],
+  ['plomb', 'Obturație'], ['obtur', 'Obturație'],
+  ['aparat', 'Aparat dentar'], ['ortodon', 'Ortodonție'], ['invis', 'Invisalign'],
+  ['protez', 'Proteză'], ['bridge', 'Proteză'],
+];
+
+function mentionedServiceLabels(t, p) {
+  // Distinct service labels the message refers to, minus ones already covered
+  // by a priced profile service (those are reported with their real price).
+  const pricedNames = (p.services || [])
+    .filter(s => s && s.name && s.price)
+    .map(s => norm(s.name));
+  const labels = [];
+  for (const [kw, label] of SERVICE_KEYWORDS) {
+    if (!t.includes(kw)) continue;
+    const covered = pricedNames.some(n => n.includes(kw));
+    if (!covered && !labels.includes(label)) labels.push(label);
+  }
+  return labels;
+}
+
 function resolvePrice(t, p, phone) {
   if (!isPriceIntent(t)) return null;
   const list = pickServices(p, t).slice(0, 4);
   const priced = list.filter(s => s.price);
+  const extra = mentionedServiceLabels(t, p);
   if (priced.length) {
-    const lines = priced.map(s => `• ${s.name}: ${priceText(s)}${s.duration ? ' · durează ' + s.duration : ''}`).join('\n');
+    const lines = priced.map(s => `• ${s.name}: ${priceText(s)}${durationText(s) || ''}`).join('\n');
     const intro = priced.length > 1
       ? 'Cât vă costă (pe ce ați cerut):'
       : 'Preț:';
-    return `${intro}\n${lines}\nDoriți să vă programăm? Scrieți-mi numele și telefonul 😊`;
+    const extras = extra.length ? '\n' + extra.map(e => `• ${e}: preț la cerere — vă rog sunați la ${phone || 'recepție'}`).join('\n') : '';
+    return `${intro}\n${lines}${extras}\nDoriți să vă programăm? Scrieți-mi numele și telefonul 😊`;
   }
   const withPrice = (p.services || []).filter(s => s && s.price).slice(0, 6);
   if (withPrice.length) {
-    const lines = withPrice.map(s => `• ${s.name} — ${priceText(s)}`).join('\n');
-    return `Câteva dintre prețurile noastre:\n${lines}`;
+    const lines = withPrice.map(s => `• ${s.name} — ${priceText(s)}${durationText(s) || ''}`).join('\n');
+    const extras = extra.length ? '\n' + extra.map(e => `• ${e}: preț la cerere`).join('\n') : '';
+    return `Câteva dintre prețurile noastre:\n${lines}${extras}`;
   }
+  const onlyExtra = extra.length ? extra.map(e => '• ' + e).join('\n') : '';
+  if (onlyExtra) return `Pentru ${extra.join(' și ')} prețul e la cerere — vă rog sunați la ${phone || 'recepție'}.`;
   return `Pentru prețuri exacte, vă rog sunați la ${phone || 'recepție'}.`;
 }
 

@@ -350,7 +350,11 @@
 
     const services = (profile?.services || [])
       .filter(s => s?.name)
-      .map(s => `  • ${s.name}${s.price ? ': ' + s.price : ''}${s.duration ? ' (' + s.duration + ')' : ''}`)
+      .map(s => {
+        const dur = s.duration_minutes || (s.duration ? String(s.duration).match(/(\d{1,4})/) : null);
+        const durTxt = dur ? ` (~${dur[0] || dur} min)` : '';
+        return `  • ${s.name}${s.price ? ': ' + s.price : ''}${durTxt}`;
+      })
       .join('\n') || '  • Contactați-ne pentru lista completă';
 
     return `Ești recepționistul virtual al "${C.name}" — o afacere locală din România.
@@ -462,8 +466,14 @@ Apoi adaugă exact: [LEAD_READY]`;
     // PRICES
     if (/(pret|costa|cat costa|tarif|cat e)/.test(t)) {
       const svcs = ((p && p.services) || []).filter(s => s && s.name && s.price).slice(0, 6);
-      if (svcs.length) parts.push('Câteva prețuri:\n' + svcs.map(s => '• ' + s.name + ' — ' + s.price).join('\n'));
-      else parts.push('Pentru prețuri exacte, sunați la ' + (phone || 'recepție') + '.');
+      if (svcs.length) {
+        const lines = svcs.map(s => {
+          const dur = s.duration_minutes || (s.duration ? String(s.duration).match(/(\d{1,4})/) : null);
+          const durTxt = dur ? ` (~${dur[0] || dur} min)` : '';
+          return '• ' + s.name + ' — ' + s.price + durTxt;
+        }).join('\n');
+        parts.push('Câteva prețuri:\n' + lines);
+      } else parts.push('Pentru prețuri exacte, sunați la ' + (phone || 'recepție') + '.');
     }
 
     // HOURS
@@ -635,6 +645,49 @@ Apoi adaugă exact: [LEAD_READY]`;
     }
   }
 
+  // ── Faza 2: CREATE PENDING APPOINTMENT ──────────────────────────
+  // The master plan flow: patient asks for an appointment on the chat
+  // widget -> AI captures name + phone + service (+ optional date) ->
+  // a real appointment record is created with status 'pending' (NOT just
+  // a lead) so it appears in the clinic dashboard under "De confirmat".
+  // The clinic confirms (status -> 'confirmed'), which then fires the
+  // SMS/email to the patient saying "Programarea a fost confirmata".
+  // Best-effort: if the endpoint is missing, the lead above still works.
+  let apptCreated = false;
+  async function createPendingAppt() {
+    if (apptCreated || !collectedData.phone || !collectedData.name) return;
+    apptCreated = true;
+
+    const svc = collectedData.service || null;
+    const profile = window._rcpai_profile || {};
+    // Match the service against the profile to pick up the estimated duration.
+    let durationMinutes = 30;
+    const matched = (profile.services || []).find(s => s && s.name && svc && s.name.toLowerCase().includes(String(svc).toLowerCase().slice(0, 10)));
+    if (matched && matched.duration_minutes) durationMinutes = matched.duration_minutes;
+
+    const appt = {
+      clientId: C.clientId,
+      status: 'pending',
+      source: 'chat',
+      service: { name: svc || 'Programare (nespecificat)', duration_minutes: durationMinutes },
+      patient: { name: collectedData.name, phone: collectedData.phone, email: collectedData.email || null },
+      date: collectedData.date || null,
+      message: (collectedData.service || '') + ' — cerut prin chat pe ' + new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    };
+
+    try {
+      await fetch(`${C.apiUrl}/api/appointments/save`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appt),
+      });
+      console.log('[RecepAI] Programare PENDING creata:', svc, collectedData.name, collectedData.phone);
+    } catch (e) {
+      console.log('[RecepAI] Programare pending esuat (lead-ul ramane valid):', e.message);
+    }
+  }
+
   // ── UI FUNCTIONS ──────────────────────────────
   function addMessage(text, type) {
     const msgs = document.getElementById('rcpai-msgs');
@@ -712,6 +765,8 @@ Apoi adaugă exact: [LEAD_READY]`;
     detectAndExtractLead(reply);
     if (collectedData.phone && collectedData.name && !leadSent) {
       await sendLead();
+      // Faza 2: creeaza si programarea PENDING (aparitie in dashboard clinica)
+      await createPendingAppt();
     }
 
     isTyping = false;
@@ -774,13 +829,9 @@ Apoi adaugă exact: [LEAD_READY]`;
       return out;
     }
 
-    showTyping(true);
-    await new Promise(r => setTimeout(r, 800));
-    showTyping(false);
-
-    const greeting = `Bună ziua! 👋 Sunt recepționistul virtual al ${C.name}.\n\nCu ce vă pot ajuta astăzi?`;
-    addMessage(greeting, 'bot');
-    conversationHistory.push({ role: 'assistant', content: greeting });
+    // Greeting is shown instantly in open() so the user never waits. This
+    // function only loads the profile in the background; typing indicator is
+    // not shown here (the chat is already open and readable).
   }
 
   // ── TOGGLE ────────────────────────────────────
@@ -798,6 +849,12 @@ Apoi adaugă exact: [LEAD_READY]`;
       
       if (!chatInited) {
         chatInited = true;
+        // Greeting INSTANT la deschidere — NU mai așteptăm scanul site-ului
+        // (scanul durează ~8s și bloca mesajul de întâmpinarea). Profilul se
+        // încarcă în fundal, de aceea primul mesaj așteaptă doar profileReady.
+        const greeting = `Bună ziua! 👋 Sunt recepționistul virtual al ${C.name}.\n\nCu ce vă pot ajuta astăzi?`;
+        addMessage(greeting, 'bot');
+        conversationHistory.push({ role: 'assistant', content: greeting });
         profileReady = initChat();
       }
       
