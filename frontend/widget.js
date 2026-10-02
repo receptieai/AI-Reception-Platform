@@ -717,13 +717,9 @@ Apoi adaugă exact: [LEAD_READY]`;
   async function sendMessage(text) {
     if (!text.trim() || isTyping) return;
 
-    // Make sure the profile is loaded before the first API call.
-    // Without this, the first message is sent with businessProfile={}, the
-    // server engine has no data, and the widget falls back to the generic
-    // "Vă pot ajuta cu:" message — exactly what the user saw.
-    if (profileReady) await profileReady;
-
-    // Disable input
+    // Show the user's message INSTANTLY — never make them wait for the
+    // profile/scan to finish. The profile loads in the background; only the
+    // AI reply (further down) waits for it.
     const input = document.getElementById('rcpai-input');
     const sendBtn = document.getElementById('rcpai-send');
     isTyping = true;
@@ -731,8 +727,10 @@ Apoi adaugă exact: [LEAD_READY]`;
 
     addMessage(text, 'user');
     if (input) { input.value = ''; input.style.height = 'auto'; }
-
     showTyping(true);
+
+    // Now (in the background) wait for the profile before calling the API.
+    if (profileReady) await profileReady;
 
     // Typing delay realist
     const delay = 600 + Math.random() * 800;
