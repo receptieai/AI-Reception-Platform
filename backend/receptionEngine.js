@@ -43,6 +43,15 @@ function wordMatches(word, q) {
   return false;
 }
 
+// A "meta" service entry (online booking fee, contact info) is not a real
+// treatment and must never be matched as the service a patient is asking to
+// book — otherwise "vreau o programare" matches the "Programare online"
+// service and the bot answers a booking-fee price instead of booking.
+function isMetaService(name) {
+  const n = norm(name || '');
+  return /^(programa|programari|rezerv|rezervare|online|contact|informatii|informatii|consultant(are)?|apoi|apoi)/.test(n) && n.length <= 22;
+}
+
 function pickService(profile, msgNorm) {
   const list = pickServices(profile, msgNorm);
   return list[0] || null;
@@ -53,7 +62,7 @@ function pickService(profile, msgNorm) {
 // minte" return BOTH the albire price AND the molar-de-minte price instead of
 // just the single best guess.
 function pickServices(profile, msgNorm) {
-  const svcs = (profile.services || []).filter(s => s && s.name);
+  const svcs = (profile.services || []).filter(s => s && s.name && !isMetaService(s.name));
   const q = expandSynonyms(msgNorm);
   const scored = [];
   for (const s of svcs) {
@@ -126,10 +135,17 @@ function isAppointmentIntent(t) {
 }
 
 function isPriceIntent(t) {
-  // Substring on the normalised string (norm() already strips diacritics):
-  // "costa", "cat ma costa", "preț", "tarif" are all covered without the
-  // fragile word-boundary + contraction gymnastics.
-  return /pret|pre[st]ur|costa|tarif|cat e\b/.test(t);
+  // Word-boundary on "costa" so a doctor's surname like "Costantinescu" does
+  // NOT trigger a price question (the substring "costa" inside a name used to
+  // leak a price list into a booking message). "pre"/"tarif" are distinct
+  // tokens in norm() output so \b is safe.
+  return /\b(costa|pre[st]?ur?i?|tarif|pre\b)\b/.test(t);
+}
+// "cât timp durează", "în cât timp", "cite minute" — a duration question.
+// Answered from the same service data (duration_minutes) so the AI never
+// invents a duration.
+function isDurationIntent(t) {
+  return /dureaz|dureaza|dureaza|c(at|it|ît) timp|cat de (mult|lung)|in cat timp|c[âa]te minute|de cate minute|cite minute/.test(t);
 }
 function isHoursIntent(t) {
   return /\b(program|orar|deschis|deschis[ae]?|ore|cat (este|e) (programul|orarul)|function[ae]zi|deschideti|deschideți|inchis|închis|noaptea|s[âa]mb[âa]t[âa])\b/.test(t);
@@ -212,6 +228,24 @@ function mentionedServiceLabels(t, p) {
     if (!covered && !labels.includes(label)) labels.push(label);
   }
   return labels;
+}
+
+function resolveDuration(t, p, phone) {
+  // "cât timp durează implantul?" — answer from duration_minutes so we never
+  // invent. If no duration is known we say "durata depinde de caz" and offer
+  // to confirm, rather than guessing a number.
+  if (!isDurationIntent(t)) return null;
+  const list = pickServices(p, t).slice(0, 2);
+  const withDur = list.filter(s => s.duration_minutes || s.duration);
+  if (withDur.length) {
+    return 'Cât durează (pe ce ați întrebat):\n' + withDur
+      .map(s => '• ' + s.name + ': ~' + (s.duration_minutes || String(s.duration).match(/(\d{1,4})/)[1] || '?') + ' min')
+      .join('\n');
+  }
+  if (list.length) {
+    return 'Durata pentru ' + list.map(s => s.name).join(' și ') + ' depinde de complexitate — o stabilim exact la programare. Vă rog sunați la ' + (phone || 'recepție') + '.';
+  }
+  return 'Durata exactă depinde de caz — vă recomandăm să sunați la ' + (phone || 'recepție') + ' pentru estimare.';
 }
 
 function resolvePrice(t, p, phone) {
@@ -333,7 +367,7 @@ function infoAnswer(message, profile) {
   const parts = [];
   const urg = resolveUrgent(t, p, phone);
   if (urg) parts.push(urg);
-  const resolvers = [resolvePrice, resolveHours, resolveLocation, resolvePayment,
+  const resolvers = [resolvePrice, resolveDuration, resolveHours, resolveLocation, resolvePayment,
     resolveInsurance, resolveDoctors, resolveServiceList, resolveContact];
   for (const r of resolvers) {
     const out = r(t, p, phone);
@@ -399,7 +433,7 @@ function answer(message, profile) {
 
   // 3) INFO intents — collect every one present in the message
   const resolvers = [
-    resolvePrice, resolveHours, resolveLocation, resolvePayment,
+    resolvePrice, resolveDuration, resolveHours, resolveLocation, resolvePayment,
     resolveInsurance, resolveDoctors, resolveServiceList, resolveContact,
   ];
   for (const r of resolvers) {

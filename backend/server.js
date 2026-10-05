@@ -865,8 +865,9 @@ const server = http.createServer(async (req, res) => {
       const st = conversationState.processMessage('conv_' + clientId, lastMsgText0, businessProfile, {
         createLead(appointment) {
           try {
+            appointment.doctor = appointment.doctor || state.doctor || null;
             storage.saveAppointment(appointment);
-            storage.audit('appointment.pending', { id: appointment.id, clientId, service: appointment.service?.name, date: appointment.date });
+            storage.audit('appointment.pending', { id: appointment.id, clientId, service: appointment.service?.name, date: appointment.date, doctor: appointment.doctor });
             const lead = {
               id: 'lead_' + Date.now(),
               clientId,

@@ -63,9 +63,6 @@ function extractEntities(msg, opts = {}) {
   for (const [word, offset] of Object.entries(RO_DAYS)) {
     if (t.includes(word)) { out.date = offset; break; }
   }
-  // Calendar date dd.MM or dd/
-  const dm = raw.match(/(\d{1,2})\s*[.\/-]\s*(\d{1,2})/);
-  if (dm && !out.date) out.date = dm[1] + '.' + dm[2];
 
   // Time — "orei 15", "la ora 15:30", "pe la 15", "in jur de 15:00", "la 15".
   const timeM = raw.match(/\b(?:la (?:ora |orei )?|pe (?:la )?|in jur de|dup[ae] ora|ora)\s*(\d{1,2}(?::\d{2})?)\b/i);
@@ -77,14 +74,35 @@ function extractEntities(msg, opts = {}) {
 
 // Words that are never part of a person's name (prepositions / booking words),
 // so "da vreau maine la ion maria 0722..." does not swallow "la" / "vreau".
+// Only true prepositions/booking words — NOT doctor names, so "la Elena
+// Popescu 0722" still yields the name "Elena Popescu".
 const NAME_STOP = new Set([
   'buna', 'bună', 'salut', 'hei', 'hello', 'da', 'nu', 'ok', 'da', 'vreau',
   'as', 'as', 'a', 'sa', 'sa', 'im', 'imi', 'im', 'maine', 'azi', 'poimaine',
   'luni', 'marti', 'marti', 'miercuri', 'joi', 'vineri', 'sambata', 'sambata',
   'la', 'pe', 'ora', 'orei', 'in', 'jur', 'de', 'dupa', 'după', 'si', 'si',
   'am', 'am', 'eu', 'imi', 'imi', 'ma', 'ma', 'vreau', 'programez', 'programare',
-  'programa', 'implant', 'albire', 'detartraj', 'consultat', 'consultație',
+  'programa', 'programari', 'implant', 'implanturi', 'albire', 'detartraj',
+  'consultat', 'consultație', 'serviciu', 'servicii', 'dre', 'dr', 'doctor',
+  'medic',
 ]);
+
+// "vreau programare la Elena Popescu" — capture the doctor the patient names.
+// The AI records this so the appointment note can carry it, and the answer
+// can reflect it ("programarea la Dr. Elena Popescu"). Best-effort: only in
+// a booking context, and only when there is no phone number in the message
+// (a glued name+phone means the patient is giving their OWN name).
+function extractDoctor(raw, profile, booking) {
+  if (!booking) return null;
+  if (/\d{10}/.test(raw)) return null; // glued name+phone = the patient's name
+  const docs = (profile.doctors || []).map(d => d && d.name).filter(Boolean);
+  for (const dn of docs) {
+    if (norm(raw).includes(norm(dn).split(' ').slice(-1)[0])) return dn; // by last name
+  }
+  const m = raw.match(/\bla\s+((?:dr\.?\s+)?[A-ZĂÂÎȘȚ][a-zăâîșț]{2,}(?:\s+[A-ZĂÂÎȘȚ][a-zăâîșț]{2,})?)/);
+  if (m) return m[1].trim();
+  return null;
+}
 
 // Take the last 1-3 name-like words immediately preceding the phone number.
 // A digit or stopword stops the scan, so "… la 15 ion maria 0722…" yields
@@ -195,18 +213,38 @@ function describeBooking(state) {
 function processMessage(conversationId, message, profile, ctx = {}) {
   const t = norm(message);
   const state = getOrCreate(conversationId);
+  if (state.doctor === undefined) state.doctor = null; // doctor preference (V1)
+
+  // If the booking is ALREADY DONE (lead_status='done') and the patient is
+  // asking a follow-up question (price, duration, "la ce doctor am
+  // programarea"), fall through to the normal info engine — do NOT trap
+  // them in booking mode. Only re-enter booking logic if the message itself
+  // contains a NEW phone number (a different patient starting a new booking).
+  if (state.lead_status === 'done' && !/\d{10}/.test(message || '')) {
+    // Answer info questions normally (price, duration, doctors, etc.)
+    const info = infoAnswer(message, profile);
+    if (info) return { reply: info, state };
+    // "la ce doctor am programarea?" — answer from state
+    if (/la ce doctor|care doctor|ce doctor|doctor/.test(t) && state.service) {
+      return { reply: 'Programarea dumneavoastră este pentru ' + (state.service || 'serviciu nespecificat') + (state.date != null ? ' ' + humanDate(state.date) : '') + (state.time ? ' la ' + state.time : '') + '. Clinica vă va contacta pentru a confirma doctorul.', state };
+    }
+    // Nothing recognized — fall through to the LLM.
+    return { reply: null, state, handled: false };
+  }
 
   // 1) Pull any entities the patient just gave (service/date/time/name/phone).
   // expectName/expectTime let the bare-name / bare-time fallbacks fire only
-  // when the patient is answering that exact question — so "Ion Popescu" is
-  // treated as a name after "Cum vă numiți?" but not in unrelated messages.
+  // when the patient is answering that exact question.
   const ent = extractEntities(message, {
     expectName: bookingIntentEver(t, state) && !state.name,
     expectTime: bookingIntentEver(t, state) && !state.time,
   });
 
   // Map free-form service wording onto the profile (gets price + duration).
-  if (ent.service === undefined) {
+  // Only auto-detect the service when we're actually in a booking context, so
+  // a plain info question ("ce firme de implanturi aveti?") does not leak a
+  // service into the booking state.
+  if (ent.service === undefined && (isBookingIntent(t) || state.intent === 'booking')) {
     const svc = matchService(message, profile);
     if (svc) {
       state.service = svc.name;
@@ -221,12 +259,17 @@ function processMessage(conversationId, message, profile, ctx = {}) {
   if (ent.date !== undefined && state.date == null) { state.date = ent.date; state.provided.date = true; }
   if (ent.time !== undefined && state.time == null) { state.time = ent.time; state.provided.time = true; }
 
+  // Doctor preference ("vreau programare la Dr. Elena ...") — recorded so the
+  // booking note carries it and the confirmation can reference it.
+  const doc = extractDoctor(message, profile, isBookingIntent(t) || state.intent === 'booking');
+  if (doc && !state.doctor) state.doctor = doc;
+
   // 2) Is there a booking intent now (ever) in this conversation?
   const booking = isBookingIntent(t) || state.intent === 'booking';
   if (booking) state.intent = 'booking';
 
   // 3) Answer any info question inline (price/hours/location/etc), even while
-  //    a booking is in progress — the patient's real question gets answered.
+  //    a booking is in progress.
   const info = infoAnswer(message, profile);
 
   if (booking) {
@@ -248,7 +291,8 @@ function processMessage(conversationId, message, profile, ctx = {}) {
       if (ctx.createLead) { try { ctx.createLead(appointment, state); } catch (e) { } }
       const bits = [];
       if (info) bits.push(info);
-      bits.push(`✅ Mulțumesc, ${state.name}! Am înregistrat solicitarea pentru ${describeBooking(state)}.` +
+      const docTxt = state.doctor ? ' la ' + state.doctor : '';
+      bits.push(`✅ Mulțumesc, ${state.name}! Am înregistrat solicitarea pentru ${describeBooking(state)}${docTxt}.` +
         (state.duration_minutes ? ` (durează ~${state.duration_minutes} min)` : '') +
         '\nClinica vă va contacta în curând pentru a confirma ora exactă. O zi frumoasă! 😊');
       return { reply: bits.join('\n\n'), state, appointment };
@@ -259,7 +303,6 @@ function processMessage(conversationId, message, profile, ctx = {}) {
     const bits = [];
     if (info) bits.push(info);
     if (q) bits.push(q);
-    // If nothing new to ask and no info, nudge gently.
     if (!bits.length) bits.push('Pentru a continua programarea, spuneți-mi serviciul, numele și numărul de telefon 😊');
     return { reply: bits.join('\n\n'), state };
   }
