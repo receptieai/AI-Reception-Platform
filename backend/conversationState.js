@@ -104,17 +104,24 @@ function extractDoctor(raw, profile, booking) {
   return null;
 }
 
-// Take the last 1-3 name-like words immediately preceding the phone number.
-// A digit or stopword stops the scan, so "… la 15 ion maria 0722…" yields
-// "ion maria" while "… maine la 15" alone (no name) yields nothing.
+// Take the last 1-2 name-like words immediately preceding the phone number,
+// skipping over stop-words (prepositions, days, booking words) and bare time
+// tokens ("3", "15", "15:30"). So "maria ion ora 3 maine 0723456678" yields
+// "maria ion" — the "ora 3" clock and "maine" no longer block the name — while
+// "da vreau maine la 15" (no name) still yields nothing.
 function nameFromBefore(text) {
   const words = String(text).trim().split(/\s+/).filter(Boolean);
   const cand = [];
-  for (let i = words.length - 1; i >= 0 && cand.length < 3; i--) {
+  for (let i = words.length - 1; i >= 0 && cand.length < 2; i--) {
     const w = words[i];
-    if (!/^[A-Za-zĂÂÎȘțăâîș]{2,20}$/.test(w)) break;
-    if (NAME_STOP.has(w.toLowerCase())) break;
-    cand.unshift(w);
+    // Bare time tokens ("3", "15", "15:30") — skip, do not break.
+    if (/^[0-9:]{1,5}$/.test(w)) continue;
+    // Stop-words (la / pe / maine / programare / etc.) — skip, do not break.
+    if (NAME_STOP.has(w.toLowerCase())) continue;
+    // A name-like word (letters only) — keep it.
+    if (/^[A-Za-zĂÂÎȘțăâîș]{2,20}$/.test(w)) { cand.unshift(w); continue; }
+    // Anything else (stray punctuation token) — stop.
+    break;
   }
   return cand.length ? cand.join(' ') : null;
 }

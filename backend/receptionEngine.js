@@ -167,9 +167,10 @@ function isUrgencyIntent(t) {
 }
 function isDoctorsIntent(t) {
   // Substring root-match so "medicii", "medicești", "medice" all hit,
-  // combined with an explicit ask (care / cine / echip / listă / dr).
+  // combined with an explicit ask (care / cine / ce / listă / dr). "ce"
+  // ("ce doctori aveți?") is a common Romanian question word for this intent.
   const mentionsDoc = /medic|echip|specialist|doctor|ortodont|implantolog/.test(t);
-  const asking = /\b(care|cine|list[ae])\b/.test(t) || /\bdr\./.test(t);
+  const asking = /\b(care|cine|list[ae]|ce|cat|citi|nume|dr)\b/.test(t) || /\bdr\./.test(t);
   return mentionsDoc && (asking || /medici|echip/.test(t));
 }
 function isServiceListIntent(t) {
