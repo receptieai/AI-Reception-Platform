@@ -40,6 +40,7 @@ const { buildBusinessBrain } = require('./businessBrainScanner');
 const { scan: scanV3 } = require('./scanner/index');
 const { answer: deterministicAnswer, norm: normish } = require('./receptionEngine');
 const conversationState = require('./conversationState');
+const { buildPrompt: smartBuildPrompt } = require('./smartPrompt');
 
 // ── STORAGE ENGINE ──
 storage.migrate();
@@ -565,57 +566,22 @@ function makeFallback(domain) {
 }
 
 // ── CHAT ──────────────────────────────────────
-async function chatWithAI(messages, profile, personality) {
-  const tones = {
-    prietenos: 'prietenos și cald, folosești emoji-uri cu moderație',
-    profesionist: 'profesionist și formal, fără emoji-uri',
-    elegant: 'elegant și sofisticat',
-    cald: 'foarte empatic și grijuliu',
-    dinamic: 'rapid și direct la obiect'
-  };
-  
-  const services = (profile.services || [])
-    .filter(s => s.name)
-    .map(s => {
-      const dur = s.duration_minutes || (s.duration ? String(s.duration).match(/(\d{1,4})/) : null);
-      const durTxt = dur ? ` (~${dur[0] || dur} min)` : '';
-      return `• ${s.name}${s.price ? ': ' + s.price : ''}${durTxt}`;
-    })
-    .join('\n');
-  
-  const now = new Date();
-  const hour = now.getHours();
-  const isWorkingHours = hour >= 9 && hour < 18;
-  
-  // Build AI context from clinicConfig + brain profile
-  const clientIdForConfig = profile.clientId || null;
-  const aiContext = clinicConfig.buildAIContext(clientIdForConfig, profile);
-  const isOpen = clientIdForConfig ? clinicConfig.isOpenNow(clientIdForConfig) : isWorkingHours;
-
-  const system = `Ești recepționistul virtual. Vorbești DOAR în română. Răspunsuri scurte — maxim 4 propoziții.
-Ton: ${tones[personality || 'prietenos'] || tones.prietenos}
-
-${aiContext}
-
-CÂND CLIENTUL VREA PROGRAMARE:
-- Dacă clientul a menționat deja serviciul/ziua/ora — NU le mai cere din nou
-- Cere DOAR ce lipsește: numele și telefonul — ÎMPREUNĂ într-o singură întrebare
-- Ex: "Pentru a înregistra solicitarea, scrieți-mi numele și numărul de telefon 😊"
-- După ce primești numele și telefonul, confirmă IMEDIAT:
-${isOpen
-    ? '"✅ Mulțumesc! Solicitarea a fost înregistrată. Vă vom contacta în maximum 2 ore pentru a stabili ora exactă."'
-    : '"✅ Mulțumesc! Solicitarea a fost înregistrată. Suntem închiși acum — vă vom contacta mâine dimineață la deschiderea programului."'}
-- NU mai pune întrebări după confirmare`;
-
-  const userMsg = messages
-    .map(m => `${m.role === 'user' ? 'Client' : 'Asistent'}: ${m.content}`)
-    .join('\n\n');
+// The LLM is the PRIMARY understanding layer. It handles ANY phrasing the
+// patient uses — humans ask the same thing 50 different ways, and no keyword
+// list covers them all. Claude understands language; the Business Brain
+// (built by smartPrompt) is the ONLY source of facts. The deterministic
+// engine (Layer 1) handles the fast, unambiguous 90% with zero cost; Claude
+// (this layer) handles the long tail, follow-ups, and anything the state
+// manager didn't fully resolve.
+async function chatWithAI(messages, profile, personality, state) {
+  // Build the grounded, structured prompt from the Business Brain + state.
+  const { system, user } = smartBuildPrompt(profile, state, personality, messages);
 
   try {
-    const reply = await callClaude(system, userMsg);
+    const reply = await callClaude(system, user);
     return { success: true, message: reply };
   } catch (e) {
-    return { success: false, message: 'Îmi pare rău, a apărut o eroare. Vă rog sunați direct.' };
+    return { success: false, message: 'Îmi pare rău, a apărut o eroare. Vă rog sunați direct la ' + (profile.phone || 'recepție') + '.' };
   }
 }
 
@@ -865,7 +831,7 @@ const server = http.createServer(async (req, res) => {
       const st = conversationState.processMessage('conv_' + clientId, lastMsgText0, businessProfile, {
         createLead(appointment) {
           try {
-            appointment.doctor = appointment.doctor || state.doctor || null;
+            appointment.doctor = appointment.doctor || (conversationState.getState('conv_' + clientId) || {}).doctor || null;
             storage.saveAppointment(appointment);
             storage.audit('appointment.pending', { id: appointment.id, clientId, service: appointment.service?.name, date: appointment.date, doctor: appointment.doctor });
             const lead = {
@@ -934,8 +900,11 @@ const server = http.createServer(async (req, res) => {
       sendJson(res, { success: true, message: 'Bună ziua! Vă pot ajuta cu o programare. Telefon: ' + (businessProfile.phone || 'necunoscut') + '.', engine: 'fallback' });
       return;
     }
+    // Pass the conversation state so Claude knows what's already been
+    // collected (never re-ask) and what to ask next.
+    const currentState = clientId ? conversationState.getState('conv_' + clientId) : null;
     try {
-      const result = await chatWithAI(body.messages, businessProfile, body.personality);
+      const result = await chatWithAI(body.messages, businessProfile, body.personality, currentState);
       // Save conversation for Learning Engine
       setImmediate(() => {
         try {
