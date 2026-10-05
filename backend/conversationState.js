@@ -23,11 +23,28 @@ const REQUIRED = ['service', 'name', 'phone'];
 const OPTIONAL = ['date', 'time'];
 
 // ── ENTITY EXTRACTION (this message only) ─────────────────────────
-const RO_DAYS = {
-  'azi': 0, 'maine': 1, 'poimaine': 2, 'poimâine': 2,
-  'luni': 1, 'marti': 2, 'miercuri': 3, 'joi': 4, 'vineri': 5, 'vinert': 5,
-  'sambata': 6, 'sambata': 6,
-};
+// Day-of-week words. POIMINE must be checked BEFORE MAINE because the
+// Romanian word "poimâine" contains "mâine" — a plain substring scan would
+// wrongly report "mâine" for "poimâine".
+const RO_DAYS = [
+  ['poimaine', 2], ['poimâine', 2], ['poimane', 2], ['poimaine', 2],
+  ['luni', 1], ['marti', 2], ['marți', 2], ['miercuri', 3], ['joi', 4],
+  ['vineri', 5], ['sambata', 6], ['sâmbătă', 6], ['duminica', 0],
+  ['azi', 0], ['maine', 1], ['mâine', 1],
+];
+
+// Pick the day word the patient means. When several day words appear (e.g.
+// "anuleaza maine la 3 vreau poimaine la 16"), the LAST one wins — it is the
+// new requested day. Returns the offset, or null.
+function extractDay(t) {
+  const msg = String(t || '');
+  let best = { offset: null, index: -1 };
+  for (const [word, offset] of RO_DAYS) {
+    const idx = msg.lastIndexOf(word);
+    if (idx >= 0 && idx > best.index) best = { offset, index: idx };
+  }
+  return best.offset;
+}
 
 function extractEntities(msg, opts = {}) {
   const raw = msg || '';
@@ -52,17 +69,25 @@ function extractEntities(msg, opts = {}) {
   }
 
   // Bare-name fallback: the AI just asked "Cum vă numiți?" and the patient
-  // replied with only their name ("Ion Popescu"). Capture 1-2 capitalized
-  // words with no digits, when a name is expected and no phone/name found.
+  // replied with their name. Two strategies:
+  //   1. Strict: whole message is 1-2 uppercase words ("Ion Popescu", "Ana").
+  //   2. Loose: message is name + date/time words, no booking verbs
+  //      ("ion maria ora 3 maine"). Only runs when the message does NOT
+  //      contain booking-intent words (so "vreau programare pt extractie"
+  //      is never mistaken for a name).
   if (!out.name && !out.phone && opts.expectName) {
     const bare = bareName(raw);
-    if (bare) out.name = titleName(bare);
+    if (bare) {
+      out.name = titleName(bare);
+    } else if (!opts.isBookingMessage) {
+      const loose = extractNameLoose(raw);
+      if (loose) out.name = titleName(loose);
+    }
   }
 
-  // Relative date.
-  for (const [word, offset] of Object.entries(RO_DAYS)) {
-    if (t.includes(word)) { out.date = offset; break; }
-  }
+  // Relative date — via extractDay() so "poimâine" is not misread as "mâine".
+  const day = extractDay(t);
+  if (day !== null) out.date = day;
 
   // Time — "orei 15", "la ora 15:30", "pe la 15", "in jur de 15:00", "la 15".
   const timeM = raw.match(/\b(?:la (?:ora |orei )?|pe (?:la )?|in jur de|dup[ae] ora|ora)\s*(\d{1,2}(?::\d{2})?)\b/i);
@@ -133,6 +158,25 @@ function titleName(s) {
   ).join(' ');
 }
 
+// A looser name finder for the case where the patient answers "Cum vă numiți?"
+// with their name mixed in with date/time/other words and NO phone number —
+// e.g. "ion maria ora 3 maine". We collect up to 2 consecutive letters-only,
+// non-stop, non-digit words (skipping digits and stop-words). "da vreau maine
+// la 15" (no real name) still yields nothing because every word is a stop-word.
+function extractNameLoose(raw) {
+  const words = String(raw || '').trim().split(/\s+/).filter(Boolean);
+  const found = [];
+  for (const w of words) {
+    if (/^[0-9:]{1,5}$/.test(w)) continue; // digits / time — skip, don't break
+    if (NAME_STOP.has(w.toLowerCase())) continue; // la / maine / programare / etc.
+    if (/^[A-Za-zĂÂÎȘțăâîș]{2,20}$/.test(w)) {
+      found.push(w);
+      if (found.length === 2) break;
+    }
+  }
+  return found.length ? found.join(' ') : null;
+}
+
 // A "bare name" is 1-2 words, each starting with an uppercase Latin letter,
 // 2+ chars, no digits — e.g. "Ion Popescu" or "Ana". Rejected: "buna",
 // "mâine", "15", "implant".
@@ -153,6 +197,40 @@ function humanDate(offsetOrDate) {
     return names[offsetOrDate] || String(offsetOrDate);
   }
   return String(offsetOrDate);
+}
+
+// "poimaine la 16" — find the time anchored AFTER a specific position in the
+// message. Used by the reschedule handler to distinguish "anulează maine la 3
+// vreau poimâine la 16" (take 16, not 3).
+function timeAfter(msg, pos) {
+  const rest = String(msg || '').slice(pos || 0);
+  const m = rest.match(/\b(?:la|ora|orei|pe la|in jur de|dup[ae] ora)?\s*(\d{1,2})(?::\d{2})?\b/i);
+  if (m) return m[1];
+  // Unanchored fallback: any "la N" in the whole message.
+  const m2 = String(msg || '').match(/\b(?:la|ora|orei)\s*(\d{1,2}(?::\d{2})?)\b/i);
+  return m2 ? m2[1] : null;
+}
+
+// Find the LAST occurrence of any day-word in the message. The message is
+// diacritic-normalized first so "poimâine"/"poimaine"/"poimâne" all match.
+// Returns { word, offset, index } — so "anuleaza maine la 3 vreau poimaine
+// la 16" yields the LAST day word (poimaine) and its char position, letting
+// us anchor the new time AFTER that word (16, not the old 3).
+function lastDayWord(msg) {
+  const lower = norm(String(msg || '')).toLowerCase();
+  let best = { word: null, offset: null, index: -1 };
+  for (const [word, offset] of RO_DAYS) {
+    const idx = lower.lastIndexOf(word);
+    if (idx >= 0 && idx > best.index) {
+      best = { word, offset, index: idx };
+    }
+  }
+  return best;
+}
+
+// Does the message ask to cancel ("anulează", "anulez", "nu mai pot")?
+function isCancelIntent(t) {
+  return /anul|nu mai pot|renunt|renunț/.test(t);
 }
 
 // ── STATE MACHINE ─────────────────────────────────────────────────
@@ -227,11 +305,57 @@ function processMessage(conversationId, message, profile, ctx = {}) {
   // programarea"), fall through to the normal info engine — do NOT trap
   // them in booking mode. Only re-enter booking logic if the message itself
   // contains a NEW phone number (a different patient starting a new booking).
-  if (state.lead_status === 'done' && !/\d{10}/.test(message || '')) {
-    // Answer info questions normally (price, duration, doctors, etc.)
+  if (state.lead_status === 'done') {
+    // ── RESCHEDULE / CANCEL ─────────────────────────────────────────
+    // "anulează maine la 3, vreau poimâine la 16" — patient wants to change
+    // the booking. The NEW day+time are anchored to the LAST day word in the
+    // message (poimâine), so the time taken is the one AFTER that word (16),
+    // not the old one (3). We keep service/name/phone and create a NEW
+    // pending appointment the clinic can confirm.
+    //
+    // Everything here is done in diacritic-normalized space so index
+    // positions stay consistent between the day-word lookup and the
+    // time-after lookup.
+    const cancelIntent = isCancelIntent(t);
+    const normMsg = t; // already norm(message)
+    const day = lastDayWord(normMsg);
+    const newDate = day.offset;                       // offset or null
+    const newTime = timeAfter(normMsg, day.index >= 0 ? day.index : 0);
+
+    if (cancelIntent && (newDate !== null || newTime)) {
+      if (newDate !== null) state.date = newDate;
+      if (newTime) state.time = newTime;
+      const appointment = {
+        id: 'appt_' + Date.now() + '_resched',
+        clientId: profile?.clientId || null,
+        status: 'pending',
+        source: 'chat',
+        service: { name: state.service, duration_minutes: state.duration_minutes || 30 },
+        patient: { name: state.name, phone: state.phone },
+        doctor: state.doctor || null,
+        date: state.date != null ? humanDate(state.date) : null,
+        slot: state.time || null,
+        duration_minutes: state.duration_minutes || 30,
+        createdAt: new Date().toISOString(),
+        rescheduleOf: state.lastApptId || null,
+      };
+      if (ctx.createLead) { try { ctx.createLead(appointment, state); } catch (e) { } }
+      state.lead_status = 'done';
+      state.lastApptId = appointment.id;
+      state.lastShownDate = appointment.date;
+      state.lastShownTime = appointment.slot;
+      const when = (state.date != null ? humanDate(state.date) : '') + (state.time ? ' la ' + state.time : '');
+      return {
+        reply: `✅ Mulțumesc, ${state.name}! Am mutat programarea pentru ${state.service} ${when}.` +
+          (state.duration_minutes ? ` (durează ~${state.duration_minutes} min)` : '') +
+          '\nClinica vă va contacta pentru a confirma ora nouă. O zi frumoasă! 😊',
+        state, appointment,
+      };
+    }
+
+    // Normal follow-up (info question, doctor, etc.)
     const info = infoAnswer(message, profile);
     if (info) return { reply: info, state };
-    // "la ce doctor am programarea?" — answer from state
     if (/la ce doctor|care doctor|ce doctor|doctor/.test(t) && state.service) {
       return { reply: 'Programarea dumneavoastră este pentru ' + (state.service || 'serviciu nespecificat') + (state.date != null ? ' ' + humanDate(state.date) : '') + (state.time ? ' la ' + state.time : '') + '. Clinica vă va contacta pentru a confirma doctorul.', state };
     }
@@ -245,6 +369,7 @@ function processMessage(conversationId, message, profile, ctx = {}) {
   const ent = extractEntities(message, {
     expectName: bookingIntentEver(t, state) && !state.name,
     expectTime: bookingIntentEver(t, state) && !state.time,
+    isBookingMessage: isBookingIntent(t),
   });
 
   // Map free-form service wording onto the profile (gets price + duration).
@@ -284,7 +409,9 @@ function processMessage(conversationId, message, profile, ctx = {}) {
     const hasAll = state.service && state.name && state.phone;
     if (hasAll && state.lead_status !== 'done') {
       state.lead_status = 'done';
+      const apptId = 'appt_' + Date.now();
       const appointment = {
+        id: apptId,
         clientId: profile?.clientId || null,
         status: 'pending',
         source: 'chat',
@@ -302,6 +429,11 @@ function processMessage(conversationId, message, profile, ctx = {}) {
       bits.push(`✅ Mulțumesc, ${state.name}! Am înregistrat solicitarea pentru ${describeBooking(state)}${docTxt}.` +
         (state.duration_minutes ? ` (durează ~${state.duration_minutes} min)` : '') +
         '\nClinica vă va contacta în curând pentru a confirma ora exactă. O zi frumoasă! 😊');
+      // Remember this appointment so a later "anulează / vreau altă zi" can
+      // reference it (reschedule) and so "la ce doctor am programarea" works.
+      state.lastApptId = appointment.id;
+      state.lastShownDate = appointment.date;
+      state.lastShownTime = appointment.slot;
       return { reply: bits.join('\n\n'), state, appointment };
     }
 
